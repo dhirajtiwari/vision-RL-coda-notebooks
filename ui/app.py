@@ -55,6 +55,17 @@ def _mock_api_ok() -> bool:
         return False
 
 
+def _format_batch_source(name: str, src: object) -> str:
+    if isinstance(src, dict):
+        if "record_count" in src or "mode" in src:
+            return f"{src.get('record_count', 0)} records ({src.get('mode', 'unknown')})"
+        if "ok" in src:
+            state = "OK" if src.get("ok") else "FAIL"
+            return f"{state} — {src.get('record_count', 0)} records ({src.get('mode', 'unknown')})"
+        return json.dumps(src)
+    return str(src)
+
+
 def _render_provenance(trail: list[dict]) -> None:
     if not trail:
         st.caption("No provenance trail recorded.")
@@ -319,10 +330,12 @@ with tab_enterprise:
             ):
                 st.markdown(f"**Status:** {status} · **Products:** {batch.get('product_count', 0)}")
                 st.markdown(f"**Neo4j target:** {batch.get('neo4j_target', 'N/A')}")
-                if batch.get("sources"):
-                    st.markdown("**Sources:**")
-                    for name, src in batch["sources"].items():
-                        st.markdown(f"- {name}: {src.get('record_count', 0)} records ({src.get('mode', '')})")
+                sources = batch.get("sources")
+                if sources:
+                    label = "Sources:" if batch.get("pipeline") == "knowledge_etl" else "Details:"
+                    st.markdown(f"**{label}**")
+                    for name, src in sources.items():
+                        st.markdown(f"- {name}: {_format_batch_source(name, src)}")
                 if batch.get("errors"):
                     st.error("; ".join(batch["errors"]))
                 st.json(batch)
