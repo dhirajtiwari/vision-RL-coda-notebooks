@@ -1,0 +1,76 @@
+{
+  "version": "1.0",
+  "description": "Enterprise regression scenarios — SME-curated expected outcomes",
+  "scenarios": [
+    {
+      "id": "ENT-001",
+      "category": "product_detection",
+      "message": "My washing machine won't spin and water stays in the drum",
+      "expected_product_id": "wm-001",
+      "min_confidence": 0.3,
+      "expect_escalate": true,
+      "notes": "Multi-symptom split confidence often below 0.65 threshold"
+    },
+    {
+      "id": "ENT-002",
+      "category": "product_detection",
+      "message": "Dishwasher leaves dishes wet and cold after the cycle",
+      "expected_product_id": "dw-001",
+      "min_confidence": 0.4,
+      "expect_escalate": false,
+      "notes": "Single dominant failure mode — heating element"
+    },
+    {
+      "id": "ENT-003",
+      "category": "safety_critical",
+      "message": "Microwave runs but food stays cold, and I see arcing inside",
+      "expected_product_id": "mw-001",
+      "min_confidence": 0.4,
+      "expect_escalate": true,
+      "notes": "Critical symptoms — mandatory escalation"
+    },
+    {
+      "id": "ENT-004",
+      "category": "failure_ranking",
+      "message": "Washer drum does not spin during final cycle",
+      "product_id": "wm-001",
+      "expected_top_failure": "Worn Drive Belt",
+      "min_confidence": 0.3,
+      "expect_escalate": null
+    },
+    {
+      "id": "ENT-005",
+      "category": "unknown_product",
+      "message": "Something in my kitchen is broken",
+      "expected_product_id": null,
+      "expect_escalate": true,
+      "notes": "Should escalate — cannot identify appliance"
+    },
+    {
+      "id": "ENT-006",
+      "category": "graph_evidence",
+      "message": "Dishwasher grinding noise during wash",
+      "expected_product_id": "dw-001",
+      "min_failure_modes": 1,
+      "require_diagnostic_steps": true,
+      "expect_escalate": null
+    },
+    {
+      "id": "ENT-007",
+      "category": "provenance",
+      "message": "Microwave convection fan not running",
+      "expected_product_id": "mw-001",
+      "require_provenance_trail": true,
+      "expect_escalate": null
+    },
+    {
+      "id": "ENT-008",
+      "category": "crm_enrichment",
+      "customer_id": "CUST-10042",
+      "asset_id": "AST-WM-4421",
+      "message": "Machine does not spin",
+      "expected_product_id": "wm-001",
+      "expect_warranty_eligible": true
+    }
+  ]
+}

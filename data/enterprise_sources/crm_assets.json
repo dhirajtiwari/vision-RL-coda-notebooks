@@ -1,0 +1,46 @@
+{
+  "source_system": "Salesforce Service Cloud (mock)",
+  "customers": [
+    {
+      "customer_id": "CUST-10042",
+      "name": "Jane Martinez",
+      "email": "jane.martinez@example.com",
+      "phone": "+1-555-0142"
+    },
+    {
+      "customer_id": "CUST-10087",
+      "name": "Robert Chen",
+      "email": "robert.chen@example.com",
+      "phone": "+1-555-0187"
+    }
+  ],
+  "registered_assets": [
+    {
+      "asset_id": "AST-WM-4421",
+      "customer_id": "CUST-10042",
+      "product_id": "wm-001",
+      "serial_number": "AH-WM8K-2023-99421",
+      "purchase_date": "2023-06-15",
+      "warranty_status": "active",
+      "warranty_expiry": "2025-06-15"
+    },
+    {
+      "asset_id": "AST-DW-1180",
+      "customer_id": "CUST-10087",
+      "product_id": "dw-001",
+      "serial_number": "CW-DW12-2022-33180",
+      "purchase_date": "2022-11-03",
+      "warranty_status": "active",
+      "warranty_expiry": "2024-11-03"
+    },
+    {
+      "asset_id": "AST-MW-7702",
+      "customer_id": "CUST-10042",
+      "product_id": "mw-001",
+      "serial_number": "HP-MW25-2024-07702",
+      "purchase_date": "2024-02-20",
+      "warranty_status": "active",
+      "warranty_expiry": "2026-02-20"
+    }
+  ]
+}

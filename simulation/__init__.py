@@ -1,0 +1,1 @@
+"""Simulated enterprise applications for integration demo."""

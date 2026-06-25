@@ -1,0 +1,48 @@
+// Figure 8: Runtime Request Sequence (customer message → response)
+digraph RuntimeSequence {
+  graph [
+    rankdir=TB
+    label="Figure 8: Runtime Sequence — Customer Message to Response"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    nodesep=0.4
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10, width=2.2]
+  edge [fontname="Arial", fontsize=9]
+
+  subgraph cluster_row1 {
+    rank=same
+    C [label="Customer", fillcolor="#D5E8F0"]
+    UI [label="ui/app.py\nStreamlit", fillcolor="#BDD7EE"]
+    LG [label="diagnosis_graph.py\nLangGraph", fillcolor="#C6E0B4"]
+  }
+
+  subgraph cluster_row2 {
+    rank=same
+    Tools [label="agents/tools.py", fillcolor="#C6E0B4"]
+    GR [label="graph_rag.py", fillcolor="#A9D18E"]
+    Neo [label="Neo4j", shape=cylinder, fillcolor="#FCE4D6"]
+  }
+
+  subgraph cluster_row3 {
+    rank=same
+    Esc [label="escalation_store.py", fillcolor="#FCE4D6"]
+    Agent [label="Human Agent", fillcolor="#D5E8F0"]
+  }
+
+  C -> UI [label="1. chat message"]
+  UI -> LG [label="2. run_diagnosis()"]
+  LG -> Tools [label="3. tool_diagnose()"]
+  Tools -> GR [label="4. diagnose()"]
+  GR -> Neo [label="5. Cypher x5"]
+  Neo -> GR [label="6. graph records"]
+  GR -> Tools [label="7. DiagnosisResult"]
+  Tools -> LG [label="8. diagnosis dict"]
+  LG -> Esc [label="9. if escalate"]
+  LG -> UI [label="10. response"]
+  UI -> C [label="11. markdown reply"]
+  Esc -> Agent [label="12. case dossier"]
+  Agent -> UI [label="13. dashboard review"]
+}

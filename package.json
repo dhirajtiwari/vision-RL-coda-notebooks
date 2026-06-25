@@ -1,0 +1,20 @@
+{
+  "name": "diagnostic-chatbot",
+  "version": "1.0.0",
+  "description": "A production-style demo for explainable appliance diagnosis using **Neo4j GraphRAG**, **LangGraph**, and **Streamlit**.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "docx": "^9.7.1"
+  }
+}

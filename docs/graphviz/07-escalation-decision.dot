@@ -1,0 +1,40 @@
+// Figure 7: Escalation Decision Logic (graph/graph_rag.py + escalation_store.py)
+digraph EscalationDecision {
+  graph [
+    rankdir=TB
+    label="Figure 7: Escalation Decision & Human Agent Handoff"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  Start [label="diagnose() completes", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+
+  Q1 [label="product_id\nidentified?", shape=diamond, style=filled, fillcolor="#FFF2CC"]
+  Q2 [label="any matched symptom\nseverity = critical?", shape=diamond, style=filled, fillcolor="#FFF2CC"]
+  Q3 [label="confidence < 0.65?\n(ESCALATION_CONFIDENCE_THRESHOLD)", shape=diamond, style=filled, fillcolor="#FFF2CC"]
+
+  Esc1 [label="ESCALATE\nReason: unknown appliance", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
+  Esc2 [label="ESCALATE\nReason: critical severity\n(e.g. mw-s01 microwave cold,\nmw-s02 arcing)", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
+  Esc3 [label="ESCALATE\nReason: low confidence\n(e.g. washer multi-symptom\n→ 46% aggregate)", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
+  Resolve [label="NO ESCALATION\nCustomer receives\nself-service steps", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+
+  Save [label="save_escalation()\nutils/escalation_store.py\n→ data/escalations.json", shape=box, style="rounded,filled", fillcolor="#FCE4D6"]
+  Dashboard [label="Human Agent Dashboard\nui/app.py Tab 2\nFull diagnosis payload", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+
+  Start -> Q1
+  Q1 -> Esc1 [label="No"]
+  Q1 -> Q2 [label="Yes"]
+  Q2 -> Esc2 [label="Yes"]
+  Q2 -> Q3 [label="No"]
+  Q3 -> Esc3 [label="Yes"]
+  Q3 -> Resolve [label="No"]
+
+  Esc1 -> Save
+  Esc2 -> Save
+  Esc3 -> Save
+  Save -> Dashboard
+}

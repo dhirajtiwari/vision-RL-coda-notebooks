@@ -1,0 +1,70 @@
+// Figure 1: Enterprise System Context (C4 Level 1)
+digraph SystemContext {
+  graph [
+    rankdir=TB
+    label="Figure 1: System Context — Enterprise Diagnostics Platform"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    pad=0.4
+    nodesep=0.6
+    ranksep=0.8
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11, margin="0.2,0.12"]
+  edge [fontname="Arial", fontsize=9, color="#444444"]
+
+  subgraph cluster_users {
+    label="Users & Channels"
+    style=dashed
+    color="#666666"
+    Customer [label="Appliance Owner\n(Web / Mobile Chat)", fillcolor="#D5E8F0"]
+    Agent [label="Contact Center Agent\n(Human Agent Dashboard)", fillcolor="#D5E8F0"]
+    SME [label="Knowledge Engineer /\nService SME", fillcolor="#E8E8E8"]
+  }
+
+  subgraph cluster_platform {
+    label="Diagnostics Platform (diagnostic-chatbot)"
+    style=bold
+    color="#1F4E79"
+    fillcolor="#F7FAFC"
+
+    UI [label="ui/app.py\nStreamlit\n• Customer Chatbot\n• Agent Dashboard\n• KG Explorer", fillcolor="#BDD7EE"]
+    AgentOrch [label="agents/diagnosis_graph.py\nLangGraph StateGraph\n• detect_product\n• run_diagnosis\n• format_response\n• handle_escalation", fillcolor="#C6E0B4"]
+    GraphRAG [label="graph/graph_rag.py\nGraphRAG Engine\n• match_symptoms\n• rank_failure_modes\n• escalation rules", fillcolor="#C6E0B4"]
+    ETL [label="graph/enterprise_pipeline/\nETL Orchestrator\n• PIM / FSM / Claims / CRM connectors\n• OntologyBuilder", fillcolor="#FFE699"]
+    Loader [label="graph/populate_graph.py\nNeo4j Loader (MERGE)", fillcolor="#FFE699"]
+    Neo4j [label="Neo4j Graph DB\nbolt://localhost:7687\nProduct · Symptom · FailureMode\nDiagnosticStep · Part · HistoricalResolution", shape=cylinder, fillcolor="#FCE4D6"]
+    EscStore [label="utils/escalation_store.py\ndata/escalations.json\n(Demo — JSON case store)", fillcolor="#E2EFDA"]
+  }
+
+  subgraph cluster_enterprise {
+    label="Enterprise Systems (Production Target)"
+    style=dashed
+    color="#666666"
+    PIM [label="PIM / PLM\nProducts · FMEA · Manuals · BOM", fillcolor="#EDEDED"]
+    FSM [label="FSM\nClosed Work Orders", fillcolor="#EDEDED"]
+    Claims [label="Claims Management\nWarranty · Closed Claims", fillcolor="#EDEDED"]
+    CRM [label="CRM\nCustomer Assets · Warranty Status", fillcolor="#EDEDED"]
+    CCaaS [label="Contact Center / CCaaS\n(Production handoff)", fillcolor="#E8E8E8", style="rounded,dashed,filled"]
+  }
+
+  Customer -> UI [label="describe problem"]
+  UI -> AgentOrch
+  AgentOrch -> GraphRAG
+  GraphRAG -> Neo4j [label="Cypher queries\n(read)"]
+  AgentOrch -> EscStore [label="if should_escalate"]
+  Agent -> UI [label="review cases"]
+  EscStore -> UI
+
+  PIM -> ETL [label="extract"]
+  FSM -> ETL
+  Claims -> ETL
+  CRM -> ETL [label="fixtures/API", style=dashed]
+  ETL -> Loader [label="validated JSON\ncatalog"]
+  Loader -> Neo4j [label="MERGE load"]
+  SME -> ETL [label="govern / approve\n(production)"]
+
+  EscStore -> CCaaS [label="production\ntarget", style=dashed]
+  CRM -> AgentOrch [label="runtime asset\nbind (production)", style=dashed]
+}

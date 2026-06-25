@@ -1,0 +1,35 @@
+// Figure 3: LangGraph Agent Workflow (agents/diagnosis_graph.py)
+digraph LangGraphWorkflow {
+  graph [
+    rankdir=TB
+    label="Figure 3: LangGraph Agent Workflow — AgentState Flow"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11]
+  edge [fontname="Arial", fontsize=10, color="#1F4E79"]
+
+  Start [label="START", shape=circle, fillcolor="#D5E8F0", width=0.8, fixedsize=true]
+
+  N1 [label="detect_product\nnode_detect_product()\n─────────────\nIn:  user_message\nOut: product_id, product_name\n─────────────\ntool_detect_product()\n→ keywords + list_products()", fillcolor="#C6E0B4"]
+
+  N2 [label="run_diagnosis\nnode_run_graph_diagnosis()\n─────────────\nIn:  user_message, product_id\nOut: diagnosis (full payload)\n─────────────\ntool_diagnose() → graph_rag.diagnose()", fillcolor="#C6E0B4"]
+
+  N3 [label="format_response\nnode_format_response()\n─────────────\nIn:  diagnosis.formatted_response\nOut: response (markdown)", fillcolor="#C6E0B4"]
+
+  N4 [label="handle_escalation\nnode_handle_escalation()\n─────────────\nif diagnosis.should_escalate:\n  save_escalation() → case_id\nelse:\n  escalated = false", fillcolor="#FCE4D6"]
+
+  End [label="END", shape=doublecircle, fillcolor="#D5E8F0", width=0.5, fixedsize=true]
+
+  State [label="AgentState (TypedDict)\n• user_message\n• product_id / product_name\n• diagnosis\n• response\n• escalated / case_id", shape=note, fillcolor="#FFF2CC"]
+
+  Start -> N1 [label="run_diagnosis()"]
+  N1 -> N2
+  N2 -> N3
+  N3 -> N4
+  N4 -> End
+
+  State -> N1 [style=dashed, label="state passed\nbetween nodes"]
+}

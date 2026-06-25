@@ -1,0 +1,56 @@
+// Figure 4: GraphRAG diagnose() internal flow (graph/graph_rag.py)
+digraph GraphRAGDiagnosis {
+  graph [
+    rankdir=TB
+    label="Figure 4: GraphRAG diagnose() — Internal Flow & Cypher Queries"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  Input [label="Input\nuser_message\nproduct_id (optional)", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+
+  P1 [label="Product Resolution\n────────────\ndetect_product() keywords\nOR list_products() if product_id set", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  C1 [label="Cypher #1\nMATCH (p:Product)\nRETURN product_id, name", shape=note, fillcolor="#E2EFDA"]
+
+  P2 [label="match_symptoms()\n────────────\nCypher fetch symptoms\n+ Python _text_similarity()\n+ SYNONYMS expansion", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  C2 [label="Cypher #2\nMATCH (p)-[:HAS_SYMPTOM]->(s)\nRETURN symptom_id, description, severity", shape=note, fillcolor="#E2EFDA"]
+
+  P3 [label="rank_failure_modes()\n────────────\nAggregate INDICATES\nconfidence scores", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  C3 [label="Cypher #3\nMATCH (p)-[:CAN_HAVE]->(fm)\nMATCH (s)-[ind:INDICATES]->(fm)\nWHERE symptom_id IN $ids\nORDER BY total_confidence DESC", shape=note, fillcolor="#E2EFDA"]
+
+  P4 [label="Escalation Decision (Python)\n────────────\ncritical severity?\nOR confidence < 0.65?", shape=diamond, style=filled, fillcolor="#FCE4D6"]
+
+  P5 [label="get_diagnostic_steps()", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  C4 [label="Cypher #4\nHAS_DIAGNOSTIC_STEP", shape=note, fillcolor="#E2EFDA"]
+
+  P6 [label="get_historical_resolutions()", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  C5 [label="Cypher #5\nHistoricalResolution\nFOR_PRODUCT · CONFIRMED", shape=note, fillcolor="#E2EFDA"]
+
+  P7 [label="get_parts_for_product()\n(JSON catalog — no Cypher)", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
+
+  Output [label="DiagnosisResult\n• matched_symptoms\n• ranked_failure_modes\n• diagnostic_steps\n• historical_resolutions\n• confidence\n• should_escalate\n• evidence[]", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+
+  NoProduct [label="should_escalate = true\n'Could not identify appliance'", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
+
+  Input -> P1
+  P1 -> C1 [style=dashed]
+  P1 -> P2 [label="product found"]
+  P1 -> NoProduct [label="no product"]
+  NoProduct -> Output
+
+  P2 -> C2 [style=dashed]
+  P2 -> P3
+  P3 -> C3 [style=dashed]
+  P3 -> P4
+  P4 -> P5
+  P4 -> P6
+  P5 -> C4 [style=dashed]
+  P6 -> C5 [style=dashed]
+  P5 -> P7
+  P6 -> P7
+  P7 -> Output
+}

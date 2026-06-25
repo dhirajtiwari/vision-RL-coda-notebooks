@@ -1,0 +1,25 @@
+{
+  "source_system": "ServiceMax FSM (mock)",
+  "closed_work_orders": [
+    {
+      "work_order_id": "WO-FSM-88210",
+      "product_id": "dw-001",
+      "customer_id": "CUST-10087",
+      "symptom_id": "dw-s03",
+      "confirmed_failure_mode_id": "dw-fm03",
+      "resolution_summary": "Removed glass shard from circulation pump impeller.",
+      "closed_date": "2026-02-18",
+      "technician_notes": "Impeller housing scratched but functional. Advised pre-rinse."
+    },
+    {
+      "work_order_id": "WO-FSM-88104",
+      "product_id": "wm-001",
+      "customer_id": "CUST-10042",
+      "symptom_id": "wm-s01",
+      "confirmed_failure_mode_id": "wm-fm01",
+      "resolution_summary": "Drive belt replaced; spin cycle restored.",
+      "closed_date": "2025-11-14",
+      "technician_notes": "Belt heat-cracked. Standard warranty repair."
+    }
+  ]
+}

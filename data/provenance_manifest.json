@@ -1,0 +1,49 @@
+{
+  "version": "2026-Q2-demo",
+  "sources": {
+    "PIM": {
+      "system": "SAP PLM (simulated)",
+      "base_uri": "http://localhost:8090/api/pim",
+      "document_store": "s3://enterprise-manuals-demo/"
+    },
+    "FSM": {
+      "system": "ServiceMax (simulated)",
+      "base_uri": "http://localhost:8090/api/fsm"
+    },
+    "Claims": {
+      "system": "Guidewire ClaimCenter (simulated)",
+      "base_uri": "http://localhost:8090/api/claims"
+    },
+    "CRM": {
+      "system": "Salesforce Service Cloud (simulated)",
+      "base_uri": "http://localhost:8090/api/crm"
+    }
+  },
+  "entity_defaults": {
+    "Symptom": {
+      "source_system": "PIM",
+      "approval_status": "approved",
+      "approved_by": "reliability.engineering@demo.local"
+    },
+    "FailureMode": {
+      "source_system": "FMEA",
+      "approval_status": "approved",
+      "approved_by": "reliability.engineering@demo.local"
+    },
+    "DiagnosticStep": {
+      "source_system": "ServiceManual",
+      "approval_status": "approved",
+      "approved_by": "service.manuals@demo.local"
+    },
+    "HistoricalResolution": {
+      "source_system": "FSM",
+      "approval_status": "approved",
+      "approved_by": "field.service@demo.local"
+    },
+    "Part": {
+      "source_system": "PIM",
+      "approval_status": "approved",
+      "approved_by": "parts.catalog@demo.local"
+    }
+  }
+}

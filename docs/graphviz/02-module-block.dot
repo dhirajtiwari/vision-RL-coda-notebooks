@@ -1,0 +1,74 @@
+// Figure 2: Application Module Block Diagram (repository structure)
+digraph ModuleBlock {
+  graph [
+    rankdir=LR
+    label="Figure 2: Module Block Diagram — diagnostic-chatbot Repository"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  subgraph cluster_presentation {
+    label="Presentation Layer"
+    color="#2E75B6"
+    UI [label="ui/app.py\nStreamlit UI", fillcolor="#BDD7EE"]
+  }
+
+  subgraph cluster_orchestration {
+    label="Orchestration Layer"
+    color="#548235"
+    DG [label="agents/diagnosis_graph.py\nLangGraph compile()", fillcolor="#C6E0B4"]
+    Tools [label="agents/tools.py\ntool_detect_product\ntool_diagnose", fillcolor="#C6E0B4"]
+  }
+
+  subgraph cluster_reasoning {
+    label="GraphRAG Layer"
+    color="#548235"
+    GR [label="graph/graph_rag.py\ndiagnose() · DiagnosisResult", fillcolor="#A9D18E"]
+    NC [label="graph/neo4j_client.py\nget_driver()", fillcolor="#A9D18E"]
+  }
+
+  subgraph cluster_knowledge {
+    label="Knowledge Layer"
+    color="#BF8F00"
+    PG [label="graph/populate_graph.py\npopulate_graph()", fillcolor="#FFE699"]
+    SDG [label="graph/synthetic_data_generator.py\nPydantic ontology models", fillcolor="#FFE699"]
+    EP [label="graph/enterprise_pipeline/pipeline.py\nrun_pipeline()", fillcolor="#FFD966"]
+    OB [label="transformers/ontology_builder.py\nOntologyBuilder.build()", fillcolor="#FFD966"]
+    Conn [label="connectors/\nCRM · Claims · PIM · FSM", fillcolor="#FFD966"]
+    Data [label="data/\nsynthetic_diagnosis_data.json\nenterprise_sources/*.json", shape=note, fillcolor="#FFF2CC"]
+  }
+
+  subgraph cluster_infra {
+    label="Infrastructure"
+    color="#843C0C"
+    Neo4j [label="Neo4j\n(Docker neo4j-demo)", shape=cylinder, fillcolor="#FCE4D6"]
+    Config [label="config/settings.py", fillcolor="#E7E6E6"]
+    Esc [label="utils/escalation_store.py", fillcolor="#E7E6E6"]
+    Tests [label="tests/test_diagnosis.py", fillcolor="#E7E6E6"]
+  }
+
+  UI -> DG
+  DG -> Tools
+  Tools -> GR
+  GR -> NC
+  NC -> Neo4j
+
+  EP -> Conn
+  Conn -> Data
+  EP -> OB
+  OB -> Data
+  EP -> PG
+  SDG -> Data
+  PG -> Neo4j
+  PG -> Data
+
+  DG -> Esc
+  GR -> Config
+  NC -> Config
+  Tests -> GR
+  Tests -> Neo4j
+}

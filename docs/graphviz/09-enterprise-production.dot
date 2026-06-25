@@ -1,0 +1,53 @@
+// Figure 9: Enterprise Production Target Architecture (roadmap)
+digraph EnterpriseProduction {
+  graph [
+    rankdir=TB
+    label="Figure 9: Enterprise Production Target Architecture (Post-MVP)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  subgraph cluster_sources {
+    label="Authoritative Sources"
+    PIM [label="PIM/PLM", fillcolor="#EDEDED"]
+    FSM [label="FSM", fillcolor="#EDEDED"]
+    Claims [label="Claims", fillcolor="#EDEDED"]
+    Manuals [label="Document Store\nService Manuals PDF", fillcolor="#EDEDED"]
+  }
+
+  subgraph cluster_etl_ops {
+    label="ETL & Governance (Scheduled)"
+    Airflow [label="Airflow / Cron\nenterprise_pipeline.py", fillcolor="#FFE699"]
+    Prov [label="Provenance & Lineage Store\n(source_system, record_id,\ndocument_uri, approved_by)", fillcolor="#FFF2CC", style="rounded,dashed,filled"]
+    Staging [label="Staging Neo4j\npopulate_graph.py", shape=cylinder, fillcolor="#FCE4D6"]
+    Smoke [label="Smoke Tests\ntest_diagnosis.py +", fillcolor="#E2EFDA"]
+    ProdNeo [label="Production Neo4j\nAura Enterprise", shape=cylinder, fillcolor="#F4B084"]
+  }
+
+  subgraph cluster_runtime {
+    label="Runtime Services"
+    API [label="FastAPI Diagnosis API\nLangGraph + GraphRAG", fillcolor="#C6E0B4"]
+    CRMrt [label="CRM Runtime Enrichment\nasset · warranty · customer", fillcolor="#BDD7EE"]
+    Chan [label="Channels\nWeb · Mobile · Agent Desktop", fillcolor="#D5E8F0"]
+    CC [label="CCaaS / Salesforce Cases", fillcolor="#E8E8E8"]
+  }
+
+  PIM -> Airflow
+  FSM -> Airflow
+  Claims -> Airflow
+  Manuals -> Airflow
+  Airflow -> Prov
+  Prov -> Staging
+  Staging -> Smoke
+  Smoke -> ProdNeo [label="promote if pass"]
+
+  Chan -> API
+  API -> CRMrt [label="session start"]
+  API -> ProdNeo [label="read"]
+  API -> CC [label="escalation +\nprovenance dossier"]
+  CRMrt -> API
+}

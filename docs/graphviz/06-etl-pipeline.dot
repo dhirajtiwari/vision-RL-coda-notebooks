@@ -1,0 +1,52 @@
+// Figure 6: Enterprise ETL Pipeline (graph/enterprise_pipeline/pipeline.py)
+digraph ETLPipeline {
+  graph [
+    rankdir=LR
+    label="Figure 6: Enterprise Knowledge Graph ETL Pipeline"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9, color="#444444"]
+
+  subgraph cluster_sources {
+    label="Extract — Enterprise Connectors"
+    color="#666666"
+    PIM [label="PIMConnector\npim_catalog.json\n(API: PIM_API_URL)", fillcolor="#EDEDED"]
+    FSM [label="FSMConnector\nfsm_work_orders.json\n(API: FSM_API_URL)", fillcolor="#EDEDED"]
+    Claims [label="ClaimsConnector\nclaims_history.json\n(API: CLAIMS_API_URL)", fillcolor="#EDEDED"]
+    CRM [label="CRMConnector\ncrm_assets.json\n(runtime context;\nnot in static graph)", fillcolor="#E8E8E8"]
+  }
+
+  subgraph cluster_transform {
+    label="Transform"
+    color="#BF8F00"
+    Fetch [label="run_pipeline()\nfetch all connectors", fillcolor="#FFE699"]
+    Build [label="OntologyBuilder.build()\n• merge PIM base catalog\n• add FSM/Claims resolutions\n• tune INDICATES confidence", fillcolor="#FFD966"]
+    Validate [label="Pydantic KnowledgeGraphData\nmodel validation", fillcolor="#FFF2CC"]
+    JSON [label="enterprise_knowledge_catalog.json\nsynthetic_diagnosis_data.json", shape=note, fillcolor="#FFF2CC"]
+  }
+
+  subgraph cluster_load {
+    label="Load"
+    color="#843C0C"
+    PG [label="populate_graph.py\n• create_constraints\n• MERGE nodes & relationships", fillcolor="#FCE4D6"]
+    Neo4j [label="Neo4j Knowledge Graph", shape=cylinder, fillcolor="#F4B084"]
+  }
+
+  PIM -> Fetch
+  FSM -> Fetch
+  Claims -> Fetch
+  CRM -> Fetch [style=dashed, label="optional"]
+
+  Fetch -> Build
+  Build -> Validate
+  Validate -> JSON
+  JSON -> PG [label="--load-neo4j"]
+  PG -> Neo4j
+
+  Neo4j -> GR [label="read at runtime", style=dashed]
+  GR [label="graph/graph_rag.py", fillcolor="#C6E0B4"]
+}

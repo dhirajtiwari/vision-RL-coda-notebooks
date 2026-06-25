@@ -1,0 +1,59 @@
+// Figure 5: Neo4j Knowledge Graph Ontology (schema + wm-001 instance)
+digraph Neo4jOntology {
+  graph [
+    rankdir=TB
+    label="Figure 5: Neo4j Ontology — Schema & wm-001 Instance"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    splines=true
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  subgraph cluster_schema {
+    label="Node Labels & Relationship Types (populate_graph.py)"
+    style=dashed
+    color="#1F4E79"
+
+    Product [label=":Product\nproduct_id (UNIQUE)\nname · category · brand · model_year", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+    Symptom [label=":Symptom\nsymptom_id (UNIQUE)\ndescription · severity", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
+    FailureMode [label=":FailureMode\nfailure_mode_id (UNIQUE)\nname · description\nrepair_minutes · safety_notes", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+    DiagStep [label=":DiagnosticStep\nstep_id (UNIQUE)\ndescription · order\nexpected_outcome", shape=box, style="rounded,filled", fillcolor="#EDE7F6"]
+    Part [label=":Part\npart_id (UNIQUE)\nname · part_number\ncost", shape=box, style="rounded,filled", fillcolor="#E7E6E6"]
+    HistRes [label=":HistoricalResolution\nresolution_id (UNIQUE)\ndescription · date\ntechnician_notes", shape=box, style="rounded,filled", fillcolor="#FCE4D6"]
+
+    Product -> Symptom [label="HAS_SYMPTOM"]
+    Product -> FailureMode [label="CAN_HAVE"]
+    Product -> DiagStep [label="HAS_DIAGNOSTIC_STEP"]
+    Symptom -> FailureMode [label="INDICATES\n{confidence: 0.0–1.0}"]
+    HistRes -> Product [label="FOR_PRODUCT"]
+    HistRes -> FailureMode [label="CONFIRMED"]
+  }
+
+  subgraph cluster_instance {
+    label="wm-001 Example Instance (from synthetic_diagnosis_data.json)"
+    style=dashed
+    color="#548235"
+
+    WM [label="wm-001\nFront Load Washing Machine 8kg", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+
+    S01 [label="wm-s01\nDoes not spin [high]", fillcolor="#FFE699"]
+    S03 [label="wm-s03\nWater in drum [high]", fillcolor="#FFE699"]
+    FM01 [label="wm-fm01\nWorn Drive Belt", fillcolor="#A9D18E"]
+    FM02 [label="wm-fm02\nFailed Drain Pump", fillcolor="#A9D18E"]
+    D01 [label="wm-d01\nRun empty spin cycle", fillcolor="#D9D2E9"]
+    R01 [label="wm-r01\nReplaced drive belt\n2025-11-12", fillcolor="#F4B084"]
+
+    WM -> S01 [label="HAS_SYMPTOM", color="#666666"]
+    WM -> S03 [label="HAS_SYMPTOM", color="#666666"]
+    WM -> FM01 [label="CAN_HAVE", color="#666666"]
+    WM -> FM02 [label="CAN_HAVE", color="#666666"]
+    WM -> D01 [label="HAS_DIAGNOSTIC_STEP", color="#666666"]
+    S01 -> FM01 [label="INDICATES 0.92", color="#2E75B6", fontcolor="#2E75B6"]
+    S03 -> FM02 [label="INDICATES 0.88", color="#2E75B6", fontcolor="#2E75B6"]
+    R01 -> WM [label="FOR_PRODUCT", color="#666666"]
+    R01 -> FM01 [label="CONFIRMED", color="#666666"]
+  }
+}
