@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import json
 from datetime import date
 from typing import Any
 
 from config.settings import settings
 from graph.enterprise_pipeline.http_client import get_json
+
+CLAIMS_FIXTURE = settings.enterprise_sources_dir / "claims_history.json"
 
 
 def check_warranty_eligibility(asset: dict[str, Any]) -> dict[str, Any]:
@@ -31,7 +34,9 @@ def check_warranty_eligibility(asset: dict[str, Any]) -> dict[str, Any]:
             data = get_json(f"{claims_url.rstrip('/')}/closed")
             policies = data.get("warranty_policies", [])
         except ConnectionError:
-            pass
+            if CLAIMS_FIXTURE.exists():
+                data = json.loads(CLAIMS_FIXTURE.read_text(encoding="utf-8"))
+                policies = data.get("warranty_policies", [])
 
     return {
         "eligible": eligible,

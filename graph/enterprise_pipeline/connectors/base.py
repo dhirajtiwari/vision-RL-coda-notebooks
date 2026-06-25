@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 
@@ -33,3 +35,9 @@ class EnterpriseConnector(ABC):
     def health_check(self) -> bool:
         result = self.fetch()
         return result.ok
+
+
+def load_fixture(fixture_path: Path) -> dict[str, Any] | None:
+    if fixture_path.exists():
+        return json.loads(fixture_path.read_text(encoding="utf-8"))
+    return None

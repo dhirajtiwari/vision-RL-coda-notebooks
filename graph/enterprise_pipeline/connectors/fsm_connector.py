@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from config.settings import settings
-from graph.enterprise_pipeline.connectors.base import ConnectorResult, EnterpriseConnector
+from graph.enterprise_pipeline.connectors.base import ConnectorResult, EnterpriseConnector, load_fixture
 from graph.enterprise_pipeline.http_client import get_json
 
 DEFAULT_FIXTURE = settings.enterprise_sources_dir / "fsm_work_orders.json"
@@ -28,13 +28,18 @@ class FSMConnector(EnterpriseConnector):
                     records=payload.get("closed_work_orders", []),
                     metadata={"mode": "http"},
                 )
-            except ConnectionError as exc:
-                return ConnectorResult(source=self.source_name, errors=[str(exc)])
+            except ConnectionError:
+                payload = load_fixture(self.fixture_path)
+                if payload:
+                    return ConnectorResult(
+                        source=self.source_name,
+                        records=payload.get("closed_work_orders", []),
+                        metadata={"mode": "fixture_fallback"},
+                    )
 
-        if not self.fixture_path.exists():
+        payload = load_fixture(self.fixture_path)
+        if not payload:
             return ConnectorResult(source=self.source_name, errors=[f"FSM fixture missing: {self.fixture_path}"])
-
-        payload = json.loads(self.fixture_path.read_text(encoding="utf-8"))
         return ConnectorResult(
             source=self.source_name,
             records=payload.get("closed_work_orders", []),

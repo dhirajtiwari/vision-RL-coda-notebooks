@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from config.settings import settings
-from graph.enterprise_pipeline.connectors.base import ConnectorResult, EnterpriseConnector
+from graph.enterprise_pipeline.connectors.base import ConnectorResult, EnterpriseConnector, load_fixture
 from graph.enterprise_pipeline.http_client import get_json
 
 DEFAULT_FIXTURE = settings.enterprise_sources_dir / "pim_catalog.json"
@@ -28,13 +28,18 @@ class PIMConnector(EnterpriseConnector):
                     records=payload.get("products", []),
                     metadata={"source_system": payload.get("source_system", "PIM-API"), "mode": "http"},
                 )
-            except ConnectionError as exc:
-                return ConnectorResult(source=self.source_name, errors=[str(exc)])
+            except ConnectionError:
+                payload = load_fixture(self.fixture_path)
+                if payload:
+                    return ConnectorResult(
+                        source=self.source_name,
+                        records=payload.get("products", []),
+                        metadata={"source_system": payload.get("source_system", "PIM"), "mode": "fixture_fallback"},
+                    )
 
-        if not self.fixture_path.exists():
+        payload = load_fixture(self.fixture_path)
+        if not payload:
             return ConnectorResult(source=self.source_name, errors=[f"PIM fixture missing: {self.fixture_path}"])
-
-        payload = json.loads(self.fixture_path.read_text(encoding="utf-8"))
         return ConnectorResult(
             source=self.source_name,
             records=payload.get("products", []),
