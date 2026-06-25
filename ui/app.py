@@ -18,10 +18,11 @@ from agents.diagnosis_graph import run_diagnosis
 from config.settings import settings
 from graph.graph_rag import list_products
 from graph.neo4j_client import verify_connection
+from integrations.case_management import create_case_from_escalation
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
 from utils.escalation_store import list_escalations, update_escalation_status
-from utils.lineage_store import list_batches
+from utils.lineage_store import clear_batches, list_batches
 
 st.set_page_config(
     page_title="Diagnostics Chatbot Demo",
@@ -53,6 +54,16 @@ def _mock_api_ok() -> bool:
         return True
     except ConnectionError:
         return False
+
+
+def _batch_status_icon(status: str) -> str:
+    return {
+        "success": "✅",
+        "failed": "❌",
+        "dry_run": "📋",
+        "blocked": "🚫",
+        "partial": "⚠️",
+    }.get(status, "⏳")
 
 
 def _format_batch_source(name: str, src: object) -> str:
@@ -222,8 +233,19 @@ with tab_chat:
             result = run_diagnosis(prompt, product_id=product_id)
 
         response = result["response"]
+        ccaas_case_id = None
         if result.get("escalated"):
             response += f"\n\n_Case ID: `{result['case_id']}` — escalated to human agent._"
+            if crm_context.get("enriched") and crm_context.get("customer_id") and crm_context.get("asset_id"):
+                ccaas = create_case_from_escalation(
+                    customer_id=crm_context["customer_id"],
+                    asset_id=crm_context["asset_id"],
+                    user_message=prompt,
+                    diagnosis=result.get("diagnosis") or {},
+                )
+                if ccaas.get("case_id"):
+                    ccaas_case_id = ccaas["case_id"]
+                    response += f"\n\n_CCaaS case `{ccaas_case_id}` created in simulated case management._"
 
         st.session_state.messages.append({
             "role": "assistant",
@@ -316,35 +338,63 @@ with tab_enterprise:
     e3.metric("Diagnostics API", f"http://localhost:{settings.api_port}")
 
     st.markdown("### ETL Lineage Batches")
-    batches = list_batches(limit=15)
-    if not batches:
+    all_batches = list_batches(limit=50)
+    show_history = st.checkbox("Show full pipeline history (includes failed runs and dry-runs)", value=False)
+
+    if not all_batches:
         st.info(
             "No ETL batches logged yet. Run: `python -m graph.enterprise_pipeline.orchestrator`"
         )
     else:
+        success_count = sum(1 for b in all_batches if b.get("status") == "success")
+        failed_count = sum(1 for b in all_batches if b.get("status") == "failed")
+        latest_success = next((b for b in all_batches if b.get("status") == "success"), None)
+        if latest_success:
+            st.success(
+                f"Latest successful step: **{latest_success.get('pipeline')}** at "
+                f"{latest_success.get('timestamp', '')[:19]} · "
+                f"{success_count} succeeded / {failed_count} failed in log"
+            )
+        else:
+            st.warning(f"No successful pipeline steps yet · {failed_count} failed entries in log")
+
+        batches = all_batches if show_history else [b for b in all_batches if b.get("status") == "success"][:6]
+        if not batches and not show_history:
+            st.caption("Successful runs only — enable full history to inspect earlier failures.")
+            batches = all_batches[:6]
+
+        col_clear, _ = st.columns([1, 3])
+        if col_clear.button("Clear lineage log"):
+            clear_batches()
+            st.rerun()
+
         for batch in batches:
             status = batch.get("status", "unknown")
-            icon = "✅" if status == "success" else "❌" if status == "failed" else "⏳"
+            icon = _batch_status_icon(status)
+            pipeline = batch.get("pipeline", "unknown")
             with st.expander(
-                f"{icon} {batch.get('batch_id')} — {batch.get('pipeline')} — {batch.get('timestamp', '')[:19]}"
+                f"{icon} {pipeline} — {status} — {batch.get('timestamp', '')[:19]}",
+                expanded=status == "failed" and show_history,
             ):
-                st.markdown(f"**Status:** {status} · **Products:** {batch.get('product_count', 0)}")
-                st.markdown(f"**Neo4j target:** {batch.get('neo4j_target', 'N/A')}")
+                st.markdown(f"**Batch ID:** `{batch.get('batch_id')}`")
+                st.markdown(f"**Products:** {batch.get('product_count', 0)} · **Neo4j target:** {batch.get('neo4j_target', 'N/A')}")
                 sources = batch.get("sources")
                 if sources:
-                    label = "Sources:" if batch.get("pipeline") == "knowledge_etl" else "Details:"
+                    label = "Connector sources:" if pipeline == "knowledge_etl" else "Run details:"
                     st.markdown(f"**{label}**")
                     for name, src in sources.items():
-                        st.markdown(f"- {name}: {_format_batch_source(name, src)}")
+                        st.markdown(f"- **{name}:** {_format_batch_source(name, src)}")
                 if batch.get("errors"):
-                    st.error("; ".join(batch["errors"]))
-                st.json(batch)
+                    st.error("; ".join(str(e) for e in batch["errors"]))
+                with st.expander("Raw JSON"):
+                    st.json(batch)
 
     st.markdown("### Simulated Case Management")
     sim_cases = _load_simulated_cases()
     if not sim_cases:
         st.info(
-            "No cases in simulated CCaaS yet. Escalations via REST API create cases when mock API is running."
+            "No cases in simulated CCaaS yet. Select a CRM customer/asset in **Customer Chatbot**, "
+            "trigger an escalation, and a case will appear here when the mock API is running."
         )
     else:
         for case in sim_cases[:10]:

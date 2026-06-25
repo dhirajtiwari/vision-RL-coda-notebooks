@@ -51,3 +51,9 @@ def list_batches(limit: int = 50) -> list[dict[str, Any]]:
     lines = path.read_text(encoding="utf-8").strip().splitlines()
     records = [json.loads(line) for line in lines if line.strip()]
     return list(reversed(records[-limit:]))
+
+
+def clear_batches() -> None:
+    path = _path()
+    if path.exists():
+        path.unlink()
