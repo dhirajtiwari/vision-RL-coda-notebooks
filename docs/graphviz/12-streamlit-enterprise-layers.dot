@@ -2,7 +2,7 @@
 digraph StreamlitEnterpriseLayers {
   graph [
     rankdir=TB
-    label="Figure 12: Streamlit Enterprise Layer Stack — ui/app.py"
+    label="Figure 12: Platform Layer Stack — Self-Service Channel (ui/app.py)"
     labelloc=t
     fontsize=14
     fontname="Arial"

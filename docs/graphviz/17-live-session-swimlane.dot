@@ -1,0 +1,65 @@
+// Figure 17: Live washer session — cross-functional swimlane (two customer turns)
+digraph LiveSessionSwimlane {
+  graph [
+    rankdir=TB
+    splines=ortho
+    nodesep=0.45
+    ranksep=0.4
+    label="Figure 17: Live Session Swimlane — Washer Diagnosis (Two Customer Turns)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, width=2.3, height=0.5]
+  edge [fontname="Arial", fontsize=8]
+
+  subgraph cluster_cust {
+    label="Customer"
+    bgcolor="#D5E8F0"
+    style="filled,rounded"
+    T1 [label="Turn 1:\n'Machine does not spin…'"]
+    T2 [label="Turn 2:\n'Grinding noise when spinning'"]
+    T3 [label="Receives case IDs\non escalation"]
+  }
+
+  subgraph cluster_crm {
+    label="CRM & Warranty Services"
+    bgcolor="#FFF2CC"
+    style="filled,rounded"
+    CRM1 [label="Asset AST-WM-4421\n→ Jane Martinez · wm-001"]
+    WAR1 [label="Warranty eligible\nWP-STANDARD-24M"]
+  }
+
+  subgraph cluster_plat {
+    label="Diagnostics Platform"
+    bgcolor="#C6E0B4"
+    style="filled,rounded"
+    LG1 [label="LangGraph pipeline"]
+    GR1 [label="GraphRAG:\n1 symptom → 94%"]
+    GR2 [label="GraphRAG:\n2 symptoms → 47%"]
+    ESC [label="Escalation decision\n47% < 65% threshold"]
+  }
+
+  subgraph cluster_neo {
+    label="Knowledge Graph"
+    bgcolor="#FCE4D6"
+    style="filled,rounded"
+    N1 [label="wm-s01 → wm-fm01\nWorn Drive Belt"]
+    N2 [label="+ wm-s02 vibration\nconfidence diluted"]
+  }
+
+  subgraph cluster_ops {
+    label="Agent Operations"
+    bgcolor="#F8CBAD"
+    style="filled,rounded"
+    AG1 [label="Automated resolution\n(no escalation)"]
+    AG2 [label="Case 231311d2\nAgent Dashboard"]
+    AG3 [label="CASE-4B881382\nService Cloud handoff"]
+  }
+
+  T1 -> CRM1 -> WAR1 -> LG1 -> GR1 -> N1 -> AG1
+  T2 -> LG1 -> GR2 -> N2 -> ESC -> AG2 -> AG3 -> T3
+  GR1 -> T1 [style=dashed, label="94% response", color="#548235"]
+  ESC -> T2 [style=dashed, label="escalate", color="#C00000"]
+}

@@ -1,0 +1,63 @@
+// Figure 18: Batch knowledge engineering vs runtime diagnosis (swimlanes)
+digraph ETLRuntimeSwimlane {
+  graph [
+    rankdir=LR
+    splines=ortho
+    nodesep=0.4
+    ranksep=0.6
+    label="Figure 18: ETL & Governance vs Runtime Diagnosis Swimlane"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#4472C4"]
+
+  subgraph cluster_src {
+    label="Authoritative Source Systems"
+    bgcolor="#EDEDED"
+    style="filled,rounded"
+    PIM [label="PIM / PLM"]
+    FSM [label="FSM"]
+    CLM [label="Claims"]
+    CRM [label="CRM"]
+  }
+
+  subgraph cluster_batch {
+    label="Batch — Knowledge Engineering"
+    bgcolor="#E2EFDA"
+    style="filled,rounded"
+    ETL [label="Knowledge ETL\nconnectors + ontology"]
+    VAL [label="Smoke validation\ngate"]
+    PROM [label="Staging promotion"]
+    LINE [label="Lineage audit"]
+  }
+
+  subgraph cluster_store {
+    label="Knowledge Graph Store"
+    bgcolor="#FCE4D6"
+    style="filled,rounded"
+    NEO [label="Neo4j\n(products · symptoms ·\nfailure modes · steps)"]
+  }
+
+  subgraph cluster_rt {
+    label="Runtime — Live Diagnosis"
+    bgcolor="#C6E0B4"
+    style="filled,rounded"
+    CH [label="Customer channel"]
+    EN [label="LangGraph +\nGraphRAG"]
+    OUT [label="Explainable response\n+ provenance"]
+  }
+
+  PIM -> ETL
+  FSM -> ETL
+  CLM -> ETL
+  CRM -> ETL
+  ETL -> VAL -> PROM -> NEO
+  ETL -> LINE
+  VAL -> LINE
+  PROM -> LINE
+  CH -> EN -> NEO
+  NEO -> EN -> OUT
+}

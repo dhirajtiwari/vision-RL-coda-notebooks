@@ -1,6 +1,6 @@
 /**
- * Demo Session Under-the-Hood Walkthrough (Doc 09)
- * Explains the live washer demo session mapped to architecture, tech stack, and pipelines.
+ * Live Diagnostic Session — Technical Walkthrough (Doc 09)
+ * Stakeholder-ready narrative with swimlane diagrams (current/future state).
  * Run: node docs/scripts/generate_demo_walkthrough_doc.js
  */
 
@@ -28,7 +28,7 @@ const {
 } = require("docx");
 
 const OUT_DIR = path.join(__dirname, "..");
-const OUT_FILE = path.join(OUT_DIR, "09-Demo-Session-Under-the-Hood-Walkthrough.docx");
+const OUT_FILE = path.join(OUT_DIR, "09-Live-Diagnostic-Session-Technical-Walkthrough.docx");
 const PNG_DIR = path.join(OUT_DIR, "graphviz", "rendered", "png");
 const GVIZ_DIR = path.join(OUT_DIR, "graphviz");
 
@@ -161,7 +161,7 @@ const doc = new Document({
             new Paragraph({
               alignment: AlignmentType.RIGHT,
               children: [
-                new TextRun({ text: "Demo Session Under-the-Hood Walkthrough", italics: true, size: 18 }),
+                new TextRun({ text: "Live Diagnostic Session — Technical Walkthrough", italics: true, size: 18 }),
               ],
             }),
           ],
@@ -181,59 +181,70 @@ const doc = new Document({
         }),
       },
       children: [
-        h1("Demo Session Under-the-Hood Walkthrough"),
+        h1("Live Diagnostic Session — Technical Walkthrough"),
         p("Enterprise Diagnostics GraphRAG Platform — Document 09"),
         p(
-          "This document explains everything that happened in your live Streamlit demo session " +
+          "This document explains a live customer diagnostic session on the pilot platform " +
             "(washer spin failure, two-turn conversation, CRM enrichment, warranty gate, 94% vs 47% confidence, " +
-            "escalation, and CCaaS case creation) and maps each UI element to the tech stack, Neo4j graph, " +
-            "LangGraph workflow, and enterprise ETL pipelines."
+            "escalation, and Service Cloud case handoff) and maps each outcome to the solution architecture, " +
+            "Neo4j knowledge graph, LangGraph workflow, and enterprise knowledge-engineering pipelines."
         ),
         spacer(),
 
-        h2("1. What You Saw — Executive Summary"),
+        h2("1. Executive Summary"),
         tbl(
-          ["UI indicator", "Value", "What it means"],
+          ["Platform indicator", "Value", "Business meaning"],
           [
-            ["Neo4j Connected", "Yes", "Knowledge graph loaded and Cypher queries succeeded"],
-            ["Mode Enterprise", "Yes", "USE_MOCK_ENTERPRISE_APIS=true — CRM/PIM/FSM/Claims on :8090"],
-            ["Mock APIs Online", "Yes", "simulation/mock_enterprise_apps.py serving fixture data"],
-            ["Open Escalations", "3", "Cases in data/escalations.json from should_escalate=true diagnoses"],
+            ["Neo4j Connected", "Yes", "Authoritative knowledge graph available for GraphRAG queries"],
+            ["Mode Enterprise", "Yes", "Full enterprise integration path enabled (CRM · PIM · FSM · Claims)"],
+            ["Integration Services Online", "Yes", "Enterprise Integration Layer (sandbox) serving representative APIs"],
+            ["Open Escalations", "3", "Cases requiring human agent review with full graph context"],
           ],
           [2200, 1800, 5360]
         ),
         spacer(),
         p(
-          "Your session had two customer turns on the same washer asset (AST-WM-4421). Turn 1 resolved automatically at 94% confidence. " +
-            "Turn 2 added a second symptom, diluting confidence to 47%, triggering escalation and simulated case management handoff."
+          "The live session comprised two customer turns on registered asset AST-WM-4421. Turn 1 achieved automated resolution at 94% confidence. " +
+            "Turn 2 introduced a second symptom, reducing aggregate confidence to 47% and triggering governed escalation with case-management handoff."
         ),
 
         pgBreak(),
-        h2("2. System Context & Module Map"),
-        p("Figure 1 shows where the demo platform sits relative to enterprise systems and operators."),
+        h2("2. Current State vs Future State (Swimlanes)"),
+        p("Figure 15 shows the POC / pilot architecture with an Enterprise Integration Layer (sandbox) connecting representative enterprise services to the diagnostics platform."),
+        ...figure("15-current-state-swimlane.png", "Figure 15: Current state swimlane — POC / pilot platform", 620, 380),
+        p("Figure 16 shows the target production architecture with authoritative systems, governed ETL, and production Neo4j."),
+        ...figure("16-future-state-swimlane.png", "Figure 16: Future state swimlane — target production", 620, 400),
+        p("Figure 17 traces your live washer session across functional swimlanes — customer, CRM, platform, knowledge graph, and agent operations."),
+        ...figure("17-live-session-swimlane.png", "Figure 17: Live session swimlane — two customer turns", 620, 420),
+        p("Figure 18 separates batch knowledge engineering from runtime diagnosis — the operational boundary stakeholders care about for SLA and governance."),
+        ...figure("18-etl-runtime-swimlane.png", "Figure 18: ETL & governance vs runtime diagnosis swimlane", 620, 320),
+        spacer(),
+
+        h2("3. System Context & Module Map"),
+        p("Figure 1 shows where the diagnostics platform sits relative to enterprise systems and operators."),
         ...figure("01-system-context.png", "Figure 1: Enterprise system context (C4-style)", 620, 480),
         p("Figure 2 maps Python modules to functional responsibilities."),
         ...figure("02-module-block.png", "Figure 2: Module block diagram", 620, 460),
 
-        h3("Tech stack mapping"),
+        h3("Technology stack mapping"),
         tbl(
-          ["Layer", "Technology", "File(s)", "Role in your demo"],
+          ["Layer", "Technology", "Module", "Role in live session"],
           [
-            ["Presentation", "Streamlit", "ui/app.py", "Chat UI, CRM selectors, 4 tabs"],
-            ["Orchestration", "LangGraph", "agents/diagnosis_graph.py", "4-node state machine per message"],
-            ["GraphRAG", "Neo4j + Python", "graph/graph_rag.py", "Cypher queries + symptom matching"],
-            ["Knowledge store", "Neo4j 5.x", "graph/neo4j_client.py", "Product wm-001 graph"],
-            ["Enterprise APIs", "FastAPI mock", "simulation/mock_enterprise_apps.py", "CRM asset lookup"],
-            ["Integrations", "Python", "integrations/*.py", "CRM, warranty, case management"],
-            ["ETL", "Python pipelines", "graph/enterprise_pipeline/", "Loaded graph before demo"],
-            ["Audit", "JSONL", "utils/lineage_store.py", "ETL batch lineage in Enterprise tab"],
+            ["Presentation", "Streamlit", "ui/app.py", "Self-service channel, CRM binding, agent console"],
+            ["Orchestration", "LangGraph", "agents/diagnosis_graph.py", "Governed diagnosis workflow per message"],
+            ["GraphRAG", "Neo4j + Python", "graph/graph_rag.py", "Evidence-based Cypher retrieval"],
+            ["Knowledge store", "Neo4j 5.x", "graph/neo4j_client.py", "Product wm-001 ontology"],
+            ["Integration layer", "FastAPI sandbox", "simulation/mock_enterprise_apps.py", "Representative CRM / Claims / CCaaS APIs"],
+            ["Integrations", "Python", "integrations/*.py", "CRM enrichment, warranty gate, case handoff"],
+            ["Knowledge engineering", "Python pipelines", "graph/enterprise_pipeline/", "Batch load before runtime"],
+            ["Audit", "JSONL lineage", "utils/lineage_store.py", "ETL governance trail"],
           ],
           [1400, 1600, 2800, 3560]
         ),
         spacer(),
 
         pgBreak(),
-        h2("3. Enterprise ETL — How the Graph Got There"),
+        h2("4. Knowledge Engineering — How the Graph Was Built"),
         p("Before your chat session, the orchestrator ran three pipelines to build the Neo4j knowledge graph."),
         ...figure("14-etl-to-runtime.png", "Figure 14: ETL pipelines to runtime diagnosis", 620, 500),
         ...figure("06-etl-pipeline.png", "Figure 6: Knowledge ETL pipeline detail", 620, 440),
@@ -244,12 +255,12 @@ const doc = new Document({
         pb("numbers", "lineage_store.py — each step logged to data/lineage/etl_batches.jsonl"),
         spacer(),
 
-        h2("4. Neo4j Ontology Used in Your Demo"),
+        h2("5. Neo4j Ontology — Live Session Data Model"),
         ...figure("05-neo4j-ontology.png", "Figure 5: Neo4j ontology (nodes and relationships)", 600, 480),
-        ...figure("13-demo-response-field-map.png", "Figure 13: Response fields → graph entities → source systems", 620, 420),
-        p("Every field in your diagnosis response maps to a graph entity that was ETL'd from an enterprise source:"),
+        ...figure("13-demo-response-field-map.png", "Figure 13: Response fields → graph entities → enterprise sources", 620, 420),
+        p("Every field in the diagnostic response maps to a governed graph entity ingested from an authoritative source:"),
         tbl(
-          ["Response section", "Neo4j entity", "Source system", "Example from demo"],
+          ["Response section", "Neo4j entity", "Source system", "Live session example"],
           [
             ["Product name", "Product wm-001", "PIM", "Front Load Washing Machine 8kg"],
             ["Matched Symptoms", "Symptom wm-s01, wm-s02", "FMEA", "manuals/wm-001/symptoms.pdf"],
@@ -257,7 +268,7 @@ const doc = new Document({
             ["Diagnostic Steps", "DiagnosticStep wm-d01..d04", "ServiceManual", "troubleshooting.pdf#step=N"],
             ["Past Resolutions", "HistoricalResolution", "FSM", "CLM-2026-00481, WO-FSM-88104"],
             ["Parts", "JSON catalog", "PIM", "Drive Belt Assembly AH-DB-8842"],
-            ["CRM Context", "Runtime only", "CRM mock", "Jane Martinez, AST-WM-4421"],
+            ["CRM Context", "Runtime enrichment", "CRM (sandbox)", "Jane Martinez, AST-WM-4421"],
             ["Warranty", "Runtime only", "CRM + Claims", "WP-STANDARD-24M"],
           ],
           [2200, 2000, 1800, 3360]
@@ -265,22 +276,22 @@ const doc = new Document({
         spacer(),
 
         pgBreak(),
-        h2("5. CRM & Warranty — Before Diagnosis Runs"),
-        p("Note: You selected Robert Chen in the Customer dropdown but asset AST-WM-4421. Asset ID takes priority in enrichment."),
-        ...figure("12-streamlit-enterprise-layers.png", "Figure 12: Streamlit enterprise layer stack", 600, 520),
-        pb("bullets", "ui/app.py calls enrich_session_from_crm(asset_id=AST-WM-4421)"),
-        pb("bullets", "integrations/crm_enrichment.py GETs http://localhost:8090/api/crm/assets/AST-WM-4421"),
+        h2("6. CRM & Warranty — Pre-Diagnosis Enrichment"),
+        p("Note: Customer dropdown showed Robert Chen while asset AST-WM-4421 was selected. Asset ID takes priority — the platform correctly resolved Jane Martinez as the registered owner."),
+        ...figure("12-streamlit-enterprise-layers.png", "Figure 12: Platform layer stack — self-service channel", 600, 520),
+        pb("bullets", "ui/app.py invokes enrich_session_from_crm(asset_id=AST-WM-4421)"),
+        pb("bullets", "integrations/crm_enrichment.py queries Enterprise Integration Layer — CRM assets endpoint"),
         pb("bullets", "Returns Jane Martinez (actual asset owner), product wm-001, warranty active until 2027-06-15"),
         pb("bullets", "integrations/warranty_eligibility.py checks status + Claims policies → eligible=true"),
         pb("bullets", "product_id passed to run_diagnosis() — skips keyword auto-detect"),
         code("product_id = CRM asset product OR appliance dropdown OR detect_product(message)"),
         spacer(),
 
-        h2("6. LangGraph Workflow — Per Message"),
+        h2("7. LangGraph Workflow — Per Customer Message"),
         ...figure("03-langgraph-workflow.png", "Figure 3: LangGraph diagnosis workflow", 580, 380),
         ...figure("08-runtime-sequence.png", "Figure 8: Runtime request sequence", 600, 440),
         tbl(
-          ["Node", "File", "Action in your demo"],
+          ["Node", "Module", "Action in live session"],
           [
             ["detect_product", "agents/diagnosis_graph.py", "Kept wm-001 from CRM (message already product-specific)"],
             ["run_diagnosis", "agents/tools.py → graph_rag.py", "Executed full GraphRAG Cypher pipeline"],
@@ -292,8 +303,8 @@ const doc = new Document({
         spacer(),
 
         pgBreak(),
-        h2("7. GraphRAG — Turn-by-Turn Diagnosis Logic"),
-        ...figure("10-demo-session-turn-flow.png", "Figure 10: Demo session two-turn flow", 620, 560),
+        h2("8. GraphRAG — Turn-by-Turn Diagnosis Logic"),
+        ...figure("10-demo-session-turn-flow.png", "Figure 10: Live session two-turn diagnosis flow", 620, 560),
         ...figure("04-graphrag-diagnosis.png", "Figure 4: GraphRAG diagnose() internal flow", 600, 520),
 
         h3("Turn 1: Machine does not spin during the final cycle"),
@@ -310,7 +321,7 @@ const doc = new Document({
         pb("bullets", "aggregate_confidence = 0.94 ÷ 2 symptoms = 47%"),
         pb("bullets", "Escalation gate: 47% < 65% → should_escalate=true"),
         pb("bullets", "escalation_store saved case 231311d2 → Open Escalations count increased"),
-        pb("bullets", "case_management POST → CCaaS case CASE-4B881382 in simulated_cases.json"),
+        pb("bullets", "case_management POST → Service Cloud case CASE-4B881382 (integration sandbox)"),
 
         spacer(),
         h3("Why confidence dropped from 94% to 47%"),
@@ -325,7 +336,7 @@ const doc = new Document({
         spacer(),
 
         pgBreak(),
-        h2("8. Response Payload — Field-by-Field Explanation"),
+        h2("9. Response Payload — Field-by-Field Explanation"),
         h3("Matched Symptoms"),
         p("Neo4j query HAS_SYMPTOM + Python _text_similarity() with SYNONYMS expansion. Turn 2 added wm-s02 (medium severity)."),
         h3("Ranked Failure Modes"),
@@ -340,13 +351,13 @@ const doc = new Document({
         p("Runtime enrichment only — not stored in Neo4j. Binds session to registered asset and warranty metadata."),
         spacer(),
 
-        h2("9. Escalation & Case Management Outcomes"),
+        h2("10. Escalation & Case Management Outcomes"),
         tbl(
-          ["Artifact", "Storage", "Your demo value"],
+          ["Artifact", "Storage", "Operational value"],
           [
-            ["Local escalation case", "data/escalations.json", "231311d2 — Human Agent Dashboard"],
-            ["CCaaS simulated case", "data/simulated_cases.json", "CASE-4B881382 — Enterprise Systems tab"],
-            ["Open Escalations metric", "ui/app.py count", "3 open cases across session"],
+            ["Agent escalation dossier", "data/escalations.json", "231311d2 — Human Agent Dashboard"],
+            ["Service Cloud case record", "data/simulated_cases.json", "CASE-4B881382 — Case Management view"],
+            ["Open Escalations metric", "ui/app.py", "Real-time agent workload indicator"],
           ],
           [2400, 2800, 4160]
         ),
@@ -357,16 +368,16 @@ const doc = new Document({
         spacer(),
 
         pgBreak(),
-        h2("10. End-to-End Architecture (Production View)"),
-        ...figure("09-enterprise-production.png", "Figure 9: Enterprise production deployment pattern", 620, 480),
+        h2("11. Target Production Architecture"),
+        ...figure("09-enterprise-production.png", "Figure 9: Target production deployment pattern", 620, 480),
 
-        h2("11. Module & Port Reference"),
+        h2("12. Platform Endpoint Reference"),
         tbl(
-          ["Component", "Port / path", "Your session"],
+          ["Component", "Endpoint", "Purpose"],
           [
-            ["Streamlit UI", "localhost:8501", "Customer Chatbot tab"],
-            ["Diagnostics API", "localhost:8080", "Same logic as UI (optional)"],
-            ["Mock Enterprise", "localhost:8090", "CRM asset + CCaaS POST"],
+            ["Self-Service Channel", "localhost:8501", "Customer & agent console"],
+            ["Diagnostics API", "localhost:8080", "Omnichannel integration surface"],
+            ["Enterprise Integration Layer", "localhost:8090", "CRM · Claims · Case Management (sandbox)"],
             ["Neo4j Bolt", "localhost:7687", "All GraphRAG Cypher"],
             ["Neo4j Browser", "localhost:7474", "Visual graph inspection"],
             ["ETL lineage", "data/lineage/etl_batches.jsonl", "Enterprise Systems tab"],
@@ -375,7 +386,11 @@ const doc = new Document({
         ),
         spacer(),
 
-        h2("12. Graphviz Source Files"),
+        h2("13. Graphviz Source Files"),
+        ...dotExcerpt("15-current-state-swimlane.dot"),
+        ...dotExcerpt("16-future-state-swimlane.dot"),
+        ...dotExcerpt("17-live-session-swimlane.dot"),
+        ...dotExcerpt("18-etl-runtime-swimlane.dot"),
         p("All diagrams are version-controlled in docs/graphviz/*.dot. Render with:"),
         code("bash docs/graphviz/render_all.sh"),
         ...dotExcerpt("10-demo-session-turn-flow.dot"),

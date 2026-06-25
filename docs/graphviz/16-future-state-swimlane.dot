@@ -1,0 +1,72 @@
+// Figure 16: Future State — Target Production Architecture (swimlanes)
+digraph FutureStateSwimlane {
+  graph [
+    rankdir=TB
+    splines=ortho
+    nodesep=0.5
+    ranksep=0.45
+    label="Figure 16: Future State Swimlane — Target Production Architecture"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, width=2.5, height=0.55]
+  edge [fontname="Arial", fontsize=8, color="#548235"]
+
+  subgraph cluster_ch {
+    label="Omnichannel Customer & Agent"
+    bgcolor="#D5E8F0"
+    style="filled,rounded"
+    CH1 [label="Web · Mobile · IVR ·\nAgent Desktop"]
+    CH2 [label="Authenticated customer\n& asset context"]
+  }
+
+  subgraph cluster_api {
+    label="Diagnostics Platform — API Tier"
+    bgcolor="#BDD7EE"
+    style="filled,rounded"
+    API1 [label="FastAPI / API Gateway\nrate limit · auth · audit"]
+    API2 [label="LangGraph + GraphRAG\n(diagnosis service)"]
+  }
+
+  subgraph cluster_ent {
+    label="Production Enterprise Systems"
+    bgcolor="#EDEDED"
+    style="filled,rounded"
+    CRM [label="Salesforce Service Cloud\nassets · customers"]
+    CLM [label="Claims Management\nwarranty policies"]
+    CC [label="CCaaS / Service Cloud Cases"]
+    PIM [label="PIM / PLM catalog"]
+    FSM [label="Field Service Management"]
+  }
+
+  subgraph cluster_kg {
+    label="Knowledge Graph Platform"
+    bgcolor="#FCE4D6"
+    style="filled,rounded"
+    STG [label="Staging Neo4j\n(governed load)"]
+    PRD [label="Production Neo4j Aura\n(read-optimized)"]
+  }
+
+  subgraph cluster_gov {
+    label="Data Engineering & Governance"
+    bgcolor="#E2EFDA"
+    style="filled,rounded"
+    AF [label="Airflow / Dagster\nscheduled ETL"]
+    SM [label="Smoke + regression\ntest gate"]
+    LN [label="Lineage store +\ncompliance audit"]
+  }
+
+  CH1 -> API1 -> CH2
+  CH2 -> CRM
+  CH2 -> CLM
+  API1 -> API2 -> PRD
+  API2 -> CC [label="escalation"]
+  PIM -> AF
+  FSM -> AF
+  CLM -> AF
+  CRM -> AF
+  AF -> LN -> STG -> SM -> PRD
+  API2 -> LN [style=dashed, label="provenance"]
+}

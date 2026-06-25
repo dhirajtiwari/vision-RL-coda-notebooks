@@ -2,7 +2,7 @@
 digraph DemoSessionTurnFlow {
   graph [
     rankdir=TB
-    label="Figure 10: Demo Session — Two-Turn Washer Diagnosis Flow"
+    label="Figure 10: Live Session — Two-Turn Washer Diagnosis Flow"
     labelloc=t
     fontsize=14
     fontname="Arial"

@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 583.75)">
 <title>StreamlitEnterpriseLayers</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-583.75 466.75,-583.75 466.75,4 -4,4"/>
-<text xml:space="preserve" text-anchor="middle" x="231.38" y="-562.45" font-family="Arial" font-size="14.00">Figure 12: Streamlit Enterprise Layer Stack — ui/app.py</text>
+<text xml:space="preserve" text-anchor="middle" x="231.38" y="-562.45" font-family="Arial" font-size="14.00">Figure 12: Platform Layer Stack — Self&#45;Service Channel (ui/app.py)</text>
 <!-- UI -->
 <g id="node1" class="node">
 <title>UI</title>

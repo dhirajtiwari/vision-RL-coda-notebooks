@@ -1,5 +1,6 @@
 /**
- * Demo Chat Scripts & Showcase Runbook (Doc 08)
+ * Customer Interaction Scripts & Presentation Runbook (Doc 08)
+ * Stakeholder-ready presenter scripts — avoids demo/mock terminology.
  * Run: node docs/scripts/generate_demo_scripts_doc.js
  */
 
@@ -26,7 +27,7 @@ const {
 } = require("docx");
 
 const OUT_DIR = path.join(__dirname, "..");
-const OUT_FILE = path.join(OUT_DIR, "08-Demo-Chat-Scripts-and-Showcase-Runbook.docx");
+const OUT_FILE = path.join(OUT_DIR, "08-Customer-Interaction-Scripts-and-Presentation-Runbook.docx");
 
 const PAGE = {
   size: { width: 12240, height: 15840 },
@@ -142,7 +143,7 @@ const doc = new Document({
             new Paragraph({
               alignment: AlignmentType.RIGHT,
               children: [
-                new TextRun({ text: "Demo Chat Scripts & Showcase Runbook", italics: true, size: 18 }),
+                new TextRun({ text: "Customer Interaction Scripts & Presentation Runbook", italics: true, size: 18 }),
               ],
             }),
           ],
@@ -162,31 +163,31 @@ const doc = new Document({
         }),
       },
       children: [
-        h1("Demo Chat Scripts & Showcase Runbook"),
+        h1("Customer Interaction Scripts & Presentation Runbook"),
         p("Enterprise Diagnostics GraphRAG Platform — Document 08"),
         p(
-          "Turn-by-turn presenter scripts for the Streamlit demo. Aligned with Neo4j knowledge graph, " +
-            "mock CRM/PIM/Claims/FSM on port 8090, warranty gating, provenance trails, and human-agent escalation."
+          "Turn-by-turn presenter scripts for stakeholder presentations on the pilot platform. Covers Neo4j GraphRAG, " +
+            "enterprise CRM integration, warranty governance, provenance traceability, and governed human-agent escalation."
         ),
         spacer(),
 
-        h2("Before You Start (30 seconds)"),
-        p("Open: http://localhost:8501 — Tab: Customer Chatbot"),
-        p("Presenter opening line:"),
+        h2("Before You Begin (30 seconds)"),
+        p("Open the self-service channel: http://localhost:8501 — Customer Chatbot tab"),
+        p("Recommended opening statement:"),
         quote(
-          "This is an enterprise warranty diagnostics platform. Customer messages flow through LangGraph, " +
-            "query a Neo4j knowledge graph via GraphRAG, enrich from CRM, check warranty, and escalate to human " +
-            "agents when needed — all with a provenance trail back to PIM, FSM, Claims, and CRM."
+          "This is our enterprise warranty diagnostics platform. Customer interactions flow through a governed LangGraph workflow, " +
+            "query an authoritative Neo4j knowledge graph via GraphRAG, enrich from CRM, validate warranty eligibility, " +
+            "and escalate to human agents when policy requires — every answer carries a provenance trail to PIM, FSM, Claims, and CRM."
         ),
-        p("Confirm top metrics:"),
-        pb("bullets", "Neo4j: Connected"),
-        pb("bullets", "Mode: Enterprise"),
-        pb("bullets", "Mock APIs: Online"),
+        p("Confirm platform health indicators:"),
+        pb("bullets", "Neo4j: Connected — knowledge graph operational"),
+        pb("bullets", "Mode: Enterprise — full integration path active"),
+        pb("bullets", "Integration Services: Online — CRM, Claims, and Case Management available"),
         spacer(),
 
-        h2("CRM Quick Reference"),
+        h2("Registered Customer Quick Reference"),
         tbl(
-          ["Customer", "Asset", "Product", "Best demo message"],
+          ["Customer", "Asset", "Product", "Recommended scenario message"],
           [
             ["Jane Martinez (CUST-10042)", "AST-WM-4421", "Washer wm-001", "Machine does not spin"],
             ["Robert Chen (CUST-10087)", "AST-DW-1180", "Dishwasher dw-001", "Dishes wet and cold after cycle"],
@@ -197,8 +198,8 @@ const doc = new Document({
         spacer(),
 
         pgBreak(),
-        h2("Script A — Full Enterprise Showcase (~12–15 min)"),
-        p("Best for stakeholders. Covers CRM, warranty, escalation, agent handoff, and enterprise tabs."),
+        h2("Script A — Full Platform Presentation (~12–15 min)"),
+        p("Recommended for executive and architecture audiences. Covers CRM integration, warranty governance, escalation policy, agent operations, and knowledge-engineering lineage."),
 
         h3("Act 1 — CRM-bound, in-warranty diagnosis"),
         ...turnBlock(
@@ -244,7 +245,7 @@ const doc = new Document({
             "Critical severity symptom matched",
             "Escalation: critical symptom — human review required",
             "Case ID appears in response",
-            "CCaaS case created when mock API is running",
+            "Service Cloud case created via Enterprise Integration Layer",
             "Open Provenance Trail in diagnosis expander",
           ]
         ),
@@ -313,7 +314,7 @@ const doc = new Document({
         pb("bullets", "Summary banner — latest successful pipeline steps"),
         pb("bullets", "knowledge_etl → smoke_validation → staging_promotion chain"),
         pb("bullets", "Optional: Show full pipeline history for earlier failed runs"),
-        pb("bullets", "Simulated Case Management — cases from CRM-bound escalations"),
+        pb("bullets", "Case Management — Service Cloud handoff records from CRM-bound escalations"),
         pb("bullets", "Pipeline Commands block for operators"),
         spacer(),
 
@@ -329,7 +330,7 @@ const doc = new Document({
         spacer(),
 
         pgBreak(),
-        h2("Script B — Quick Demo (~5 min)"),
+        h2("Script B — Executive Briefing (~5 min)"),
         tbl(
           ["Step", "UI setup", "Customer message", "Highlight"],
           [
@@ -363,7 +364,7 @@ const doc = new Document({
 
         h2("Presenter Cheat Sheet"),
         tbl(
-          ["Demo moment", "What to say"],
+          ["Presentation moment", "Recommended narrative"],
           [
             ["CRM banner", "Runtime enrichment from Salesforce — no manual product lookup."],
             ["Warranty metric", "Claims policy gate before we run diagnosis."],
@@ -376,7 +377,7 @@ const doc = new Document({
         ),
         spacer(),
 
-        h2("Recommended Demo Order (Maximum Impact)"),
+        h2("Recommended Presentation Sequence"),
         pb("numbers", "CRM + warranty (Jane / washer) — enterprise integration"),
         pb("numbers", "Critical microwave — safety escalation + CCaaS"),
         pb("numbers", "Human Agent Dashboard — agent experience"),
@@ -398,7 +399,7 @@ const doc = new Document({
           [
             ["Streamlit UI", "http://localhost:8501"],
             ["Diagnostics REST API", "http://localhost:8080/docs"],
-            ["Mock Enterprise APIs", "http://localhost:8090/docs"],
+            ["Enterprise Integration Layer (sandbox)", "http://localhost:8090/docs"],
             ["Neo4j Browser", "http://localhost:7474 (neo4j / password)"],
           ],
           [3200, 6160]

@@ -28,7 +28,7 @@ digraph ETLToRuntime {
   NEO [label="Neo4j neo4j-demo :7687", shape=cylinder, fillcolor="#FCE4D6"]
 
   subgraph cluster_runtime {
-    label="Runtime (your demo session)"
+    label="Runtime (live diagnostic session)"
     style=rounded
     color="#2E75B6"
     UI [label="Streamlit / API", shape=box, fillcolor="#D5E8F0"]

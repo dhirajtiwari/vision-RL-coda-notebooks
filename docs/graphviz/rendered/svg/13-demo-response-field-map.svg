@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 611.75)">
 <title>DemoResponseFieldMap</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-611.75 1570,-611.75 1570,4 -4,4"/>
-<text xml:space="preserve" text-anchor="middle" x="783" y="-590.45" font-family="Arial" font-size="14.00">Figure 13: Demo Response Fields → Neo4j Entities → Enterprise Sources</text>
+<text xml:space="preserve" text-anchor="middle" x="783" y="-590.45" font-family="Arial" font-size="14.00">Figure 13: Diagnostic Response Fields → Neo4j Entities → Enterprise Sources</text>
 <g id="clust1" class="cluster">
 <title>cluster_ui</title>
 <path fill="white" stroke="#2e75b6" d="M339,-176C339,-176 492.5,-176 492.5,-176 498.5,-176 504.5,-182 504.5,-188 504.5,-188 504.5,-564 504.5,-564 504.5,-570 498.5,-576 492.5,-576 492.5,-576 339,-576 339,-576 333,-576 327,-570 327,-564 327,-564 327,-188 327,-188 327,-182 333,-176 339,-176"/>

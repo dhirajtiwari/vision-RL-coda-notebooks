@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 832.75)">
 <title>DemoSessionTurnFlow</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-832.75 990,-832.75 990,4 -4,4"/>
-<text xml:space="preserve" text-anchor="middle" x="493" y="-811.45" font-family="Arial" font-size="14.00">Figure 10: Demo Session — Two&#45;Turn Washer Diagnosis Flow</text>
+<text xml:space="preserve" text-anchor="middle" x="493" y="-811.45" font-family="Arial" font-size="14.00">Figure 10: Live Session — Two&#45;Turn Washer Diagnosis Flow</text>
 <g id="clust1" class="cluster">
 <title>cluster_turn1</title>
 <path fill="white" stroke="#2e75b6" d="M20,-160C20,-160 382,-160 382,-160 388,-160 394,-166 394,-172 394,-172 394,-785 394,-785 394,-791 388,-797 382,-797 382,-797 20,-797 20,-797 14,-797 8,-791 8,-785 8,-785 8,-172 8,-172 8,-166 14,-160 20,-160"/>

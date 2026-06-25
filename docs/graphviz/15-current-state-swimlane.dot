@@ -1,0 +1,83 @@
+// Figure 15: Current State — POC / Pilot Architecture (swimlanes)
+digraph CurrentStateSwimlane {
+  graph [
+    rankdir=LR
+    splines=line
+    nodesep=0.35
+    ranksep=1.2
+    label="Figure 15: Current State Swimlane — POC / Pilot Platform"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, width=2.2]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  subgraph cluster_ch {
+    label="Customer & Agent Channels"
+    bgcolor="#D5E8F0"
+    style="filled,rounded"
+    CH1 [label="Describes\nappliance issue"]
+    CH2 [label="Receives\ndiagnosis"]
+    CH3 [label="Escalation &\ncase reference"]
+    CH1 -> CH2 -> CH3 [style=invis]
+  }
+
+  subgraph cluster_ui {
+    label="Presentation Layer"
+    bgcolor="#BDD7EE"
+    style="filled,rounded"
+    UI1 [label="Self-Service &\nAgent Console"]
+    UI2 [label="CRM context\nbinding"]
+    UI3 [label="Agent Dashboard"]
+    UI1 -> UI2 -> UI3 [style=invis]
+  }
+
+  subgraph cluster_eng {
+    label="Intelligence Layer"
+    bgcolor="#C6E0B4"
+    style="filled,rounded"
+    EN1 [label="LangGraph\norchestration"]
+    EN2 [label="GraphRAG\nengine"]
+    EN3 [label="Provenance\nassembly"]
+    EN1 -> EN2 -> EN3 [style=invis]
+  }
+
+  subgraph cluster_int {
+    label="Enterprise Integration (Sandbox)"
+    bgcolor="#FFF2CC"
+    style="filled,rounded"
+    INT1 [label="CRM — assets"]
+    INT2 [label="Claims —\nwarranty"]
+    INT3 [label="Case\nManagement"]
+    INT1 -> INT2 -> INT3 [style=invis]
+  }
+
+  subgraph cluster_kg {
+    label="Knowledge Graph (Pilot)"
+    bgcolor="#FCE4D6"
+    style="filled,rounded"
+    KG1 [label="Neo4j ontology"]
+    KG2 [label="Confidence &\nsteps"]
+    KG1 -> KG2 [style=invis]
+  }
+
+  subgraph cluster_etl {
+    label="Knowledge Engineering"
+    bgcolor="#E2EFDA"
+    style="filled,rounded"
+    ET1 [label="ETL ingest"]
+    ET2 [label="Validation &\npromotion"]
+    ET3 [label="Lineage\naudit"]
+    ET1 -> ET2 -> ET3 [style=invis]
+  }
+
+  CH1 -> UI1 -> EN1
+  UI2 -> INT1 -> INT2
+  EN2 -> KG1 -> KG2 -> EN3
+  EN3 -> UI3 -> CH3
+  EN3 -> INT3
+  ET1 -> ET2 -> KG1
+  ET2 -> ET3
+}

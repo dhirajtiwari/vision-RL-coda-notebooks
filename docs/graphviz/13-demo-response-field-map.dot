@@ -2,7 +2,7 @@
 digraph DemoResponseFieldMap {
   graph [
     rankdir=LR
-    label="Figure 13: Demo Response Fields → Neo4j Entities → Enterprise Sources"
+    label="Figure 13: Diagnostic Response Fields → Neo4j Entities → Enterprise Sources"
     labelloc=t
     fontsize=14
     fontname="Arial"
