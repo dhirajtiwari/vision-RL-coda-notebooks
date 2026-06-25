@@ -1,0 +1,75 @@
+// Figure 13: Demo response fields mapped to knowledge graph entities and source systems
+digraph DemoResponseFieldMap {
+  graph [
+    rankdir=LR
+    label="Figure 13: Demo Response Fields → Neo4j Entities → Enterprise Sources"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9, color="#4472C4"]
+
+  subgraph cluster_ui {
+    label="UI Response Sections"
+    style=rounded
+    color="#2E75B6"
+    R_PROD [label="Product:\nFront Load Washing Machine 8kg", shape=box, fillcolor="#D5E8F0"]
+    R_SYM [label="Matched Symptoms\nwm-s01, wm-s02", shape=box, fillcolor="#D5E8F0"]
+    R_FM [label="Failure Mode\nWorn Drive Belt wm-fm01", shape=box, fillcolor="#D5E8F0"]
+    R_STEP [label="Diagnostic Steps\nwm-d01..d04", shape=box, fillcolor="#D5E8F0"]
+    R_RES [label="Past Resolutions\nCLM-2026-00481, wm-r01", shape=box, fillcolor="#D5E8F0"]
+    R_PROV [label="Provenance Trail\nFMEA · ServiceManual · FSM", shape=box, fillcolor="#D5E8F0"]
+    R_CRM [label="CRM Context\nJane Martinez AST-WM-4421", shape=box, fillcolor="#FFF2CC"]
+  }
+
+  subgraph cluster_neo4j {
+    label="Neo4j Nodes & Relationships"
+    style=rounded
+    color="#548235"
+    N_P [label="Product wm-001", shape=box, fillcolor="#E2EFDA"]
+    N_S [label="Symptom nodes", shape=box, fillcolor="#E2EFDA"]
+    N_FM [label="FailureMode nodes", shape=box, fillcolor="#E2EFDA"]
+    N_DS [label="DiagnosticStep nodes", shape=box, fillcolor="#E2EFDA"]
+    N_HR [label="HistoricalResolution nodes", shape=box, fillcolor="#E2EFDA"]
+    N_IND [label="INDICATES edges\n(confidence property)", shape=diamond, fillcolor="#C6E0B4"]
+  }
+
+  subgraph cluster_etl {
+    label="ETL Source Systems (enterprise_pipeline)"
+    style=rounded
+    color="#BF8F00"
+    PIM [label="PIM\npim_catalog.json", shape=component, fillcolor="#FFF2CC"]
+    FMEA [label="FMEA docs\nsymptoms · failure modes", shape=note, fillcolor="#FFF2CC"]
+    MAN [label="Service Manual\ntroubleshooting steps", shape=note, fillcolor="#FFF2CC"]
+    FSM [label="FSM\nfsm_work_orders.json", shape=component, fillcolor="#FFF2CC"]
+    CRM_SRC [label="CRM\ncrm_assets.json", shape=component, fillcolor="#FFF2CC"]
+    CLM [label="Claims\nwarranty policies", shape=component, fillcolor="#FFF2CC"]
+  }
+
+  R_PROD -> N_P
+  R_SYM -> N_S
+  R_FM -> N_FM
+  R_STEP -> N_DS
+  R_RES -> N_HR
+  R_PROV -> N_S
+  R_PROV -> N_FM
+  R_PROV -> N_DS
+  R_PROV -> N_HR
+  R_CRM -> CRM_SRC
+
+  N_P -> N_S [label="HAS_SYMPTOM"]
+  N_P -> N_FM [label="CAN_HAVE"]
+  N_S -> N_IND -> N_FM
+  N_P -> N_DS [label="HAS_DIAGNOSTIC_STEP"]
+  N_HR -> N_P [label="FOR_PRODUCT"]
+
+  PIM -> N_P
+  FMEA -> N_S
+  FMEA -> N_FM
+  MAN -> N_DS
+  FSM -> N_HR
+  CRM_SRC -> R_CRM
+  CLM -> R_CRM [style=dashed, label="policy ref"]
+}

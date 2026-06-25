@@ -1,0 +1,41 @@
+// Figure 11: Confidence dilution — why 94% becomes 47% with two symptoms
+digraph ConfidenceDilution {
+  graph [
+    rankdir=LR
+    label="Figure 11: Confidence Dilution Model (graph/graph_rag.py rank_failure_modes)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  Formula [label="aggregate_confidence =\ntotal_confidence ÷ max(len(symptom_ids), 1)", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
+
+  subgraph cluster_t1 {
+    label="Turn 1 — 1 matched symptom"
+    style=dashed
+    S1 [label="symptom_ids = [wm-s01]", shape=box, fillcolor="#E2EFDA"]
+    E1 [label="Cypher: (wm-s01)-[INDICATES 0.94]->(wm-fm01)\ntotal_confidence = 0.94", shape=box, fillcolor="#E2EFDA"]
+    R1 [label="0.94 ÷ 1 = 0.94 (94%)\nshould_escalate = false", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+    S1 -> E1 -> R1
+  }
+
+  subgraph cluster_t2 {
+    label="Turn 2 — 2 matched symptoms"
+    style=dashed
+    S2 [label="symptom_ids = [wm-s02, wm-s01]", shape=box, fillcolor="#FCE4D6"]
+    E2a [label="wm-s02 → wm-fm03 (0.85)\n(not top — lower total)", shape=box, fillcolor="#FCE4D6"]
+    E2b [label="wm-s01 → wm-fm01 (0.94)\nstill ranked #1", shape=box, fillcolor="#FCE4D6"]
+    R2 [label="0.94 ÷ 2 = 0.47 (47%)\nshould_escalate = true", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
+    S2 -> E2a
+    S2 -> E2b -> R2
+  }
+
+  Threshold [label="ESCALATION_CONFIDENCE_THRESHOLD = 0.65\n(config/settings.py)", shape=note, fillcolor="#D5E8F0"]
+
+  Formula -> S1 [style=dashed]
+  Formula -> S2 [style=dashed]
+  R2 -> Threshold [label="below threshold", color="#C00000"]
+}

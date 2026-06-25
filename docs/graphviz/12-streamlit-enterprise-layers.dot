@@ -1,0 +1,40 @@
+// Figure 12: Streamlit UI enterprise layer stack (ui/app.py)
+digraph StreamlitEnterpriseLayers {
+  graph [
+    rankdir=TB
+    label="Figure 12: Streamlit Enterprise Layer Stack — ui/app.py"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  UI [label="Streamlit ui/app.py\nCustomer Chatbot tab", fillcolor="#BDD7EE"]
+
+  CRM [label="integrations/crm_enrichment.py\nGET mock :8090/api/crm/assets/{id}\nfixture fallback", fillcolor="#FFF2CC"]
+  WAR [label="integrations/warranty_eligibility.py\nCRM status + Claims policies\nWP-STANDARD-24M", fillcolor="#FFF2CC"]
+  GATE [label="Warranty gate\nif not eligible → block diagnosis", shape=diamond, fillcolor="#FCE4D6"]
+
+  LG [label="agents/diagnosis_graph.py\nLangGraph StateGraph", fillcolor="#C6E0B4"]
+  GR [label="graph/graph_rag.py\nGraphRAG diagnose()", fillcolor="#A9D18E"]
+  NEO [label="Neo4j :7687", shape=cylinder, fillcolor="#FCE4D6"]
+
+  ESC [label="utils/escalation_store.py\ndata/escalations.json", fillcolor="#FCE4D6"]
+  CC [label="integrations/case_management.py\nPOST :8090/api/cases", fillcolor="#FFF2CC"]
+  DASH [label="Human Agent Dashboard tab", fillcolor="#BDD7EE"]
+
+  UI -> CRM [label="asset_id priority"]
+  CRM -> WAR
+  WAR -> GATE
+  GATE -> LG [label="eligible"]
+  LG -> GR
+  GR -> NEO
+  GR -> LG
+  LG -> ESC [label="if should_escalate"]
+  LG -> UI
+  ESC -> CC [label="CRM context present"]
+  ESC -> DASH
+  CC -> UI [label="CCaaS case id in chat"]
+}

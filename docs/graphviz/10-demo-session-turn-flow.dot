@@ -1,0 +1,55 @@
+// Figure 10: Demo session — two-turn washer flow (Streamlit → LangGraph → GraphRAG → Neo4j)
+digraph DemoSessionTurnFlow {
+  graph [
+    rankdir=TB
+    label="Figure 10: Demo Session — Two-Turn Washer Diagnosis Flow"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    nodesep=0.35
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  subgraph cluster_turn1 {
+    label="Turn 1: Single symptom — 94% confidence — NO escalation"
+    style=rounded
+    color="#2E75B6"
+    fontcolor="#2E75B6"
+
+    T1_IN [label="Customer message\n'Machine does not spin during the final cycle'", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+    T1_CRM [label="CRM enrich (asset AST-WM-4421)\n→ product_id wm-001\n→ Jane Martinez\nWarranty: eligible", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
+    T1_LG [label="LangGraph\nrun_diagnosis()", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+    T1_SYM [label="match_symptoms\n1 match: wm-s01 (score 1.0)", shape=box, style="rounded,filled", fillcolor="#E2EFDA"]
+    T1_RANK [label="rank_failure_modes\nwm-fm01 Worn Drive Belt\ntotal_confidence=0.94\n÷ 1 symptom = 94%", shape=box, style="rounded,filled", fillcolor="#E2EFDA"]
+    T1_ESC [label="Escalation gate\n94% ≥ 65% → PASS", shape=diamond, style=filled, fillcolor="#C6E0B4"]
+    T1_OUT [label="Response\nResolved at automated tier\nProvenance trail (5 entities)", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+
+    T1_IN -> T1_CRM -> T1_LG -> T1_SYM -> T1_RANK -> T1_ESC -> T1_OUT
+  }
+
+  subgraph cluster_turn2 {
+    label="Turn 2: Multi-symptom — 47% confidence — ESCALATION + CCaaS"
+    style=rounded
+    color="#C00000"
+    fontcolor="#C00000"
+
+    T2_IN [label="Follow-up message\n'Loud grinding noise when it tries to spin'", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+    T2_SYM [label="match_symptoms\n2 matches:\nwm-s02 vibration (0.71)\nwm-s01 spin (0.45)", shape=box, style="rounded,filled", fillcolor="#E2EFDA"]
+    T2_RANK [label="rank_failure_modes\nwm-fm01 still top\ntotal_confidence=0.94\n÷ 2 symptoms = 47%", shape=box, style="rounded,filled", fillcolor="#FCE4D6"]
+    T2_ESC [label="Escalation gate\n47% < 65% → ESCALATE", shape=diamond, style=filled, fillcolor="#F8CBAD"]
+    T2_STORE [label="escalation_store.py\ncase 231311d2", shape=box, style="rounded,filled", fillcolor="#FCE4D6"]
+    T2_CC [label="case_management.py\nPOST mock API\nCASE-4B881382", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
+    T2_OUT [label="Response + Case IDs\nHuman Agent Dashboard", shape=box, style="rounded,filled", fillcolor="#D5E8F0"]
+
+    T2_IN -> T2_SYM -> T2_RANK -> T2_ESC -> T2_STORE -> T2_CC -> T2_OUT
+  }
+
+  Neo [label="Neo4j Knowledge Graph\nProduct wm-001\nSymptoms · FailureModes\nINDICATES edges\nSteps · Resolutions", shape=cylinder, style=filled, fillcolor="#FCE4D6"]
+
+  T1_SYM -> Neo [style=dashed, color="#666666"]
+  T1_RANK -> Neo [style=dashed, color="#666666"]
+  T2_SYM -> Neo [style=dashed, color="#666666"]
+  T2_RANK -> Neo [style=dashed, color="#666666"]
+}

@@ -1,0 +1,48 @@
+// Figure 14: ETL pipelines to runtime diagnosis (batch load → live query)
+digraph ETLToRuntime {
+  graph [
+    rankdir=TB
+    label="Figure 14: Enterprise ETL Pipelines → Neo4j → Runtime Diagnosis"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9]
+
+  subgraph cluster_sources {
+    label="Enterprise Sources (:8090 mock or fixtures)"
+    style=rounded
+    PIM [label="PIM Connector", shape=box, fillcolor="#FFF2CC"]
+    FSM [label="FSM Connector", shape=box, fillcolor="#FFF2CC"]
+    CLM [label="Claims Connector", shape=box, fillcolor="#FFF2CC"]
+    CRM [label="CRM Connector", shape=box, fillcolor="#FFF2CC"]
+  }
+
+  P1 [label="Pipeline 1: knowledge_etl.py\nOntologyBuilder → enterprise_knowledge_catalog.json", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+  POP [label="populate_graph.py\nMERGE + provenance fields", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+  P2 [label="Pipeline 2: smoke_validation.py\ntest_enterprise_scenarios.py", shape=box, style="rounded,filled", fillcolor="#E2EFDA"]
+  P3 [label="Pipeline 3: staging_promotion.py\npromote to Neo4j", shape=box, style="rounded,filled", fillcolor="#E2EFDA"]
+  LINE [label="lineage_store.py\netl_batches.jsonl", shape=note, fillcolor="#F5F5F5"]
+  NEO [label="Neo4j neo4j-demo :7687", shape=cylinder, fillcolor="#FCE4D6"]
+
+  subgraph cluster_runtime {
+    label="Runtime (your demo session)"
+    style=rounded
+    color="#2E75B6"
+    UI [label="Streamlit / API", shape=box, fillcolor="#D5E8F0"]
+    GR [label="graph_rag.py Cypher queries", shape=box, fillcolor="#C6E0B4"]
+  }
+
+  PIM -> P1
+  FSM -> P1
+  CLM -> P1
+  CRM -> P1
+  P1 -> POP -> NEO
+  P1 -> LINE
+  P2 -> LINE
+  P3 -> NEO
+  P3 -> LINE
+  UI -> GR -> NEO
+}
