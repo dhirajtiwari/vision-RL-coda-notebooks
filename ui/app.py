@@ -22,7 +22,7 @@ from integrations.case_management import create_case_from_escalation
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
 from utils.escalation_store import list_escalations, update_escalation_status
-from utils.lineage_store import clear_batches, list_batches
+from utils.lineage_store import list_batches
 
 st.set_page_config(
     page_title="Diagnostics Chatbot Demo",
@@ -365,7 +365,9 @@ with tab_enterprise:
 
         col_clear, _ = st.columns([1, 3])
         if col_clear.button("Clear lineage log"):
-            clear_batches()
+            lineage_file = settings.lineage_dir / "etl_batches.jsonl"
+            if lineage_file.exists():
+                lineage_file.unlink()
             st.rerun()
 
         for batch in batches:
