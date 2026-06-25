@@ -1,0 +1,52 @@
+// Figure 20: POC → Pilot → Production phased roadmap swimlane
+digraph PhasedRoadmapSwimlane {
+  graph [
+    rankdir=LR
+    splines=line
+    nodesep=0.3
+    ranksep=1.0
+    label="Figure 20: Phased Roadmap Swimlane — POC · Pilot · Production"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=8, width=2.0]
+  edge [style=invis]
+
+  subgraph cluster_poc {
+    label="POC (Weeks 1–8)\nProve technical & business hypothesis"
+    bgcolor="#D5E8F0"
+    style="filled,rounded"
+    POC1 [label="2 product families\nGraph diagnosis"]
+    POC2 [label="3 batch pipelines\nETL · smoke · promote"]
+    POC3 [label="Provenance v1\nAgent dossier"]
+    POC4 [label="1 CRM read\nintegration"]
+    POC1 -> POC2 -> POC3 -> POC4
+  }
+
+  subgraph cluster_pilot {
+    label="Pilot (Weeks 9–16)\nOperational trial with real agents"
+    bgcolor="#C6E0B4"
+    style="filled,rounded"
+    PIL1 [label="10–15 families\nScheduled ETL"]
+    PIL2 [label="SSO + API\nCase write-back"]
+    PIL3 [label="Agent desktop\nembed"]
+    PIL4 [label="Override logging\nKPI baseline"]
+    PIL1 -> PIL2 -> PIL3 -> PIL4
+  }
+
+  subgraph cluster_prod {
+    label="Production (Month 5–24+)\nScale · govern · harden"
+    bgcolor="#FCE4D6"
+    style="filled,rounded"
+    PRD1 [label="100+ families\nFull connector suite"]
+    PRD2 [label="14 pipelines\nSME governance"]
+    PRD3 [label="HA Neo4j\nOmnichannel"]
+    PRD4 [label="Regional rollout\nSOC2 alignment"]
+    PRD1 -> PRD2 -> PRD3 -> PRD4
+  }
+
+  POC4 -> PIL1 [label="Go/No-Go", fontname="Arial", fontsize=9, style=bold, color="#2E75B6"]
+  PIL4 -> PRD1 [label="Go/No-Go", fontname="Arial", fontsize=9, style=bold, color="#548235"]
+}
