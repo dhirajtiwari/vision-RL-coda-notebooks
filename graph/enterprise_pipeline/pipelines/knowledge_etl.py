@@ -10,7 +10,7 @@ from config.settings import settings
 from graph.enterprise_pipeline.connectors import ClaimsConnector, CRMConnector, FSMConnector, PIMConnector
 from graph.enterprise_pipeline.connectors.base import ConnectorResult
 from graph.enterprise_pipeline.transformers import OntologyBuilder
-from graph.neo4j_client import get_driver
+from graph.neo4j_client import close_driver, get_driver
 from graph.populate_graph import populate_graph
 from utils.lineage_store import log_batch, new_batch_id
 
@@ -78,7 +78,7 @@ def run_knowledge_etl(*, load_neo4j: bool = False, dry_run: bool = False) -> ETL
         except Exception as exc:
             report.errors.append(f"Neo4j load failed: {exc}")
         finally:
-            driver.close()
+            close_driver()
 
     status = "success" if not report.errors else "partial"
     log_batch(

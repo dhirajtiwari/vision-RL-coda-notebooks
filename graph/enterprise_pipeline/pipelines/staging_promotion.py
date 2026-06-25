@@ -6,7 +6,7 @@ import json
 from dataclasses import dataclass, field
 
 from config.settings import settings
-from graph.neo4j_client import get_driver
+from graph.neo4j_client import close_driver, get_driver
 from graph.populate_graph import populate_graph
 from utils.lineage_store import log_batch
 
@@ -42,7 +42,7 @@ def run_staging_promotion(*, require_smoke_pass: bool = True, smoke_passed: bool
     except Exception as exc:
         report.errors.append(str(exc))
     finally:
-        driver.close()
+        close_driver()
 
     log_batch(
         pipeline="staging_promotion",

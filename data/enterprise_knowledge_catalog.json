@@ -1,4 +1,557 @@
 {
+  "etl_batch_id": "ETL-20260625-e96c76d0",
+  "provenance": {
+    "wm-001": {
+      "source_system": "PIM",
+      "source_record_id": "product-wm-001",
+      "source_document_uri": "manuals/wm-001/catalog.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343132+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-s01": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-s01",
+      "source_document_uri": "manuals/wm-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343158+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-s02": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-s02",
+      "source_document_uri": "manuals/wm-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343165+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-s03": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-s03",
+      "source_document_uri": "manuals/wm-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343170+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-s04": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-s04",
+      "source_document_uri": "manuals/wm-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343174+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-fm01": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-fm01",
+      "source_document_uri": "fmea/wm-001/wm-fm01.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343178+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-fm02": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-fm02",
+      "source_document_uri": "fmea/wm-001/wm-fm02.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343182+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-fm03": {
+      "source_system": "FMEA",
+      "source_record_id": "wm-fm03",
+      "source_document_uri": "fmea/wm-001/wm-fm03.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343186+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-d01": {
+      "source_system": "ServiceManual",
+      "source_record_id": "wm-d01",
+      "source_document_uri": "manuals/wm-001/troubleshooting.pdf#step=1",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343190+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-d02": {
+      "source_system": "ServiceManual",
+      "source_record_id": "wm-d02",
+      "source_document_uri": "manuals/wm-001/troubleshooting.pdf#step=2",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343194+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-d03": {
+      "source_system": "ServiceManual",
+      "source_record_id": "wm-d03",
+      "source_document_uri": "manuals/wm-001/troubleshooting.pdf#step=3",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343197+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-d04": {
+      "source_system": "ServiceManual",
+      "source_record_id": "wm-d04",
+      "source_document_uri": "manuals/wm-001/troubleshooting.pdf#step=4",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343201+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-p01": {
+      "source_system": "PIM",
+      "source_record_id": "AH-DB-8842",
+      "source_document_uri": "pim/bom/wm-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343205+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-p02": {
+      "source_system": "PIM",
+      "source_record_id": "AH-DP-3310",
+      "source_document_uri": "pim/bom/wm-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343211+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-p03": {
+      "source_system": "PIM",
+      "source_record_id": "AH-SA-2201",
+      "source_document_uri": "pim/bom/wm-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343214+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-r01": {
+      "source_system": "FSM",
+      "source_record_id": "wm-r01",
+      "source_document_uri": "fsm/resolutions/wm-r01",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343217+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "wm-r02": {
+      "source_system": "FSM",
+      "source_record_id": "wm-r02",
+      "source_document_uri": "fsm/resolutions/wm-r02",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343221+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "WO-FSM-88104": {
+      "source_system": "FSM",
+      "source_record_id": "WO-FSM-88104",
+      "source_document_uri": "fsm/resolutions/WO-FSM-88104",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343224+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "CLM-2026-00481": {
+      "source_system": "FSM",
+      "source_record_id": "CLM-2026-00481",
+      "source_document_uri": "fsm/resolutions/CLM-2026-00481",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343227+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-001": {
+      "source_system": "PIM",
+      "source_record_id": "product-dw-001",
+      "source_document_uri": "manuals/dw-001/catalog.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343231+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-s01": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-s01",
+      "source_document_uri": "manuals/dw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343234+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-s02": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-s02",
+      "source_document_uri": "manuals/dw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343237+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-s03": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-s03",
+      "source_document_uri": "manuals/dw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343241+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-s04": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-s04",
+      "source_document_uri": "manuals/dw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343244+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-fm01": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-fm01",
+      "source_document_uri": "fmea/dw-001/dw-fm01.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343247+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-fm02": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-fm02",
+      "source_document_uri": "fmea/dw-001/dw-fm02.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343251+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-fm03": {
+      "source_system": "FMEA",
+      "source_record_id": "dw-fm03",
+      "source_document_uri": "fmea/dw-001/dw-fm03.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343254+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-d01": {
+      "source_system": "ServiceManual",
+      "source_record_id": "dw-d01",
+      "source_document_uri": "manuals/dw-001/troubleshooting.pdf#step=1",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343257+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-d02": {
+      "source_system": "ServiceManual",
+      "source_record_id": "dw-d02",
+      "source_document_uri": "manuals/dw-001/troubleshooting.pdf#step=2",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343261+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-d03": {
+      "source_system": "ServiceManual",
+      "source_record_id": "dw-d03",
+      "source_document_uri": "manuals/dw-001/troubleshooting.pdf#step=3",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343264+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-d04": {
+      "source_system": "ServiceManual",
+      "source_record_id": "dw-d04",
+      "source_document_uri": "manuals/dw-001/troubleshooting.pdf#step=4",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343267+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-p01": {
+      "source_system": "PIM",
+      "source_record_id": "CW-HE-4412",
+      "source_document_uri": "pim/bom/dw-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343270+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-p02": {
+      "source_system": "PIM",
+      "source_record_id": "CW-DH-1100",
+      "source_document_uri": "pim/bom/dw-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343273+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-p03": {
+      "source_system": "PIM",
+      "source_record_id": "CW-CP-9920",
+      "source_document_uri": "pim/bom/dw-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343276+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-r01": {
+      "source_system": "FSM",
+      "source_record_id": "dw-r01",
+      "source_document_uri": "fsm/resolutions/dw-r01",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343279+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "dw-r02": {
+      "source_system": "FSM",
+      "source_record_id": "dw-r02",
+      "source_document_uri": "fsm/resolutions/dw-r02",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343283+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "WO-FSM-88210": {
+      "source_system": "FSM",
+      "source_record_id": "WO-FSM-88210",
+      "source_document_uri": "fsm/resolutions/WO-FSM-88210",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343286+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-001": {
+      "source_system": "PIM",
+      "source_record_id": "product-mw-001",
+      "source_document_uri": "manuals/mw-001/catalog.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343289+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-s01": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-s01",
+      "source_document_uri": "manuals/mw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343292+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-s02": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-s02",
+      "source_document_uri": "manuals/mw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343295+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-s03": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-s03",
+      "source_document_uri": "manuals/mw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343298+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-s04": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-s04",
+      "source_document_uri": "manuals/mw-001/symptoms.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343301+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-fm01": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-fm01",
+      "source_document_uri": "fmea/mw-001/mw-fm01.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343305+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-fm02": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-fm02",
+      "source_document_uri": "fmea/mw-001/mw-fm02.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343308+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-fm03": {
+      "source_system": "FMEA",
+      "source_record_id": "mw-fm03",
+      "source_document_uri": "fmea/mw-001/mw-fm03.pdf",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343311+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-d01": {
+      "source_system": "ServiceManual",
+      "source_record_id": "mw-d01",
+      "source_document_uri": "manuals/mw-001/troubleshooting.pdf#step=1",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343315+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-d02": {
+      "source_system": "ServiceManual",
+      "source_record_id": "mw-d02",
+      "source_document_uri": "manuals/mw-001/troubleshooting.pdf#step=2",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343318+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-d03": {
+      "source_system": "ServiceManual",
+      "source_record_id": "mw-d03",
+      "source_document_uri": "manuals/mw-001/troubleshooting.pdf#step=3",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343321+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-d04": {
+      "source_system": "ServiceManual",
+      "source_record_id": "mw-d04",
+      "source_document_uri": "manuals/mw-001/troubleshooting.pdf#step=4",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343324+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-p01": {
+      "source_system": "PIM",
+      "source_record_id": "HP-MG-7700",
+      "source_document_uri": "pim/bom/mw-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343327+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-p02": {
+      "source_system": "PIM",
+      "source_record_id": "HP-WG-0012",
+      "source_document_uri": "pim/bom/mw-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343330+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-p03": {
+      "source_system": "PIM",
+      "source_record_id": "HP-CF-3300",
+      "source_document_uri": "pim/bom/mw-001",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343334+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-r01": {
+      "source_system": "FSM",
+      "source_record_id": "mw-r01",
+      "source_document_uri": "fsm/resolutions/mw-r01",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343337+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "mw-r02": {
+      "source_system": "FSM",
+      "source_record_id": "mw-r02",
+      "source_document_uri": "fsm/resolutions/mw-r02",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343340+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    },
+    "CLM-2025-01933": {
+      "source_system": "FSM",
+      "source_record_id": "CLM-2025-01933",
+      "source_document_uri": "fsm/resolutions/CLM-2025-01933",
+      "source_version": "1.0",
+      "ingested_at": "2026-06-25T05:47:32.343343+00:00",
+      "approved_by": "knowledge-engineering@demo.local",
+      "approval_status": "approved",
+      "etl_batch_id": "ETL-20260625-e96c76d0"
+    }
+  },
   "products": [
     {
       "product": {

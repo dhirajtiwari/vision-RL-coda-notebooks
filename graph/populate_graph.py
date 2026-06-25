@@ -199,11 +199,13 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
 def load_from_file(path: Path | None = None) -> dict[str, int]:
     path = path or settings.data_file
     data = json.loads(path.read_text(encoding="utf-8"))
+    from graph.neo4j_client import close_driver
+
     driver = get_driver()
     try:
         return populate_graph(driver, data)
     finally:
-        driver.close()
+        close_driver()
 
 
 if __name__ == "__main__":

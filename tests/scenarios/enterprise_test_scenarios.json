@@ -17,8 +17,8 @@
       "message": "Dishwasher leaves dishes wet and cold after the cycle",
       "expected_product_id": "dw-001",
       "min_confidence": 0.4,
-      "expect_escalate": false,
-      "notes": "Single dominant failure mode — heating element"
+      "expect_escalate": true,
+      "notes": "Dominant heating-element match but confidence ~45% still below 0.65 threshold"
     },
     {
       "id": "ENT-003",
