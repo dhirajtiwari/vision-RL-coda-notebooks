@@ -1,0 +1,127 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  packages: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_REPO: ${{ github.repository }}
+
+jobs:
+  deploy-staging:
+    if: >
+      (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging') ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve image tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "sha=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_STAGING }}
+        run: |
+          mkdir -p ~/.kube
+          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+
+      - name: Patch image registry for staging
+        run: |
+          export IMG_PREFIX="${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}"
+          find k8s/overlays/staging -name '*.yaml' -exec \
+            sed -i "s|ghcr.io/OWNER/REPO|${IMG_PREFIX}|g" {} +
+          sed -i "s|newTag: latest|newTag: ${{ steps.tag.outputs.sha }}|g" k8s/overlays/staging/kustomization.yaml
+
+      - name: Create secrets
+        env:
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD_STAGING }}
+        run: |
+          kubectl create namespace diagnostics-staging --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n diagnostics-staging create secret generic diagnostics-secrets \
+            --from-literal=NEO4J_PASSWORD="$NEO4J_PASSWORD" \
+            --from-literal=NEO4J_AUTH="neo4j/$NEO4J_PASSWORD" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy staging
+        run: kubectl apply -k k8s/overlays/staging
+
+      - name: Wait for rollouts
+        run: |
+          kubectl -n diagnostics-staging rollout status deployment/diagnostics-api --timeout=180s
+          kubectl -n diagnostics-staging rollout status deployment/diagnostics-ui --timeout=180s
+
+      - name: Smoke test
+        run: |
+          kubectl -n diagnostics-staging run smoke-curl --rm -i --restart=Never \
+            --image=curlimages/curl:8.5.0 -- \
+            curl -sf http://diagnostics-api:8080/health
+
+  deploy-production:
+    if: github.event_name == 'workflow_dispatch' && inputs.environment == 'production'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_PROD }}
+        run: |
+          mkdir -p ~/.kube
+          echo "$KUBE_CONFIG" | base64 -d > ~/.kube/config
+
+      - name: Patch image registry for production
+        run: |
+          export IMG_PREFIX="${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}"
+          find k8s/overlays/prod -name '*.yaml' -exec \
+            sed -i "s|ghcr.io/OWNER/REPO|${IMG_PREFIX}|g" {} +
+          sed -i "s|newTag: latest|newTag: ${{ github.sha }}|g" k8s/overlays/prod/kustomization.yaml
+
+      - name: Create secrets
+        env:
+          NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD_PROD }}
+        run: |
+          kubectl create namespace diagnostics-prod --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n diagnostics-prod create secret generic diagnostics-secrets \
+            --from-literal=NEO4J_PASSWORD="$NEO4J_PASSWORD" \
+            --from-literal=NEO4J_AUTH="neo4j/$NEO4J_PASSWORD" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy production
+        run: kubectl apply -k k8s/overlays/prod
+
+      - name: Wait for rollouts
+        run: |
+          kubectl -n diagnostics-prod rollout status deployment/diagnostics-api --timeout=300s
+          kubectl -n diagnostics-prod rollout status deployment/diagnostics-ui --timeout=300s

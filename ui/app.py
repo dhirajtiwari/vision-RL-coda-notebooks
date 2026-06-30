@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 from agents.diagnosis_graph import run_diagnosis
 from config.settings import settings
@@ -21,6 +22,7 @@ from graph.neo4j_client import verify_connection
 from integrations.case_management import create_case_from_escalation
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
+from integrations.claims_workflow import list_submitted_claims, submit_claim_from_diagnosis, update_claim_status
 from utils.escalation_store import list_escalations, update_escalation_status
 from utils.lineage_store import list_batches
 
@@ -77,6 +79,45 @@ def _format_batch_source(name: str, src: object) -> str:
     return str(src)
 
 
+def _render_interactive_graph(
+    graph_data: dict | None,
+    *,
+    height: int = 520,
+    caption: str = "",
+) -> None:
+    if not graph_data or not graph_data.get("nodes"):
+        st.caption("No graph data to display.")
+        return
+    from graph.graph_visualization import render_pyvis_html
+
+    html = render_pyvis_html(graph_data, height=f"{height}px")
+    if caption:
+        st.caption(caption)
+    components.html(html, height=height + 20, scrolling=True)
+    st.caption(
+        f"{graph_data.get('node_count', 0)} nodes · "
+        f"{graph_data.get('edge_count', 0)} relationships · "
+        "drag nodes · scroll to zoom · red = diagnosis path"
+    )
+
+
+def _neo4j_browser_cypher(diagnosis: dict) -> str:
+    product_id = diagnosis.get("product_id", "")
+    symptoms = diagnosis.get("matched_symptoms") or []
+    symptom_ids = ", ".join(f"'{s['symptom_id']}'" for s in symptoms[:4])
+    top_fm = (diagnosis.get("ranked_failure_modes") or [None])[0]
+    fm_id = top_fm.get("failure_mode_id", "") if top_fm else ""
+    return f"""// Diagnosis reasoning path (open in Neo4j Browser :7474)
+MATCH (p:Product {{product_id: '{product_id}'}})
+MATCH (p)-[:HAS_SYMPTOM]->(s:Symptom)
+WHERE s.symptom_id IN [{symptom_ids}]
+MATCH (s)-[ind:INDICATES]->(fm:FailureMode {{failure_mode_id: '{fm_id}'}})
+OPTIONAL MATCH (fm)-[:REQUIRES_PART]->(pt:Part)
+OPTIONAL MATCH (r:HistoricalResolution)-[:FOR_PRODUCT]->(p)
+OPTIONAL MATCH (r)-[:CONFIRMED]->(fm)
+RETURN p, s, ind, fm, pt, r"""
+
+
 def _render_provenance(trail: list[dict]) -> None:
     if not trail:
         st.caption("No provenance trail recorded.")
@@ -110,8 +151,9 @@ if not neo4j_ok:
     )
     st.stop()
 
-tab_chat, tab_dashboard, tab_graph, tab_enterprise = st.tabs([
+tab_chat, tab_claims, tab_dashboard, tab_graph, tab_enterprise = st.tabs([
     "Customer Chatbot",
+    "Warranty Claims",
     "Human Agent Dashboard",
     "Knowledge Graph",
     "Enterprise Systems",
@@ -195,9 +237,30 @@ with tab_chat:
                 with st.expander("Warranty Eligibility"):
                     st.json(msg["warranty"])
             if msg.get("diagnosis"):
+                diagnosis = msg["diagnosis"] or {}
+                if diagnosis.get("product_id") and asset_id and crm_context.get("enriched"):
+                    if st.button("Submit Warranty Claim", key=f"claim_{len(st.session_state.messages)}"):
+                        claim = submit_claim_from_diagnosis(
+                            diagnosis=diagnosis,
+                            asset_id=asset_id,
+                            customer_id=customer_id or "",
+                            user_message=msg.get("content", prompt or ""),
+                        )
+                        st.success(f"Claim `{claim['claim_id']}` submitted — status: {claim['status']}")
+                with st.expander("Diagnosis Graph (interactive)", expanded=True):
+                    subgraph = diagnosis.get("graph_subgraph")
+                    if subgraph:
+                        _render_interactive_graph(
+                            subgraph,
+                            caption="Nodes and relationships used for this diagnosis answer.",
+                        )
+                        with st.expander("Open same query in Neo4j Browser"):
+                            st.code(_neo4j_browser_cypher(diagnosis), language="cypher")
+                    else:
+                        st.caption("Graph subgraph not available for this message.")
                 with st.expander("Diagnosis Details"):
-                    st.json(msg["diagnosis"])
-                    trail = (msg["diagnosis"] or {}).get("provenance_trail", [])
+                    st.json(diagnosis)
+                    trail = diagnosis.get("provenance_trail", [])
                     if trail:
                         st.markdown("**Provenance Trail**")
                         _render_provenance(trail)
@@ -209,6 +272,9 @@ with tab_chat:
             "My washing machine won't spin and water stays in the drum",
             "Dishwasher leaves dishes wet and cold after the cycle",
             "Microwave runs but food stays cold, and I see arcing inside",
+            "Samsung refrigerator shows 22E and fridge section is warm",
+            "LG dryer shows d90 and clothes are still damp",
+            "Whirlpool gas range F9 E0 and oven won't heat",
         ],
     )
 
@@ -230,7 +296,11 @@ with tab_chat:
             st.rerun()
 
         with st.spinner("Querying knowledge graph..."):
-            result = run_diagnosis(prompt, product_id=product_id)
+            result = run_diagnosis(
+                prompt,
+                product_id=product_id,
+                asset_id=asset_id if crm_context.get("enriched") else None,
+            )
 
         response = result["response"]
         ccaas_case_id = None
@@ -255,6 +325,43 @@ with tab_chat:
             "warranty": active_warranty or None,
         })
         st.rerun()
+
+# ── Warranty Claims ───────────────────────────────────────────────────────────
+with tab_claims:
+    st.subheader("Warranty Claims — Graph-Backed Submissions")
+    st.markdown(
+        "Claims are created from diagnosis outcomes with predicted parts, "
+        "BOM impact, warranty eligibility, and Neo4j claim nodes."
+    )
+    claims = list_submitted_claims(limit=30)
+    if not claims:
+        st.info("No claims submitted yet. Run a diagnosis with a CRM asset bound, then click **Submit Warranty Claim**.")
+    else:
+        for claim in claims:
+            with st.expander(
+                f"[{claim.get('status', 'unknown').upper()}] {claim.get('claim_id')} — "
+                f"{claim.get('failure_mode_name', 'N/A')} — ${claim.get('estimated_parts_cost_usd', 0):.2f}"
+            ):
+                st.markdown(f"**Asset:** `{claim.get('asset_id')}` · **Model:** {claim.get('model_number', 'N/A')}")
+                st.markdown(f"**Confidence:** {claim.get('diagnosis_confidence', 0):.0%}")
+                wc = claim.get("warranty_check", {})
+                st.markdown(f"**Warranty:** {'Eligible' if wc.get('eligible') else 'Review'} — {wc.get('reason', '')}")
+                parts = claim.get("predicted_parts", [])
+                if parts:
+                    st.markdown("**Predicted Parts:**")
+                    for p in parts[:3]:
+                        st.markdown(f"- {p.get('name')} · `{p.get('part_number')}` · score {p.get('prediction_score', 0):.0%}")
+                c1, c2, c3 = st.columns(3)
+                if c1.button("Approve", key=f"appr_{claim['claim_id']}"):
+                    update_claim_status(claim["claim_id"], "approved")
+                    st.rerun()
+                if c2.button("Deny", key=f"deny_{claim['claim_id']}"):
+                    update_claim_status(claim["claim_id"], "denied")
+                    st.rerun()
+                if c3.button("Close", key=f"clm_close_{claim['claim_id']}"):
+                    update_claim_status(claim["claim_id"], "closed")
+                    st.rerun()
+                st.json(claim)
 
 # ── Human Agent Dashboard ─────────────────────────────────────────────────────
 with tab_dashboard:
@@ -300,29 +407,101 @@ with tab_dashboard:
 
 # ── Knowledge Graph Explorer ──────────────────────────────────────────────────
 with tab_graph:
-    st.subheader("Knowledge Graph Explorer")
-    st.markdown("Browse products and failure modes loaded in Neo4j.")
+    from graph.graph_visualization import (
+        get_diagnosis_subgraph,
+        get_ontology_schema,
+        get_product_subgraph,
+    )
 
-    for product in products:
-        st.markdown(f"### {product['name']}")
-        st.markdown(f"_{product['brand']} · {product['category']}_")
+    st.subheader("Knowledge Graph Explorer")
+    st.markdown(
+        "Interactive graph views aligned with Neo4j tutorial practices: "
+        "ER ontology schema, full product neighborhoods, and diagnosis reasoning paths."
+    )
+
+    product_labels = {p["name"]: p["product_id"] for p in products}
+
+    graph_tab_ontology, graph_tab_product, graph_tab_cypher = st.tabs([
+        "Ontology (ER Diagram)",
+        "Product Graph",
+        "Cypher Explorer",
+    ])
+
+    with graph_tab_ontology:
+        st.markdown("**Property-graph schema** — node labels, key properties, and relationship types.")
+        ontology = get_ontology_schema()
+        _render_interactive_graph(ontology, height=480)
+        st.markdown(
+            "Static reference also available in `docs/graphviz/05-neo4j-ontology.dot` "
+            "and Neo4j Browser at http://localhost:7474"
+        )
+
+    with graph_tab_product:
+        selected = st.selectbox("Product", list(product_labels.keys()), key="graph_product")
+        pid = product_labels[selected]
+        subgraph = get_product_subgraph(pid)
+        _render_interactive_graph(
+            subgraph,
+            caption=f"Full neighborhood for {selected} — drag, zoom, and explore relationships.",
+        )
 
         from graph.graph_rag import get_diagnostic_steps, list_failure_modes
 
-        steps = get_diagnostic_steps(product["product_id"])
-        failures = list_failure_modes(product["product_id"])
+        c1, c2 = st.columns(2)
+        with c1:
+            failures = list_failure_modes(pid)
+            if failures:
+                st.markdown("**Failure Modes**")
+                for fm in failures:
+                    st.markdown(f"- **{fm['name']}**")
+        with c2:
+            steps = get_diagnostic_steps(pid)
+            if steps:
+                st.markdown("**Diagnostic Steps**")
+                for step in steps:
+                    st.markdown(f"{step['step_order']}. {step['description'][:60]}...")
 
-        if failures:
-            st.markdown("**Failure Modes:**")
-            for fm in failures:
-                st.markdown(f"- **{fm['name']}** — {fm['description'][:80]}...")
+    with graph_tab_cypher:
+        st.markdown(
+            "Run a sample diagnosis path query and see the graph update — "
+            "same pattern as Neo4j Browser / Bloom tutorials."
+        )
+        cypher_product = st.selectbox(
+            "Product",
+            list(product_labels.keys()),
+            key="cypher_product",
+        )
+        cypher_pid = product_labels[cypher_product]
+        from graph.graph_rag import match_symptoms
 
-        if steps:
-            st.markdown("**Diagnostic Steps:**")
-            for step in steps:
-                st.markdown(f"{step['step_order']}. {step['description']}")
+        sample_msg = st.text_input(
+            "Sample customer message",
+            value="My washing machine won't spin and water stays in the drum",
+            key="cypher_msg",
+        )
+        matched = match_symptoms(cypher_pid, sample_msg)
+        symptom_ids = [s["symptom_id"] for s in matched]
+        st.markdown("**Matched symptoms:** " + ", ".join(symptom_ids) if symptom_ids else "_none_")
 
-        st.divider()
+        fm_options = list_failure_modes(cypher_pid)
+        fm_labels = {f"{fm['name']} ({fm['failure_mode_id']})": fm["failure_mode_id"] for fm in fm_options}
+        selected_fm = st.selectbox("Top failure mode", list(fm_labels.keys()), key="cypher_fm")
+        fm_id = fm_labels[selected_fm]
+
+        if st.button("Run diagnosis subgraph query", key="run_cypher_viz"):
+            diag_graph = get_diagnosis_subgraph(cypher_pid, symptom_ids=symptom_ids, failure_mode_id=fm_id)
+            st.session_state["cypher_explorer_graph"] = diag_graph
+
+        if st.session_state.get("cypher_explorer_graph"):
+            _render_interactive_graph(st.session_state["cypher_explorer_graph"])
+            st.code(
+                f"MATCH (p:Product {{product_id: '{cypher_pid}'}})\n"
+                f"MATCH (p)-[:HAS_SYMPTOM]->(s:Symptom)\n"
+                f"WHERE s.symptom_id IN {symptom_ids}\n"
+                f"MATCH (s)-[ind:INDICATES]->(fm:FailureMode {{failure_mode_id: '{fm_id}'}})\n"
+                f"RETURN p, s, ind, fm",
+                language="cypher",
+            )
 
 # ── Enterprise Systems ────────────────────────────────────────────────────────
 with tab_enterprise:

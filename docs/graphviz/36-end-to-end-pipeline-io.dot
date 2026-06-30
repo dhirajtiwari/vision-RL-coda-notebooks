@@ -1,0 +1,83 @@
+// End-to-End Pipeline — inputs, outputs, formats, files (blueprint → claim)
+digraph EndToEndPipelineIO {
+  graph [
+    rankdir=TB
+    label="End-to-End Pipeline — Blueprint → Knowledge Graph → Diagnosis → Claim\n(Inputs · Outputs · File Formats · Tools)"
+    labelloc=t
+    fontsize=13
+    fontname="Arial"
+    bgcolor="white"
+    splines=ortho
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=8]
+  edge [fontname="Arial", fontsize=7, color="#2E75B6"]
+
+  subgraph cluster_phase0 {
+    label="Phase 0 — OEM Blueprint Authoring (offline)"
+    color="#5D4037"
+    P0_IN [label="INPUT\nPublic OEM support docs\n(error codes · service manuals)", fillcolor="#EFEBE9"]
+    P0_TOOL [label="TOOL\ngraph/oem_product_catalog.py\n10 OEM builders + 3 legacy", fillcolor="#FFD966"]
+    P0_EXT [label="TOOL\ngraph/warranty_catalog_extensions.py\nModel · SKU · Component · Asset · Claim", fillcolor="#FFD966"]
+    P0_OUT [label="OUTPUT (in-memory dict)\nproducts[] with nested:\nsymptoms · failure_modes · steps\nparts · error_codes · trees", fillcolor="#FFF2CC"]
+    P0_IN -> P0_TOOL -> P0_EXT -> P0_OUT
+  }
+
+  subgraph cluster_phase1 {
+    label="Phase 1 — Fixture Sync"
+    color="#F57C00"
+    P1_TOOL [label="TOOL\npim_blueprint_sync.py\npython -m graph.enterprise_pipeline.transformers.pim_blueprint_sync", fillcolor="#FFE0B2"]
+    P1_OUT1 [label="OUTPUT JSON\npim_catalog.json\n{source_system, products[]}", shape=note, fillcolor="#FFF8E1"]
+    P1_OUT2 [label="OUTPUT JSON\nenterprise_knowledge_catalog.json\n+ assets · claims · policies", shape=note, fillcolor="#FFF8E1"]
+    P0_OUT -> P1_TOOL
+    P1_TOOL -> P1_OUT1
+    P1_TOOL -> P1_OUT2
+  }
+
+  subgraph cluster_phase2 {
+    label="Phase 2 — Enterprise ETL (batch)"
+    color="#2E7D32"
+    P2_IN [label="INPUT JSON fixtures\npim_catalog.json\ncrm_assets.json\nclaims_history.json\nfsm_work_orders.json", shape=folder, fillcolor="#E8F5E9"]
+    P2_CONN [label="CONNECTORS\npim · crm · claims · fsm_connector.py\nHTTP → mock :8090 OR fixture_fallback", fillcolor="#C8E6C9"]
+    P2_ETL [label="TOOL\npipelines/knowledge_etl.py\n+ orchestrator.py (ETL→smoke→promote)", fillcolor="#A5D6A7"]
+    P2_OB [label="TOOL\ntransformers/ontology_builder.py\nmerge PIM+FSM+Claims → validated catalog", fillcolor="#A5D6A7"]
+    P2_OUT [label="OUTPUT JSON\nsynthetic_diagnosis_data.json\n{products[], provenance{}, etl_batch_id}", shape=note, fillcolor="#FFF8E1"]
+    P2_LINE [label="OUTPUT JSONL\ndata/lineage/etl_batches.jsonl", shape=note, fillcolor="#FAFAFA"]
+    P1_OUT1 -> P2_IN
+    P2_IN -> P2_CONN -> P2_ETL -> P2_OB -> P2_OUT
+    P2_ETL -> P2_LINE
+  }
+
+  subgraph cluster_phase3 {
+    label="Phase 3 — Neo4j Graph Load"
+    color="#1565C0"
+    P3_TOOL [label="TOOL\ngraph/populate_graph.py\nMERGE nodes + relationships\n+ constraints", fillcolor="#90CAF9"]
+    P3_OUT [label="OUTPUT\nNeo4j graph (Bolt)\n13 products · 8 assets\nINDICATES · NEXT_STEP · REQUIRES_PART", shape=cylinder, fillcolor="#E3F2FD"]
+    P2_OUT -> P3_TOOL -> P3_OUT
+  }
+
+  subgraph cluster_phase4 {
+    label="Phase 4 — Runtime Diagnosis"
+    color="#6A1B9A"
+    P4_IN [label="INPUT\nuser message (text)\nproduct_id / asset_id (optional)", fillcolor="#F3E5F5"]
+    P4_CRM [label="TOOL\nintegrations/crm_enrichment.py\nbind asset → product · SKU", fillcolor="#E1BEE7"]
+    P4_RAG [label="TOOL\ngraph/graph_rag.py\ndiagnose() — symptom match\nrank failure modes", fillcolor="#E1BEE7"]
+    P4_DE [label="TOOL\ngraph/diagnostic_engine.py\nNEXT_STEP tree traversal", fillcolor="#E1BEE7"]
+    P4_PP [label="TOOL\ngraph/parts_predictor.py\nREQUIRES_PART + BOM + precedent", fillcolor="#E1BEE7"]
+    P4_OUT [label="OUTPUT JSON\nDiagnosisResult / API response\nmatched_symptoms · ranked_failure_modes\npredicted_parts · diagnostic_tree\nconfidence · provenance_trail", shape=note, fillcolor="#FFF8E1"]
+    P4_IN -> P4_CRM -> P4_RAG
+    P3_OUT -> P4_RAG [label="Cypher read", style=dashed]
+    P4_RAG -> P4_DE -> P4_PP -> P4_OUT
+  }
+
+  subgraph cluster_phase5 {
+    label="Phase 5 — Warranty & Claim"
+    color="#00838F"
+    P5_W [label="TOOL\nintegrations/warranty_eligibility.py\npolicy + asset check", fillcolor="#B2EBF2"]
+    P5_C [label="TOOL\nintegrations/claims_workflow.py\nsubmit_claim_from_diagnosis()\nupdate_claim_status()", fillcolor="#B2EBF2"]
+    P5_OUT1 [label="OUTPUT JSON\ndata/enterprise_sources/claims_submissions.json", shape=note, fillcolor="#FFF8E1"]
+    P5_OUT2 [label="OUTPUT Neo4j\nClaim node MERGE\nFOR_ASSET · CONFIRMED · USED_PART", shape=cylinder, fillcolor="#E0F7FA"]
+    P4_OUT -> P5_W -> P5_C
+    P5_C -> P5_OUT1
+    P5_C -> P5_OUT2
+  }
+}

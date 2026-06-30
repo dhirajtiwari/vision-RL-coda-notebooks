@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 568)">
 <title>EnterpriseProduction</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-568 563,-568 563,4 -4,4"/>
-<text xml:space="preserve" text-anchor="middle" x="279.5" y="-546.7" font-family="Arial" font-size="14.00">Figure 9: Enterprise Production Target Architecture (Post&#45;MVP)</text>
+<text xml:space="preserve" text-anchor="middle" x="279.5" y="-546.7" font-family="Arial" font-size="14.00">[DEPRECATED — use 30+31+32 K8s/CI/CD diagrams] Figure 9: Production Target</text>
 <g id="clust1" class="cluster">
 <title>cluster_sources</title>
 <polygon fill="white" stroke="black" points="8,-456.5 8,-532.25 356,-532.25 356,-456.5 8,-456.5"/>

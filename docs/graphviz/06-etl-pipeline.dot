@@ -2,7 +2,7 @@
 digraph ETLPipeline {
   graph [
     rankdir=LR
-    label="Figure 6: Enterprise Knowledge Graph ETL Pipeline"
+    label="[DEPRECATED — use 28-architecture-LLD-etl-connector-pipeline.dot] Figure 6: ETL Pipeline"
     labelloc=t
     fontsize=14
     fontname="Arial"

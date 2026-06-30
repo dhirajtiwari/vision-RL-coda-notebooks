@@ -1,0 +1,135 @@
+digraph L4_Code {
+  rankdir=LR;
+  graph [fontname="Helvetica", fontsize=10, splines=ortho, nodesep=0.35, ranksep=0.55];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=8, fillcolor=white];
+  edge [fontname="Helvetica", fontsize=7, color="#37474F"];
+
+  subgraph cluster_entry {
+    label="Entry Points";
+    style=dashed; color="#1565C0";
+    streamlit [label="ui/app.py\nStreamlit main()", fillcolor="#E3F2FD"];
+    fastapi [label="api/main.py\nFastAPI app", fillcolor="#E8F5E9"];
+    cli_etl [label="python -m graph.enterprise_pipeline.orchestrator", fillcolor="#EFEBE9"];
+    cli_pim [label="python -m graph.enterprise_pipeline.transformers.pim_blueprint_sync", fillcolor="#EFEBE9"];
+    cli_synth [label="python -m graph.synthetic_data_generator", fillcolor="#FFF3E0"];
+    cli_pop [label="python graph/populate_graph.py", fillcolor="#FFF3E0"];
+  }
+
+  subgraph cluster_api_routes {
+    label="api/main.py routes";
+    style=dashed; color="#2E7D32";
+    r_diag [label="POST /diagnose"];
+    r_claim_submit [label="POST /claims/submit"];
+    r_claim_list [label="GET /claims\nGET /claims/{id}"];
+    r_claim_patch [label="PATCH /claims/{id}/status"];
+    r_graph_ont [label="GET /graph/ontology"];
+    r_graph_prod [label="GET /graph/product/{id}"];
+    r_graph_diag [label="GET /graph/diagnosis-subgraph"];
+    r_health [label="GET /health"];
+    r_lineage [label="GET /lineage/batches"];
+  }
+
+  subgraph cluster_api_integrations {
+    label="api/main.py runtime integrations";
+    style=dashed; color="#00838F";
+    crm_enrich [label="crm_enrichment.py\nenrich_session_from_crm()"];
+    case_mgmt [label="case_management.py\ncreate_case_from_escalation()"];
+    warranty_elig [label="warranty_eligibility.py\ncheck_warranty_eligibility()"];
+  }
+
+  subgraph cluster_agent_code {
+    label="agents/diagnosis_graph.py (4 nodes)";
+    style=dashed; color="#6A1B9A";
+    node_detect [label="detect_product"];
+    node_run [label="run_diagnosis"];
+    node_format [label="format_response"];
+    node_esc [label="handle_escalation"];
+    tools_py [label="agents/tools.py\ntool_detect_product · tool_diagnose"];
+  }
+
+  subgraph cluster_graph_modules {
+    label="graph/ core modules";
+    style=dashed; color="#E65100";
+    graph_rag [label="graph_rag.py\ndiagnose() · DiagnosisResult"];
+    diag_engine [label="diagnostic_engine.py\nget_next_diagnostic_step"];
+    parts_pred [label="parts_predictor.py\npredict_parts"];
+    graph_viz [label="graph_visualization.py\nget_*_subgraph · render_pyvis"];
+    warranty_ext [label="warranty_catalog_extensions.py"];
+    oem_cat [label="oem_product_catalog.py\n10 OEM + 3 legacy"];
+    synth_gen [label="synthetic_data_generator.py"];
+    pop_graph [label="populate_graph.py"];
+  }
+
+  subgraph cluster_etl_code {
+    label="graph/enterprise_pipeline/";
+    style=dashed; color="#5D4037";
+    orch [label="orchestrator.py\nrun_all()"];
+    knowledge [label="pipelines/knowledge_etl.py\nrun_knowledge_etl()"];
+    smoke [label="pipelines/smoke_validation.py"];
+    promote [label="pipelines/staging_promotion.py"];
+    ontology_b [label="transformers/ontology_builder.py"];
+    pim_sync [label="transformers/pim_blueprint_sync.py\nsync_pim_fixture()"];
+    pim_c [label="connectors/pim_connector.py"];
+    crm_c [label="connectors/crm_connector.py"];
+    claims_c [label="connectors/claims_connector.py"];
+    fsm_c [label="connectors/fsm_connector.py"];
+    lineage [label="utils/lineage_store.py"];
+  }
+
+  subgraph cluster_integrations_code {
+    label="integrations/";
+    style=dashed; color="#00838F";
+    claims_wf [label="claims_workflow.py\nsubmit · update_claim_status"];
+    fsm_esc [label="fsm_escalation.py (via escalation_store)"];
+  }
+
+  subgraph cluster_sim {
+    label="simulation/";
+    style=dashed; color="#455A64";
+    mock [label="mock_enterprise_apps.py\nFastAPI :8090"];
+  }
+
+  streamlit -> r_diag;
+  streamlit -> r_claim_submit;
+  streamlit -> r_graph_ont;
+  fastapi -> r_diag;
+
+  r_diag -> crm_enrich;
+  r_diag -> warranty_elig;
+  r_diag -> node_detect;
+  r_diag -> case_mgmt;
+  r_claim_submit -> crm_enrich;
+  r_claim_submit -> node_detect;
+  r_claim_submit -> claims_wf;
+  r_claim_list -> claims_wf;
+  r_claim_patch -> claims_wf;
+  r_graph_ont -> graph_viz;
+  r_graph_prod -> graph_viz;
+  r_graph_diag -> graph_viz;
+
+  node_detect -> node_run -> node_format -> node_esc;
+  node_detect -> tools_py;
+  node_run -> tools_py;
+  tools_py -> graph_rag;
+
+  cli_synth -> oem_cat;
+  cli_synth -> pim_sync;
+  cli_pop -> pop_graph;
+  cli_pim -> pim_sync;
+  pim_sync -> oem_cat;
+
+  cli_etl -> orch;
+  orch -> knowledge;
+  orch -> smoke;
+  orch -> promote;
+  knowledge -> pim_c;
+  knowledge -> crm_c;
+  knowledge -> claims_c;
+  knowledge -> fsm_c;
+  knowledge -> ontology_b;
+  knowledge -> lineage;
+  pim_c -> mock;
+  crm_c -> mock;
+  claims_c -> mock;
+  fsm_c -> mock;
+}

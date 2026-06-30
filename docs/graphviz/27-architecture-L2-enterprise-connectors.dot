@@ -1,0 +1,76 @@
+// L2 Detail — Enterprise Connector Topology (connector-based integration map)
+digraph L2_EnterpriseConnectors {
+  graph [
+    rankdir=LR
+    label="L2 Detail — Enterprise Connector Topology (Protocols · Endpoints · Fallbacks)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  subgraph cluster_upstream {
+    label="Upstream Systems (Production Targets)"
+    color="#666666"
+    PIMSys [label="SAP PLM / PIM", fillcolor="#EDEDED"]
+    CRMSys [label="Salesforce CRM", fillcolor="#EDEDED"]
+    ClaimSys [label="Guidewire ClaimCenter", fillcolor="#EDEDED"]
+    FSMSys [label="Field Service Mgmt", fillcolor="#EDEDED"]
+  }
+
+  subgraph cluster_mock {
+    label="Mock API (simulation/mock_enterprise_apps.py :8090)"
+    color="#843C0C"
+    MHealth [label="GET /health", fillcolor="#E7E6E6"]
+    MPIM [label="GET /api/pim/products", fillcolor="#FFE699"]
+    MCRM [label="GET /api/crm/customers\nGET /api/crm/assets", fillcolor="#FFE699"]
+    MClaims [label="GET /api/claims/closed", fillcolor="#FFE699"]
+    MFSM [label="GET /api/fsm/work-orders", fillcolor="#FFE699"]
+    MCases [label="POST /api/cases", fillcolor="#FFE699"]
+  }
+
+  subgraph cluster_connectors {
+    label="Connector Layer (graph/enterprise_pipeline/connectors/)"
+    color="#1F4E79"
+    PIMC [label="PIMConnector\nfetch() → ConnectorResult\nfixture: pim_catalog.json", fillcolor="#BDD7EE"]
+    CRMC [label="CRMConnector\nfetch() → customers + assets\ncrm_assets.json", fillcolor="#BDD7EE"]
+    ClaimsC [label="ClaimsConnector\nfetch() → policies + claims\nclaims_history.json", fillcolor="#BDD7EE"]
+    FSMC [label="FSMConnector\nfetch() → closed WOs\nfsm_work_orders.json", fillcolor="#BDD7EE"]
+    Base [label="EnterpriseConnector (ABC)\nConnectorResult {records, metadata, errors}", fillcolor="#D5E8F0"]
+  }
+
+  subgraph cluster_runtime {
+    label="Runtime Consumers"
+    color="#548235"
+    ETLPipe [label="knowledge_etl.py\nPIM+FSM+Claims → OntologyBuilder", fillcolor="#C6E0B4"]
+    CRMRun [label="crm_enrichment.py\nruntime asset bind", fillcolor="#A9D18E"]
+    Warranty [label="warranty_eligibility.py\npolicy lookup", fillcolor="#A9D18E"]
+    Neo4j [label="Neo4j :7687", shape=cylinder, fillcolor="#FCE4D6"]
+  }
+
+  PIMSys -> MPIM [label="prod HTTPS", style=dashed]
+  CRMSys -> MCRM [style=dashed]
+  ClaimSys -> MClaims [style=dashed]
+  FSMSys -> MFSM [style=dashed]
+
+  MPIM -> PIMC [label="HTTP or fixture_fallback"]
+  MCRM -> CRMC
+  MClaims -> ClaimsC
+  MFSM -> FSMC
+  Base -> PIMC [style=dashed, label="implements"]
+  Base -> CRMC [style=dashed]
+  Base -> ClaimsC [style=dashed]
+  Base -> FSMC [style=dashed]
+
+  PIMC -> ETLPipe [label="products[]"]
+  FSMC -> ETLPipe [label="work_orders[]"]
+  ClaimsC -> ETLPipe [label="closed_claims[]"]
+  CRMC -> ETLPipe [label="(catalog only)", style=dashed]
+  ETLPipe -> Neo4j [label="populate_graph MERGE"]
+
+  MCRM -> CRMRun [label="HTTP runtime"]
+  CRMRun -> Neo4j [label="asset_id → product_id", style=dashed]
+  MClaims -> Warranty [label="HTTP runtime"]
+}

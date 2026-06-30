@@ -1,0 +1,63 @@
+// LLD — REST API Routes & Runtime Connector Bindings
+digraph LLD_API_ConnectorRoutes {
+  graph [
+    rankdir=LR
+    label="LLD — REST API Routes & Runtime Connector Protocol Map"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Courier", fontsize=8]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  Client [label="Client / Streamlit", fillcolor="#D5E8F0"]
+
+  subgraph cluster_api {
+    label="FastAPI api/main.py :8080"
+    color="#1F4E79"
+    H [label="GET /health", fillcolor="#BDD7EE"]
+    D [label="POST /diagnose", fillcolor="#BDD7EE"]
+    CS [label="POST /claims/submit", fillcolor="#BDD7EE"]
+    CL [label="GET /claims\nGET /claims/{id}\nPATCH /claims/{id}/status", fillcolor="#BDD7EE"]
+    GO [label="GET /graph/ontology\nGET /graph/product/{id}\nGET /graph/diagnosis-subgraph", fillcolor="#BDD7EE"]
+    LB [label="GET /lineage/batches", fillcolor="#BDD7EE"]
+  }
+
+  subgraph cluster_runtime_connectors {
+    label="Runtime Integrations"
+    color="#548235"
+    CRM [label="crm_enrichment.py\n→ Mock :8090 /api/crm/*", fillcolor="#FFE699"]
+    WE [label="warranty_eligibility.py\n→ Claims API / fixture", fillcolor="#FFE699"]
+    LG [label="run_diagnosis()\nLangGraph → GraphRAG", fillcolor="#C6E0B4"]
+    CW [label="claims_workflow.py", fillcolor="#FFD966"]
+  }
+
+  subgraph cluster_data {
+    label="Data Stores"
+    color="#843C0C"
+    Neo4j [label="Neo4j Bolt :7687", shape=cylinder, fillcolor="#FCE4D6"]
+    JSON [label="claims_submissions.json\nescalations.json", shape=note, fillcolor="#FFF2CC"]
+  }
+
+  Client -> H
+  Client -> D
+  Client -> CS
+  Client -> CL
+  Client -> GO
+  Client -> LB
+
+  D -> CRM [label="customer_id, asset_id"]
+  D -> WE [label="warranty gate"]
+  D -> LG [label="message, product_id, asset_id"]
+  CS -> CRM
+  CS -> LG
+  CS -> CW
+  CL -> CW
+
+  LG -> Neo4j [label="Cypher"]
+  GO -> Neo4j [label="subgraph JSON"]
+  CW -> Neo4j [label="MERGE Claim"]
+  CW -> JSON
+  LB -> JSON [label="lineage/etl_batches.jsonl"]
+}

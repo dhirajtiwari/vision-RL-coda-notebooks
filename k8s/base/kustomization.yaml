@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - neo4j-statefulset.yaml
+  - neo4j-service.yaml
+  - mock-enterprise-deployment.yaml
+  - mock-enterprise-service.yaml
+  - diagnostics-api-deployment.yaml
+  - diagnostics-api-service.yaml
+  - diagnostics-ui-deployment.yaml
+  - diagnostics-ui-service.yaml
+  - etl-cronjob.yaml
+  - ingress.yaml
+  - pvc-enterprise-data.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: diagnostics-platform
+  app.kubernetes.io/managed-by: kustomize

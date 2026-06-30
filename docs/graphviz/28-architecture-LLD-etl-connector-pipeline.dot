@@ -1,0 +1,50 @@
+// LLD — ETL Connector Pipeline (knowledge_etl + pim_blueprint_sync)
+digraph LLD_ETL_ConnectorPipeline {
+  graph [
+    rankdir=TB
+    label="LLD — ETL Connector Pipeline (Batch · Provenance · Neo4j Load)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    splines=ortho
+  ]
+  node [shape=box, fontname="Arial", fontsize=9, style=filled]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  Ops [label="Platform Ops", fillcolor="#E8E8E8"]
+  Sync [label="pim_blueprint_sync.py\nbuild_oem_enterprise_catalog()", fillcolor="#FFD966"]
+  PIMFix [label="pim_catalog.json\n(13 OEM blueprints)", fillcolor="#FFF2CC"]
+  Orch [label="orchestrator.py", fillcolor="#FFE699"]
+  ETL [label="knowledge_etl.py", fillcolor="#C6E0B4"]
+  PIMC [label="PIMConnector.fetch()", fillcolor="#BDD7EE"]
+  FSMC [label="FSMConnector.fetch()", fillcolor="#BDD7EE"]
+  ClaimsC [label="ClaimsConnector.fetch()", fillcolor="#BDD7EE"]
+  CRMC [label="CRMConnector.fetch()", fillcolor="#BDD7EE"]
+  Mock [label="Mock API :8090\nor JSON fixtures", fillcolor="#E7E6E6"]
+  OB [label="OntologyBuilder.build_catalog_payload()\n+ warranty_catalog_extensions", fillcolor="#A9D18E"]
+  CatJSON [label="enterprise_knowledge_catalog.json\nsynthetic_diagnosis_data.json", fillcolor="#FFF2CC"]
+  PG [label="populate_graph.py\nMERGE + constraints", fillcolor="#FFE699"]
+  Neo4j [label="Neo4j :7687", shape=cylinder, fillcolor="#FCE4D6"]
+  Lineage [label="utils/lineage_store.py\netl_batches.jsonl", fillcolor="#E2EFDA"]
+
+  Ops -> Sync [label="1. Regenerate OEM catalog"]
+  Sync -> PIMFix [label="2. Write PIM fixture"]
+  Ops -> Orch [label="3. Run orchestrator"]
+  Orch -> ETL [label="4. knowledge_etl pipeline"]
+  ETL -> PIMC [label="5a"]
+  ETL -> FSMC [label="5b"]
+  ETL -> ClaimsC [label="5c"]
+  ETL -> CRMC [label="5d (optional)"]
+  PIMC -> Mock [label="HTTP GET /api/pim/products\nor fixture_fallback"]
+  FSMC -> Mock
+  ClaimsC -> Mock
+  CRMC -> Mock
+  PIMC -> OB [label="6. ConnectorResult.records"]
+  FSMC -> OB [label="merge resolutions + confidence"]
+  ClaimsC -> OB
+  OB -> CatJSON [label="7. Validated catalog JSON"]
+  ETL -> PG [label="8. if load_neo4j=true"]
+  PG -> Neo4j [label="9. Bolt MERGE\nProduct·Asset·Claim·BOM"]
+  ETL -> Lineage [label="10. log_batch status"]
+}

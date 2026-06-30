@@ -191,6 +191,43 @@ const doc = new Document({
         ),
         spacer(),
 
+        h2("Prerequisites"),
+        pb("bullets", "Enterprise demo stack running (./run_enterprise_demo.sh)"),
+        pb("bullets", "Knowledge graph loaded via ETL orchestrator with provenance enabled"),
+        pb("bullets", "CRM fixture customer CUST-10042 and asset AST-WM-4421 available"),
+        pb("bullets", "Familiarity with Documents 01, 02, and 07 for architecture and pipeline context"),
+        spacer(),
+
+        h2("Dependencies"),
+        tbl(
+          ["Layer", "Component", "Session role"],
+          [
+            ["UI", "ui/app.py Streamlit", "Customer chat + CRM binding"],
+            ["Agent", "agents/diagnosis_graph.py", "detect → diagnose → format → escalate"],
+            ["Retrieval", "graph/graph_rag.py", "Symptom match, failure rank, confidence"],
+            ["Graph", "Neo4j", "Authoritative diagnostic knowledge"],
+            ["Integration", "integrations/crm_enrichment.py", "Pre-bind product from asset registry"],
+            ["Integration", "integrations/warranty_eligibility.py", "Eligibility gate"],
+            ["Handoff", "integrations/case_management.py", "Escalation to simulated CCaaS"],
+          ],
+          [1600, 3200, 4560]
+        ),
+        spacer(),
+
+        h2("Assumptions"),
+        pb("bullets", "Two-turn washer session demonstrates confidence dilution (94% → 47%)"),
+        pb("bullets", "Turn 1 resolves without escalation; Turn 2 escalates below 65% threshold"),
+        pb("bullets", "Provenance trail visible in UI expanders maps to PIM/FSM/Claims/CRM sources"),
+        pb("bullets", "Figures 15–18 in docs/graphviz/rendered/png/ accompany this walkthrough"),
+        spacer(),
+
+        h2("Risk Mitigation"),
+        pb("bullets", "Warranty gate prevents diagnosis on ineligible assets before graph query cost"),
+        pb("bullets", "Critical symptoms would bypass confidence — washer scenario uses high/medium severity only"),
+        pb("bullets", "Escalation payload includes full provenance for agent review — no information loss at handoff"),
+        pb("bullets", "Smoke validation pipeline prevents regression in failure-mode ranking after ETL changes"),
+        spacer(),
+
         h2("1. Executive Summary"),
         tbl(
           ["Platform indicator", "Value", "Business meaning"],

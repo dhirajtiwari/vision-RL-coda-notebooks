@@ -1,0 +1,62 @@
+digraph LLD_Diagnosis_Claim_Sequence {
+  rankdir=TB;
+  graph [fontname="Helvetica", fontsize=11, splines=ortho];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=9, fillcolor=white];
+  edge [fontname="Helvetica", fontsize=8, color="#37474F"];
+
+  actor [label="Customer / Agent\n(Streamlit Chat)", shape=ellipse, fillcolor="#E3F2FD"];
+  ui [label="ui/app.py", fillcolor="#BBDEFB"];
+  api [label="api/main.py\nPOST /diagnose", fillcolor="#C8E6C9"];
+  crm [label="crm_enrichment.py", fillcolor="#B2EBF2"];
+  we [label="warranty_eligibility.py", fillcolor="#B2EBF2"];
+  lg [label="agents/diagnosis_graph.py\n4-node StateGraph", fillcolor="#E1BEE7"];
+  tools [label="agents/tools.py", fillcolor="#E1BEE7"];
+  gr [label="graph/graph_rag.py\ndiagnose()", fillcolor="#FFE0B2"];
+  neo4j [label="Neo4j", shape=cylinder, fillcolor="#E8F5E9"];
+  esc [label="utils/escalation_store.py", shape=folder, fillcolor="#FAFAFA"];
+  case [label="case_management.py\n(if escalated)", fillcolor="#B2EBF2"];
+  mock [label="Mock CRM :8090", fillcolor="#ECEFF1"];
+
+  actor -> ui [label="1. message + optional\nproduct_id · asset_id"];
+  ui -> api [label="2. HTTP POST /diagnose"];
+  api -> crm [label="3. enrich_session_from_crm()"];
+  crm -> mock [label="GET /api/crm/*", style=dashed];
+  api -> we [label="4. check_warranty (if enriched)"];
+  we -> neo4j [label="policy lookup", style=dashed];
+  api -> lg [label="5. run_diagnosis()"];
+  lg -> lg [label="6. detect_product"];
+  lg -> tools [label="7. tool_detect_product"];
+  lg -> lg [label="8. run_diagnosis"];
+  tools -> gr [label="9. tool_diagnose → diagnose()"];
+  gr -> neo4j [label="Cypher + vector"];
+  lg -> lg [label="10. format_response"];
+  lg -> lg [label="11. handle_escalation"];
+  lg -> esc [label="12. save_escalation (if needed)"];
+  api -> case [label="13. create_case_from_escalation"];
+  api -> ui [label="14. DiagnoseResponse\n+ graph_subgraph"];
+  ui -> actor [label="15. render answer + PyVis"];
+
+  actor2 [label="Agent (Claims tab)", shape=ellipse, fillcolor="#E3F2FD"];
+  ui2 [label="ui/app.py", fillcolor="#BBDEFB"];
+  api2 [label="POST /claims/submit", fillcolor="#C8E6C9"];
+  cw [label="claims_workflow.py", fillcolor="#B2EBF2"];
+  claims_json [label="claims_submissions.json", shape=folder, fillcolor="#FAFAFA"];
+
+  actor2 -> ui2 [label="16. submit claim"];
+  ui2 -> api2 [label="17. HTTP POST"];
+  api2 -> crm [label="18. CRM enrich"];
+  api2 -> lg [label="19. run_diagnosis"];
+  api2 -> cw [label="20. submit_claim_from_diagnosis()"];
+  cw -> claims_json [label="21. append claim"];
+  cw -> neo4j [label="22. MERGE Claim (optional)", style=dashed];
+  api2 -> ui2 [label="23. claim_id + diagnosis"];
+  ui2 -> actor2 [label="24. confirmation"];
+
+  actor3 [label="Supervisor (Claims tab)", shape=ellipse, fillcolor="#E3F2FD"];
+  ui3 [label="ui/app.py\nApprove / Deny buttons", fillcolor="#BBDEFB"];
+  cw2 [label="update_claim_status()", fillcolor="#B2EBF2"];
+
+  actor3 -> ui3 [label="25. review pending"];
+  ui3 -> cw2 [label="26. direct Python call\napproved | denied | closed"];
+  cw2 -> claims_json [label="27. update status"];
+}

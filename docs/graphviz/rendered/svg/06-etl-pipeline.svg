@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 325.75)">
 <title>ETLPipeline</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-325.75 1559,-325.75 1559,4 -4,4"/>
-<text xml:space="preserve" text-anchor="middle" x="777.5" y="-304.45" font-family="Arial" font-size="14.00">Figure 6: Enterprise Knowledge Graph ETL Pipeline</text>
+<text xml:space="preserve" text-anchor="middle" x="777.5" y="-304.45" font-family="Arial" font-size="14.00">[DEPRECATED — use 28&#45;architecture&#45;LLD&#45;etl&#45;connector&#45;pipeline.dot] Figure 6: ETL Pipeline</text>
 <g id="clust1" class="cluster">
 <title>cluster_sources</title>
 <polygon fill="white" stroke="#666666" points="0,-8 0,-290 214,-290 214,-8 0,-8"/>

@@ -1,0 +1,67 @@
+// C4 Level 2 — Container Diagram
+digraph C4_L2_Containers {
+  graph [
+    rankdir=TB
+    label="C4 Level 2 — Container Diagram\nEnterprise Diagnostics Platform"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#5D6D7E"]
+
+  node [shape=ellipse, style=filled, fillcolor="#08427B", fontcolor=white]
+  customer [label="Appliance Owner"]
+  agent [label="Contact Center Agent"]
+  ops [label="Platform Ops"]
+
+  subgraph cluster_boundary {
+    label="Enterprise Diagnostics Platform [Software System]"
+    style=bold
+    color="#1168BD"
+    fontcolor="#1168BD"
+
+    node [shape=box, style="rounded,filled", fillcolor="#438DD5", fontcolor=white]
+
+    web [label="Streamlit Web Application\n[Container: Python/Streamlit :8501]\nChat · Claims · KG Explorer · Dashboard"]
+    api [label="Diagnostics REST API\n[Container: Python/FastAPI :8080]\n/diagnose · /claims/* · /graph/*"]
+    agent_rt [label="Diagnosis Agent Runtime\n[Container: Python/LangGraph]\n4-node StateGraph (in-process)"]
+    graph_lib [label="Graph Intelligence Library\n[Container: Python modules]\nGraphRAG · trees · parts · viz"]
+    integrations [label="Integration Services\n[Container: Python]\nCRM · warranty · claims · cases"]
+    etl [label="ETL Batch Pipeline\n[Container: Python CLI/CronJob]\nETL → smoke → promote"]
+    blueprint [label="Blueprint Authoring\n[Container: Python offline]\nOEM catalog · PIM sync · populate"]
+    mock [label="Mock Enterprise API\n[Container: FastAPI :8090]\nDemo PIM/CRM/Claims/FSM"]
+
+    node [shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+    neo4j [label="Neo4j Graph Database\n[Container: Database :7687]"]
+    files [label="JSON File Store\n[Container: File System]\nfixtures · claims · lineage"]
+
+    web -> agent_rt [label="Invokes"]
+    web -> integrations [label="Claims"]
+    api -> agent_rt [label="POST /diagnose"]
+    api -> integrations [label="CRM · warranty · claims"]
+    api -> graph_lib [label="GET /graph/*"]
+    agent_rt -> graph_lib [label="Diagnose"]
+    graph_lib -> neo4j [label="Cypher read"]
+    integrations -> neo4j [label="Cypher read/MERGE"]
+    integrations -> files [label="JSON I/O"]
+    agent_rt -> files [label="Escalations"]
+    etl -> mock [label="HTTP fetch"]
+    etl -> neo4j [label="MERGE load"]
+    etl -> files [label="Fixtures · lineage"]
+    blueprint -> files [label="pim_catalog.json"]
+    blueprint -> neo4j [label="populate_graph"]
+    etl -> blueprint [label="Uses fixtures"]
+  }
+
+  node [fillcolor="#999999", fontcolor=white, shape=box, style="rounded,filled"]
+  pim [label="PIM / PLM [External]"]
+  crm [label="CRM [External]"]
+
+  customer -> web [label="HTTPS"]
+  agent -> web [label="HTTPS"]
+  ops -> etl [label="CLI / CronJob"]
+  etl -> pim [label="HTTPS", style=dashed]
+  integrations -> crm [label="HTTPS", style=dashed]
+}

@@ -13,4 +13,9 @@ for dot in "$DIR"/*.dot; do
   dot -Tsvg "$dot" -o "$OUT_SVG/${base}.svg"
 done
 
-echo "Done. Output: $OUT_PNG and $OUT_SVG"
+if [ -x "$(dirname "$0")/../c4/render.sh" ]; then
+  echo "Rendering C4 diagrams..."
+  bash "$(dirname "$0")/../c4/render.sh"
+fi
+
+echo "Done. Output: $OUT_PNG and $OUT_SVG (+ docs/c4/rendered/)"

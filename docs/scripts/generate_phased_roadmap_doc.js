@@ -103,6 +103,52 @@ const doc = new Document({
       h1("Production Pipelines & Phased Roadmap"),
       p("Enterprise Diagnostics GraphRAG Platform — Document 10"),
       p("Granular definition of production pipeline types, their purpose, and a sliced POC → Pilot → Production program with features, tasks, deliverables, and proof points."),
+      p(
+        "Nothing in this document is validated. Scope, timelines, pipeline counts, and the claim that 14 production pipelines are required are planning hypotheses only. The reference demo does not confirm any pipeline design. See Document 11 — zero assumptions validated at engagement start; demo is illustration, not proof."
+      ),
+      spacer(),
+
+      h2("Prerequisites"),
+      pb("bullets", "POC complete with ≥70% top-1 accuracy on curated scenarios (Document 05)"),
+      pb("bullets", "Pilot platform codebase (this repository) with 3 ETL pipelines operational"),
+      pb("bullets", "Executive charter for multi-quarter production program — not a single MVP extension"),
+      pb("bullets", "SME governance model defined before scaling past 15 product families"),
+      spacer(),
+
+      h2("Dependencies"),
+      tbl(
+        ["Dependency", "POC", "Pilot", "Production"],
+        [
+          ["Knowledge ETL pipeline", "Fixture + 1 live read", "Nightly scheduled", "Full + incremental"],
+          ["Smoke validation gate", "Manual trigger", "CI/CD gate", "Mandatory promotion gate"],
+          ["SME approval workflow", "Ad hoc review", "Queue tool MVP", "Governance pipeline #8"],
+          ["Neo4j", "Docker staging", "Aura Professional", "Aura Enterprise cluster"],
+          ["Vector index pipeline", "Out", "Optional pilot", "Pipeline #6 where ROI proven"],
+          ["Document ingestion", "Manual", "Pilot on 2 families", "Pipeline #2 at scale"],
+        ],
+        [2400, 2000, 2000, 2960]
+      ),
+      spacer(),
+
+      h2("Assumptions"),
+      pb("bullets", "14 batch/governance pipelines are required for enterprise scale — 3 alone are insufficient"),
+      pb("bullets", "Knowledge engineering throughput (~2–4 families/engineer/month) is the scaling bottleneck"),
+      pb("bullets", "Pilot proves operational model; production is 12–24 months for 100+ families"),
+      pb("bullets", "Each phase has explicit 'does NOT prove' boundaries to prevent scope creep"),
+      spacer(),
+
+      h2("Risk Mitigation"),
+      tbl(
+        ["Risk", "Phase gate mitigation"],
+        [
+          ["Scaling catalog before pilot KPIs stable", "Phase 3 charter blocked until MVP override rate trends down"],
+          ["Automated knowledge without SME sign-off", "Pipeline #8 SME Review & Approval — non-negotiable"],
+          ["Silent graph corruption", "Pipeline #3 Data Quality & Reconciliation + Pipeline #4 smoke gate"],
+          ["EOL product misdiagnosis", "Pipeline #7 Catalog Retirement"],
+          ["Regulatory audit failure", "Pipeline #9 Lineage Audit Export + Pipeline #10 Compliance Snapshot"],
+        ],
+        [3600, 5760]
+      ),
       spacer(),
 
       h2("1. Executive Answer — How Many Pipelines?"),

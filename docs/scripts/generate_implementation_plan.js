@@ -195,14 +195,14 @@ function build() {
       "Reduce contact center load for warranty and support by resolving or deflecting low-risk cases through graph-backed automated diagnosis, while escalating only genuine, ambiguous, or safety-critical cases to human agents with a complete, source-traceable diagnostic dossier."
     ),
     h2("1.2 What Exists Today (Demonstration Baseline)"),
-    p("The repository diagnostic-chatbot already proves the core technical pattern:"),
+    p("The repository diagnostic-chatbot illustrates one possible technical pattern (not validated for any client):"),
     pb("bullets", "Neo4j knowledge graph with Product, Symptom, FailureMode, DiagnosticStep, Part, HistoricalResolution ontology"),
     pb("bullets", "populate_graph.py — MERGE-based Neo4j loader from validated JSON catalog"),
     pb("bullets", "graph/graph_rag.py — graph-native diagnosis (symptom match, failure ranking, escalation rules)"),
     pb("bullets", "agents/diagnosis_graph.py — LangGraph workflow (detect → diagnose → format → escalate)"),
     pb("bullets", "graph/enterprise_pipeline/ — scaffolded ETL with mock CRM, Claims, PIM, FSM connectors"),
     pb("bullets", "Streamlit UI — customer chat, human agent dashboard, knowledge explorer"),
-    pb("bullets", "Three appliance products only (wm-001, dw-001, mw-001); no production integrations; no source provenance on graph entities"),
+    pb("bullets", "Three synthetic appliance products (wm-001, dw-001, mw-001) in a local demo — not client data; not validated for any enterprise"),
     h2("1.3 What Must Be Built for Enterprise"),
     pb("bullets", "Automated, governed knowledge ingestion from authoritative enterprise systems"),
     pb("bullets", "End-to-end source traceability and provenance on every graph entity and diagnosis evidence line"),
@@ -223,6 +223,50 @@ function build() {
     p(
       "Important: covering hundreds of applications with high accuracy is a multi-quarter to multi-year program, not a 16-week outcome. The MVP establishes the operating model; production scale is measured in catalog breadth, integration maturity, and governance — not demo feature count."
     ),
+
+    h2("1.5 Prerequisites"),
+    tbl(
+      ["Prerequisite", "POC", "MVP", "Production"],
+      [
+        ["Executive sponsor + budget", "Required", "Required", "Required"],
+        ["CRM sandbox / API access", "Read access", "Read + case write", "Full bidirectional"],
+        ["Service engineering SME time", "4–8 hrs/week", "8–12 hrs/week", "Standing approval pool"],
+        ["Neo4j environment", "Docker staging", "Aura Professional", "Aura Enterprise / cluster"],
+        ["Demonstration codebase", "This repository", "Fork + harden", "Managed CI/CD deployment"],
+        ["Contact center pilot agreement", "Optional", "Required", "Required"],
+        ["Security / IAM review slot", "Deferred", "SSO integration", "Pen test + SOC2 alignment"],
+      ],
+      [2800, 1600, 2000, 2960]
+    ),
+    spacer(),
+
+    h2("1.6 Program Assumptions"),
+    pb("bullets", "Organization has existing CRM, claims, PIM/PLM, and FSM systems — not greenfield"),
+    pb("bullets", "Graph-backed diagnosis remains the source of truth; LLM is formatting/UX augmentation only"),
+    pb("bullets", "SME approval is mandatory for safety-related failure modes and diagnostic steps"),
+    pb("bullets", "POC uses 2 product families; MVP expands to 10–15; production targets 100+ over 12–24 months"),
+    pb("bullets", "Integration APIs are available in sandbox within 2 weeks of program start (or fixtures bridge the gap)"),
+    pb("bullets", "Contact center will adopt escalation dossiers only if provenance is complete and override rate is acceptable"),
+    pb("bullets", "Decisions on ontology and source precedence are made within 3 business days during POC"),
+
+    h2("1.7 Dependencies"),
+    tbl(
+      ["Dependency", "Type", "POC Need", "Failure Impact", "Fallback"],
+      [
+        ["Neo4j 5.x", "Platform", "Staging instance", "No diagnosis", "Docker local; Aura trial"],
+        ["PIM / FMEA exports", "Data", "1 family minimum", "Incomplete ontology", "Curated fixture + provenance flag"],
+        ["CRM asset API", "Integration", "Sandbox read", "No warranty pre-bind", "Fixture customers (CUST-10042)"],
+        ["FSM / Claims history", "Data", "Fixture acceptable", "Weak historical evidence", "Manual HistoricalResolution seed"],
+        ["Knowledge engineer", "People", "1.0 FTE", "Blocked catalog build", "Architect bridges short-term"],
+        ["Service SMEs", "People", "4 hrs/week", "Unvalidated symptoms", "Defer accuracy targets"],
+        ["populate_graph.py", "Code", "Existing loader", "No graph refresh", "Already in repo"],
+        ["LangGraph + GraphRAG", "Code", "Existing engine", "No runtime diagnosis", "Already in repo"],
+        ["Case management API", "Integration", "JSON file (POC)", "No agent workflow", "Streamlit dashboard"],
+        ["SSO / IdP", "Security", "Deferred to MVP", "No agent pilot", "Demo auth only"],
+      ],
+      [2000, 1400, 1800, 2000, 2160]
+    ),
+    spacer(),
 
     pgBreak(),
     h1("2. Solution Architecture"),
@@ -702,15 +746,21 @@ function build() {
     pb("numbers", "Weeks 7–8: SME validation, POC metrics, MVP business case with measured velocity"),
     pb("numbers", "Weeks 9–16: MVP pilot — do not parallelize full 100-family catalog until pilot KPIs stabilize"),
     p(
-      "populate_graph.py remains the stable Load primitive throughout all phases. Enterprise differentiation comes from governed Extract/Transform, provenance, integrations, and knowledge engineering throughput — not from replacing the graph diagnosis pattern already demonstrated in this codebase."
+      "If the graph diagnosis pattern is validated during POC, populate_graph.py may serve as the Load primitive. That is a hypothesis — not confirmed. Enterprise differentiation would come from governed Extract/Transform, provenance, integrations, and knowledge engineering throughput on real client data."
     ),
 
     h1("17. Document References"),
+    pb("bullets", "12-Solution-Approach-and-Delivery-Methodology.docx — approach, rationale, and phased delivery method"),
+    pb("bullets", "11-Enterprise-Delivery-Assumptions-Dependencies-and-Open-Questions.docx — authoritative assumptions register (read first)"),
     pb("bullets", "01-Architecture-and-Solution-Design.docx"),
     pb("bullets", "02-Knowledge-Graph-Ontology-and-GraphRAG-Deep-Dive.docx"),
     pb("bullets", "03-Beginners-Guide-Everything-Under-the-Hood.docx"),
     pb("bullets", "04-Cypher-Query-Walkthrough-with-Diagrams.docx"),
+    pb("bullets", "10-Production-Pipelines-and-Phased-Roadmap.docx"),
     pb("bullets", "Repository: graph/populate_graph.py, graph/enterprise_pipeline/pipeline.py, graph/graph_rag.py"),
+    p(
+      "Note: Nothing is validated today. Estimates and phase scope are hypotheses. The reference demo does not confirm feasibility. See Document 11 — all assumptions are status H until client evidence moves them to V."
+    ),
   ];
 }
 

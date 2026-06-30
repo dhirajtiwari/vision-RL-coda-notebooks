@@ -1,0 +1,67 @@
+// Enterprise Product Blueprint — Full OEM ontology per unit
+digraph EnterpriseProductBlueprint {
+  graph [
+    rankdir=TB
+    label="Ontology Blueprint (not C4) — OEM Diagnostic Graph per SKU · pairs with 05-neo4j-ontology.dot"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8]
+
+  subgraph cluster_identity {
+    label="Product Identity Layer"
+    color="#1F4E79"
+    OEM [label="OEM\n(Samsung·LG·Bosch·GE·Whirlpool)", fillcolor="#D5E8F0"]
+    Product [label=":Product\nproduct_id · name · category", fillcolor="#BDD7EE"]
+    Model [label=":Model\nmodel_number (e.g. WF45T6000AW)", fillcolor="#9DC3E6"]
+    SKU [label=":SKU\nsku_id · revision · year", fillcolor="#9DC3E6"]
+    Asset [label=":Asset\nserial · purchase · warranty", fillcolor="#F4B084"]
+    OEM -> Product
+    Product -> Model [label="HAS_MODEL"]
+    Model -> SKU [label="HAS_SKU"]
+    Asset -> SKU [label="BOUND_TO_SKU"]
+    Asset -> Product [label="INSTANCE_OF"]
+  }
+
+  subgraph cluster_diagnosis {
+    label="Dynamic Diagnosis Layer"
+    color="#548235"
+    Symptom [label=":Symptom\ncustomer-reported", fillcolor="#FFE699"]
+    ErrorCode [label=":ErrorCode\nOE·IE·UE·5E (OEM public)", fillcolor="#FFC000"]
+    FM [label=":FailureMode\ndiagnosis / root cause", fillcolor="#A9D18E"]
+    Step [label=":DiagnosticStep\ntroubleshooting", fillcolor="#D9D2E9"]
+    Product -> Symptom [label="HAS_SYMPTOM"]
+    Product -> ErrorCode [label="HAS_ERROR_CODE"]
+    Symptom -> FM [label="INDICATES {confidence}"]
+    ErrorCode -> FM [label="INDICATES"]
+    Product -> Step [label="HAS_DIAGNOSTIC_STEP"]
+    Step -> FM [label="CONFIRMS / RULES_OUT"]
+    Step -> Step [label="NEXT_STEP {condition}", color="#C00000"]
+  }
+
+  subgraph cluster_bom {
+    label="BOM & Parts Prediction Layer"
+    color="#843C0C"
+    Component [label=":Component\nsubsystem (Drive·Drain·Heat)", fillcolor="#00B0F0"]
+    Part [label=":Part\npart_number · cost", fillcolor="#A5A5A5"]
+    Product -> Component [label="HAS_COMPONENT"]
+    FM -> Component [label="IMPACTS_COMPONENT"]
+    Component -> Part [label="REALIZED_BY"]
+    FM -> Part [label="REQUIRES_PART {qty, probability}"]
+    SKU -> Part [label="COMPATIBLE_WITH"]
+  }
+
+  subgraph cluster_warranty {
+    label="Claims & Warranty Layer"
+    color="#BF8F00"
+    Policy [label=":WarrantyPolicy\ncovers_parts · max_cost", fillcolor="#FFF2CC"]
+    Claim [label=":Claim\nsubmitted · approved · closed", fillcolor="#FCE4D6"]
+    Asset -> Policy [label="COVERED_BY"]
+    Claim -> Asset [label="FOR_ASSET"]
+    Claim -> FM [label="CONFIRMED"]
+    Claim -> Part [label="USED_PART"]
+  }
+}

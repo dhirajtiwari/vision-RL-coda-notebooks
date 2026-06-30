@@ -6,26 +6,31 @@
       "description": "Standard 24-month manufacturer warranty",
       "coverage_months": 24,
       "covers_parts": true,
-      "covers_labor": true
+      "covers_labor": true,
+      "max_parts_cost_usd": 500.0
     }
   ],
   "closed_claims": [
     {
       "claim_id": "CLM-2026-00481",
+      "asset_id": "AST-WM-4421",
       "product_id": "wm-001",
       "customer_id": "CUST-10042",
       "symptom_id": "wm-s03",
       "confirmed_failure_mode_id": "wm-fm02",
+      "used_part_id": "wm-p02",
       "resolution_summary": "Approved drain pump replacement under warranty.",
       "closed_date": "2026-02-01",
       "agent_notes": "Customer provided video of standing water. Pump test confirmed failure."
     },
     {
       "claim_id": "CLM-2025-01933",
+      "asset_id": "AST-MW-7702",
       "product_id": "mw-001",
       "customer_id": "CUST-10042",
       "symptom_id": "mw-s02",
       "confirmed_failure_mode_id": "mw-fm02",
+      "used_part_id": "mw-p02",
       "resolution_summary": "Waveguide cover replaced; arcing resolved.",
       "closed_date": "2025-12-10",
       "agent_notes": "Grease buildup on mica cover. Not magnetron failure."

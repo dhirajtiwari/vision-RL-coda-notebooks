@@ -1,0 +1,106 @@
+// Symmetrical 6-Layer Application Architecture
+digraph LayerArchitectureSymmetric {
+  graph [
+    rankdir=TB
+    label="6-Layer Application Architecture — Symmetrical View\n(Every layer · left-to-right balanced · connector-based)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    splines=line
+    nodesep=0.35
+    ranksep=0.45
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, width=2.2, fixedsize=true]
+  edge [style=invis]
+
+  subgraph cluster_L6 {
+    label="L6 — Experience & Channels"
+    color="#1565C0"
+    fillcolor="#E3F2FD"
+    style="filled,rounded"
+    L6a [label="Streamlit UI\nui/app.py", fillcolor="#BBDEFB"]
+    L6b [label="REST API\napi/main.py", fillcolor="#BBDEFB"]
+    L6c [label="Agent Dashboard\nClaims · Escalations", fillcolor="#BBDEFB"]
+    L6d [label="KG Explorer\nPyVis graphs", fillcolor="#BBDEFB"]
+  }
+
+  subgraph cluster_L5 {
+    label="L5 — Orchestration & Workflow"
+    color="#6A1B9A"
+    fillcolor="#F3E5F5"
+    style="filled,rounded"
+    L5a [label="LangGraph Agent\nagents/diagnosis_graph.py", fillcolor="#E1BEE7"]
+    L5b [label="Claims Workflow\nintegrations/claims_workflow.py", fillcolor="#E1BEE7"]
+    L5c [label="Case Management\nintegrations/case_management.py", fillcolor="#E1BEE7"]
+    L5d [label="Warranty Gate\nwarranty_eligibility.py", fillcolor="#E1BEE7"]
+  }
+
+  subgraph cluster_L4 {
+    label="L4 — Diagnosis Intelligence"
+    color="#E65100"
+    fillcolor="#FFF3E0"
+    style="filled,rounded"
+    L4a [label="GraphRAG\ngraph/graph_rag.py", fillcolor="#FFE0B2"]
+    L4b [label="Diagnostic Engine\ngraph/diagnostic_engine.py", fillcolor="#FFE0B2"]
+    L4c [label="Parts Predictor\ngraph/parts_predictor.py", fillcolor="#FFE0B2"]
+    L4d [label="Graph Visualization\ngraph/graph_visualization.py", fillcolor="#FFE0B2"]
+  }
+
+  subgraph cluster_L3 {
+    label="L3 — Enterprise Integration"
+    color="#00838F"
+    fillcolor="#E0F7FA"
+    style="filled,rounded"
+    L3a [label="CRM Enrichment\ncrm_enrichment.py", fillcolor="#B2EBF2"]
+    L3b [label="PIM Connector\npim_connector.py", fillcolor="#B2EBF2"]
+    L3c [label="CRM Connector\ncrm_connector.py", fillcolor="#B2EBF2"]
+    L3d [label="Claims Connector\nclaims_connector.py", fillcolor="#B2EBF2"]
+    L3e [label="FSM Connector\nfsm_connector.py", fillcolor="#B2EBF2"]
+    L3f [label="Mock Enterprise API\nsimulation/mock_enterprise_apps.py", fillcolor="#B2EBF2"]
+  }
+
+  subgraph cluster_L2 {
+    label="L2 — Knowledge Graph Store"
+    color="#2E7D32"
+    fillcolor="#E8F5E9"
+    style="filled,rounded"
+    L2a [label="Neo4j\nBolt :7687", fillcolor="#C8E6C9", shape=cylinder]
+    L2b [label="Graph Loader\npopulate_graph.py", fillcolor="#C8E6C9"]
+    L2c [label="Neo4j Client\nneo4j_client.py", fillcolor="#C8E6C9"]
+    L2d [label="Provenance\nprovenance.py", fillcolor="#C8E6C9"]
+  }
+
+  subgraph cluster_L1 {
+    label="L1 — Data & Blueprint Platform"
+    color="#5D4037"
+    fillcolor="#EFEBE9"
+    style="filled,rounded"
+    L1a [label="OEM Catalog\noem_product_catalog.py", fillcolor="#D7CCC8"]
+    L1b [label="PIM Blueprint Sync\npim_blueprint_sync.py", fillcolor="#D7CCC8"]
+    L1c [label="Ontology Builder\nontology_builder.py", fillcolor="#D7CCC8"]
+    L1d [label="ETL Orchestrator\norchestrator.py", fillcolor="#D7CCC8"]
+    L1e [label="JSON Fixtures\ndata/enterprise_sources/", fillcolor="#D7CCC8", shape=folder]
+    L1f [label="Lineage Audit\nutils/lineage_store.py", fillcolor="#D7CCC8"]
+  }
+
+  L6a -> L5a [style=dashed, color="#666666", label="invoke"]
+  L6b -> L5a [style=dashed, color="#666666"]
+  L6b -> L5b [style=dashed, color="#666666"]
+  L5a -> L4a [style=dashed, color="#666666"]
+  L5b -> L4c [style=dashed, color="#666666"]
+  L4a -> L2a [style=dashed, color="#666666", label="Cypher"]
+  L4b -> L2a [style=dashed, color="#666666"]
+  L4c -> L2a [style=dashed, color="#666666"]
+  L3a -> L3f [style=dashed, color="#666666", label="HTTP"]
+  L1d -> L3b [style=dashed, color="#666666"]
+  L1c -> L2b [style=dashed, color="#666666"]
+  L2b -> L2a [style=dashed, color="#666666", label="MERGE"]
+
+  {rank=same; L6a; L6b; L6c; L6d}
+  {rank=same; L5a; L5b; L5c; L5d}
+  {rank=same; L4a; L4b; L4c; L4d}
+  {rank=same; L3a; L3b; L3c; L3d; L3f}
+  {rank=same; L2a; L2b; L2c; L2d}
+  {rank=same; L1a; L1b; L1c; L1d; L1e; L1f}
+}

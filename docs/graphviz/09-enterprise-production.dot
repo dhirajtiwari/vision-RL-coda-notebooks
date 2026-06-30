@@ -2,7 +2,7 @@
 digraph EnterpriseProduction {
   graph [
     rankdir=TB
-    label="Figure 9: Enterprise Production Target Architecture (Post-MVP)"
+    label="[DEPRECATED — use 30+31+32 K8s/CI/CD diagrams] Figure 9: Production Target"
     labelloc=t
     fontsize=14
     fontname="Arial"

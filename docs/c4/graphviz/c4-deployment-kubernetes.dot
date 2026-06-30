@@ -1,0 +1,45 @@
+// C4 Deployment Diagram — Kubernetes
+digraph C4_Deployment {
+  graph [rankdir=TB, label="C4 Deployment Diagram — Kubernetes (Staging & Production)", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  dev [label="Customer Device\n[Deployment Node]\nWeb Browser", shape=box3d, fillcolor="#E8E8E8"]
+  gh [label="GitHub Actions CI/CD\n[Deployment Node]", shape=box3d, fillcolor="#E2EFDA"]
+
+  subgraph cluster_k8s {
+    label="Kubernetes Cluster [Deployment Node]"
+    color="#1F4E79"
+
+    subgraph cluster_stg {
+      label="diagnostics-staging [Deployment Node]"
+      color="#548235"
+      stg_ui [label="Container Instance\nStreamlit Web App", fillcolor="#438DD5", fontcolor=white, style=filled]
+      stg_api [label="Container Instance\nDiagnostics API", fillcolor="#438DD5", fontcolor=white, style=filled]
+      stg_mock [label="Container Instance\nMock Enterprise API", fillcolor="#438DD5", fontcolor=white, style=filled]
+      stg_neo [label="Container Instance\nNeo4j StatefulSet", shape=cylinder, fillcolor="#438DD5", fontcolor=white, style=filled]
+      stg_etl [label="Container Instance\nETL CronJob", fillcolor="#FFD966", style=filled]
+    }
+
+    subgraph cluster_prd {
+      label="diagnostics-prod [Deployment Node]"
+      color="#843C0C"
+      prd_ui [label="Container Instance\nStreamlit Web App (×3)", fillcolor="#438DD5", fontcolor=white, style=filled]
+      prd_api [label="Container Instance\nDiagnostics API (×3)", fillcolor="#438DD5", fontcolor=white, style=filled]
+      prd_neo [label="Container Instance\nNeo4j (+ backup)", shape=cylinder, fillcolor="#438DD5", fontcolor=white, style=filled]
+    }
+  }
+
+  subgraph cluster_ext {
+    label="External [Production]"
+    color="#999999"
+    pim [label="PIM / PLM", fillcolor="#999999", fontcolor=white, style=filled]
+    crm [label="CRM", fillcolor="#999999", fontcolor=white, style=filled]
+  }
+
+  dev -> stg_ui [label="HTTPS Ingress"]
+  gh -> cluster_stg [label="kubectl apply staging"]
+  gh -> cluster_prd [label="kubectl apply prod\n(manual approval)"]
+  stg_etl -> pim [style=dashed]
+  prd_api -> crm [style=dashed]
+}

@@ -1,0 +1,67 @@
+// Enterprise Blueprint ERD — full ontology for warranty diagnosis & claims
+// Use alongside 26-enterprise-product-blueprint.dot (per-SKU instance view)
+digraph EnterpriseBlueprintERD {
+  graph [
+    rankdir=TB
+    label="Enterprise Blueprint ERD — Product Ontology & Knowledge Graph Schema\n(Entity-Relationship · populate_graph.py · warranty_catalog_extensions.py)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    splines=ortho
+    nodesep=0.5
+    ranksep=0.6
+  ]
+  node [shape=record, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#E3F2FD"]
+  edge [fontname="Arial", fontsize=8, color="#37474F"]
+
+  Product [label="{Product|product_id PK\lname · category · brand\lmodel_year · etl_batch_id\l}"]
+  Model [label="{Model|model_id PK\lmodel_number · oem_family\l}"]
+  SKU [label="{SKU|sku_id PK\lsku_code · description\l}"]
+  Component [label="{Component|component_id PK\lname · subsystem\l}"]
+  Symptom [label="{Symptom|symptom_id PK\ldescription · severity\l}"]
+  ErrorCode [label="{ErrorCode|error_code_id PK\lcode · description\l}"]
+  FailureMode [label="{FailureMode|failure_mode_id PK\lname · repair_minutes\lsafety_notes\l}"]
+  DiagnosticStep [label="{DiagnosticStep|step_id PK\ldescription · order\lexpected_outcome\l}"]
+  Part [label="{Part|part_id PK\lpart_number · cost_usd\l}"]
+  Asset [label="{Asset|asset_id PK\lserial_number · install_date\lwarranty_status\l}"]
+  WarrantyPolicy [label="{WarrantyPolicy|policy_id PK\lcoverage_type · end_date\l}"]
+  Claim [label="{Claim|claim_id PK\lstatus · resolution_summary\lclosed_date\l}"]
+  HistRes [label="{HistoricalResolution|resolution_id PK\ldescription · date\l}"]
+  Customer [label="{Customer|customer_id PK\lname · region\l}"]
+
+  Product -> Model [label="HAS_MODEL"]
+  Product -> SKU [label="HAS_SKU"]
+  Model -> SKU [label="HAS_SKU"]
+  Product -> Component [label="HAS_COMPONENT"]
+  Component -> Part [label="REALIZED_BY"]
+  Product -> Symptom [label="HAS_SYMPTOM"]
+  Product -> ErrorCode [label="HAS_ERROR_CODE"]
+  Product -> FailureMode [label="CAN_HAVE"]
+  Product -> DiagnosticStep [label="HAS_DIAGNOSTIC_STEP"]
+
+  Symptom -> FailureMode [label="INDICATES\n{confidence}"]
+  ErrorCode -> FailureMode [label="INDICATES\n{confidence}"]
+  FailureMode -> Component [label="IMPACTS_COMPONENT"]
+  FailureMode -> Part [label="REQUIRES_PART\n{qty · probability}"]
+  SKU -> Part [label="COMPATIBLE_WITH"]
+
+  DiagnosticStep -> DiagnosticStep [label="NEXT_STEP\n{condition}"]
+  DiagnosticStep -> FailureMode [label="CONFIRMS / RULES_OUT\n{confidence}"]
+
+  Asset -> Product [label="INSTANCE_OF"]
+  Asset -> SKU [label="BOUND_TO_SKU"]
+  Asset -> WarrantyPolicy [label="COVERED_BY"]
+  WarrantyPolicy -> Product [label="COVERS_PRODUCT"]
+  Customer -> Asset [label="OWNS"]
+
+  Claim -> Asset [label="FOR_ASSET"]
+  Claim -> FailureMode [label="CONFIRMED"]
+  Claim -> Part [label="USED_PART"]
+  HistRes -> Product [label="FOR_PRODUCT"]
+  HistRes -> FailureMode [label="CONFIRMED"]
+
+  {rank=same; Product; Model; SKU}
+  {rank=same; Symptom; ErrorCode; FailureMode}
+  {rank=same; Asset; WarrantyPolicy; Claim}
+}

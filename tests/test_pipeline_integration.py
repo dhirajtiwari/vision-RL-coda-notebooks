@@ -12,7 +12,7 @@ from graph.enterprise_pipeline.pipelines.knowledge_etl import run_knowledge_etl
 def test_knowledge_etl_fixture_mode():
     report = run_knowledge_etl(load_neo4j=False, dry_run=True)
     assert not report.errors, report.errors
-    assert report.product_count == 3
+    assert report.product_count == 13  # 10 OEM blueprints + 3 legacy products
     assert report.sources["PIM"]["ok"]
     assert report.sources["FSM"]["ok"]
     assert report.sources["Claims"]["ok"]

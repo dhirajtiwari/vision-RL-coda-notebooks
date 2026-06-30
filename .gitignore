@@ -28,3 +28,6 @@ data/lineage/
 
 # Build artifacts
 *.log
+
+# Kubernetes secrets (use secrets.yaml.example)
+k8s/**/secrets.yaml

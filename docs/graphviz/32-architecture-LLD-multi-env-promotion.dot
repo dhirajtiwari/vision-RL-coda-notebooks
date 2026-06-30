@@ -1,0 +1,49 @@
+// LLD — Multi-Environment Promotion (dev → staging → prod)
+digraph LLD_MultiEnv_Promotion {
+  graph [
+    rankdir=TB
+    label="LLD — Multi-Environment Promotion & Data Lineage\n(Kustomize overlays · ETL smoke gate · Neo4j promotion)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    splines=ortho
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  Dev [label="Local Dev\nvenv + Docker Neo4j\nmock :8090", fillcolor="#E3F2FD"]
+  GH [label="GitHub PR\nCI: pytest + graphviz", fillcolor="#E8EAF6"]
+
+  subgraph cluster_staging {
+    label="Staging (k8s/overlays/staging)"
+    color="#548235"
+    StgNS [label="diagnostics-staging namespace", fillcolor="#C6E0B4"]
+    StgNeo [label="Neo4j staging\n(single replica)", shape=cylinder, fillcolor="#FCE4D6"]
+    StgMock [label="mock-enterprise ON\nfixture + HTTP mode", fillcolor="#FFE699"]
+    StgETL [label="ETL CronJob + manual run\norchestrator: ETL→smoke→promote", fillcolor="#FFD966"]
+    StgSmoke [label="smoke_validation.py\nregression scenarios", fillcolor="#A9D18E"]
+  }
+
+  subgraph cluster_prod {
+    label="Production (k8s/overlays/prod)"
+    color="#843C0C"
+    ProdNS [label="diagnostics-prod namespace", fillcolor="#FCE4D6"]
+    ProdNeo [label="Neo4j prod\n(replicas + backup PVC)", shape=cylinder, fillcolor="#FCE4D6"]
+    ProdConn [label="Real connector URLs\nCRM · PIM · Claims · FSM", fillcolor="#EDEDED"]
+    ProdGate [label="Manual approval\nGitHub environment", fillcolor="#FFF2CC"]
+  }
+
+  Lineage [label="data/lineage/etl_batches.jsonl\nutils/lineage_store.py\nbatch_id · status · entity_counts", shape=note, fillcolor="#FAFAFA"]
+
+  Dev -> GH [label="feature branch"]
+  GH -> StgNS [label="merge → cd.yml deploy-staging"]
+  StgETL -> StgSmoke [label="gate: smoke must pass"]
+  StgSmoke -> StgNeo [label="staging_promotion.py\nMERGE validated catalog"]
+  StgETL -> Lineage [label="log_batch per run"]
+
+  StgNS -> ProdGate [label="promote-prod job\n+ reviewer approval"]
+  ProdGate -> ProdNS
+  ProdConn -> ProdNeo [label="ETL from live systems"]
+  StgSmoke -> ProdGate [label="smoke report artifact\nrequired for prod"]
+}

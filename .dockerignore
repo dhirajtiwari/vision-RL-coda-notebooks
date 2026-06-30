@@ -1,0 +1,12 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.git/
+.github/
+docs/graphviz/rendered/
+node_modules/
+*.docx
+*.pptx
+.env
+k8s/**/secrets.yaml

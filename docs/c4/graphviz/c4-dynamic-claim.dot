@@ -1,0 +1,23 @@
+// C4 Dynamic Diagram — Claim flow
+digraph C4_Dynamic_Claim {
+  graph [rankdir=LR, label="C4 Dynamic Diagram — Warranty Claim Flow", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=9, color="#1168BD", penwidth=1.5]
+
+  agent [label="Contact Center Agent", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+  web [label="Streamlit Claims Tab", fillcolor="#438DD5", fontcolor=white]
+  api [label="Diagnostics API", fillcolor="#438DD5", fontcolor=white]
+  agent_rt [label="Agent Runtime", fillcolor="#438DD5", fontcolor=white]
+  claims [label="Claims Workflow", fillcolor="#438DD5", fontcolor=white]
+  files [label="JSON File Store", shape=folder, fillcolor="#438DD5", fontcolor=white]
+  neo [label="Neo4j", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+
+  agent -> web [label="1 submit"]
+  web -> api [label="2 POST /claims/submit"]
+  api -> agent_rt [label="3 diagnose"]
+  api -> claims [label="4 submit_claim_from_diagnosis"]
+  claims -> files [label="5 claims_submissions.json"]
+  claims -> neo [label="6 MERGE Claim"]
+  web -> claims [label="7 approve/deny\ndirect call", style=dashed]
+  claims -> files [label="8 update status"]
+}

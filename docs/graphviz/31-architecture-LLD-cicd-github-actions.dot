@@ -1,0 +1,58 @@
+// LLD — GitHub Actions CI/CD Pipeline
+digraph LLD_GitHubActions_CICD {
+  graph [
+    rankdir=LR
+    label="LLD — GitHub Actions CI/CD Pipeline\n(.github/workflows/ci.yml · cd.yml)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  TriggerPR [label="Pull Request\n→ main", fillcolor="#D5E8F0"]
+  TriggerMain [label="Push → main\nworkflow_dispatch", fillcolor="#D5E8F0"]
+
+  subgraph cluster_ci {
+    label="Workflow: ci.yml (every PR + push)"
+    color="#1F4E79"
+    Lint [label="Job: lint\nPython syntax check", fillcolor="#BDD7EE"]
+    Test [label="Job: test\npytest tests/\n(fastapi TestClient)", fillcolor="#BDD7EE"]
+    Graphviz [label="Job: graphviz\napt install graphviz\ndocs/graphviz/render_all.sh\n(verify .dot compile)", fillcolor="#BDD7EE"]
+    Build [label="Job: build-images\ndocker build x4\napi · ui · mock · etl\n(dry-run on PR)", fillcolor="#C6E0B4"]
+  }
+
+  subgraph cluster_cd {
+    label="Workflow: cd.yml (main only · manual)"
+    color="#548235"
+    Push [label="Job: publish\npush to ghcr.io\n tags: sha + latest", fillcolor="#FFE699"]
+    DeployStg [label="Job: deploy-staging\nkubectl apply -k k8s/overlays/staging\nrollout status", fillcolor="#A9D18E"]
+    SmokeK8s [label="Job: smoke-staging\nGET /health · POST /diagnose", fillcolor="#A9D18E"]
+    Promote [label="Job: promote-prod\n(manual approval gate)\nkubectl apply -k k8s/overlays/prod", fillcolor="#FCE4D6"]
+  }
+
+  subgraph cluster_secrets {
+    label="GitHub Secrets / Environments"
+    color="#843C0C"
+    KUBE [label="KUBE_CONFIG_STAGING\nKUBE_CONFIG_PROD", shape=note, fillcolor="#FFF2CC"]
+    NEO [label="NEO4J_PASSWORD_STAGING\nNEO4J_PASSWORD_PROD", shape=note, fillcolor="#FFF2CC"]
+    GHCR_SEC [label="GITHUB_TOKEN → ghcr.io push", shape=note, fillcolor="#FFF2CC"]
+  }
+
+  TriggerPR -> Lint
+  TriggerPR -> Test
+  TriggerPR -> Graphviz
+  Lint -> Build
+  Test -> Build
+  Graphviz -> Build
+
+  TriggerMain -> Push
+  Push -> DeployStg
+  DeployStg -> SmokeK8s
+  SmokeK8s -> Promote [label="environment:\nproduction\n(required reviewers)"]
+
+  Push -> GHCR_SEC [style=dashed]
+  DeployStg -> KUBE [style=dashed]
+  Promote -> NEO [style=dashed]
+}

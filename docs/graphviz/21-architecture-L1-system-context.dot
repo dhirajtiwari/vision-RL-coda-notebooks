@@ -1,0 +1,53 @@
+// L1 — System Context (C4 Level 1) — Enterprise Warranty Diagnostics Platform
+digraph L1_SystemContext {
+  graph [
+    rankdir=TB
+    label="L1 System Context — Enterprise Warranty Diagnostics & Claims Platform\n(C4 Level 1 · connector-based external boundaries)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+    pad=0.5
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=11, margin="0.25,0.15"]
+  edge [fontname="Arial", fontsize=9, color="#444444"]
+
+  subgraph cluster_actors {
+    label="Actors"
+    style=dashed
+    color="#666666"
+    Customer [label="Appliance Owner\n(Web chat · claim submit)", fillcolor="#D5E8F0"]
+    Agent [label="Contact Center Agent\n(Claims approve/deny · escalations)", fillcolor="#D5E8F0"]
+    SME [label="Knowledge Engineer / SME\n(Ontology governance)", fillcolor="#E8E8E8"]
+    Ops [label="ETL / Platform Ops", fillcolor="#E8E8E8"]
+  }
+
+  subgraph cluster_platform {
+    label="Enterprise Diagnostics Platform (diagnostic-chatbot)"
+    style=bold
+    color="#1F4E79"
+    Platform [label="Warranty Diagnostics Platform\n\n• 13-product OEM knowledge graph\n• Dynamic NEXT_STEP diagnostic trees\n• GraphRAG + parts predictor\n• Warranty claim workflow\n• Interactive graph visualization\n• REST API (:8080) + Streamlit (:8501)", fillcolor="#BDD7EE", penwidth=2]
+  }
+
+  subgraph cluster_external {
+    label="External Enterprise Systems (Connector Targets)"
+    style=dashed
+    color="#666666"
+    PIM [label="PIM / PLM Connector\npim_connector.py\nProduct · Model · SKU · BOM · OEM blueprints", fillcolor="#EDEDED"]
+    CRM [label="CRM Connector\ncrm_connector.py\nCustomer · Asset · Serial · Warranty", fillcolor="#EDEDED"]
+    ClaimsSys [label="Claims Connector\nclaims_connector.py\nPolicies · Closed claims", fillcolor="#EDEDED"]
+    FSM [label="FSM Connector\nfsm_connector.py\nWork orders · Field resolutions", fillcolor="#EDEDED"]
+    CCaaS [label="CCaaS / Case Management\n(case_management.py)", fillcolor="#E8E8E8", style="rounded,dashed,filled"]
+  }
+
+  Customer -> Platform [label="HTTPS :8501\nchat + claim"]
+  Agent -> Platform [label="HTTPS :8501\nclaims dashboard"]
+  SME -> Platform [label="Govern ontology /\nINDICATES weights"]
+  Ops -> Platform [label="ETL orchestrator\nBolt :7687 load"]
+
+  PIM -> Platform [label="HTTP/JSON extract\n→ pim_blueprint_sync\n→ populate_graph", color="#2E75B6"]
+  CRM -> Platform [label="HTTP/JSON runtime\n→ crm_enrichment", color="#2E75B6"]
+  ClaimsSys -> Platform [label="HTTP/JSON\n→ warranty + precedents", color="#2E75B6"]
+  FSM -> Platform [label="HTTP/JSON\n→ HistoricalResolution merge", color="#2E75B6"]
+  Platform -> CCaaS [label="Escalation handoff\n(production target)", style=dashed]
+}

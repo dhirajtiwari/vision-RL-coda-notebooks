@@ -238,7 +238,10 @@ function buildDoc1() {
       "The primary business objective is to reduce contact center workload by resolving or deflecting non-genuine, low-complexity, or self-service-eligible warranty inquiries at the automated tier, while ensuring that only genuine, high-risk, or low-confidence cases are escalated—with a complete diagnostic payload including appliance identity, matched symptoms, ranked failure modes, recommended troubleshooting steps, safety notes, and historical resolution precedents."
     ),
     p(
-      "The current demo implementation (diagnostic-chatbot) validates this architecture using three appliance product lines (washing machine, dishwasher, microwave), synthetic enterprise-grade knowledge data, Neo4j graph storage, a graph-native diagnosis engine (no LLM required), Streamlit UI with customer chat and human agent dashboard, and JSON-based escalation persistence."
+      "A reference demo implementation (diagnostic-chatbot) illustrates this architecture using three synthetic appliance product lines, mock enterprise fixtures, Neo4j, LangGraph, and Streamlit. The demo does not validate this design for any client — it shows one possible end-to-end flow for discussion."
+    ),
+    p(
+      "Nothing is validated: not the client's enterprise landscape, product catalog, data sources, contact center model, or the suitability of this technical approach at scale. See Document 11 (Assumptions Register) and Document 12 (Solution Approach & Delivery Methodology) for the delivery method, rationale, and validation gates."
     ),
 
     h1("2. Business Context & Use Case"),
@@ -553,7 +556,73 @@ function buildDoc1() {
     ),
     spacer(),
 
-    h1("10. Conclusion"),
+    h1("10. Prerequisites, Dependencies, Assumptions & Risk Mitigation"),
+    h2("10.1 Prerequisites"),
+    table(
+      ["Requirement", "Minimum", "Notes"],
+      [
+        ["Python", "3.12+", "venv recommended; all application code"],
+        ["Docker", "Running daemon", "Neo4j container neo4j-demo on 7474/7687"],
+        ["Network ports", "7474, 7687, 8080, 8090, 8501 free", "Full enterprise demo binds all five"],
+        ["Disk space", "~2 GB", "Neo4j image, venv, generated catalog/lineage"],
+        ["LLM API key", "Not required", "Graph-native demo mode is default"],
+        ["Node.js", "18+ (optional)", "Only for regenerating Word docs in docs/"],
+      ],
+      [2400, 2000, 4960]
+    ),
+    spacer(),
+    p("First-time setup:"),
+    codeBlock(
+      "python -m venv venv && source venv/bin/activate\n" +
+        "pip install -r requirements.txt\n" +
+        "cp .env.example .env"
+    ),
+
+    h2("10.2 Dependencies"),
+    table(
+      ["Category", "Component", "Role", "Required?"],
+      [
+        ["Runtime", "Neo4j 5.x + neo4j Python driver", "Knowledge graph storage and Cypher queries", "Yes"],
+        ["Runtime", "LangGraph + LangChain", "Agent workflow (detect → diagnose → format → escalate)", "Yes"],
+        ["Runtime", "Pydantic / pydantic-settings", "Ontology validation and environment config", "Yes"],
+        ["Runtime", "FastAPI + uvicorn", "Diagnostics REST API (:8080)", "Enterprise demo"],
+        ["Runtime", "Streamlit", "Customer chat, agent dashboard, KG explorer", "Demo UI"],
+        ["Runtime", "httpx", "CRM/PIM/Claims/FSM connector HTTP", "Enterprise path"],
+        ["Infrastructure", "Docker (neo4j-demo)", "Local graph database", "Local dev"],
+        ["Infrastructure", "Mock Enterprise APIs (:8090)", "Simulated CRM, PIM, FSM, Claims", "Default demo"],
+        ["Optional", "XAI_API_KEY / OPENAI_API_KEY", "Future LLM-enhanced formatting", "No"],
+      ],
+      [1600, 2800, 3600, 1360]
+    ),
+    spacer(),
+
+    h2("10.3 Assumptions"),
+    bullet("bullets", "Demo knowledge covers three appliance families (wm-001, dw-001, mw-001) — not hundreds of production SKUs"),
+    bullet("bullets", "USE_MOCK_ENTERPRISE_APIS=true by default; real connector URLs require authenticated implementations"),
+    bullet("bullets", "Diagnosis is graph-native (Cypher + lexical matching); LLM is optional augmentation only"),
+    bullet("bullets", "Single Neo4j instance serves both staging and runtime in the demo"),
+    bullet("bullets", "Escalation fires at confidence < 65% or on any critical-severity matched symptom"),
+    bullet("bullets", "Customer PII remains in CRM at runtime — not persisted in the knowledge graph"),
+    bullet("bullets", "Escalation and case handoff use local JSON persistence in demo mode"),
+
+    h2("10.4 Risk Mitigation"),
+    table(
+      ["Risk", "Likelihood", "Impact", "Mitigation"],
+      [
+        ["Unsafe repair guidance", "Medium", "Critical", "Safety notes on failure modes; critical symptoms force escalation"],
+        ["Low-confidence misdiagnosis", "Medium", "High", "ESCALATION_CONFIDENCE_THRESHOLD; multi-symptom confidence dilution"],
+        ["LLM hallucination (future)", "Medium", "High", "Graph truth layer unchanged; LLM formatting only"],
+        ["Stale or corrupt knowledge", "Medium", "High", "ETL smoke validation gate; lineage audit in etl_batches.jsonl"],
+        ["Invalid warranty handling", "Medium", "Medium", "CRM asset binding + warranty eligibility gate before diagnosis"],
+        ["Integration outage", "Medium", "Medium", "Connector fixture fallback; health endpoints on mock and REST APIs"],
+        ["Unexplainable agent output", "Low", "High", "provenance_trail and evidence[] on every DiagnosisResult"],
+        ["PII leakage into graph", "Low", "Critical", "Neo4j holds product/diagnostic knowledge only; CRM enriches at runtime"],
+      ],
+      [2800, 1200, 1200, 4160]
+    ),
+    spacer(),
+
+    h1("11. Conclusion"),
     p(
       "The Enterprise Diagnostics Chatbot demonstrates a production-viable pattern for warranty claims intelligent triage: structured knowledge in a graph database, explainable GraphRAG retrieval, deterministic agent orchestration, and selective escalation to human agents only when genuinely needed. The architecture is designed from the ground up for enterprise integration with CRM, claims, PIM, and contact center systems—ensuring that automated diagnosis reduces workload while improving outcomes for both customers and agents."
     ),
@@ -640,6 +709,27 @@ function buildDoc2() {
     p(
       "GraphRAG (Graph Retrieval-Augmented Generation) in this solution means: retrieve structured diagnostic evidence from a property graph database, assemble it into a typed result object, and optionally present it via natural language. The 'generation' layer is currently template-based (format_diagnosis_response); an LLM can be layered on top without changing the graph truth layer."
     ),
+
+    h2("1.1 Prerequisites"),
+    bullet("bullets", "Python 3.12+ with pip install -r requirements.txt"),
+    bullet("bullets", "Neo4j 5.x reachable at bolt://localhost:7687 (Docker neo4j-demo container)"),
+    bullet("bullets", "Knowledge catalog loaded via populate_graph.py or enterprise ETL orchestrator"),
+    bullet("bullets", "Optional: mock enterprise APIs on :8090 for full provenance and CRM enrichment demos"),
+    h2("1.2 Dependencies"),
+    bullet("bullets", "neo4j driver — Bolt protocol sessions in graph/neo4j_client.py"),
+    bullet("bullets", "Pydantic models — ontology contract in synthetic_data_generator.py and enterprise pipeline"),
+    bullet("bullets", "LangGraph StateGraph — agents/diagnosis_graph.py workflow"),
+    bullet("bullets", "Enterprise connectors — PIM, FSM, Claims, CRM under graph/enterprise_pipeline/connectors/"),
+    h2("1.3 Assumptions"),
+    bullet("bullets", "Ontology schema is stable; new products are instances, not schema changes"),
+    bullet("bullets", "INDICATES confidence weights are SME-calibrated or empirically tuned from field data"),
+    bullet("bullets", "Symptom descriptions in the graph are canonical; customer language is mapped via lexical overlap"),
+    bullet("bullets", "MERGE keys (product_id, symptom_id, failure_mode_id) are globally unique across sources"),
+    h2("1.4 Risk Mitigation"),
+    bullet("bullets", "Schema constraints in populate_graph.py prevent orphan nodes on load"),
+    bullet("bullets", "Smoke validation pipeline blocks promotion when regression scenarios fail"),
+    bullet("bullets", "Provenance fields (source_system, batch_id) enable rollback of bad ETL batches"),
+    bullet("bullets", "Escalation rules prevent automated responses on critical-severity symptoms"),
 
     h1("2. Ontology Design"),
     h2("2.1 What Is the Ontology?"),
@@ -1208,6 +1298,27 @@ function buildDoc3() {
     bullet("bullets", "01-Architecture-and-Solution-Design.docx — solution architecture and enterprise integration"),
     bullet("bullets", "02-Knowledge-Graph-Ontology-and-GraphRAG-Deep-Dive.docx — Cypher queries, schema, algorithms"),
 
+    h2("1.1 Prerequisites"),
+    p("You can run and understand this demo with the following in place:"),
+    table(
+      ["Requirement", "Details"],
+      [
+        ["Python 3.12+", "Create venv, pip install -r requirements.txt"],
+        ["Docker", "Runs Neo4j as neo4j-demo on ports 7474 (Browser) and 7687 (Bolt)"],
+        ["Free local ports", "8501 Streamlit, 8080 REST API, 8090 mock enterprise APIs (full demo)"],
+        ["Basic terminal skills", "Run ./run_demo.sh or ./run_enterprise_demo.sh"],
+        ["LLM API key", "Not required — all diagnosis is graph-native"],
+      ],
+      [2800, 6560]
+    ),
+    spacer(),
+    h2("1.2 Assumptions"),
+    bullet("bullets", "You are evaluating or learning a warranty-triage pattern — not deploying to production from this repo alone"),
+    bullet("bullets", "Enterprise data in data/enterprise_sources/ represents realistic CRM, PIM, FSM, and Claims payloads"),
+    bullet("bullets", "Three products (washer, dishwasher, microwave) are sufficient to demonstrate the architecture"),
+    bullet("bullets", "Escalation to human agents is expected and desirable for safety-critical or ambiguous cases"),
+    bullet("bullets", "An LLM may polish language later but must not replace graph-backed reasoning"),
+
     h1("2. The Problem in Plain English"),
     p(
       "Imagine you run a company that sells washing machines, dishwashers, and microwaves. Thousands of customers call or chat every week saying things like: 'My washer won't spin' or 'My microwave sparks inside.'"
@@ -1543,7 +1654,24 @@ function buildDoc3() {
       "Escalation is a feature, not a failure. The goal is not 100% automation — it is right automation. Dangerous or ambiguous cases must reach humans with full context."
     ),
 
-    h1("17. Common Questions (FAQ)"),
+    h1("17. Risk Mitigation"),
+    p("The platform is designed to fail safely — preferring human handoff over risky automation:"),
+    table(
+      ["Risk", "How the platform mitigates it"],
+      [
+        ["Wrong repair advice", "Every step comes from graph DiagnosticStep nodes with safety_notes; not LLM-invented"],
+        ["Missed electrical/safety hazard", "critical severity on symptoms bypasses confidence threshold — always escalates"],
+        ["Over-confident multi-symptom diagnosis", "Confidence aggregates across matches; dilution triggers escalation (see washer two-turn demo)"],
+        ["Out-of-warranty repair promise", "CRM + claims warranty gate runs before diagnosis when customer/asset bound"],
+        ["Stale knowledge", "Enterprise ETL refreshes catalog; smoke tests block bad graph loads"],
+        ["Agent cannot explain answer", "provenance_trail cites PIM, FSM, Claims, CRM source records"],
+        ["Integration API down", "Connectors fall back to local fixtures in demo; production uses circuit breakers + alerts"],
+      ],
+      [3200, 6160]
+    ),
+    spacer(),
+
+    h1("18. Common Questions (FAQ)"),
     h3("Do I need an LLM / API key to run the demo?"),
     p("No. The demo runs in graph-native mode. All reasoning comes from Neo4j queries and lexical symptom matching."),
     h3("Do I need to understand Cypher?"),
@@ -1557,7 +1685,7 @@ function buildDoc3() {
     h3("What skills do I need to maintain this in production?"),
     p("Knowledge engineering (ontology + symptom catalog), graph database basics (Neo4j/Cypher), Python, API integration, and optionally LLM prompt engineering for the formatting layer."),
 
-    h1("18. Learning Path — What to Study Next"),
+    h1("19. Learning Path — What to Study Next"),
     table(
       ["Topic", "Why", "Resource Starting Point"],
       [
@@ -1572,7 +1700,7 @@ function buildDoc3() {
     ),
     spacer(),
 
-    h1("19. Quick Start Checklist"),
+    h1("20. Quick Start Checklist"),
     bullet("numbers", "Install dependencies: pip install -r requirements.txt"),
     bullet("numbers", "Start Neo4j: docker start neo4j-demo (or ./run_demo.sh)"),
     bullet("numbers", "Build knowledge from enterprise fixtures: python -m graph.enterprise_pipeline.pipeline --load-neo4j"),
@@ -1582,7 +1710,7 @@ function buildDoc3() {
     bullet("numbers", "Open Human Agent Dashboard tab — see the full diagnostic dossier"),
     bullet("numbers", "Open Neo4j Browser — explore the graph visually"),
 
-    h1("20. Summary"),
+    h1("21. Summary"),
     p(
       "This application is a warranty claims intelligent triage system. It uses a knowledge graph (Neo4j) to store structured diagnostic expertise, GraphRAG to query that graph and produce explainable diagnoses, and LangGraph to orchestrate the workflow. Enterprise data from PIM, FSM, Claims, and CRM feeds an automated ETL pipeline that builds and maintains the ontology. Only genuine, complex, or safety-critical cases escalate to contact center agents — with full appliance owner details and a pre-built diagnostic dossier."
     ),
@@ -1669,6 +1797,22 @@ function buildDoc4() {
     p(
       "This document walks through one real customer message step by step. For each step it shows: which code runs, whether Cypher is used, the exact query sent to Neo4j, what Neo4j returns, and how the final diagnosis and escalation decision are made. Three diagrams are included showing the full knowledge graph, the matched path for this message, and the query execution flow."
     ),
+
+    h2("1.1 Prerequisites"),
+    bullet("bullets", "Neo4j running with knowledge graph loaded (./run_demo.sh or enterprise orchestrator)"),
+    bullet("bullets", "Familiarity with basic Cypher MATCH/RETURN syntax (examples provided)"),
+    bullet("bullets", "Neo4j Browser at http://localhost:7474 for interactive query replay"),
+    h2("1.2 Dependencies"),
+    bullet("bullets", "graph/graph_rag.py — symptom matching, failure ranking, escalation decision"),
+    bullet("bullets", "agents/diagnosis_graph.py — LangGraph node sequence"),
+    bullet("bullets", "data/synthetic_diagnosis_data.json or enterprise_knowledge_catalog.json — parts catalog (non-Cypher)"),
+    h2("1.3 Assumptions"),
+    bullet("bullets", "Product wm-001 is pre-detected or detected via keyword scoring before Cypher runs"),
+    bullet("bullets", "Symptom IDs wm-s01 and wm-s03 exist in the graph with INDICATES links to failure modes"),
+    bullet("bullets", "Escalation threshold is 0.65 unless overridden in .env"),
+    h2("1.4 Risk Mitigation"),
+    bullet("bullets", "Low-confidence outcomes escalate even when top failure mode seems plausible"),
+    bullet("bullets", "Critical-severity symptoms in other product lines (e.g., microwave arcing) always escalate — see Section 10 contrast"),
 
     h1("2. The Customer Message"),
     codeBlock(

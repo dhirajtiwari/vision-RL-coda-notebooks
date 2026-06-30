@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: etl-pipeline
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: etl
+              image: ghcr.io/OWNER/REPO-diagnostics-etl:latest
+              envFrom:
+                - configMapRef:
+                    name: diagnostics-config
+              env:
+                - name: NEO4J_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: diagnostics-secrets
+                      key: NEO4J_PASSWORD
+              volumeMounts:
+                - name: enterprise-data
+                  mountPath: /app/data
+          volumes:
+            - name: enterprise-data
+              persistentVolumeClaim:
+                claimName: enterprise-data

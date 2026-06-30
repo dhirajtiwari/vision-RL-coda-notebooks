@@ -1,0 +1,34 @@
+// C4 Level 3 — Streamlit Web Application (zoomed)
+digraph C4_L3_WebApp {
+  graph [rankdir=TB, label="C4 Level 3 — Streamlit Web Application [Container]", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#85BBF0"]
+  edge [fontname="Arial", fontsize=8]
+
+  user [label="Customer / Agent", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+
+  subgraph cluster_web {
+    label="Streamlit Web Application — ui/app.py"
+    color="#438DD5"
+    chat [label="Chat Tab\nrun_diagnosis() direct"]
+    claims [label="Claims Tab\nsubmit · approve · deny"]
+    kg [label="KG Explorer\nPyVis · /graph API"]
+    dash [label="Agent Dashboard\nescalations · lineage"]
+    etl_tab [label="ETL Tab\norchestrator trigger"]
+  }
+
+  agent [label="Agent Runtime", fillcolor="#438DD5", fontcolor=white]
+  integ [label="Integration Services", fillcolor="#438DD5", fontcolor=white]
+  intel [label="Graph Intelligence", fillcolor="#438DD5", fontcolor=white]
+  etl [label="ETL Pipeline", fillcolor="#438DD5", fontcolor=white]
+
+  user -> chat
+  user -> claims
+  user -> kg
+  user -> dash
+  chat -> agent
+  claims -> integ
+  claims -> agent
+  kg -> intel
+  dash -> integ
+  etl_tab -> etl
+}

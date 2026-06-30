@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 331.25)">
 <title>ETLToRuntime</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-331.25 922,-331.25 922,4 -4,4"/>
-<text xml:space="preserve" text-anchor="middle" x="459" y="-309.95" font-family="Arial" font-size="14.00">Figure 14: Enterprise ETL Pipelines → Neo4j → Runtime Diagnosis</text>
+<text xml:space="preserve" text-anchor="middle" x="459" y="-309.95" font-family="Arial" font-size="14.00">[DEPRECATED — use 28+32 ETL/promotion diagrams] Figure 14: ETL to Runtime</text>
 <g id="clust1" class="cluster">
 <title>cluster_sources</title>
 <path fill="white" stroke="black" d="M20,-219.75C20,-219.75 416,-219.75 416,-219.75 422,-219.75 428,-225.75 428,-231.75 428,-231.75 428,-283.5 428,-283.5 428,-289.5 422,-295.5 416,-295.5 416,-295.5 20,-295.5 20,-295.5 14,-295.5 8,-289.5 8,-283.5 8,-283.5 8,-231.75 8,-231.75 8,-225.75 14,-219.75 20,-219.75"/>

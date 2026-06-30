@@ -1,0 +1,23 @@
+// C4 Dynamic Diagram — Blueprint authoring flow
+digraph C4_Dynamic_Blueprint {
+  graph [rankdir=LR, label="C4 Dynamic Diagram — OEM Blueprint → Ontology → Graph", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=9, color="#5D4037", penwidth=1.5]
+
+  sme [label="Knowledge Engineer", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+  oem [label="OEM Catalog\noem_product_catalog.py", fillcolor="#D7CCC8"]
+  ext [label="Warranty Extensions", fillcolor="#D7CCC8"]
+  sync [label="PIM Blueprint Sync", fillcolor="#D7CCC8"]
+  ob [label="Ontology Builder", fillcolor="#85BBF0"]
+  load [label="Graph Loader\npopulate_graph.py", fillcolor="#85BBF0"]
+  files [label="JSON catalogs", shape=folder, fillcolor="#438DD5", fontcolor=white]
+  neo [label="Neo4j ERD instance", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+
+  sme -> oem [label="1 author"]
+  oem -> ext [label="2 merge extensions"]
+  ext -> sync [label="3 export fixtures"]
+  sync -> files [label="4 JSON write"]
+  files -> ob [label="5 ETL transform"]
+  ob -> load [label="6 validated catalog"]
+  load -> neo [label="7 MERGE nodes/edges"]
+}

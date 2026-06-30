@@ -1,0 +1,27 @@
+// C4 Level 3 — Graph Intelligence Container (zoomed)
+digraph C4_L3_GraphIntelligence {
+  graph [rankdir=LR, label="C4 Level 3 — Graph Intelligence Library [Container]", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#85BBF0"]
+  edge [fontname="Arial", fontsize=8]
+
+  subgraph cluster_intel {
+    label="Graph Intelligence Library"
+    color="#438DD5"
+    rag [label="GraphRAG\ngraph_rag.py\ndiagnose() · rank_failure_modes"]
+    de [label="Diagnostic Engine\ndiagnostic_engine.py\nNEXT_STEP · CONFIRMS"]
+    pp [label="Parts Predictor\nparts_predictor.py\nmulti-source ranking"]
+    viz [label="Graph Visualization\ngraph_visualization.py\nPyVis subgraphs"]
+  }
+
+  caller [label="Agent Runtime / API", fillcolor="#438DD5", fontcolor=white]
+  neo [label="Neo4j Graph DB", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+
+  caller -> rag [label="diagnose()"]
+  rag -> de [label="diagnostic_tree"]
+  rag -> pp [label="predicted_parts"]
+  caller -> viz [label="/graph/*"]
+  rag -> neo [label="Cypher: INDICATES\nHAS_SYMPTOM · CAN_HAVE"]
+  de -> neo [label="Cypher: NEXT_STEP"]
+  pp -> neo [label="Cypher: REQUIRES_PART\nIMPACTS_COMPONENT · USED_PART"]
+  viz -> neo [label="Cypher: subgraph"]
+}

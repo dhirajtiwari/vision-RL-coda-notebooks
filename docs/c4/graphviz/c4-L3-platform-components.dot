@@ -1,0 +1,92 @@
+// C4 Level 3 — Component Diagram (full platform)
+digraph C4_L3_Platform {
+  graph [
+    rankdir=TB
+    label="C4 Level 3 — Component Diagram (Platform Overview)"
+    labelloc=t
+    fontsize=13
+    fontname="Arial"
+    bgcolor="white"
+    splines=ortho
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=8, fillcolor="#85BBF0", fontcolor=black]
+  edge [fontname="Arial", fontsize=7, color="#444444"]
+
+  subgraph cluster_web {
+    label="Streamlit Web Application [Container]"
+    color="#438DD5"
+    w1 [label="Chat Tab"]
+    w2 [label="Claims Tab"]
+    w3 [label="KG Explorer"]
+    w4 [label="Agent Dashboard"]
+  }
+
+  subgraph cluster_api {
+    label="Diagnostics REST API [Container]"
+    color="#438DD5"
+    a1 [label="Diagnose Controller"]
+    a2 [label="Claims Controller"]
+    a3 [label="Graph Controller"]
+    a4 [label="Health & Lineage"]
+  }
+
+  subgraph cluster_agent {
+    label="Diagnosis Agent Runtime [Container]"
+    color="#438DD5"
+    g1 [label="Detect Product"]
+    g2 [label="Run Diagnosis"]
+    g3 [label="Format Response"]
+    g4 [label="Handle Escalation"]
+  }
+
+  subgraph cluster_intel {
+    label="Graph Intelligence Library [Container]"
+    color="#438DD5"
+    i1 [label="GraphRAG"]
+    i2 [label="Diagnostic Engine"]
+    i3 [label="Parts Predictor"]
+    i4 [label="Graph Visualization"]
+  }
+
+  subgraph cluster_integ {
+    label="Integration Services [Container]"
+    color="#438DD5"
+    n1 [label="CRM Enrichment"]
+    n2 [label="Warranty Eligibility"]
+    n3 [label="Claims Workflow"]
+    n4 [label="Case Management"]
+  }
+
+  subgraph cluster_etl {
+    label="ETL Batch Pipeline [Container]"
+    color="#438DD5"
+    e1 [label="Orchestrator"]
+    e2 [label="Knowledge ETL"]
+    e3 [label="Ontology Builder"]
+    e4 [label="Connectors"]
+    e5 [label="Smoke · Promotion"]
+  }
+
+  subgraph cluster_bp {
+    label="Blueprint Authoring [Container]"
+    color="#438DD5"
+    b1 [label="OEM Catalog"]
+    b2 [label="PIM Sync"]
+    b3 [label="Graph Loader"]
+  }
+
+  neo4j [label="Neo4j\n[Database]", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+  files [label="JSON File Store\n[File System]", shape=folder, fillcolor="#438DD5", fontcolor=white]
+
+  w1 -> g1
+  a1 -> n1 -> n2 -> g1
+  a1 -> g1 -> g2 -> i1 -> i2 -> i3
+  a2 -> n3
+  a3 -> i4
+  g2 -> i1
+  i1 -> neo4j
+  n3 -> files
+  n3 -> neo4j
+  e1 -> e2 -> e4 -> e3 -> b3 -> neo4j
+  b1 -> b2 -> files
+}

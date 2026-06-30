@@ -1,0 +1,39 @@
+// C4 Level 3 — API Container (zoomed)
+digraph C4_L3_API {
+  graph [rankdir=LR, label="C4 Level 3 — Diagnostics REST API [Container]", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#85BBF0"]
+  edge [fontname="Arial", fontsize=8]
+
+  subgraph cluster_api {
+    label="Diagnostics REST API"
+    color="#438DD5"
+    d [label="Diagnose Controller\nPOST /diagnose"]
+    c [label="Claims Controller\nPOST/GET/PATCH /claims"]
+    g [label="Graph Controller\nGET /graph/*"]
+    h [label="Health & Lineage\nGET /health · /lineage/batches"]
+  }
+
+  subgraph cluster_deps {
+    label="Collaborating containers"
+    color="#666666"
+    agent [label="Agent Runtime\nrun_diagnosis()", fillcolor="#438DD5", fontcolor=white]
+    integ [label="Integration Services", fillcolor="#438DD5", fontcolor=white]
+    intel [label="Graph Intelligence", fillcolor="#438DD5", fontcolor=white]
+    neo [label="Neo4j", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+  }
+
+  client [label="Streamlit / External Client", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+
+  client -> d
+  client -> c
+  client -> g
+  client -> h
+  d -> integ [label="CRM · warranty"]
+  d -> agent
+  c -> integ [label="submit_claim"]
+  c -> agent [label="diagnosis first"]
+  g -> intel
+  agent -> intel
+  intel -> neo
+  integ -> neo
+}

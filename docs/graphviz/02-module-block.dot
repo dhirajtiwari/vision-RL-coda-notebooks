@@ -2,7 +2,7 @@
 digraph ModuleBlock {
   graph [
     rankdir=LR
-    label="Figure 2: Module Block Diagram — diagnostic-chatbot Repository"
+    label="[DEPRECATED — use 24-architecture-L4-code.dot] Figure 2: Module Block Diagram"
     labelloc=t
     fontsize=14
     fontname="Arial"

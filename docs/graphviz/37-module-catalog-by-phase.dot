@@ -1,0 +1,74 @@
+// Module catalog — what each file does, grouped by pipeline phase
+digraph ModuleCatalog {
+  graph [
+    rankdir=LR
+    label="Module Catalog — Files & Tools by Responsibility\n(Key modules + supporting files)"
+    labelloc=t
+    fontsize=13
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Courier", fontsize=7]
+  edge [style=invis]
+
+  subgraph cluster_blueprint {
+    label="Blueprint & Ontology"
+    color="#5D4037"
+    M1 [label="oem_product_catalog.py\nOEM blueprint builders (10)\nlegacy washers/dish/micro (3)\nbuild_oem_enterprise_catalog()", fillcolor="#D7CCC8"]
+    M2 [label="warranty_catalog_extensions.py\nModel/SKU/Component/ErrorCode\nAsset/Claim/WarrantyPolicy\nmerge_product_extensions()", fillcolor="#D7CCC8"]
+    M3 [label="synthetic_data_generator.py\nPydantic models · legacy 3 products\npython -m graph.synthetic_data_generator", fillcolor="#D7CCC8"]
+    M4 [label="pim_blueprint_sync.py\nOEM → pim_catalog.json\n+ enterprise_knowledge_catalog.json", fillcolor="#D7CCC8"]
+  }
+
+  subgraph cluster_etl {
+    label="ETL & Connectors"
+    color="#2E7D32"
+    M5 [label="orchestrator.py\nETL → smoke → promote", fillcolor="#C8E6C9"]
+    M6 [label="knowledge_etl.py\n4 connectors → OntologyBuilder\n→ populate_graph (optional)", fillcolor="#C8E6C9"]
+    M7 [label="ontology_builder.py\nPIM+FSM+Claims → KnowledgeGraphData\nprovenance metadata", fillcolor="#C8E6C9"]
+    M8 [label="pim/crm/claims/fsm_connector.py\nfetch() → ConnectorResult\nHTTP or JSON fixture", fillcolor="#C8E6C9"]
+    M9 [label="http_client.py · base.py\nget_json() · load_fixture()", fillcolor="#C8E6C9"]
+    M10 [label="smoke_validation.py\nregression before promote", fillcolor="#C8E6C9"]
+    M11 [label="staging_promotion.py\npromote validated batch", fillcolor="#C8E6C9"]
+    M12 [label="lineage_store.py\netl_batches.jsonl audit", fillcolor="#C8E6C9"]
+  }
+
+  subgraph cluster_graph {
+    label="Graph Store & Load"
+    color="#1565C0"
+    M13 [label="populate_graph.py\nMERGE all node types\n15 constraints", fillcolor="#90CAF9"]
+    M14 [label="neo4j_client.py\nBolt driver · verify_connection", fillcolor="#90CAF9"]
+    M15 [label="provenance.py\nevidence trail helpers", fillcolor="#90CAF9"]
+  }
+
+  subgraph cluster_intel {
+    label="Diagnosis Intelligence"
+    color="#E65100"
+    M16 [label="graph_rag.py\ndiagnose() · rank_failure_modes\ndetect_product · format_response", fillcolor="#FFE0B2"]
+    M17 [label="diagnostic_engine.py\nget_diagnostic_tree()\nNEXT_STEP · CONFIRMS · RULES_OUT", fillcolor="#FFE0B2"]
+    M18 [label="parts_predictor.py\npredict_parts() multi-source\nREQUIRES_PART · BOM · SKU · claims", fillcolor="#FFE0B2"]
+    M19 [label="graph_visualization.py\nontology/product/diagnosis subgraphs\nPyVis render", fillcolor="#FFE0B2"]
+  }
+
+  subgraph cluster_runtime {
+    label="Runtime Integration & Claims"
+    color="#00838F"
+    M20 [label="crm_enrichment.py\nasset_id → product_id · warranty", fillcolor="#B2EBF2"]
+    M21 [label="warranty_eligibility.py\ncheck_warranty_eligibility()", fillcolor="#B2EBF2"]
+    M22 [label="claims_workflow.py\nsubmit · list · update_claim_status\nJSON + Neo4j MERGE", fillcolor="#B2EBF2"]
+    M23 [label="case_management.py\nescalation → CCaaS case", fillcolor="#B2EBF2"]
+    M24 [label="fsm_escalation.py · escalation_store.py\nfield service handoff", fillcolor="#B2EBF2"]
+  }
+
+  subgraph cluster_app {
+    label="Application Entry Points"
+    color="#6A1B9A"
+    M25 [label="agents/diagnosis_graph.py\n4-node LangGraph pipeline", fillcolor="#E1BEE7"]
+    M26 [label="agents/tools.py\ntool_diagnose · tool_detect_product", fillcolor="#E1BEE7"]
+    M27 [label="api/main.py\n/diagnose · /claims/* · /graph/*", fillcolor="#E1BEE7"]
+    M28 [label="ui/app.py\nChat · Claims · KG Explorer", fillcolor="#E1BEE7"]
+    M29 [label="mock_enterprise_apps.py\n/api/pim · /crm · /claims · /fsm", fillcolor="#E1BEE7"]
+  }
+
+  M1 -> M4 -> M6 -> M13 -> M16 -> M22
+}

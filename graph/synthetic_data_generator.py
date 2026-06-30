@@ -68,6 +68,14 @@ class SymptomFailureLink(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0)
 
 
+class FailureModePartLink(BaseModel):
+    failure_mode_id: str
+    part_id: str
+    quantity: int = 1
+    probability: float = Field(ge=0.0, le=1.0, default=0.9)
+    is_primary: bool = True
+
+
 class ProductKnowledge(BaseModel):
     product: Product
     symptoms: list[Symptom]
@@ -76,10 +84,17 @@ class ProductKnowledge(BaseModel):
     parts: list[Part]
     historical_resolutions: list[HistoricalResolution]
     symptom_failure_links: list[SymptomFailureLink]
+    failure_mode_part_links: list[FailureModePartLink] = Field(default_factory=list)
 
 
 class KnowledgeGraphData(BaseModel):
     products: list[ProductKnowledge]
+
+
+def _export_catalog_dict(data: KnowledgeGraphData) -> dict:
+    from graph.oem_product_catalog import build_oem_enterprise_catalog
+
+    return build_oem_enterprise_catalog()
 
 
 def build_washing_machine() -> ProductKnowledge:
@@ -153,6 +168,11 @@ def build_washing_machine() -> ProductKnowledge:
         SymptomFailureLink(symptom_id="wm-s04", failure_mode_id="wm-fm02", confidence=0.70),
         SymptomFailureLink(symptom_id="wm-s04", failure_mode_id="wm-fm01", confidence=0.55),
     ]
+    failure_mode_part_links = [
+        FailureModePartLink(failure_mode_id="wm-fm01", part_id="wm-p01"),
+        FailureModePartLink(failure_mode_id="wm-fm02", part_id="wm-p02"),
+        FailureModePartLink(failure_mode_id="wm-fm03", part_id="wm-p03"),
+    ]
     return ProductKnowledge(
         product=product,
         symptoms=symptoms,
@@ -161,6 +181,7 @@ def build_washing_machine() -> ProductKnowledge:
         parts=parts,
         historical_resolutions=historical_resolutions,
         symptom_failure_links=symptom_failure_links,
+        failure_mode_part_links=failure_mode_part_links,
     )
 
 
@@ -234,6 +255,11 @@ def build_dishwasher() -> ProductKnowledge:
         SymptomFailureLink(symptom_id="dw-s03", failure_mode_id="dw-fm03", confidence=0.91),
         SymptomFailureLink(symptom_id="dw-s04", failure_mode_id="dw-fm01", confidence=0.30),
     ]
+    failure_mode_part_links = [
+        FailureModePartLink(failure_mode_id="dw-fm01", part_id="dw-p01"),
+        FailureModePartLink(failure_mode_id="dw-fm02", part_id="dw-p02"),
+        FailureModePartLink(failure_mode_id="dw-fm03", part_id="dw-p03"),
+    ]
     return ProductKnowledge(
         product=product,
         symptoms=symptoms,
@@ -242,6 +268,7 @@ def build_dishwasher() -> ProductKnowledge:
         parts=parts,
         historical_resolutions=historical_resolutions,
         symptom_failure_links=symptom_failure_links,
+        failure_mode_part_links=failure_mode_part_links,
     )
 
 
@@ -315,6 +342,11 @@ def build_microwave() -> ProductKnowledge:
         SymptomFailureLink(symptom_id="mw-s03", failure_mode_id="mw-fm03", confidence=0.86),
         SymptomFailureLink(symptom_id="mw-s04", failure_mode_id="mw-fm01", confidence=0.40),
     ]
+    failure_mode_part_links = [
+        FailureModePartLink(failure_mode_id="mw-fm01", part_id="mw-p01"),
+        FailureModePartLink(failure_mode_id="mw-fm02", part_id="mw-p02"),
+        FailureModePartLink(failure_mode_id="mw-fm03", part_id="mw-p03"),
+    ]
     return ProductKnowledge(
         product=product,
         symptoms=symptoms,
@@ -323,6 +355,7 @@ def build_microwave() -> ProductKnowledge:
         parts=parts,
         historical_resolutions=historical_resolutions,
         symptom_failure_links=symptom_failure_links,
+        failure_mode_part_links=failure_mode_part_links,
     )
 
 
@@ -338,11 +371,13 @@ def generate_knowledge_graph_data() -> KnowledgeGraphData:
 
 def main() -> None:
     data = generate_knowledge_graph_data()
+    catalog = _export_catalog_dict(data)
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT_FILE.write_text(
-        json.dumps(data.model_dump(), indent=2),
-        encoding="utf-8",
-    )
+    OUTPUT_FILE.write_text(json.dumps(catalog, indent=2), encoding="utf-8")
+
+    from graph.enterprise_pipeline.transformers.pim_blueprint_sync import sync_pim_fixture
+
+    sync_pim_fixture(write_enterprise_catalog=True)
     print(f"✅ Generated synthetic data: {OUTPUT_FILE}")
     for item in data.products:
         print(f"   • {item.product.name}")

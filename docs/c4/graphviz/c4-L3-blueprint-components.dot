@@ -1,0 +1,26 @@
+// C4 Level 3 — Blueprint Authoring Container (zoomed)
+digraph C4_L3_Blueprint {
+  graph [rankdir=TB, label="C4 Level 3 — Blueprint Authoring [Container]", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white", splines=ortho]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#85BBF0"]
+  edge [fontname="Arial", fontsize=8]
+
+  sme [label="Knowledge Engineer", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+
+  subgraph cluster_bp {
+    label="Blueprint Authoring"
+    color="#438DD5"
+    oem [label="OEM Product Catalog\noem_product_catalog.py\n10 OEM + 3 legacy builders"]
+    ext [label="Warranty Extensions\nwarranty_catalog_extensions.py\nModel · SKU · Component · Asset"]
+    synth [label="Synthetic Generator\nsynthetic_data_generator.py"]
+    sync [label="PIM Blueprint Sync\npim_blueprint_sync.py"]
+    load [label="Graph Loader\npopulate_graph.py"]
+  }
+
+  files [label="JSON File Store\npim_catalog.json\nenterprise_knowledge_catalog.json\nsynthetic_diagnosis_data.json", shape=folder, fillcolor="#438DD5", fontcolor=white]
+  neo [label="Neo4j", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+
+  sme -> oem [label="authors blueprints"]
+  oem -> ext -> sync -> files
+  synth -> sync
+  files -> load -> neo
+}

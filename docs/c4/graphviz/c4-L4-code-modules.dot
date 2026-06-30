@@ -1,0 +1,65 @@
+// C4 Level 4 — Code / Module Diagram
+digraph C4_L4_Code {
+  graph [rankdir=LR, label="C4 Level 4 — Code Diagram (Key Modules & Dependencies)", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Courier", fontsize=7, fillcolor="#E8F4FC"]
+  edge [fontname="Arial", fontsize=7, color="#666666"]
+
+  subgraph cluster_entry {
+    label="Entry points"
+    color="#1168BD"
+    ui [label="ui/app.py"]
+    api [label="api/main.py"]
+    orch [label="orchestrator.py"]
+  }
+
+  subgraph cluster_agent {
+    label="Agent"
+    color="#6A1B9A"
+    dg [label="diagnosis_graph.py"]
+    tools [label="tools.py"]
+  }
+
+  subgraph cluster_intel {
+    label="Graph intelligence"
+    color="#E65100"
+    gr [label="graph_rag.py"]
+    de [label="diagnostic_engine.py"]
+    pp [label="parts_predictor.py"]
+    gv [label="graph_visualization.py"]
+  }
+
+  subgraph cluster_integ {
+    label="Integrations"
+    color="#00838F"
+    crm [label="crm_enrichment.py"]
+    we [label="warranty_eligibility.py"]
+    cw [label="claims_workflow.py"]
+  }
+
+  subgraph cluster_etl {
+    label="ETL"
+    color="#5D4037"
+    ke [label="knowledge_etl.py"]
+    ob [label="ontology_builder.py"]
+    ps [label="pim_blueprint_sync.py"]
+    oem [label="oem_product_catalog.py"]
+    pg [label="populate_graph.py"]
+  }
+
+  nc [label="neo4j_client.py", fillcolor="#C8E6C9"]
+
+  ui -> dg
+  api -> dg
+  api -> crm
+  api -> cw
+  api -> gv
+  dg -> tools -> gr
+  gr -> de
+  gr -> pp
+  gr -> nc
+  cw -> pp
+  cw -> we
+  ke -> ob -> pg -> nc
+  ps -> oem
+  orch -> ke
+}

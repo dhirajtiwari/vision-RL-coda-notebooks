@@ -1,0 +1,24 @@
+// C4 Dynamic Diagram — Diagnosis flow
+digraph C4_Dynamic_Diagnosis {
+  graph [rankdir=LR, label="C4 Dynamic Diagram — Diagnosis Request Flow", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#85BBF0"]
+  edge [fontname="Arial", fontsize=9, color="#1168BD", penwidth=1.5]
+
+  customer [label="Appliance Owner", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+  web [label="Streamlit Web App", fillcolor="#438DD5", fontcolor=white]
+  api [label="Diagnostics API", fillcolor="#438DD5", fontcolor=white]
+  integ [label="Integration Services\nCRM · warranty", fillcolor="#438DD5", fontcolor=white]
+  agent [label="Agent Runtime", fillcolor="#438DD5", fontcolor=white]
+  intel [label="Graph Intelligence", fillcolor="#438DD5", fontcolor=white]
+  neo [label="Neo4j", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+
+  customer -> web [label="1"]
+  web -> api [label="2 POST /diagnose", style=dashed]
+  web -> agent [label="2b direct invoke"]
+  api -> integ [label="3 CRM + warranty gate"]
+  api -> agent [label="4 run_diagnosis()"]
+  agent -> intel [label="5 GraphRAG · trees · parts"]
+  intel -> neo [label="6 Cypher"]
+  agent -> web [label="7 response"]
+  api -> web [label="7 JSON response", style=dashed]
+}

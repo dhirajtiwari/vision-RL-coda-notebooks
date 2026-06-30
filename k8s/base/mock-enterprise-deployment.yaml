@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-enterprise
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-enterprise
+  template:
+    metadata:
+      labels:
+        app: mock-enterprise
+    spec:
+      containers:
+        - name: mock-enterprise
+          image: ghcr.io/OWNER/REPO-diagnostics-mock:latest
+          ports:
+            - containerPort: 8090
+          envFrom:
+            - configMapRef:
+                name: diagnostics-config
+          volumeMounts:
+            - name: enterprise-data
+              mountPath: /app/data
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 10
+            periodSeconds: 10
+      volumes:
+        - name: enterprise-data
+          persistentVolumeClaim:
+            claimName: enterprise-data

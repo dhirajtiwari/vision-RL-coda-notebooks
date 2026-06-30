@@ -19,6 +19,7 @@ logger = get_logger(__name__)
 class AgentState(TypedDict):
     user_message: str
     product_id: str | None
+    asset_id: str | None
     product_name: str | None
     diagnosis: dict[str, Any] | None
     response: str
@@ -36,7 +37,11 @@ def node_detect_product(state: AgentState) -> AgentState:
 
 
 def node_run_graph_diagnosis(state: AgentState) -> AgentState:
-    payload = tool_diagnose(state["user_message"], product_id=state.get("product_id"))
+    payload = tool_diagnose(
+        state["user_message"],
+        product_id=state.get("product_id"),
+        asset_id=state.get("asset_id"),
+    )
     return {**state, "diagnosis": payload}
 
 
@@ -82,12 +87,17 @@ def get_diagnosis_app():
     return _diagnosis_app
 
 
-def run_diagnosis(user_message: str, product_id: str | None = None) -> dict[str, Any]:
+def run_diagnosis(
+    user_message: str,
+    product_id: str | None = None,
+    asset_id: str | None = None,
+) -> dict[str, Any]:
     """Run the full LangGraph diagnosis pipeline."""
     app = get_diagnosis_app()
     initial: AgentState = {
         "user_message": user_message,
         "product_id": product_id,
+        "asset_id": asset_id,
         "product_name": None,
         "diagnosis": None,
         "response": "",

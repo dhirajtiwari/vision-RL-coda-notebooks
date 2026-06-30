@@ -30,6 +30,13 @@ def create_constraints(tx) -> None:
         "CREATE CONSTRAINT IF NOT EXISTS FOR (ds:DiagnosticStep) REQUIRE ds.step_id IS UNIQUE",
         "CREATE CONSTRAINT IF NOT EXISTS FOR (p:Part) REQUIRE p.part_id IS UNIQUE",
         "CREATE CONSTRAINT IF NOT EXISTS FOR (r:HistoricalResolution) REQUIRE r.resolution_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (m:Model) REQUIRE m.model_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (sku:SKU) REQUIRE sku.sku_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (c:Component) REQUIRE c.component_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (ec:ErrorCode) REQUIRE ec.error_code_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (a:Asset) REQUIRE a.asset_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (wp:WarrantyPolicy) REQUIRE wp.policy_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (cl:Claim) REQUIRE cl.claim_id IS UNIQUE",
     ]:
         tx.run(query)
 
@@ -37,7 +44,11 @@ def create_constraints(tx) -> None:
 def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = None) -> dict[str, int]:
     """Load catalog into Neo4j. Returns entity counts."""
     batch_id = etl_batch_id or data.get("etl_batch_id", "")
-    counts = {"products": 0, "symptoms": 0, "failure_modes": 0, "steps": 0, "resolutions": 0}
+    counts = {
+        "products": 0, "symptoms": 0, "failure_modes": 0, "steps": 0, "resolutions": 0,
+        "models": 0, "skus": 0, "components": 0, "error_codes": 0,
+        "assets": 0, "claims": 0, "policies": 0,
+    }
 
     with driver.session() as session:
         session.execute_write(create_constraints)
@@ -145,6 +156,169 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     {**part, "source_system": pt_prov.get("source_system", "")},
                 )
 
+            model = product_data.get("model")
+            if model:
+                session.run(
+                    """
+                    MERGE (m:Model {model_id: $model_id})
+                    SET m.model_number = $model_number, m.name = $name
+                    """,
+                    model,
+                )
+                session.run(
+                    """
+                    MATCH (p:Product {product_id: $product_id})
+                    MATCH (m:Model {model_id: $model_id})
+                    MERGE (p)-[:HAS_MODEL]->(m)
+                    """,
+                    {"product_id": product_id, "model_id": model["model_id"]},
+                )
+                counts["models"] += 1
+
+            for sku in product_data.get("skus", []):
+                session.run(
+                    """
+                    MERGE (sku:SKU {sku_id: $sku_id})
+                    SET sku.revision = $revision, sku.model_year = $model_year
+                    """,
+                    sku,
+                )
+                session.run(
+                    """
+                    MATCH (p:Product {product_id: $product_id})
+                    MATCH (sku:SKU {sku_id: $sku_id})
+                    MERGE (p)-[:HAS_SKU]->(sku)
+                    """,
+                    {"product_id": product_id, "sku_id": sku["sku_id"]},
+                )
+                if model:
+                    session.run(
+                        """
+                        MATCH (m:Model {model_id: $model_id})
+                        MATCH (sku:SKU {sku_id: $sku_id})
+                        MERGE (m)-[:HAS_SKU]->(sku)
+                        """,
+                        {"model_id": model["model_id"], "sku_id": sku["sku_id"]},
+                    )
+                counts["skus"] += 1
+
+            for comp in product_data.get("components", []):
+                session.run(
+                    """
+                    MERGE (c:Component {component_id: $component_id})
+                    SET c.name = $name, c.subsystem = $subsystem
+                    """,
+                    comp,
+                )
+                session.run(
+                    """
+                    MATCH (p:Product {product_id: $product_id})
+                    MATCH (c:Component {component_id: $component_id})
+                    MERGE (p)-[:HAS_COMPONENT]->(c)
+                    """,
+                    {"product_id": product_id, "component_id": comp["component_id"]},
+                )
+                counts["components"] += 1
+
+            for link in product_data.get("component_part_links", []):
+                session.run(
+                    """
+                    MATCH (c:Component {component_id: $component_id})
+                    MATCH (pt:Part {part_id: $part_id})
+                    MERGE (c)-[:REALIZED_BY]->(pt)
+                    """,
+                    link,
+                )
+
+            for link in product_data.get("failure_mode_component_links", []):
+                session.run(
+                    """
+                    MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})
+                    MATCH (c:Component {component_id: $component_id})
+                    MERGE (fm)-[r:IMPACTS_COMPONENT]->(c)
+                    SET r.impact_severity = $impact_severity
+                    """,
+                    link,
+                )
+
+            for ec in product_data.get("error_codes", []):
+                session.run(
+                    """
+                    MERGE (ec:ErrorCode {error_code_id: $error_code_id})
+                    SET ec.code = $code, ec.description = $description
+                    """,
+                    ec,
+                )
+                session.run(
+                    """
+                    MATCH (p:Product {product_id: $product_id})
+                    MATCH (ec:ErrorCode {error_code_id: $error_code_id})
+                    MERGE (p)-[:HAS_ERROR_CODE]->(ec)
+                    """,
+                    {"product_id": product_id, "error_code_id": ec["error_code_id"]},
+                )
+                counts["error_codes"] += 1
+
+            for link in product_data.get("error_code_failure_links", []):
+                session.run(
+                    """
+                    MATCH (ec:ErrorCode {error_code_id: $error_code_id})
+                    MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})
+                    MERGE (ec)-[r:INDICATES]->(fm)
+                    SET r.confidence = $confidence
+                    """,
+                    link,
+                )
+
+            for link in product_data.get("diagnostic_tree_links", []):
+                session.run(
+                    """
+                    MATCH (a:DiagnosticStep {step_id: $from_step_id})
+                    MATCH (b:DiagnosticStep {step_id: $to_step_id})
+                    MERGE (a)-[r:NEXT_STEP]->(b)
+                    SET r.condition = $condition
+                    """,
+                    link,
+                )
+
+            for link in product_data.get("diagnostic_step_failure_links", []):
+                rel = link.get("link_type", "CONFIRMS")
+                session.run(
+                    f"""
+                    MATCH (ds:DiagnosticStep {{step_id: $step_id}})
+                    MATCH (fm:FailureMode {{failure_mode_id: $failure_mode_id}})
+                    MERGE (ds)-[r:{rel}]->(fm)
+                    SET r.confidence = $confidence
+                    """,
+                    link,
+                )
+
+            for link in product_data.get("failure_mode_part_links", []):
+                session.run(
+                    """
+                    MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})
+                    MATCH (pt:Part {part_id: $part_id})
+                    MERGE (fm)-[r:REQUIRES_PART]->(pt)
+                    SET r.quantity = $quantity, r.probability = $probability, r.is_primary = $is_primary
+                    """,
+                    {
+                        **link,
+                        "quantity": link.get("quantity", 1),
+                        "probability": link.get("probability", 0.9),
+                        "is_primary": link.get("is_primary", True),
+                    },
+                )
+
+            for link in product_data.get("sku_part_links", []):
+                session.run(
+                    """
+                    MATCH (sku:SKU {sku_id: $sku_id})
+                    MATCH (pt:Part {part_id: $part_id})
+                    MERGE (sku)-[:COMPATIBLE_WITH]->(pt)
+                    """,
+                    link,
+                )
+
             for link in product_data.get("symptom_failure_links", []):
                 session.run(
                     """
@@ -192,6 +366,100 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     },
                 )
                 counts["resolutions"] += 1
+
+        for policy in data.get("warranty_policies", []):
+            session.run(
+                """
+                MERGE (wp:WarrantyPolicy {policy_id: $policy_id})
+                SET wp.description = $description, wp.coverage_months = $coverage_months,
+                    wp.covers_parts = $covers_parts, wp.covers_labor = $covers_labor,
+                    wp.max_parts_cost_usd = $max_parts_cost_usd
+                """,
+                policy,
+            )
+            counts["policies"] += 1
+
+        for asset in data.get("assets", []):
+            session.run(
+                """
+                MERGE (a:Asset {asset_id: $asset_id})
+                SET a.customer_id = $customer_id, a.serial_number = $serial_number,
+                    a.model_number = $model_number, a.purchase_date = $purchase_date,
+                    a.warranty_status = $warranty_status, a.warranty_expiry = $warranty_expiry
+                """,
+                asset,
+            )
+            session.run(
+                """
+                MATCH (a:Asset {asset_id: $asset_id})
+                MATCH (p:Product {product_id: $product_id})
+                MERGE (a)-[:INSTANCE_OF]->(p)
+                """,
+                {"asset_id": asset["asset_id"], "product_id": asset["product_id"]},
+            )
+            if asset.get("sku_id"):
+                session.run(
+                    """
+                    MATCH (a:Asset {asset_id: $asset_id})
+                    MATCH (sku:SKU {sku_id: $sku_id})
+                    MERGE (a)-[:BOUND_TO_SKU]->(sku)
+                    """,
+                    {"asset_id": asset["asset_id"], "sku_id": asset["sku_id"]},
+                )
+            if asset.get("policy_id"):
+                session.run(
+                    """
+                    MATCH (a:Asset {asset_id: $asset_id})
+                    MATCH (wp:WarrantyPolicy {policy_id: $policy_id})
+                    MERGE (a)-[:COVERED_BY]->(wp)
+                    """,
+                    {"asset_id": asset["asset_id"], "policy_id": asset["policy_id"]},
+                )
+                session.run(
+                    """
+                    MATCH (wp:WarrantyPolicy {policy_id: $policy_id})
+                    MATCH (p:Product {product_id: $product_id})
+                    MERGE (wp)-[:COVERS_PRODUCT]->(p)
+                    """,
+                    {"policy_id": asset["policy_id"], "product_id": asset["product_id"]},
+                )
+            counts["assets"] += 1
+
+        for claim in data.get("claims", []):
+            session.run(
+                """
+                MERGE (cl:Claim {claim_id: $claim_id})
+                SET cl.resolution_summary = $resolution_summary, cl.closed_date = $closed_date,
+                    cl.symptom_id = $symptom_id
+                """,
+                claim,
+            )
+            session.run(
+                """
+                MATCH (cl:Claim {claim_id: $claim_id})
+                MATCH (a:Asset {asset_id: $asset_id})
+                MERGE (cl)-[:FOR_ASSET]->(a)
+                """,
+                {"claim_id": claim["claim_id"], "asset_id": claim["asset_id"]},
+            )
+            session.run(
+                """
+                MATCH (cl:Claim {claim_id: $claim_id})
+                MATCH (fm:FailureMode {failure_mode_id: $confirmed_failure_mode_id})
+                MERGE (cl)-[:CONFIRMED]->(fm)
+                """,
+                claim,
+            )
+            if claim.get("used_part_id"):
+                session.run(
+                    """
+                    MATCH (cl:Claim {claim_id: $claim_id})
+                    MATCH (pt:Part {part_id: $used_part_id})
+                    MERGE (cl)-[:USED_PART]->(pt)
+                    """,
+                    claim,
+                )
+            counts["claims"] += 1
 
     return counts
 

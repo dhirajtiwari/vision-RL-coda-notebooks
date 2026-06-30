@@ -13,6 +13,7 @@ from graph.provenance import default_provenance
 from graph.synthetic_data_generator import (
     DiagnosticStep,
     FailureMode,
+    FailureModePartLink,
     HistoricalResolution,
     KnowledgeGraphData,
     Part,
@@ -84,11 +85,13 @@ class OntologyBuilder:
                     "FSM", res.resolution_id, f"fsm/resolutions/{res.resolution_id}", "HistoricalResolution"
                 )
 
-        return {
-            "etl_batch_id": self.etl_batch_id,
-            "provenance": provenance,
-            "products": [p.model_dump() for p in graph_data.products],
-        }
+        from graph.warranty_catalog_extensions import build_enterprise_catalog_payload
+
+        products = [p.model_dump() for p in graph_data.products]
+        payload = build_enterprise_catalog_payload(products)
+        payload["etl_batch_id"] = self.etl_batch_id
+        payload["provenance"] = provenance
+        return payload
 
     def _prov(self, system: str, record_id: str, doc_uri: str, entity_label: str) -> dict[str, Any]:
         defaults = self._manifest.get("entity_defaults", {}).get(entity_label, {})
@@ -122,6 +125,10 @@ class OntologyBuilder:
                 fsm_records,
                 claim_records,
             ),
+            failure_mode_part_links=[
+                FailureModePartLink(**link)
+                for link in pim_product.get("failure_mode_part_links", [])
+            ],
         )
 
     def _build_symptom_links(

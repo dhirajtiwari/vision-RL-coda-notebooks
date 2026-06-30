@@ -2,7 +2,7 @@
 digraph Neo4jOntology {
   graph [
     rankdir=TB
-    label="Figure 5: Neo4j Ontology — Schema & wm-001 Instance"
+    label="Neo4j Ontology — Core Schema & wm-001 Instance (see 34 for full enterprise ERD)"
     labelloc=t
     fontsize=14
     fontname="Arial"
@@ -28,6 +28,7 @@ digraph Neo4jOntology {
     Product -> FailureMode [label="CAN_HAVE"]
     Product -> DiagStep [label="HAS_DIAGNOSTIC_STEP"]
     Symptom -> FailureMode [label="INDICATES\n{confidence: 0.0–1.0}"]
+    FailureMode -> Part [label="REQUIRES_PART"]
     HistRes -> Product [label="FOR_PRODUCT"]
     HistRes -> FailureMode [label="CONFIRMED"]
   }

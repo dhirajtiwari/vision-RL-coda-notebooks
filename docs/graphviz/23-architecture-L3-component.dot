@@ -1,0 +1,136 @@
+digraph L3_Component {
+  rankdir=TB;
+  graph [fontname="Helvetica", fontsize=11, splines=ortho, nodesep=0.45, ranksep=0.65];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=9, fillcolor=white];
+  edge [fontname="Helvetica", fontsize=7, color="#37474F"];
+
+  subgraph cluster_ui {
+    label="Streamlit UI (ui/app.py)";
+    style=dashed; color="#1565C0"; fillcolor="#E3F2FD";
+    ui_chat [label="Chat tab\nLangGraph + GraphRAG"];
+    ui_claims [label="Warranty Claims tab\nsubmit / approve / deny"];
+    ui_dash [label="Agent Dashboard\nescalations + lineage"];
+    ui_kg [label="Knowledge Graph tab\nOntology | Product | Cypher\nPyVis interactive"];
+    ui_etl [label="ETL tab\nrun pipeline + batch history"];
+  }
+
+  subgraph cluster_api {
+    label="FastAPI (api/main.py)";
+    style=dashed; color="#2E7D32"; fillcolor="#E8F5E9";
+    api_diag [label="POST /diagnose"];
+    api_claims [label="POST /claims/submit\nGET /claims · GET /claims/{id}\nPATCH /claims/{id}/status"];
+    api_graph [label="GET /graph/ontology\n/graph/product/{id}\n/graph/diagnosis-subgraph"];
+    api_health [label="GET /health\nGET /lineage/batches"];
+  }
+
+  subgraph cluster_agent {
+    label="LangGraph Agent (agents/)";
+    style=dashed; color="#6A1B9A"; fillcolor="#F3E5F5";
+    ag_detect [label="detect_product"];
+    ag_run [label="run_diagnosis"];
+    ag_format [label="format_response"];
+    ag_esc [label="handle_escalation"];
+    ag_tools [label="tools.py\ntool_detect_product · tool_diagnose"];
+  }
+
+  subgraph cluster_graphrag {
+    label="GraphRAG + Diagnosis Engine (graph/)";
+    style=dashed; color="#E65100"; fillcolor="#FFF3E0";
+    gr_rag [label="graph_rag.py\nvector + graph hybrid"];
+    gr_engine [label="diagnostic_engine.py\nNEXT_STEP trees"];
+    gr_parts [label="parts_predictor.py\nmulti-source ranking"];
+    gr_viz [label="graph_visualization.py\nsubgraph + PyVis"];
+    gr_warranty [label="warranty_catalog_extensions.py\nModel SKU Component ErrorCode"];
+    gr_oem [label="oem_product_catalog.py\n10 OEM + 3 legacy"];
+    gr_pop [label="populate_graph.py"];
+    gr_synth [label="synthetic_data_generator.py"];
+  }
+
+  subgraph cluster_integrations {
+    label="Integrations (integrations/)";
+    style=dashed; color="#00838F"; fillcolor="#E0F7FA";
+    int_warranty [label="warranty_eligibility.py"];
+    int_claims [label="claims_workflow.py\nJSON claim store"];
+    int_fsm [label="fsm_escalation.py"];
+  }
+
+  subgraph cluster_etl {
+    label="Enterprise ETL (graph/enterprise_pipeline/)";
+    style=dashed; color="#5D4037"; fillcolor="#EFEBE9";
+    etl_orch [label="orchestrator.py\nETL → smoke → promote"];
+    etl_knowledge [label="pipelines/knowledge_etl.py"];
+    etl_smoke [label="pipelines/smoke_validation.py"];
+    etl_promote [label="pipelines/staging_promotion.py"];
+    etl_ontology [label="ontology_builder.py\nNeo4j MERGE"];
+    etl_pim_sync [label="pim_blueprint_sync.py\nOEM → PIM + catalog JSON"];
+    etl_lineage [label="utils/lineage_store.py"];
+    etl_conn_pim [label="pim_connector.py"];
+    etl_conn_crm [label="crm_connector.py"];
+    etl_conn_claims [label="claims_connector.py"];
+    etl_conn_fsm [label="fsm_connector.py"];
+  }
+
+  subgraph cluster_mock {
+    label="Mock Enterprise (simulation/)";
+    style=dashed; color="#455A64"; fillcolor="#ECEFF1";
+    mock_api [label="mock_enterprise_apps.py :8090\n/pim /crm /claims /fsm"];
+  }
+
+  subgraph cluster_data {
+    label="Data Stores";
+    style=dashed; color="#37474F"; fillcolor="#FAFAFA";
+    neo4j [label="Neo4j\nBolt :7687", shape=cylinder, fillcolor="#E8F5E9"];
+    json_stores [label="JSON\nclaims_history | crm_assets\npim_catalog | lineage", shape=folder];
+    chroma [label="ChromaDB\nvector index", shape=cylinder, fillcolor="#FFF8E1"];
+  }
+
+  ui_chat -> api_diag [label="HTTP"];
+  ui_claims -> api_claims [label="HTTP"];
+  ui_kg -> api_graph [label="HTTP"];
+  ui_dash -> api_health [label="HTTP"];
+  ui_etl -> etl_orch [label="CLI / subprocess"];
+
+  api_diag -> int_warranty [label="warranty gate\n(if CRM enriched)"];
+  api_diag -> ag_detect [label="run_diagnosis()"];
+  api_claims -> int_claims [label="call"];
+  api_graph -> gr_viz [label="call"];
+
+  ag_detect -> ag_run [label="next"];
+  ag_run -> ag_format [label="next"];
+  ag_format -> ag_esc [label="next"];
+  ag_detect -> ag_tools [label="tool_detect_product"];
+  ag_run -> ag_tools [label="tool_diagnose"];
+  ag_tools -> gr_rag [label="diagnose()"];
+  ag_esc -> int_fsm [label="save_escalation"];
+
+  gr_rag -> neo4j [label="Cypher"];
+  gr_rag -> chroma [label="embed"];
+  gr_engine -> neo4j [label="Cypher"];
+  gr_parts -> neo4j [label="Cypher"];
+  gr_viz -> neo4j [label="Cypher"];
+  int_warranty -> neo4j [label="Cypher"];
+  int_claims -> json_stores [label="read/write"];
+
+  gr_synth -> gr_oem [label="blueprints"];
+  gr_synth -> gr_warranty [label="extensions"];
+  gr_pop -> neo4j [label="MERGE"];
+
+  etl_orch -> etl_knowledge [label="1. ETL"];
+  etl_orch -> etl_smoke [label="2. smoke"];
+  etl_orch -> etl_promote [label="3. promote"];
+  etl_pim_sync -> json_stores [label="pre-step\n(OEM → PIM JSON)"];
+  etl_knowledge -> etl_ontology [label="transform"];
+  etl_knowledge -> etl_lineage [label="audit"];
+  etl_knowledge -> etl_conn_pim [label="fetch"];
+  etl_knowledge -> etl_conn_crm [label="fetch"];
+  etl_knowledge -> etl_conn_claims [label="fetch"];
+  etl_knowledge -> etl_conn_fsm [label="fetch"];
+  etl_conn_pim -> mock_api [label="GET /pim"];
+  etl_conn_crm -> mock_api [label="GET /crm"];
+  etl_conn_claims -> mock_api [label="GET /claims"];
+  etl_conn_fsm -> mock_api [label="GET /fsm"];
+  etl_pim_sync -> gr_oem [label="import"];
+  etl_pim_sync -> json_stores [label="write JSON"];
+  etl_ontology -> neo4j [label="MERGE"];
+  etl_lineage -> json_stores [label="append"];
+}

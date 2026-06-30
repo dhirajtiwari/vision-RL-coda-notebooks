@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: diagnostics-config
+data:
+  DEMO_MODE: "false"
+  USE_MOCK_ENTERPRISE_APIS: "false"
+  # Set real connector base URLs via additional ConfigMap patch or external secrets operator.
+  # CRM_API_URL: "https://your-org.salesforce.com/services/data/v59.0"
+  # PIM_API_URL: "https://pim.your-org.com/api"
+  # CLAIMS_API_URL: "https://claims.your-org.com/api/v1"
+  # FSM_API_URL: "https://fsm.your-org.com/api/v2"

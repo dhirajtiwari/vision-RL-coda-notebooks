@@ -171,6 +171,40 @@ const doc = new Document({
         ),
         spacer(),
 
+        h2("Prerequisites"),
+        tbl(
+          ["Check", "How to verify"],
+          [
+            ["Platform running", "./run_enterprise_demo.sh completed without errors"],
+            ["Streamlit UI", "http://localhost:8501 loads — Customer Chatbot tab"],
+            ["Neo4j connected", "UI shows Connected; or curl http://localhost:8080/health"],
+            ["Mock enterprise APIs", "http://localhost:8090/health returns OK"],
+            ["CRM demo customers", "CUST-10042, CUST-10087 in data/enterprise_sources/crm_assets.json"],
+          ],
+          [3200, 6160]
+        ),
+        spacer(),
+
+        h2("Dependencies"),
+        pb("bullets", "Full enterprise demo: Neo4j (:7474/:7687), mock APIs (:8090), REST API (:8080), Streamlit (:8501)"),
+        pb("bullets", "ETL pipelines must have run — knowledge graph populated with provenance"),
+        pb("bullets", "No LLM API key required for presenter scripts"),
+        spacer(),
+
+        h2("Assumptions"),
+        pb("bullets", "Audience is internal stakeholders (architecture, product, contact center leadership)"),
+        pb("bullets", "Presenter has 12–15 minutes for Script A; 5 minutes for Script B"),
+        pb("bullets", "Live demo uses fixture-backed enterprise data — not production CRM"),
+        pb("bullets", "Escalation examples (microwave arcing, multi-symptom washer) are intentional teaching moments"),
+        spacer(),
+
+        h2("Risk Mitigation (Presentation)"),
+        pb("bullets", "Pre-run ./run_enterprise_demo.sh 10 minutes before session — avoids cold-start Neo4j delay"),
+        pb("bullets", "Keep CUST-10042 / AST-WM-4421 scripted — eliminates product-detection ambiguity"),
+        pb("bullets", "If Streamlit hangs, fall back to REST API: curl POST http://localhost:8080/diagnose"),
+        pb("bullets", "If escalation count is zero, run microwave arcing script to demonstrate human handoff"),
+        spacer(),
+
         h2("Before You Begin (30 seconds)"),
         p("Open the self-service channel: http://localhost:8501 — Customer Chatbot tab"),
         p("Recommended opening statement:"),

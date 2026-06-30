@@ -2,7 +2,7 @@
 digraph SystemContext {
   graph [
     rankdir=TB
-    label="Figure 1: System Context — Enterprise Diagnostics Platform"
+    label="[DEPRECATED — use 21-architecture-L1-system-context.dot] Figure 1: System Context"
     labelloc=t
     fontsize=14
     fontname="Arial"

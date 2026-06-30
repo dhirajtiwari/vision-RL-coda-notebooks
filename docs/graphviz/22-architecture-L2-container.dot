@@ -1,0 +1,53 @@
+// L2 — Container Diagram (C4 Level 2) — connector-labelled edges
+digraph L2_Container {
+  graph [
+    rankdir=TB
+    label="L2 Container Diagram — Runtime Containers & Integration Connectors"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  Customer [label="Customer", shape=box, fillcolor="#D5E8F0", style=filled]
+  Agent [label="Agent", shape=box, fillcolor="#D5E8F0", style=filled]
+
+  subgraph cluster_platform {
+    label="Diagnostics Platform Boundary"
+    style=bold
+    color="#1F4E79"
+
+    Streamlit [label="Streamlit UI · ui/app.py\n:8501\nChat · Claims · KG Explorer · Graph viz", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+    FastAPI [label="Diagnostics API · api/main.py\n:8080\n/diagnose · /claims/* · /graph/* · /health", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+    LangGraph [label="LangGraph Agent\nagents/diagnosis_graph.py", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+    GraphRAG [label="GraphRAG Stack\ngraph_rag · diagnostic_engine\nparts_predictor · graph_visualization", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+    ClaimsWF [label="Claims Workflow\nclaims_workflow · warranty_eligibility\ncrm_enrichment · case_management", shape=box, style="rounded,filled", fillcolor="#FFE699"]
+    ETL [label="ETL Orchestrator\nenterprise_pipeline/orchestrator.py\nknowledge_etl · smoke · promote", shape=box, style="rounded,filled", fillcolor="#FFD966"]
+    PIMSync [label="PIM Blueprint Sync\npim_blueprint_sync.py\noem_product_catalog → pim_catalog.json", shape=box, style="rounded,filled", fillcolor="#FFD966"]
+    MockAPI [label="Mock Enterprise API\nsimulation/mock_enterprise_apps.py :8090", shape=box, style="rounded,filled", fillcolor="#E7E6E6"]
+    Neo4j [label="Neo4j Knowledge Graph\nBolt :7687 · Browser :7474\n13 products · 8 assets · Claims · BOM trees", shape=cylinder, style=filled, fillcolor="#FCE4D6"]
+    JSONStore [label="JSON Stores\nescalations · claims_submissions\nlineage · simulated_cases", shape=note, style=filled, fillcolor="#FFF2CC"]
+  }
+
+  Customer -> Streamlit [label="HTTPS"]
+  Agent -> Streamlit [label="HTTPS"]
+  Customer -> FastAPI [label="HTTPS/REST", style=dashed]
+  Streamlit -> LangGraph [label="Python import\nrun_diagnosis()"]
+  Streamlit -> ClaimsWF [label="submit_claim_from_diagnosis()"]
+  FastAPI -> LangGraph [label="POST /diagnose"]
+    FastAPI -> ClaimsWF [label="/claims/* · PATCH status"]
+    FastAPI -> GraphRAG [label="GET /graph/*", style=dashed]
+  LangGraph -> GraphRAG
+  GraphRAG -> Neo4j [label="Bolt driver\nCypher read"]
+  ClaimsWF -> Neo4j [label="Bolt MERGE Claim"]
+  ClaimsWF -> JSONStore [label="file I/O"]
+  LangGraph -> JSONStore [label="escalations.json"]
+  PIMSync -> JSONStore [label="pim_catalog.json"]
+  ETL -> Neo4j [label="populate_graph MERGE"]
+  ETL -> MockAPI [label="HTTP GET connectors"]
+  PIMSync -> ETL [label="feeds PIM fixture", style=dashed]
+  Streamlit -> MockAPI [label="HTTP CRM :8090", style=dashed]
+  ClaimsWF -> MockAPI [label="HTTP Claims", style=dashed]
+}

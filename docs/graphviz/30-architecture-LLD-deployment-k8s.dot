@@ -1,0 +1,75 @@
+// LLD — Kubernetes Deployment Topology
+digraph LLD_K8s_Deployment {
+  graph [
+    rankdir=TB
+    label="LLD — Kubernetes Deployment Topology\n(Neo4j · API · Streamlit · Mock Enterprise · ETL CronJob · Ingress)"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  subgraph cluster_cicd_ext {
+    label="CI/CD (see diagram 31)"
+    color="#666666"
+    GH [label="GitHub Repository\ndiagnostic-chatbot", fillcolor="#F2F2F2"]
+    GHA [label="GitHub Actions\nbuild · test · push GHCR", fillcolor="#E2EFDA"]
+    GHCR [label="ghcr.io/org/diagnostics-*\napi · ui · mock · etl", fillcolor="#FFF2CC"]
+    GH -> GHA -> GHCR
+  }
+
+  subgraph cluster_cluster {
+    label="Kubernetes Cluster"
+    color="#1F4E79"
+
+    ING [label="Ingress\ndiagnostics.example.com\n/ui · /api", fillcolor="#BDD7EE"]
+
+    subgraph cluster_ns_staging {
+      label="Namespace: diagnostics-staging"
+      color="#548235"
+      API [label="Deployment: diagnostics-api\n:8080 replicas 2", fillcolor="#C6E0B4"]
+      UI [label="Deployment: diagnostics-ui\n:8501 replicas 2", fillcolor="#C6E0B4"]
+      MOCK [label="Deployment: mock-enterprise\n:8090", fillcolor="#FFE699"]
+      NEO [label="StatefulSet: neo4j\nBolt :7687 PVC", shape=cylinder, fillcolor="#FCE4D6"]
+      ETL [label="CronJob: etl-pipeline\norchestrator.py", fillcolor="#FFD966"]
+      CM [label="ConfigMap: diagnostics-config", shape=note, fillcolor="#FFF2CC"]
+      SEC [label="Secret: diagnostics-secrets\nNEO4J_PASSWORD", shape=note, fillcolor="#FCE4D6"]
+      PVC_JSON [label="PVC: enterprise-data", shape=folder, fillcolor="#FAFAFA"]
+    }
+  }
+
+  subgraph cluster_external_prod {
+    label="Production Enterprise Connectors"
+    color="#666666"
+    PIM [label="PIM / PLM", fillcolor="#EDEDED"]
+    CRM [label="CRM", fillcolor="#EDEDED"]
+    CLM [label="Claims", fillcolor="#EDEDED"]
+    FSM [label="FSM", fillcolor="#EDEDED"]
+  }
+
+  GHA -> API [label="kubectl apply staging", style=dashed]
+  GHCR -> API [label="imagePull"]
+  GHCR -> UI [label="imagePull"]
+  GHCR -> MOCK [label="imagePull"]
+  GHCR -> ETL [label="imagePull"]
+
+  ING -> UI [label="/ui"]
+  ING -> API [label="/api"]
+
+  API -> NEO [label="bolt://neo4j:7687"]
+  UI -> NEO
+  API -> MOCK [label="http://mock-enterprise:8090", style=dashed]
+  UI -> MOCK [style=dashed]
+  ETL -> MOCK
+  ETL -> NEO [label="MERGE"]
+  ETL -> PVC_JSON
+
+  API -> CM [style=dashed]
+  API -> SEC [style=dashed]
+  ETL -> PIM [style=dashed]
+  ETL -> FSM [style=dashed]
+  API -> CRM [style=dashed]
+  API -> CLM [style=dashed]
+}

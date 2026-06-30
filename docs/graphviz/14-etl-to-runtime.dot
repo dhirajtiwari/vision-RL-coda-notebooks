@@ -2,7 +2,7 @@
 digraph ETLToRuntime {
   graph [
     rankdir=TB
-    label="Figure 14: Enterprise ETL Pipelines → Neo4j → Runtime Diagnosis"
+    label="[DEPRECATED — use 28+32 ETL/promotion diagrams] Figure 14: ETL to Runtime"
     labelloc=t
     fontsize=14
     fontname="Arial"

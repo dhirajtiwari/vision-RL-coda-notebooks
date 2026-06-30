@@ -1,0 +1,40 @@
+// C4 Level 3 — ETL Container (zoomed)
+digraph C4_L3_ETL {
+  graph [rankdir=TB, label="C4 Level 3 — ETL Batch Pipeline [Container]", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white", splines=ortho]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9, fillcolor="#85BBF0"]
+  edge [fontname="Arial", fontsize=8, color="#2E75B6"]
+
+  ops [label="Platform Ops", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+
+  subgraph cluster_etl {
+    label="ETL Batch Pipeline"
+    color="#438DD5"
+    orch [label="Orchestrator\norchestrator.py"]
+    ketl [label="Knowledge ETL\nknowledge_etl.py"]
+    conn [label="Connectors\npim · crm · claims · fsm"]
+    ob [label="Ontology Builder\nontology_builder.py"]
+    smoke [label="Smoke Validation"]
+    promo [label="Staging Promotion"]
+    lin [label="Lineage Store"]
+  }
+
+  subgraph cluster_bp {
+    label="Blueprint Authoring"
+    color="#5D4037"
+    oem [label="OEM Catalog", fillcolor="#D7CCC8"]
+    sync [label="PIM Blueprint Sync", fillcolor="#D7CCC8"]
+    load [label="Graph Loader\npopulate_graph.py", fillcolor="#D7CCC8"]
+  }
+
+  mock [label="Mock Enterprise API", fillcolor="#438DD5", fontcolor=white]
+  neo [label="Neo4j", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+  files [label="JSON File Store", shape=folder, fillcolor="#438DD5", fontcolor=white]
+
+  ops -> sync [label="1. pre-sync OEM"]
+  sync -> oem -> files [label="pim_catalog.json"]
+  ops -> orch [label="2. run pipeline"]
+  orch -> ketl -> conn -> mock
+  conn -> ob -> load -> neo
+  orch -> smoke -> promo
+  ketl -> lin -> files
+}

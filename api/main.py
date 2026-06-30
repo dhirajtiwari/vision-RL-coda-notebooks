@@ -19,10 +19,22 @@ if str(ROOT) not in sys.path:
 from fastapi import FastAPI, HTTPException
 
 from agents.diagnosis_graph import run_diagnosis
-from api.schemas import DiagnoseRequest, DiagnoseResponse
+from api.schemas import DiagnoseRequest, DiagnoseResponse, GraphSubgraphResponse
+from graph.graph_visualization import (
+    diagnosis_subgraph_from_result,
+    get_diagnosis_subgraph,
+    get_ontology_schema,
+    get_product_subgraph,
+)
 from config.settings import settings
 from graph.neo4j_client import verify_connection
 from integrations.case_management import create_case_from_escalation
+from integrations.claims_workflow import (
+    get_claim,
+    list_submitted_claims,
+    submit_claim_from_diagnosis,
+    update_claim_status,
+)
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
 from utils.lineage_store import list_batches
@@ -49,6 +61,78 @@ def lineage_batches(limit: int = 20) -> dict:
     return {"batches": list_batches(limit=limit)}
 
 
+@app.get("/graph/ontology", response_model=GraphSubgraphResponse)
+def graph_ontology() -> GraphSubgraphResponse:
+    """ER-style ontology schema (node labels and relationship types)."""
+    return GraphSubgraphResponse(**get_ontology_schema())
+
+
+@app.get("/graph/product/{product_id}", response_model=GraphSubgraphResponse)
+def graph_product(product_id: str) -> GraphSubgraphResponse:
+    if not verify_connection():
+        raise HTTPException(503, "Neo4j unavailable")
+    data = get_product_subgraph(product_id)
+    if not data["nodes"]:
+        raise HTTPException(404, f"Product not found: {product_id}")
+    return GraphSubgraphResponse(**data)
+
+
+@app.get("/graph/diagnosis-subgraph", response_model=GraphSubgraphResponse)
+def graph_diagnosis_subgraph(
+    product_id: str,
+    symptom_ids: str = "",
+    failure_mode_id: str | None = None,
+) -> GraphSubgraphResponse:
+    if not verify_connection():
+        raise HTTPException(503, "Neo4j unavailable")
+    ids = [s.strip() for s in symptom_ids.split(",") if s.strip()]
+    return GraphSubgraphResponse(
+        **get_diagnosis_subgraph(product_id, symptom_ids=ids, failure_mode_id=failure_mode_id)
+    )
+
+
+@app.get("/claims")
+def list_claims(limit: int = 50) -> dict:
+    return {"claims": list_submitted_claims(limit=limit)}
+
+
+@app.get("/claims/{claim_id}")
+def claim_detail(claim_id: str) -> dict:
+    claim = get_claim(claim_id)
+    if not claim:
+        raise HTTPException(404, f"Claim not found: {claim_id}")
+    return claim
+
+
+@app.post("/claims/submit")
+def submit_claim(req: DiagnoseRequest) -> dict:
+    if not verify_connection():
+        raise HTTPException(503, "Neo4j unavailable")
+    if not req.asset_id:
+        raise HTTPException(400, "asset_id required for claim submission")
+
+    crm = enrich_session_from_crm(customer_id=req.customer_id, asset_id=req.asset_id)
+    product_id = req.product_id or crm.get("product_id")
+    result = run_diagnosis(req.message, product_id=product_id, asset_id=req.asset_id)
+    diagnosis = result.get("diagnosis") or {}
+
+    claim = submit_claim_from_diagnosis(
+        diagnosis=diagnosis,
+        asset_id=req.asset_id,
+        customer_id=crm.get("customer_id") or req.customer_id or "",
+        user_message=req.message,
+    )
+    return {"claim": claim, "diagnosis": diagnosis}
+
+
+@app.patch("/claims/{claim_id}/status")
+def patch_claim_status(claim_id: str, status: str, agent_notes: str = "") -> dict:
+    claim = update_claim_status(claim_id, status, agent_notes=agent_notes)
+    if not claim:
+        raise HTTPException(404, f"Claim not found: {claim_id}")
+    return claim
+
+
 @app.post("/diagnose", response_model=DiagnoseResponse)
 def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
     if not verify_connection():
@@ -67,7 +151,7 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
                 warranty=warranty,
             )
 
-    result = run_diagnosis(req.message, product_id=product_id)
+    result = run_diagnosis(req.message, product_id=product_id, asset_id=req.asset_id)
     diagnosis = result.get("diagnosis") or {}
     provenance_trail = diagnosis.get("provenance_trail", [])
 
@@ -82,6 +166,10 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
         if case.get("case_id"):
             case_id = case["case_id"]
 
+    graph_subgraph = diagnosis.get("graph_subgraph")
+    if not graph_subgraph and diagnosis.get("product_id"):
+        graph_subgraph = diagnosis_subgraph_from_result(diagnosis)
+
     return DiagnoseResponse(
         response=result["response"],
         diagnosis=diagnosis,
@@ -90,6 +178,7 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
         crm_context=crm,
         warranty=warranty,
         provenance_trail=provenance_trail,
+        graph_subgraph=graph_subgraph,
     )
 
 

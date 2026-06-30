@@ -127,6 +127,58 @@ const doc = new Document({
         ),
         spacer(),
 
+        h2("Prerequisites"),
+        tbl(
+          ["Requirement", "Details"],
+          [
+            ["Python 3.12+ venv", "pip install -r requirements.txt"],
+            ["Neo4j on :7687", "docker start neo4j-demo or ./run_enterprise_demo.sh step 1"],
+            ["Mock APIs on :8090", "Required for USE_MOCK_ENTERPRISE_APIS=true (default)"],
+            [".env", "Copy from .env.example; defaults work locally"],
+          ],
+          [2800, 6560]
+        ),
+        spacer(),
+
+        h2("Dependencies"),
+        tbl(
+          ["Component", "Module / Service", "Role"],
+          [
+            ["Orchestrator", "graph/enterprise_pipeline/orchestrator.py", "Runs all pipelines in sequence"],
+            ["Connectors", "connectors/*.py", "PIM, FSM, Claims, CRM extract"],
+            ["OntologyBuilder", "transformers/ontology_builder.py", "Merge sources into catalog JSON"],
+            ["Graph loader", "graph/populate_graph.py", "MERGE into Neo4j with provenance"],
+            ["Lineage store", "utils/lineage_store.py", "Append-only etl_batches.jsonl audit"],
+            ["Smoke tests", "tests/test_enterprise_scenarios.py --smoke", "Promotion gate"],
+            ["Mock enterprise", "simulation/mock_enterprise_apps.py", "HTTP APIs on :8090"],
+          ],
+          [2200, 3600, 3560]
+        ),
+        spacer(),
+
+        h2("Assumptions"),
+        pb("bullets", "USE_MOCK_ENTERPRISE_APIS=true unless production URLs are set in .env"),
+        pb("bullets", "Staging and production Neo4j are the same instance in the demo"),
+        pb("bullets", "Fixture files in data/enterprise_sources/ are authoritative for local runs"),
+        pb("bullets", "ENABLE_PROVENANCE=true attaches source_system and batch_id to loaded entities"),
+        pb("bullets", "Failed smoke validation skips staging promotion — graph left at last good batch"),
+        spacer(),
+
+        h2("Risk Mitigation"),
+        tbl(
+          ["Risk", "Mitigation"],
+          [
+            ["Bad data enters Neo4j", "Smoke validation gate; dry-run mode on orchestrator"],
+            ["Silent connector failure", "ConnectorResult error logging; fixture fallback in demo"],
+            ["Untraceable diagnosis", "Provenance model on every entity; lineage batches in etl_batches.jsonl"],
+            ["Idempotency loss on re-run", "MERGE keys in populate_graph.py; batch_id on each load"],
+            ["Production API credential leak", ".env gitignored; use secrets manager in production"],
+            ["Stale graph after source update", "Re-run orchestrator; scheduled ETL in production (Airflow/cron)"],
+          ],
+          [3200, 6160]
+        ),
+        spacer(),
+
         h2("1. Pipeline Overview"),
         p(
           "Three pipelines run in sequence via graph/enterprise_pipeline/orchestrator.py. " +

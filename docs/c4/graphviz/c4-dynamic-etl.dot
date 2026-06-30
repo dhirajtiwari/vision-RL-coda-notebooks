@@ -1,0 +1,21 @@
+// C4 Dynamic Diagram — ETL flow
+digraph C4_Dynamic_ETL {
+  graph [rankdir=LR, label="C4 Dynamic Diagram — ETL & Knowledge Graph Build Flow", labelloc=t, fontsize=13, fontname="Arial", bgcolor="white"]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=9]
+  edge [fontname="Arial", fontsize=9, color="#1168BD", penwidth=1.5]
+
+  ops [label="Platform Ops", shape=ellipse, fillcolor="#08427B", fontcolor=white]
+  bp [label="Blueprint Authoring\nPIM sync", fillcolor="#438DD5", fontcolor=white]
+  files [label="JSON File Store", shape=folder, fillcolor="#438DD5", fontcolor=white]
+  etl [label="ETL Batch Pipeline", fillcolor="#438DD5", fontcolor=white]
+  mock [label="Mock Enterprise API", fillcolor="#999999", fontcolor=white]
+  neo [label="Neo4j", shape=cylinder, fillcolor="#438DD5", fontcolor=white]
+
+  ops -> bp [label="1 sync OEM"]
+  bp -> files [label="2 pim_catalog.json"]
+  ops -> etl [label="3 run orchestrator"]
+  etl -> mock [label="4 connector fetch"]
+  etl -> files [label="5 read fixtures"]
+  etl -> neo [label="6 populate_graph MERGE"]
+  etl -> files [label="7 lineage jsonl"]
+}

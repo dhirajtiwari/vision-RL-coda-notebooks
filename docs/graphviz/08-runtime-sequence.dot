@@ -2,7 +2,7 @@
 digraph RuntimeSequence {
   graph [
     rankdir=TB
-    label="Figure 8: Runtime Sequence — Customer Message to Response"
+    label="[DEPRECATED — use 25-architecture-LLD-diagnosis-claim-sequence.dot] Figure 8: Runtime Sequence"
     labelloc=t
     fontsize=14
     fontname="Arial"

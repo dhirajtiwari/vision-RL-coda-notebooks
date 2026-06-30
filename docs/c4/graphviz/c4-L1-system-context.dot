@@ -1,0 +1,57 @@
+// C4 Level 1 — System Context Diagram
+digraph C4_L1_SystemContext {
+  graph [
+    rankdir=TB
+    label=<
+      <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0">
+        <TR><TD><B>C4 Level 1 — System Context Diagram</B></TD></TR>
+        <TR><TD>Enterprise Warranty Diagnostics Platform</TD></TR>
+      </TABLE>
+    >
+    labelloc=t
+    fontsize=12
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9, color="#444444"]
+
+  // C4 Person — ellipse, blue
+  node [shape=ellipse, style=filled, fillcolor="#08427B", fontcolor=white, penwidth=0]
+
+  customer [label="Appliance Owner\n[Person]"]
+  agent [label="Contact Center Agent\n[Person]"]
+  sme [label="Knowledge Engineer\n[Person]"]
+  ops [label="Platform Ops\n[Person]"]
+
+  // C4 Software System — central
+  node [shape=box, style="rounded,filled", fillcolor="#1168BD", fontcolor=white, penwidth=2, margin="0.3,0.2"]
+
+  platform [label=<
+    <TABLE BORDER="0" CELLBORDER="0" CELLSPACING="2">
+      <TR><TD ALIGN="CENTER"><B>Enterprise Diagnostics Platform</B></TD></TR>
+      <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="9">[Software System]</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT"><FONT POINT-SIZE="8">GraphRAG diagnosis · dynamic trees · parts prediction · claims · graph viz</FONT></TD></TR>
+    </TABLE>
+  >]
+
+  // External software systems — gray
+  node [fillcolor="#999999", fontcolor=white, penwidth=1]
+
+  pim [label="PIM / PLM\n[Software System — External]"]
+  crm [label="CRM\n[Software System — External]"]
+  claims [label="Claims System\n[Software System — External]"]
+  fsm [label="Field Service Mgmt\n[Software System — External]"]
+  ccaas [label="CCaaS / Case Mgmt\n[Software System — External]"]
+
+  customer -> platform [label="Uses chat &amp; claims\n[HTTPS]"]
+  agent -> platform [label="Reviews claims &amp; escalations\n[HTTPS]"]
+  sme -> platform [label="Governs ontology &amp; blueprints"]
+  ops -> platform [label="Runs ETL pipelines"]
+
+  pim -> platform [label="Product catalog &amp; BOM\n[HTTPS/JSON]"]
+  crm -> platform [label="Customers &amp; assets\n[HTTPS/JSON]"]
+  claims -> platform [label="Policies &amp; precedents\n[HTTPS/JSON]"]
+  fsm -> platform [label="Field resolutions\n[HTTPS/JSON]"]
+  platform -> ccaas [label="Escalation handoff\n[HTTPS]", style=dashed]
+}

@@ -1,0 +1,75 @@
+// C4 + LLD Diagram Index — canonical architecture set (21–32)
+digraph C4_Notation_Index {
+  graph [
+    rankdir=TB
+    label="Architecture Diagram Index — C4 Levels & LLD (Canonical Set 21–32)\nRender: bash docs/graphviz/render_all.sh"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [shape=box, style="rounded,filled", fontname="Arial", fontsize=10]
+  edge [fontname="Arial", fontsize=9, color="#444444"]
+
+  subgraph cluster_c4 {
+    label="C4 Model Levels"
+    color="#1F4E79"
+    L1 [label="21 — L1 System Context\nActors · platform boundary · connector targets", fillcolor="#BDD7EE"]
+    L2 [label="22 — L2 Container\nStreamlit · FastAPI · LangGraph · Neo4j · ETL", fillcolor="#BDD7EE"]
+    L2D [label="27 — L2 Connector Detail\nMock API → connectors → runtime/ETL", fillcolor="#BDD7EE"]
+    L3 [label="23 — L3 Component\nModules · pipelines · integrations", fillcolor="#C6E0B4"]
+    L4 [label="24 — L4 Code\nFiles · functions · routes", fillcolor="#C6E0B4"]
+  }
+
+  subgraph cluster_lld {
+    label="Low-Level Design (LLD)"
+    color="#548235"
+    LLD1 [label="25 — Diagnosis + Claim sequence", fillcolor="#FFE699"]
+    LLD2 [label="28 — ETL connector pipeline", fillcolor="#FFE699"]
+    LLD3 [label="29 — REST API + runtime connectors", fillcolor="#FFE699"]
+    LLD4 [label="30 — Kubernetes deployment", fillcolor="#FCE4D6"]
+    LLD5 [label="31 — GitHub Actions CI/CD", fillcolor="#FCE4D6"]
+    LLD6 [label="32 — Multi-env promotion", fillcolor="#FCE4D6"]
+  }
+
+  subgraph cluster_pipeline {
+    label="Blueprint & Pipeline (ERD + layers + I/O)"
+    color="#5D4037"
+    ERD [label="34 — Enterprise blueprint ERD", fillcolor="#D7CCC8"]
+    LAY [label="35 — 6-layer symmetric architecture", fillcolor="#D7CCC8"]
+    PIO [label="36 — End-to-end pipeline I/O", fillcolor="#D7CCC8"]
+    MOD [label="37 — Module catalog by phase", fillcolor="#D7CCC8"]
+  }
+
+  subgraph cluster_other {
+    label="Domain / Ontology (not C4)"
+    color="#666666"
+    Ont [label="26 — Per-SKU blueprint instance\n05 — Core Neo4j schema", fillcolor="#E8E8E8"]
+  }
+
+  subgraph cluster_deprecated {
+    label="Deprecated (superseded — do not use for architecture reviews)"
+    color="#999999"
+    D01 [label="01 system-context → use 21", fillcolor="#F2F2F2", style="rounded,dashed,filled"]
+    D02 [label="02 module-block → use 24", fillcolor="#F2F2F2", style="rounded,dashed,filled"]
+    D06 [label="06 ETL → use 28", fillcolor="#F2F2F2", style="rounded,dashed,filled"]
+    D08 [label="08 runtime sequence → use 25", fillcolor="#F2F2F2", style="rounded,dashed,filled"]
+    D09 [label="09 enterprise production → use 30", fillcolor="#F2F2F2", style="rounded,dashed,filled"]
+    D14 [label="14 etl-to-runtime → use 28+32", fillcolor="#F2F2F2", style="rounded,dashed,filled"]
+  }
+
+  L1 -> L2 [label="decompose"]
+  L2 -> L2D [label="connector detail"]
+  L2 -> L3 [label="decompose"]
+  L3 -> L4 [label="decompose"]
+  L4 -> LLD1 [label="runtime flows"]
+  L2D -> LLD2 [label="batch flows"]
+  L2 -> LLD3 [label="API map"]
+  LLD3 -> LLD4 [label="deploy"]
+  LLD4 -> LLD5 [label="automate"]
+  LLD5 -> LLD6 [label="promote"]
+  L4 -> ERD [label="ontology"]
+  ERD -> LAY
+  LAY -> PIO
+  PIO -> MOD
+}

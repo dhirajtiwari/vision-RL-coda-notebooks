@@ -9,7 +9,7 @@
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(28.8 834.68)">
 <title>SystemContext</title>
 <polygon fill="white" stroke="none" points="-28.8,28.8 -28.8,-834.68 1625.8,-834.68 1625.8,28.8 -28.8,28.8"/>
-<text xml:space="preserve" text-anchor="middle" x="798.5" y="-788.58" font-family="Arial" font-size="14.00">Figure 1: System Context — Enterprise Diagnostics Platform</text>
+<text xml:space="preserve" text-anchor="middle" x="798.5" y="-788.58" font-family="Arial" font-size="14.00">[DEPRECATED — use 21&#45;architecture&#45;L1&#45;system&#45;context.dot] Figure 1: System Context</text>
 <g id="clust1" class="cluster">
 <title>cluster_users</title>
 <polygon fill="white" stroke="#666666" stroke-dasharray="5,2" points="8,-690.1 8,-774.13 530,-774.13 530,-690.1 8,-690.1"/>
