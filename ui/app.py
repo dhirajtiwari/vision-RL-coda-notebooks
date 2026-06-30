@@ -4,6 +4,9 @@ Enterprise Diagnostics Chatbot Demo — Streamlit UI
 Run: streamlit run ui/app.py
 """
 
+from __future__ import annotations
+
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -13,7 +16,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import streamlit as st
-import streamlit.components.v1 as components
 
 from agents.diagnosis_graph import run_diagnosis
 from config.settings import settings
@@ -32,23 +34,26 @@ st.set_page_config(
     layout="wide",
 )
 
+PAGES = (
+    "Customer Chatbot",
+    "Warranty Claims",
+    "Human Agent Dashboard",
+    "Knowledge Graph",
+    "Enterprise Systems",
+)
+
 CRM_FIXTURES = settings.enterprise_sources_dir / "crm_assets.json"
 
 
-def _load_crm_fixtures() -> dict:
-    if CRM_FIXTURES.exists():
-        return json.loads(CRM_FIXTURES.read_text(encoding="utf-8"))
-    return {"customers": [], "registered_assets": []}
+# ── Cached loaders (avoid Neo4j/HTTP on every widget click) ───────────────────
+
+@st.cache_data(ttl=30, show_spinner=False)
+def _cached_neo4j_ok() -> bool:
+    return verify_connection()
 
 
-def _load_simulated_cases() -> list[dict]:
-    path = settings.cases_file
-    if not path.exists():
-        return []
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _mock_api_ok() -> bool:
+@st.cache_data(ttl=30, show_spinner=False)
+def _cached_mock_ok() -> bool:
     try:
         from graph.enterprise_pipeline.http_client import get_json
 
@@ -56,6 +61,52 @@ def _mock_api_ok() -> bool:
         return True
     except ConnectionError:
         return False
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def _cached_crm_fixtures() -> dict:
+    if CRM_FIXTURES.exists():
+        return json.loads(CRM_FIXTURES.read_text(encoding="utf-8"))
+    return {"customers": [], "registered_assets": []}
+
+
+@st.cache_data(ttl=60, show_spinner=False)
+def _cached_products() -> list[dict]:
+    return list_products()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def _cached_pyvis_html(graph_json: str, height: int, physics: bool) -> str:
+    from graph.graph_visualization import render_pyvis_html
+
+    graph_data = json.loads(graph_json)
+    return render_pyvis_html(graph_data, height=f"{height}px", physics=physics)
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def _cached_ontology_schema() -> dict:
+    from graph.graph_visualization import get_ontology_schema
+
+    return get_ontology_schema()
+
+
+@st.cache_data(ttl=120, show_spinner=False)
+def _cached_product_subgraph(product_id: str) -> dict:
+    from graph.graph_visualization import get_product_subgraph
+
+    return get_product_subgraph(product_id)
+
+
+def _graph_cache_key(graph_data: dict) -> str:
+    payload = json.dumps(graph_data, sort_keys=True, default=str)
+    return hashlib.md5(payload.encode()).hexdigest()[:12]
+
+
+def _load_simulated_cases() -> list[dict]:
+    path = settings.cases_file
+    if not path.exists():
+        return []
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def _batch_status_icon(status: str) -> str:
@@ -82,23 +133,45 @@ def _format_batch_source(name: str, src: object) -> str:
 def _render_interactive_graph(
     graph_data: dict | None,
     *,
-    height: int = 520,
+    graph_key: str,
+    height: int = 480,
     caption: str = "",
+    physics: bool = False,
 ) -> None:
+    """Lazy-render PyVis only when the user opts in (avoids iframe overload)."""
     if not graph_data or not graph_data.get("nodes"):
         st.caption("No graph data to display.")
         return
-    from graph.graph_visualization import render_pyvis_html
 
-    html = render_pyvis_html(graph_data, height=f"{height}px")
+    show_key = f"show_graph_{graph_key}"
+    if show_key not in st.session_state:
+        st.session_state[show_key] = False
+
+    if not st.session_state[show_key]:
+        n = graph_data.get("node_count", len(graph_data.get("nodes", [])))
+        e = graph_data.get("edge_count", len(graph_data.get("edges", [])))
+        if st.button(f"Show interactive graph ({n} nodes, {e} edges)", key=f"btn_{show_key}"):
+            st.session_state[show_key] = True
+            st.rerun()
+        return
+
+    with st.spinner("Rendering graph…"):
+        html = _cached_pyvis_html(
+            json.dumps(graph_data, sort_keys=True, default=str),
+            height,
+            physics,
+        )
     if caption:
         st.caption(caption)
-    components.html(html, height=height + 20, scrolling=True)
+    st.html(html, height=height + 24, scrolling=True)
     st.caption(
         f"{graph_data.get('node_count', 0)} nodes · "
         f"{graph_data.get('edge_count', 0)} relationships · "
         "drag nodes · scroll to zoom · red = diagnosis path"
     )
+    if st.button("Hide graph", key=f"hide_{show_key}"):
+        st.session_state[show_key] = False
+        st.rerun()
 
 
 def _neo4j_browser_cypher(diagnosis: dict) -> str:
@@ -129,45 +202,68 @@ def _render_provenance(trail: list[dict]) -> None:
         st.markdown(f"- **{source}** · `{record}` · {entity}")
 
 
-st.title("Enterprise Diagnostics Chatbot Demo")
-st.caption("GraphRAG + LangGraph + Neo4j — explainable appliance diagnosis with enterprise integrations")
+def _process_diagnosis_prompt(
+    prompt: str,
+    *,
+    product_id: str | None,
+    asset_id: str | None,
+    customer_id: str | None,
+    crm_context: dict,
+    warranty: dict,
+) -> None:
+    """Run diagnosis once and append assistant message (no duplicate triggers)."""
+    active_warranty = warranty if crm_context.get("enriched") else {}
+    if active_warranty and not active_warranty.get("eligible"):
+        response = (
+            f"Warranty check: {active_warranty.get('reason')}. "
+            "Please contact support for out-of-warranty options."
+        )
+        st.session_state.messages.append({
+            "role": "assistant",
+            "content": response,
+            "crm_context": crm_context,
+            "warranty": active_warranty,
+        })
+        return
 
-neo4j_ok = verify_connection()
-mock_ok = _mock_api_ok()
-crm_data = _load_crm_fixtures()
+    with st.spinner("Querying knowledge graph…"):
+        result = run_diagnosis(
+            prompt,
+            product_id=product_id,
+            asset_id=asset_id if crm_context.get("enriched") else None,
+        )
 
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Neo4j", "Connected" if neo4j_ok else "Offline")
-col2.metric("Mode", "Enterprise" if settings.use_mock_enterprise_apis else "Graph-Native")
-col3.metric("Mock APIs", "Online" if mock_ok else "Offline")
-escalations = list_escalations()
-open_cases = sum(1 for e in escalations if e.get("status") == "open")
-col4.metric("Open Escalations", open_cases)
+    response = result["response"]
+    if result.get("escalated"):
+        response += f"\n\n_Case ID: `{result['case_id']}` — escalated to human agent._"
+        if crm_context.get("enriched") and crm_context.get("customer_id") and crm_context.get("asset_id"):
+            ccaas = create_case_from_escalation(
+                customer_id=crm_context["customer_id"],
+                asset_id=crm_context["asset_id"],
+                user_message=prompt,
+                diagnosis=result.get("diagnosis") or {},
+            )
+            if ccaas.get("case_id"):
+                response += f"\n\n_CCaaS case `{ccaas['case_id']}` created in simulated case management._"
 
-if not neo4j_ok:
-    st.error(
-        "Neo4j is not reachable. Start it with: `docker start neo4j-demo` "
-        "then run `python graph/populate_graph.py` or `python -m graph.enterprise_pipeline.orchestrator`"
-    )
-    st.stop()
+    st.session_state.messages.append({
+        "role": "assistant",
+        "content": response,
+        "diagnosis": result.get("diagnosis"),
+        "crm_context": crm_context if crm_context.get("enriched") else None,
+        "warranty": active_warranty or None,
+        "user_prompt": prompt,
+    })
 
-tab_chat, tab_claims, tab_dashboard, tab_graph, tab_enterprise = st.tabs([
-    "Customer Chatbot",
-    "Warranty Claims",
-    "Human Agent Dashboard",
-    "Knowledge Graph",
-    "Enterprise Systems",
-])
 
-# ── Customer Chatbot ──────────────────────────────────────────────────────────
-with tab_chat:
+@st.fragment
+def _render_chat_page(products: list[dict], crm_data: dict) -> None:
     st.subheader("Customer Support Chat")
     st.markdown(
         "Describe your appliance problem. The agent queries the Neo4j knowledge graph "
         "and returns an explainable diagnosis with provenance."
     )
 
-    products = list_products()
     product_options = {"Auto-detect": None}
     product_options.update({p["name"]: p["product_id"] for p in products})
 
@@ -212,7 +308,7 @@ with tab_chat:
                 st.warning(crm_context.get("reason", "CRM enrichment unavailable — start mock API on :8090"))
 
     crm_product_id = crm_context.get("product_id") if crm_context.get("enriched") else None
-    selected_product = st.selectbox("Appliance (optional)", list(product_options.keys()))
+    selected_product = st.selectbox("Appliance (optional)", list(product_options.keys()), key="chat_product")
     product_id = product_options[selected_product] or crm_product_id
 
     if "messages" not in st.session_state:
@@ -227,7 +323,7 @@ with tab_chat:
             }
         ]
 
-    for msg in st.session_state.messages:
+    for i, msg in enumerate(st.session_state.messages):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
             if msg.get("crm_context"):
@@ -238,20 +334,23 @@ with tab_chat:
                     st.json(msg["warranty"])
             if msg.get("diagnosis"):
                 diagnosis = msg["diagnosis"] or {}
-                if diagnosis.get("product_id") and asset_id and crm_context.get("enriched"):
-                    if st.button("Submit Warranty Claim", key=f"claim_{len(st.session_state.messages)}"):
+                msg_asset = asset_id if crm_context.get("enriched") else None
+                msg_customer = customer_id if crm_context.get("enriched") else None
+                if diagnosis.get("product_id") and msg_asset and crm_context.get("enriched"):
+                    if st.button("Submit Warranty Claim", key=f"claim_msg_{i}"):
                         claim = submit_claim_from_diagnosis(
                             diagnosis=diagnosis,
-                            asset_id=asset_id,
-                            customer_id=customer_id or "",
-                            user_message=msg.get("content", prompt or ""),
+                            asset_id=msg_asset,
+                            customer_id=msg_customer or "",
+                            user_message=msg.get("user_prompt", msg.get("content", "")),
                         )
                         st.success(f"Claim `{claim['claim_id']}` submitted — status: {claim['status']}")
-                with st.expander("Diagnosis Graph (interactive)", expanded=True):
+                with st.expander("Diagnosis Graph", expanded=False):
                     subgraph = diagnosis.get("graph_subgraph")
                     if subgraph:
                         _render_interactive_graph(
                             subgraph,
+                            graph_key=f"chat_{i}_{_graph_cache_key(subgraph)}",
                             caption="Nodes and relationships used for this diagnosis answer.",
                         )
                         with st.expander("Open same query in Neo4j Browser"):
@@ -265,69 +364,40 @@ with tab_chat:
                         st.markdown("**Provenance Trail**")
                         _render_provenance(trail)
 
-    example = st.selectbox(
-        "Try an example",
-        [
-            "",
-            "My washing machine won't spin and water stays in the drum",
-            "Dishwasher leaves dishes wet and cold after the cycle",
-            "Microwave runs but food stays cold, and I see arcing inside",
-            "Samsung refrigerator shows 22E and fridge section is warm",
-            "LG dryer shows d90 and clothes are still damp",
-            "Whirlpool gas range F9 E0 and oven won't heat",
-        ],
-    )
+    examples = [
+        "My washing machine won't spin and water stays in the drum",
+        "Dishwasher leaves dishes wet and cold after the cycle",
+        "Microwave runs but food stays cold, and I see arcing inside",
+        "Samsung refrigerator shows 22E and fridge section is warm",
+        "LG dryer shows d90 and clothes are still damp",
+        "Whirlpool gas range F9 E0 and oven won't heat",
+    ]
+    picked = st.selectbox("Example scenarios (select then click Send)", ["— pick an example —", *examples], key="example_pick")
+    ex_col1, ex_col2 = st.columns([1, 4])
+    send_example = ex_col1.button("Send example", disabled=(not picked or picked.startswith("—")), key="send_example_btn")
 
-    user_input = st.chat_input("Describe the problem...")
-    prompt = user_input or (example if example else None)
+    user_input = st.chat_input("Describe the problem…")
+
+    prompt: str | None = None
+    if user_input:
+        prompt = user_input.strip()
+    elif send_example and picked and not picked.startswith("—"):
+        prompt = picked
 
     if prompt:
         st.session_state.messages.append({"role": "user", "content": prompt})
+        _process_diagnosis_prompt(
+            prompt,
+            product_id=product_id,
+            asset_id=asset_id,
+            customer_id=customer_id,
+            crm_context=crm_context,
+            warranty=warranty,
+        )
 
-        active_warranty = warranty if crm_context.get("enriched") else {}
-        if active_warranty and not active_warranty.get("eligible"):
-            response = f"Warranty check: {active_warranty.get('reason')}. Please contact support for out-of-warranty options."
-            st.session_state.messages.append({
-                "role": "assistant",
-                "content": response,
-                "crm_context": crm_context,
-                "warranty": active_warranty,
-            })
-            st.rerun()
 
-        with st.spinner("Querying knowledge graph..."):
-            result = run_diagnosis(
-                prompt,
-                product_id=product_id,
-                asset_id=asset_id if crm_context.get("enriched") else None,
-            )
-
-        response = result["response"]
-        ccaas_case_id = None
-        if result.get("escalated"):
-            response += f"\n\n_Case ID: `{result['case_id']}` — escalated to human agent._"
-            if crm_context.get("enriched") and crm_context.get("customer_id") and crm_context.get("asset_id"):
-                ccaas = create_case_from_escalation(
-                    customer_id=crm_context["customer_id"],
-                    asset_id=crm_context["asset_id"],
-                    user_message=prompt,
-                    diagnosis=result.get("diagnosis") or {},
-                )
-                if ccaas.get("case_id"):
-                    ccaas_case_id = ccaas["case_id"]
-                    response += f"\n\n_CCaaS case `{ccaas_case_id}` created in simulated case management._"
-
-        st.session_state.messages.append({
-            "role": "assistant",
-            "content": response,
-            "diagnosis": result.get("diagnosis"),
-            "crm_context": crm_context if crm_context.get("enriched") else None,
-            "warranty": active_warranty or None,
-        })
-        st.rerun()
-
-# ── Warranty Claims ───────────────────────────────────────────────────────────
-with tab_claims:
+@st.fragment
+def _render_claims_page() -> None:
     st.subheader("Warranty Claims — Graph-Backed Submissions")
     st.markdown(
         "Claims are created from diagnosis outcomes with predicted parts, "
@@ -336,144 +406,137 @@ with tab_claims:
     claims = list_submitted_claims(limit=30)
     if not claims:
         st.info("No claims submitted yet. Run a diagnosis with a CRM asset bound, then click **Submit Warranty Claim**.")
-    else:
-        for claim in claims:
-            with st.expander(
-                f"[{claim.get('status', 'unknown').upper()}] {claim.get('claim_id')} — "
-                f"{claim.get('failure_mode_name', 'N/A')} — ${claim.get('estimated_parts_cost_usd', 0):.2f}"
-            ):
-                st.markdown(f"**Asset:** `{claim.get('asset_id')}` · **Model:** {claim.get('model_number', 'N/A')}")
-                st.markdown(f"**Confidence:** {claim.get('diagnosis_confidence', 0):.0%}")
-                wc = claim.get("warranty_check", {})
-                st.markdown(f"**Warranty:** {'Eligible' if wc.get('eligible') else 'Review'} — {wc.get('reason', '')}")
-                parts = claim.get("predicted_parts", [])
-                if parts:
-                    st.markdown("**Predicted Parts:**")
-                    for p in parts[:3]:
-                        st.markdown(f"- {p.get('name')} · `{p.get('part_number')}` · score {p.get('prediction_score', 0):.0%}")
-                c1, c2, c3 = st.columns(3)
-                if c1.button("Approve", key=f"appr_{claim['claim_id']}"):
-                    update_claim_status(claim["claim_id"], "approved")
-                    st.rerun()
-                if c2.button("Deny", key=f"deny_{claim['claim_id']}"):
-                    update_claim_status(claim["claim_id"], "denied")
-                    st.rerun()
-                if c3.button("Close", key=f"clm_close_{claim['claim_id']}"):
-                    update_claim_status(claim["claim_id"], "closed")
-                    st.rerun()
-                st.json(claim)
+        return
 
-# ── Human Agent Dashboard ─────────────────────────────────────────────────────
-with tab_dashboard:
+    for claim in claims:
+        cid = claim.get("claim_id", "unknown")
+        with st.expander(
+            f"[{claim.get('status', 'unknown').upper()}] {cid} — "
+            f"{claim.get('failure_mode_name', 'N/A')} — ${claim.get('estimated_parts_cost_usd', 0):.2f}"
+        ):
+            st.markdown(f"**Asset:** `{claim.get('asset_id')}` · **Model:** {claim.get('model_number', 'N/A')}")
+            st.markdown(f"**Confidence:** {claim.get('diagnosis_confidence', 0):.0%}")
+            wc = claim.get("warranty_check", {})
+            st.markdown(f"**Warranty:** {'Eligible' if wc.get('eligible') else 'Review'} — {wc.get('reason', '')}")
+            parts = claim.get("predicted_parts", [])
+            if parts:
+                st.markdown("**Predicted Parts:**")
+                for p in parts[:3]:
+                    st.markdown(
+                        f"- {p.get('name')} · `{p.get('part_number')}` · "
+                        f"score {p.get('prediction_score', 0):.0%}"
+                    )
+            c1, c2, c3 = st.columns(3)
+            if c1.button("Approve", key=f"appr_{cid}"):
+                update_claim_status(cid, "approved")
+                st.rerun(scope="fragment")
+            if c2.button("Deny", key=f"deny_{cid}"):
+                update_claim_status(cid, "denied")
+                st.rerun(scope="fragment")
+            if c3.button("Close", key=f"clm_close_{cid}"):
+                update_claim_status(cid, "closed")
+                st.rerun(scope="fragment")
+            st.json(claim)
+
+
+@st.fragment
+def _render_dashboard_page() -> None:
     st.subheader("Human Agent Dashboard")
     st.markdown("Review escalated cases with graph-backed diagnostic payloads and provenance.")
 
     cases = list_escalations()
     if not cases:
         st.info("No escalations yet. Critical or low-confidence cases appear here automatically.")
-    else:
-        for case in cases:
-            diagnosis = case.get("diagnosis", {})
-            with st.expander(
-                f"[{case['status'].upper()}] Case {case['case_id']} — "
-                f"{diagnosis.get('product_name', 'Unknown')} — {case['created_at'][:19]}"
-            ):
-                st.markdown(f"**Customer message:** {case['user_message']}")
-                st.markdown(f"**Escalation reason:** {diagnosis.get('escalation_reason', 'N/A')}")
-                st.markdown(f"**Confidence:** {diagnosis.get('confidence', 0):.0%}")
+        return
 
-                if diagnosis.get("ranked_failure_modes"):
-                    top = diagnosis["ranked_failure_modes"][0]
-                    st.markdown(f"**Top failure mode:** {top.get('name')}")
-                    st.markdown(f"**Safety:** {top.get('safety_notes')}")
+    for case in cases:
+        diagnosis = case.get("diagnosis", {})
+        case_id = case.get("case_id", "unknown")
+        with st.expander(
+            f"[{case['status'].upper()}] Case {case_id} — "
+            f"{diagnosis.get('product_name', 'Unknown')} — {case['created_at'][:19]}"
+        ):
+            st.markdown(f"**Customer message:** {case['user_message']}")
+            st.markdown(f"**Escalation reason:** {diagnosis.get('escalation_reason', 'N/A')}")
+            st.markdown(f"**Confidence:** {diagnosis.get('confidence', 0):.0%}")
 
-                trail = diagnosis.get("provenance_trail", [])
-                if trail:
-                    st.markdown("**Provenance Trail**")
-                    _render_provenance(trail)
+            if diagnosis.get("ranked_failure_modes"):
+                top = diagnosis["ranked_failure_modes"][0]
+                st.markdown(f"**Top failure mode:** {top.get('name')}")
+                st.markdown(f"**Safety:** {top.get('safety_notes')}")
 
-                col_a, col_b, col_c = st.columns(3)
-                if col_a.button("Mark In Progress", key=f"prog_{case['case_id']}"):
-                    update_escalation_status(case["case_id"], "in_progress")
-                    st.rerun()
-                if col_b.button("Resolve", key=f"res_{case['case_id']}"):
-                    update_escalation_status(case["case_id"], "resolved")
-                    st.rerun()
-                if col_c.button("Close", key=f"close_{case['case_id']}"):
-                    update_escalation_status(case["case_id"], "closed")
-                    st.rerun()
+            trail = diagnosis.get("provenance_trail", [])
+            if trail:
+                st.markdown("**Provenance Trail**")
+                _render_provenance(trail)
 
-                st.json(case)
+            col_a, col_b, col_c = st.columns(3)
+            if col_a.button("Mark In Progress", key=f"prog_{case_id}"):
+                update_escalation_status(case_id, "in_progress")
+                st.rerun(scope="fragment")
+            if col_b.button("Resolve", key=f"res_{case_id}"):
+                update_escalation_status(case_id, "resolved")
+                st.rerun(scope="fragment")
+            if col_c.button("Close", key=f"close_{case_id}"):
+                update_escalation_status(case_id, "closed")
+                st.rerun(scope="fragment")
 
-# ── Knowledge Graph Explorer ──────────────────────────────────────────────────
-with tab_graph:
-    from graph.graph_visualization import (
-        get_diagnosis_subgraph,
-        get_ontology_schema,
-        get_product_subgraph,
-    )
+            st.json(case)
+
+
+@st.fragment
+def _render_graph_page(products: list[dict]) -> None:
+    from graph.graph_rag import get_diagnostic_steps, list_failure_modes, match_symptoms
+    from graph.graph_visualization import get_diagnosis_subgraph
 
     st.subheader("Knowledge Graph Explorer")
     st.markdown(
-        "Interactive graph views aligned with Neo4j tutorial practices: "
-        "ER ontology schema, full product neighborhoods, and diagnosis reasoning paths."
+        "Interactive graph views: ontology schema, product neighborhoods, and diagnosis paths. "
+        "Graphs load on demand to keep the UI responsive."
     )
 
     product_labels = {p["name"]: p["product_id"] for p in products}
+    view = st.radio(
+        "View",
+        ["Ontology (ER Diagram)", "Product Graph", "Cypher Explorer"],
+        horizontal=True,
+        key="kg_view",
+    )
 
-    graph_tab_ontology, graph_tab_product, graph_tab_cypher = st.tabs([
-        "Ontology (ER Diagram)",
-        "Product Graph",
-        "Cypher Explorer",
-    ])
+    if view == "Ontology (ER Diagram)":
+        st.markdown("**Property-graph schema** — node labels and relationship types.")
+        ontology = _cached_ontology_schema()
+        _render_interactive_graph(ontology, graph_key="ontology", height=480, physics=False)
 
-    with graph_tab_ontology:
-        st.markdown("**Property-graph schema** — node labels, key properties, and relationship types.")
-        ontology = get_ontology_schema()
-        _render_interactive_graph(ontology, height=480)
-        st.markdown(
-            "Static reference also available in `docs/graphviz/05-neo4j-ontology.dot` "
-            "and Neo4j Browser at http://localhost:7474"
-        )
-
-    with graph_tab_product:
+    elif view == "Product Graph":
         selected = st.selectbox("Product", list(product_labels.keys()), key="graph_product")
         pid = product_labels[selected]
-        subgraph = get_product_subgraph(pid)
-        _render_interactive_graph(
-            subgraph,
-            caption=f"Full neighborhood for {selected} — drag, zoom, and explore relationships.",
-        )
-
-        from graph.graph_rag import get_diagnostic_steps, list_failure_modes
-
+        if st.button("Load product graph", key="load_product_graph"):
+            st.session_state["product_graph_pid"] = pid
+        if st.session_state.get("product_graph_pid") == pid:
+            subgraph = _cached_product_subgraph(pid)
+            _render_interactive_graph(
+                subgraph,
+                graph_key=f"product_{pid}",
+                caption=f"Neighborhood for {selected}.",
+            )
         c1, c2 = st.columns(2)
         with c1:
             failures = list_failure_modes(pid)
             if failures:
                 st.markdown("**Failure Modes**")
-                for fm in failures:
+                for fm in failures[:8]:
                     st.markdown(f"- **{fm['name']}**")
         with c2:
             steps = get_diagnostic_steps(pid)
             if steps:
                 st.markdown("**Diagnostic Steps**")
-                for step in steps:
-                    st.markdown(f"{step['step_order']}. {step['description'][:60]}...")
+                for step in steps[:6]:
+                    st.markdown(f"{step['step_order']}. {step['description'][:60]}…")
 
-    with graph_tab_cypher:
-        st.markdown(
-            "Run a sample diagnosis path query and see the graph update — "
-            "same pattern as Neo4j Browser / Bloom tutorials."
-        )
-        cypher_product = st.selectbox(
-            "Product",
-            list(product_labels.keys()),
-            key="cypher_product",
-        )
+    else:
+        cypher_product = st.selectbox("Product", list(product_labels.keys()), key="cypher_product")
         cypher_pid = product_labels[cypher_product]
-        from graph.graph_rag import match_symptoms
-
         sample_msg = st.text_input(
             "Sample customer message",
             value="My washing machine won't spin and water stays in the drum",
@@ -481,7 +544,7 @@ with tab_graph:
         )
         matched = match_symptoms(cypher_pid, sample_msg)
         symptom_ids = [s["symptom_id"] for s in matched]
-        st.markdown("**Matched symptoms:** " + ", ".join(symptom_ids) if symptom_ids else "_none_")
+        st.markdown("**Matched symptoms:** " + (", ".join(symptom_ids) if symptom_ids else "_none_"))
 
         fm_options = list_failure_modes(cypher_pid)
         fm_labels = {f"{fm['name']} ({fm['failure_mode_id']})": fm["failure_mode_id"] for fm in fm_options}
@@ -489,11 +552,13 @@ with tab_graph:
         fm_id = fm_labels[selected_fm]
 
         if st.button("Run diagnosis subgraph query", key="run_cypher_viz"):
-            diag_graph = get_diagnosis_subgraph(cypher_pid, symptom_ids=symptom_ids, failure_mode_id=fm_id)
-            st.session_state["cypher_explorer_graph"] = diag_graph
+            st.session_state["cypher_explorer_graph"] = get_diagnosis_subgraph(
+                cypher_pid, symptom_ids=symptom_ids, failure_mode_id=fm_id
+            )
 
         if st.session_state.get("cypher_explorer_graph"):
-            _render_interactive_graph(st.session_state["cypher_explorer_graph"])
+            g = st.session_state["cypher_explorer_graph"]
+            _render_interactive_graph(g, graph_key=f"cypher_{cypher_pid}_{fm_id}")
             st.code(
                 f"MATCH (p:Product {{product_id: '{cypher_pid}'}})\n"
                 f"MATCH (p)-[:HAS_SYMPTOM]->(s:Symptom)\n"
@@ -503,8 +568,9 @@ with tab_graph:
                 language="cypher",
             )
 
-# ── Enterprise Systems ────────────────────────────────────────────────────────
-with tab_enterprise:
+
+@st.fragment
+def _render_enterprise_page() -> None:
     st.subheader("Enterprise Systems & Pipelines")
     st.markdown(
         "ETL lineage, simulated case handoffs, and connector status. "
@@ -518,12 +584,10 @@ with tab_enterprise:
 
     st.markdown("### ETL Lineage Batches")
     all_batches = list_batches(limit=50)
-    show_history = st.checkbox("Show full pipeline history (includes failed runs and dry-runs)", value=False)
+    show_history = st.checkbox("Show full pipeline history", value=False)
 
     if not all_batches:
-        st.info(
-            "No ETL batches logged yet. Run: `python -m graph.enterprise_pipeline.orchestrator`"
-        )
+        st.info("No ETL batches logged yet. Run: `python -m graph.enterprise_pipeline.orchestrator`")
     else:
         success_count = sum(1 for b in all_batches if b.get("status") == "success")
         failed_count = sum(1 for b in all_batches if b.get("status") == "failed")
@@ -539,15 +603,14 @@ with tab_enterprise:
 
         batches = all_batches if show_history else [b for b in all_batches if b.get("status") == "success"][:6]
         if not batches and not show_history:
-            st.caption("Successful runs only — enable full history to inspect earlier failures.")
             batches = all_batches[:6]
 
-        col_clear, _ = st.columns([1, 3])
-        if col_clear.button("Clear lineage log"):
+        if st.button("Clear lineage log", key="clear_lineage"):
             lineage_file = settings.lineage_dir / "etl_batches.jsonl"
             if lineage_file.exists():
                 lineage_file.unlink()
-            st.rerun()
+            st.cache_data.clear()
+            st.rerun(scope="fragment")
 
         for batch in batches:
             status = batch.get("status", "unknown")
@@ -558,7 +621,10 @@ with tab_enterprise:
                 expanded=status == "failed" and show_history,
             ):
                 st.markdown(f"**Batch ID:** `{batch.get('batch_id')}`")
-                st.markdown(f"**Products:** {batch.get('product_count', 0)} · **Neo4j target:** {batch.get('neo4j_target', 'N/A')}")
+                st.markdown(
+                    f"**Products:** {batch.get('product_count', 0)} · "
+                    f"**Neo4j target:** {batch.get('neo4j_target', 'N/A')}"
+                )
                 sources = batch.get("sources")
                 if sources:
                     label = "Connector sources:" if pipeline == "knowledge_etl" else "Run details:"
@@ -574,8 +640,8 @@ with tab_enterprise:
     sim_cases = _load_simulated_cases()
     if not sim_cases:
         st.info(
-            "No cases in simulated CCaaS yet. Select a CRM customer/asset in **Customer Chatbot**, "
-            "trigger an escalation, and a case will appear here when the mock API is running."
+            "No cases in simulated CCaaS yet. Bind CRM in **Customer Chatbot**, "
+            "trigger an escalation, and a case appears when mock API is running."
         )
     else:
         for case in sim_cases[:10]:
@@ -590,15 +656,57 @@ with tab_enterprise:
 
     st.markdown("### Pipeline Commands")
     st.code(
-        "# Full enterprise demo (mock APIs + ETL + API + UI)\n"
-        "./run_enterprise_demo.sh\n\n"
-        "# Run pipelines only\n"
-        "python -m graph.enterprise_pipeline.orchestrator\n\n"
-        "# Quick demo with enterprise ETL\n"
-        "USE_ENTERPRISE=true ./run_demo.sh\n\n"
-        "# REST API diagnose\n"
-        'curl -X POST http://localhost:8080/diagnose \\\n'
-        '  -H "Content-Type: application/json" \\\n'
-        '  -d \'{"message":"washer won\'"\'"\'t spin","customer_id":"CUST-10042","asset_id":"AST-WM-4421"}\'',
+        "./run_enterprise_demo.sh\n"
+        "python -m graph.enterprise_pipeline.orchestrator\n"
+        'curl -X POST http://localhost:8080/diagnose -H "Content-Type: application/json" '
+        '-d \'{"message":"washer won\'"\'"\'t spin","asset_id":"AST-WM-4421"}\'',
         language="bash",
     )
+
+
+# ── Main layout ───────────────────────────────────────────────────────────────
+
+st.title("Enterprise Diagnostics Chatbot Demo")
+st.caption("GraphRAG + LangGraph + Neo4j — explainable appliance diagnosis with enterprise integrations")
+
+neo4j_ok = _cached_neo4j_ok()
+mock_ok = _cached_mock_ok()
+
+col1, col2, col3, col4 = st.columns(4)
+col1.metric("Neo4j", "Connected" if neo4j_ok else "Offline")
+col2.metric("Mode", "Enterprise" if settings.use_mock_enterprise_apis else "Graph-Native")
+col3.metric("Mock APIs", "Online" if mock_ok else "Offline")
+open_cases = sum(1 for e in list_escalations() if e.get("status") == "open")
+col4.metric("Open Escalations", open_cases)
+
+if not neo4j_ok:
+    st.error(
+        "Neo4j is not reachable. Start it with: `docker start neo4j-demo` "
+        "then run `PYTHONPATH=. python graph/populate_graph.py`"
+    )
+    st.stop()
+
+if "nav_page" not in st.session_state:
+    st.session_state.nav_page = PAGES[0]
+
+page = st.radio(
+    "Section",
+    PAGES,
+    horizontal=True,
+    key="nav_page",
+    label_visibility="collapsed",
+)
+
+products = _cached_products()
+crm_data = _cached_crm_fixtures()
+
+if page == PAGES[0]:
+    _render_chat_page(products, crm_data)
+elif page == PAGES[1]:
+    _render_claims_page()
+elif page == PAGES[2]:
+    _render_dashboard_page()
+elif page == PAGES[3]:
+    _render_graph_page(products)
+else:
+    _render_enterprise_page()
