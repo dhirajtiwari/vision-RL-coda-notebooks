@@ -49,6 +49,14 @@ class DiagnosisResult:
     claim_precedents: list[dict[str, Any]] = field(default_factory=list)
     diagnostic_tree: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    # Scoring transparency fields (separated for UI display)
+    recommendation_strength: str = ""  # 'Strong' | 'Moderate' | 'Weak' | 'Insufficient data'
+    posterior_dominance_ratio: float = 0.0  # top_posterior / second_posterior
+    # Exact traversal path: the specific Symptom→FM edges that were weighted in this diagnosis.
+    # Enables the UI to highlight ONLY the edges that were actually used,
+    # separately from the full "relevant context" subgraph.
+    traversed_symptom_ids: list[str] = field(default_factory=list)
+    traversed_fm_id: str = ""
 
 
 SYNONYMS = {
@@ -296,29 +304,30 @@ def match_symptoms(product_id: str, user_message: str) -> list[dict[str, Any]]:
 def _composite_confidence(
     ranked: list[dict[str, Any]],
     matched_symptoms: list[dict[str, Any]],
-) -> tuple[float, float, float]:
+) -> tuple[float, float, float, str, float]:
     """
-    Return (overall, graph-edge, language-match) confidence.
+    Return (overall, graph-edge, language-match, recommendation_strength, dominance_ratio).
 
-    - overall  = the normalised naive-Bayes posterior P(fm | symptoms) of the
-                 leading failure mode. This is a genuine diagnostic probability
-                 derived from FMEA occurrence priors and INDICATES likelihoods
-                 (see graph/reliability.py), not a hand-tuned blend.
-    - graph    = the strongest single engineering indication (max INDICATES edge
-                 likelihood P(symptom|fm)) for the leading failure mode — used by
-                 the escalation gate as an "is there a strong hard link" signal.
-    - language = retrieval match quality (how well the customer's words mapped to
-                 a catalog symptom). Reported separately and never mixed into the
-                 diagnostic probability, so the two concerns stay distinguishable.
+    - overall  = Bayesian posterior of the leading FM, boosted when it is clearly
+                 dominant over the second-best candidate (reliability.dominance_boost).
+    - graph    = max INDICATES edge likelihood for the top FM.
+    - language = retrieval match quality (text-to-symptom).
+    - recommendation_strength = 'Strong' | 'Moderate' | 'Weak' | 'Insufficient data'.
+    - dominance_ratio = top_posterior / second_posterior (transparency metric).
     """
     if not ranked or not matched_symptoms:
-        return 0.0, 0.0, 0.0
+        return 0.0, 0.0, 0.0, "Insufficient data", 0.0
 
     score_by_id = {s["symptom_id"]: float(s.get("match_score", 0.0)) for s in matched_symptoms}
     language_conf = max(score_by_id.values()) if score_by_id else 0.0
 
     top = ranked[0]
-    overall = float(top.get("posterior", 0.0))
+    posteriors = {fm["failure_mode_id"]: float(fm.get("posterior", 0.0)) for fm in ranked}
+    sorted_posts = sorted(posteriors.values(), reverse=True)
+    dominance_ratio = round(sorted_posts[0] / max(sorted_posts[1], 0.001), 2) if len(sorted_posts) > 1 else 10.0
+
+    # Dominance boost: clear leader → higher expressed confidence
+    overall = reliability.dominance_boost(posteriors)
 
     graph_conf = 0.0
     for ind in top.get("indications") or []:
@@ -327,7 +336,10 @@ def _composite_confidence(
         if sid in score_by_id and edge is not None:
             graph_conf = max(graph_conf, float(edge))
 
-    return round(overall, 2), round(graph_conf, 2), round(language_conf, 2)
+    strength = reliability.recommendation_strength(
+        overall, graph_conf, language_conf, dominance_ratio=dominance_ratio
+    )
+    return round(overall, 2), round(graph_conf, 2), round(language_conf, 2), strength, dominance_ratio
 
 
 def list_failure_modes(product_id: str) -> list[dict[str, Any]]:
@@ -666,7 +678,7 @@ def diagnose(
     ranked = rank_failure_modes_with_error_codes(pid, symptom_ids, error_code_ids)
 
     top = ranked[0] if ranked else None
-    confidence, graph_confidence, language_confidence = _composite_confidence(
+    confidence, graph_confidence, language_confidence, rec_strength, dom_ratio = _composite_confidence(
         ranked, matched_symptoms
     )
 
@@ -793,6 +805,10 @@ def diagnose(
         confidence=confidence,
         graph_confidence=graph_confidence,
         language_confidence=language_confidence,
+        recommendation_strength=rec_strength,
+        posterior_dominance_ratio=dom_ratio,
+        traversed_symptom_ids=symptom_ids,
+        traversed_fm_id=top_fm_id or "",
         should_escalate=should_escalate,
         escalation_reason=escalation_reason,
         evidence=evidence,

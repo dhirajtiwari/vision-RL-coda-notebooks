@@ -63,7 +63,8 @@ cp .env.example .env   # optional; defaults work for local demo
 | **Neo4j** | `bolt://localhost:7687` | Knowledge graph store |
 | **Mock Enterprise APIs** | `http://localhost:8090` | Simulated CRM, PIM, FSM, Claims |
 | **Diagnostics API** | `http://localhost:8080` | `POST /diagnose`, lineage endpoints |
-| **Streamlit** | `http://localhost:8501` | Interactive demo |
+| **Next.js (modern 2026 frontend)** | `http://localhost:3000` | Full modern UI/UX (recommended) |
+| **Streamlit (archived)** | `http://localhost:8501` | Legacy UI (moved to `ui-streamlit-archive/`) |
 
 ### Documentation tooling (optional)
 
@@ -118,6 +119,25 @@ chmod +x run_enterprise_demo.sh
 | Diagnostics REST API | http://localhost:8080/docs |
 | Mock Enterprise APIs | http://localhost:8090/docs |
 | Neo4j Browser | http://localhost:7474 (`neo4j` / `password`) |
+
+### Modern Frontend (Next.js 16 + React 19 + Tailwind)
+
+The full beautiful 2026 UI/UX lives in `frontend/`.
+
+```bash
+cd frontend
+npm run dev
+```
+
+Visit http://localhost:3000
+
+- Glassmorphism + AI-native conversational diagnosis
+- Rich structured diagnosis cards, FMEA, provenance timelines
+- Interactive knowledge graph (React Flow)
+- Agent cases, claims, enterprise ops views
+- Role-based experience (Customer / Agent / Analyst)
+
+**Requirements:** Backend API running on http://localhost:8080 (see below).
 
 ### Option B — Quick demo (synthetic data)
 

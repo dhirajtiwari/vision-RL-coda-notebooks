@@ -199,3 +199,70 @@ def bayesian_posteriors(
     if total <= 0.0:
         return dict.fromkeys(candidate_failure_modes, 0.0)
     return {fm: score / total for fm, score in unnormalized.items()}
+
+
+def dominance_boost(
+    posteriors: dict[str, float],
+    *,
+    dominance_threshold: float = 0.55,
+    dominance_ratio: float = 1.8,
+    boost_cap: float = 0.92,
+) -> float:
+    """
+    Boost the top posterior when it is clearly dominant over the second-best
+    candidate — i.e. when the differential diagnosis has a clear winner.
+
+    Rationale: a posterior of 0.57 with the second at 0.33 is NOT the same
+    clinical situation as 0.57 with the second at 0.55. When the top FM is
+    dominant we can express higher recommendation strength without fabricating
+    certainty.  The boost scales continuously from 0 (no dominance) to a
+    capped maximum so it can never exceed `boost_cap`.
+
+    Returns the boosted overall confidence (float in [0, boost_cap]).
+    """
+    if not posteriors:
+        return 0.0
+    sorted_vals = sorted(posteriors.values(), reverse=True)
+    top = sorted_vals[0]
+    second = sorted_vals[1] if len(sorted_vals) > 1 else 0.0
+
+    if top < dominance_threshold:
+        return top                          # below threshold — return as-is
+
+    ratio = top / max(second, 0.01)
+    if ratio < dominance_ratio:
+        return top                          # not dominant enough
+
+    # Scale boost: linear ramp from 0 at ratio=dominance_ratio to 0.15 at ratio=4
+    boost_scale = min((ratio - dominance_ratio) / (4.0 - dominance_ratio), 1.0)
+    boosted = top + 0.15 * boost_scale
+    return round(min(boosted, boost_cap), 4)
+
+
+def recommendation_strength(
+    posterior: float,
+    graph_confidence: float,
+    language_confidence: float,
+    *,
+    dominance_ratio: float = 1.0,
+) -> str:
+    """
+    Human-readable recommendation strength label for UI display.
+
+    Separates the user-facing triage signal from the raw probabilistic number.
+    Based on the combination of Bayesian posterior, graph link strength, and
+    how well the user's language matched the catalog — aligned with the
+    AIAG-VDA 2019 Action Priority philosophy of expressing confidence as a
+    categorical triage tier.
+
+    Returns: 'Strong' | 'Moderate' | 'Weak' | 'Insufficient data'
+    """
+    if posterior <= 0.0:
+        return "Insufficient data"
+    if posterior >= 0.65 and graph_confidence >= 0.80 and language_confidence >= 0.50:
+        return "Strong"
+    if posterior >= 0.50 and graph_confidence >= 0.70:
+        return "Strong" if dominance_ratio >= 1.8 else "Moderate"
+    if posterior >= 0.35 and graph_confidence >= 0.50:
+        return "Moderate"
+    return "Weak"
