@@ -37,11 +37,15 @@ def integration_status() -> dict[str, Any]:
     from graph.neo4j_client import verify_connection
 
     neo4j_ok = verify_connection()
-    mock = _check_url(settings.mock_enterprise_api_url, "/health") if settings.use_mock_enterprise_apis else {
-        "configured": False,
-        "reachable": False,
-        "mode": "disabled",
-    }
+    mock = (
+        _check_url(settings.mock_enterprise_api_url, "/health")
+        if settings.use_mock_enterprise_apis
+        else {
+            "configured": False,
+            "reachable": False,
+            "mode": "disabled",
+        }
+    )
 
     connectors = {
         "neo4j": {

@@ -47,10 +47,7 @@ def check_warranty_eligibility(
     policy = policies[0] if policies else {}
     parts_cost = 0.0
     if predicted_parts:
-        parts_cost = sum(
-            (p.get("estimated_cost_usd") or 0) * (p.get("quantity") or 1)
-            for p in predicted_parts
-        )
+        parts_cost = sum((p.get("estimated_cost_usd") or 0) * (p.get("quantity") or 1) for p in predicted_parts)
 
     parts_covered = policy.get("covers_parts", True)
     labor_covered = policy.get("covers_labor", True)

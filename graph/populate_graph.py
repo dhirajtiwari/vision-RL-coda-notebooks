@@ -50,9 +50,18 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
     """Load catalog into Neo4j. Returns entity counts."""
     batch_id = etl_batch_id or data.get("etl_batch_id", "")
     counts = {
-        "products": 0, "symptoms": 0, "failure_modes": 0, "steps": 0, "resolutions": 0,
-        "models": 0, "skus": 0, "components": 0, "error_codes": 0,
-        "assets": 0, "claims": 0, "policies": 0,
+        "products": 0,
+        "symptoms": 0,
+        "failure_modes": 0,
+        "steps": 0,
+        "resolutions": 0,
+        "models": 0,
+        "skus": 0,
+        "components": 0,
+        "error_codes": 0,
+        "assets": 0,
+        "claims": 0,
+        "policies": 0,
     }
 
     with driver.session() as session:
@@ -71,9 +80,14 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     p.source_system = $source_system, p.source_record_id = $source_record_id,
                     p.source_document_uri = $source_document_uri, p.approval_status = $approval_status
                 """,
-                {**product, "etl_batch_id": batch_id, **{k: p_prov.get(k, "") for k in (
-                    "source_system", "source_record_id", "source_document_uri", "approval_status"
-                )}},
+                {
+                    **product,
+                    "etl_batch_id": batch_id,
+                    **{
+                        k: p_prov.get(k, "")
+                        for k in ("source_system", "source_record_id", "source_document_uri", "approval_status")
+                    },
+                },
             )
             counts["products"] += 1
 
@@ -87,9 +101,13 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                         s.source_system = $source_system, s.source_record_id = $source_record_id,
                         s.source_document_uri = $source_document_uri, s.approval_status = $approval_status
                     """,
-                    {**symptom, **{k: s_prov.get(k, "") for k in (
-                        "source_system", "source_record_id", "source_document_uri", "approval_status"
-                    )}},
+                    {
+                        **symptom,
+                        **{
+                            k: s_prov.get(k, "")
+                            for k in ("source_system", "source_record_id", "source_document_uri", "approval_status")
+                        },
+                    },
                 )
                 session.run(
                     """
@@ -113,9 +131,10 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                         fm.source_system = $source_system, fm.source_record_id = $source_record_id,
                         fm.source_document_uri = $source_document_uri
                     """,
-                    {**fm, **{k: f_prov.get(k, "") for k in (
-                        "source_system", "source_record_id", "source_document_uri"
-                    )}},
+                    {
+                        **fm,
+                        **{k: f_prov.get(k, "") for k in ("source_system", "source_record_id", "source_document_uri")},
+                    },
                 )
                 session.run(
                     """

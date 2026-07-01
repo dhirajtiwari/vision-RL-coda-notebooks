@@ -227,11 +227,11 @@ def dominance_boost(
     second = sorted_vals[1] if len(sorted_vals) > 1 else 0.0
 
     if top < dominance_threshold:
-        return top                          # below threshold — return as-is
+        return top  # below threshold — return as-is
 
     ratio = top / max(second, 0.01)
     if ratio < dominance_ratio:
-        return top                          # not dominant enough
+        return top  # not dominant enough
 
     # Scale boost: linear ramp from 0 at ratio=dominance_ratio to 0.15 at ratio=4
     boost_scale = min((ratio - dominance_ratio) / (4.0 - dominance_ratio), 1.0)

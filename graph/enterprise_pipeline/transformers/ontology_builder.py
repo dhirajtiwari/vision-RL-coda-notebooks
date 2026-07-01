@@ -44,9 +44,7 @@ class OntologyBuilder:
         crm: ConnectorResult | None = None,
     ) -> KnowledgeGraphData:
         del crm
-        products = [
-            self._transform_product(p, fsm.records, claims.records) for p in pim.records
-        ]
+        products = [self._transform_product(p, fsm.records, claims.records) for p in pim.records]
         return KnowledgeGraphData(products=products)
 
     def build_catalog_payload(
@@ -60,13 +58,9 @@ class OntologyBuilder:
         provenance: dict[str, dict[str, Any]] = {}
         for item in graph_data.products:
             pid = item.product.product_id
-            provenance[pid] = self._prov(
-                "PIM", f"product-{pid}", f"manuals/{pid}/catalog.pdf", "Product"
-            )
+            provenance[pid] = self._prov("PIM", f"product-{pid}", f"manuals/{pid}/catalog.pdf", "Product")
             for s in item.symptoms:
-                provenance[s.symptom_id] = self._prov(
-                    "FMEA", s.symptom_id, f"manuals/{pid}/symptoms.pdf", "Symptom"
-                )
+                provenance[s.symptom_id] = self._prov("FMEA", s.symptom_id, f"manuals/{pid}/symptoms.pdf", "Symptom")
             for fm in item.failure_modes:
                 provenance[fm.failure_mode_id] = self._prov(
                     "FMEA", fm.failure_mode_id, f"fmea/{pid}/{fm.failure_mode_id}.pdf", "FailureMode"
@@ -126,8 +120,7 @@ class OntologyBuilder:
                 claim_records,
             ),
             failure_mode_part_links=[
-                FailureModePartLink(**link)
-                for link in pim_product.get("failure_mode_part_links", [])
+                FailureModePartLink(**link) for link in pim_product.get("failure_mode_part_links", [])
             ],
         )
 
@@ -139,8 +132,7 @@ class OntologyBuilder:
         claim_records: list[dict[str, Any]],
     ) -> list[SymptomFailureLink]:
         confidence_map: dict[tuple[str, str], float] = {
-            (link["symptom_id"], link["failure_mode_id"]): float(link["confidence"])
-            for link in pim_links
+            (link["symptom_id"], link["failure_mode_id"]): float(link["confidence"]) for link in pim_links
         }
         for record in fsm_records + claim_records:
             if record.get("product_id") != product_id:

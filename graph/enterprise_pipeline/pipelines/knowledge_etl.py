@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any
 
 from config.settings import settings
 from graph.enterprise_pipeline.connectors import ClaimsConnector, CRMConnector, FSMConnector, PIMConnector
@@ -62,7 +61,9 @@ def run_knowledge_etl(*, load_neo4j: bool = False, dry_run: bool = False) -> ETL
     report.product_count = len(catalog.get("products", []))
 
     if dry_run:
-        log_batch(pipeline="knowledge_etl", status="dry_run", product_count=report.product_count, sources=report.sources)
+        log_batch(
+            pipeline="knowledge_etl", status="dry_run", product_count=report.product_count, sources=report.sources
+        )
         return report
 
     settings.enterprise_catalog_file.parent.mkdir(parents=True, exist_ok=True)

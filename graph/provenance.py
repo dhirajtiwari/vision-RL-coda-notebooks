@@ -10,7 +10,7 @@ explicit ``simulated`` flag rather than implying a live enterprise extract.
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache
 from typing import Any, Literal
 
@@ -26,7 +26,7 @@ class ProvenanceRecord(BaseModel):
     source_record_id: str
     source_document_uri: str = ""
     source_version: str = "1.0"
-    ingested_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    ingested_at: str = Field(default_factory=lambda: datetime.now(UTC).isoformat())
     approved_by: str = "knowledge-engineering@demo.local"
     approval_status: Literal["approved", "draft", "retired"] = "approved"
     etl_batch_id: str = ""
@@ -77,7 +77,7 @@ def manifest_provenance_for_entity(entity_type: str, entity_id: str) -> dict[str
         "source_version": manifest.get("version", "1.0"),
         "approval_status": defaults.get("approval_status", "approved"),
         "approved_by": defaults.get("approved_by", "knowledge-engineering@demo.local"),
-        "ingested_at": datetime.now(timezone.utc).isoformat(),
+        "ingested_at": datetime.now(UTC).isoformat(),
         "simulated": True,
     }
 
@@ -112,5 +112,3 @@ def provenance_evidence_line(entity_type: str, entity_id: str, props: dict[str, 
         "ingested_at": enriched.get("ingested_at", ""),
         "approval_status": enriched.get("approval_status", ""),
     }
-
-

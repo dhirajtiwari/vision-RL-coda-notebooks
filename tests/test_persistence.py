@@ -31,13 +31,15 @@ def test_save_and_list_escalation() -> None:
 
 def test_save_and_list_case() -> None:
     store = _temp_store()
-    case = store.save_case({
-        "customer_id": "CUST-10042",
-        "asset_id": "AST-WM-4421",
-        "user_message": "washer won't spin",
-        "diagnosis": {"product_id": "wm-001"},
-        "escalation_reason": "low confidence",
-    })
+    case = store.save_case(
+        {
+            "customer_id": "CUST-10042",
+            "asset_id": "AST-WM-4421",
+            "user_message": "washer won't spin",
+            "diagnosis": {"product_id": "wm-001"},
+            "escalation_reason": "low confidence",
+        }
+    )
     cases = store.list_cases()
     assert len(cases) == 1
     assert cases[0]["case_id"] == case["case_id"]
@@ -46,11 +48,13 @@ def test_save_and_list_case() -> None:
 
 def test_save_and_update_claim() -> None:
     store = _temp_store()
-    claim = store.save_claim({
-        "claim_id": "CLM-TEST-001",
-        "status": "submitted",
-        "asset_id": "AST-DW-1102",
-    })
+    claim = store.save_claim(
+        {
+            "claim_id": "CLM-TEST-001",
+            "status": "submitted",
+            "asset_id": "AST-DW-1102",
+        }
+    )
     updated = store.update_claim("CLM-TEST-001", {"status": "approved", "agent_notes": "ok"})
     assert updated is not None
     assert updated["status"] == "approved"

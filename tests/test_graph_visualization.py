@@ -67,13 +67,15 @@ def test_filter_path_focus_reduces_noise():
 
 
 def test_diagnosis_map_steps_from_payload():
-    steps = diagnosis_map_steps({
-        "product_name": "CleanWave Dishwasher",
-        "matched_symptoms": [{"description": "Dishes wet", "match_score": 0.6}],
-        "ranked_failure_modes": [{"name": "Heating Element Failure"}],
-        "confidence": 0.72,
-        "parts": [{"name": "Heating Element", "part_number": "DW-HE-001"}],
-    })
+    steps = diagnosis_map_steps(
+        {
+            "product_name": "CleanWave Dishwasher",
+            "matched_symptoms": [{"description": "Dishes wet", "match_score": 0.6}],
+            "ranked_failure_modes": [{"name": "Heating Element Failure"}],
+            "confidence": 0.72,
+            "parts": [{"name": "Heating Element", "part_number": "DW-HE-001"}],
+        }
+    )
     assert len(steps) >= 4
     assert steps[0]["label"] == "Product"
 
@@ -100,24 +102,41 @@ def test_product_graph_summary_counts_labels():
 def test_render_diagnosis_map_html_includes_stepper_and_graph():
     data = {
         "nodes": [
-            {"id": "Product:dw-001", "label": "Product", "entity_id": "dw-001",
-             "title": "CleanWave", "highlight": True, "layer": 0},
-            {"id": "Symptom:dw-s01", "label": "Symptom", "entity_id": "dw-s01",
-             "title": "Dishes wet", "highlight": True, "layer": 1},
+            {
+                "id": "Product:dw-001",
+                "label": "Product",
+                "entity_id": "dw-001",
+                "title": "CleanWave",
+                "highlight": True,
+                "layer": 0,
+            },
+            {
+                "id": "Symptom:dw-s01",
+                "label": "Symptom",
+                "entity_id": "dw-s01",
+                "title": "Dishes wet",
+                "highlight": True,
+                "layer": 1,
+            },
         ],
         "edges": [
-            {"source": "Product:dw-001", "target": "Symptom:dw-s01",
-             "type": "HAS_SYMPTOM", "highlight": True},
+            {"source": "Product:dw-001", "target": "Symptom:dw-s01", "type": "HAS_SYMPTOM", "highlight": True},
         ],
         "node_count": 2,
         "edge_count": 1,
     }
-    prepared = __import__("graph.graph_visualization", fromlist=["prepare_executive_graph"]).prepare_executive_graph(data)
+    prepared = __import__("graph.graph_visualization", fromlist=["prepare_executive_graph"]).prepare_executive_graph(
+        data
+    )
     for node in prepared["nodes"]:
         node["executive_label"] = node.get("title", node["entity_id"])
     html = render_diagnosis_map_html(
         data,
-        {"product_name": "CleanWave", "confidence": 0.6, "matched_symptoms": [{"description": "Dishes wet", "match_score": 0.6}]},
+        {
+            "product_name": "CleanWave",
+            "confidence": 0.6,
+            "matched_symptoms": [{"description": "Dishes wet", "match_score": 0.6}],
+        },
         height="320px",
     )
     assert "Diagnosis reasoning map" in html

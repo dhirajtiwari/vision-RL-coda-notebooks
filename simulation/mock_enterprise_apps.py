@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import sys
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -43,7 +43,7 @@ def _load(name: str) -> dict[str, Any]:
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "service": "enterprise-simulator", "timestamp": datetime.now(timezone.utc).isoformat()}
+    return {"status": "ok", "service": "enterprise-simulator", "timestamp": datetime.now(UTC).isoformat()}
 
 
 @app.get("/api/pim/products")
@@ -104,7 +104,7 @@ def create_case(body: CaseCreate) -> dict[str, Any]:
 
     case = {
         "case_id": f"CASE-{uuid.uuid4().hex[:8].upper()}",
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "status": "open",
         "source_system": "DiagnosticsPlatform",
         **body.model_dump(),

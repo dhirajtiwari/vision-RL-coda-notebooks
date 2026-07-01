@@ -89,8 +89,6 @@ def test_end_to_end_diagnostic_scenario():
         ("water", "fm2"): 0.88,
         ("noise", "fm3"): 0.85,
     }
-    post = rel.bayesian_posteriors(
-        priors, likelihoods, ["spin", "water"], ["fm1", "fm2", "fm3"]
-    )
+    post = rel.bayesian_posteriors(priors, likelihoods, ["spin", "water"], ["fm1", "fm2", "fm3"])
     assert max(post, key=post.get) == "fm1"
     assert post["fm3"] == min(post.values())

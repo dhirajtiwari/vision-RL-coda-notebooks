@@ -80,15 +80,17 @@ def _add_edge(
     edge_id = f"{source}|{rel_type}|{target}"
     if any(e["id"] == edge_id for e in edges):
         return
-    edges.append({
-        "id": edge_id,
-        "source": source,
-        "target": target,
-        "type": rel_type,
-        "label": rel_type,
-        "properties": properties or {},
-        "highlight": highlight,
-    })
+    edges.append(
+        {
+            "id": edge_id,
+            "source": source,
+            "target": target,
+            "type": rel_type,
+            "label": rel_type,
+            "properties": properties or {},
+            "highlight": highlight,
+        }
+    )
 
 
 def graph_payload(nodes: dict[str, dict[str, Any]], edges: list[dict[str, Any]]) -> dict[str, Any]:
@@ -174,7 +176,9 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
 
         pid = product["product_id"]
         _add_node(
-            nodes, "Product", pid,
+            nodes,
+            "Product",
+            pid,
             f"{product['name']}\n{product['brand']} · {product['category']}",
         )
 
@@ -188,7 +192,9 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
         ):
             sid = row["symptom_id"]
             s_key = _add_node(
-                nodes, "Symptom", sid,
+                nodes,
+                "Symptom",
+                sid,
                 f"{row['description']}\n[{row['severity']}]",
             )
             _add_edge(edges, _node_key("Product", pid), s_key, "HAS_SYMPTOM")
@@ -215,7 +221,9 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
         ):
             did = row["step_id"]
             ds_key = _add_node(
-                nodes, "DiagnosticStep", did,
+                nodes,
+                "DiagnosticStep",
+                did,
                 f"Step {row['step_order']}: {row['description'][:50]}",
             )
             _add_edge(edges, _node_key("Product", pid), ds_key, "HAS_DIAGNOSTIC_STEP")
@@ -233,7 +241,9 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
             fid, ptid = row["failure_mode_id"], row["part_id"]
             fm_key = _node_key("FailureMode", fid)
             pt_key = _add_node(
-                nodes, "Part", ptid,
+                nodes,
+                "Part",
+                ptid,
                 f"{row['name']}\n{row['part_number']} · ${row['cost']}",
             )
             _add_edge(edges, fm_key, pt_key, "REQUIRES_PART")
@@ -251,7 +261,10 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
             s_key = _node_key("Symptom", row["symptom_id"])
             fm_key = _node_key("FailureMode", row["failure_mode_id"])
             _add_edge(
-                edges, s_key, fm_key, "INDICATES",
+                edges,
+                s_key,
+                fm_key,
+                "INDICATES",
                 properties={"confidence": row["confidence"]},
             )
 
@@ -266,7 +279,9 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
         ):
             rid = row["resolution_id"]
             r_key = _add_node(
-                nodes, "HistoricalResolution", rid,
+                nodes,
+                "HistoricalResolution",
+                rid,
                 f"{row['description'][:50]}\n{row['resolution_date']}",
             )
             _add_edge(edges, r_key, _node_key("Product", pid), "FOR_PRODUCT")
@@ -320,7 +335,9 @@ def get_diagnosis_subgraph(
             ):
                 sid = row["symptom_id"]
                 s_key = _add_node(
-                    nodes, "Symptom", sid,
+                    nodes,
+                    "Symptom",
+                    sid,
                     f"{row['description']}\n[{row['severity']}]",
                     highlight=True,
                 )
@@ -350,7 +367,9 @@ def get_diagnosis_subgraph(
             fid = row["failure_mode_id"]
             is_top = failure_mode_id == fid if failure_mode_id else len(failure_keys) == 0
             fm_key = _add_node(
-                nodes, "FailureMode", fid,
+                nodes,
+                "FailureMode",
+                fid,
                 f"{row['name']}\n{row['description'][:60]}",
                 highlight=is_top,
             )
@@ -373,7 +392,10 @@ def get_diagnosis_subgraph(
                 fm_key = _node_key("FailureMode", row["failure_mode_id"])
                 is_top = failure_mode_id == row["failure_mode_id"] if failure_mode_id else False
                 _add_edge(
-                    edges, s_key, fm_key, "INDICATES",
+                    edges,
+                    s_key,
+                    fm_key,
+                    "INDICATES",
                     properties={"confidence": row["confidence"]},
                     highlight=is_top or row["confidence"] >= 0.85,
                 )
@@ -388,13 +410,18 @@ def get_diagnosis_subgraph(
                 failure_mode_id=failure_mode_id,
             ):
                 pt_key = _add_node(
-                    nodes, "Part", row["part_id"],
+                    nodes,
+                    "Part",
+                    row["part_id"],
                     f"{row['name']}\n{row['part_number']} · ${row['cost']}",
                     highlight=True,
                 )
                 _add_edge(
-                    edges, _node_key("FailureMode", failure_mode_id), pt_key,
-                    "REQUIRES_PART", highlight=True,
+                    edges,
+                    _node_key("FailureMode", failure_mode_id),
+                    pt_key,
+                    "REQUIRES_PART",
+                    highlight=True,
                 )
 
         if include_steps:
@@ -407,7 +434,9 @@ def get_diagnosis_subgraph(
                 product_id=product_id,
             ):
                 ds_key = _add_node(
-                    nodes, "DiagnosticStep", row["step_id"],
+                    nodes,
+                    "DiagnosticStep",
+                    row["step_id"],
                     f"Step {row['step_order']}: {row['description'][:45]}",
                 )
                 _add_edge(edges, p_key, ds_key, "HAS_DIAGNOSTIC_STEP")
@@ -425,14 +454,19 @@ def get_diagnosis_subgraph(
                 failure_mode_id=failure_mode_id,
             ):
                 r_key = _add_node(
-                    nodes, "HistoricalResolution", row["resolution_id"],
+                    nodes,
+                    "HistoricalResolution",
+                    row["resolution_id"],
                     f"{row['description'][:45]}\n{row['resolution_date']}",
                     highlight=True,
                 )
                 _add_edge(edges, r_key, p_key, "FOR_PRODUCT", highlight=True)
                 _add_edge(
-                    edges, r_key, _node_key("FailureMode", failure_mode_id),
-                    "CONFIRMED", highlight=True,
+                    edges,
+                    r_key,
+                    _node_key("FailureMode", failure_mode_id),
+                    "CONFIRMED",
+                    highlight=True,
                 )
 
     return graph_payload(nodes, edges)
@@ -485,9 +519,16 @@ def _executive_node_label(node: dict[str, Any]) -> str:
     return title[:60] or node.get("entity_id", label)
 
 
-_PATH_EDGE_TYPES = frozenset({
-    "HAS_SYMPTOM", "INDICATES", "CAN_HAVE", "REQUIRES_PART", "CONFIRMED", "FOR_PRODUCT",
-})
+_PATH_EDGE_TYPES = frozenset(
+    {
+        "HAS_SYMPTOM",
+        "INDICATES",
+        "CAN_HAVE",
+        "REQUIRES_PART",
+        "CONFIRMED",
+        "FOR_PRODUCT",
+    }
+)
 
 
 def filter_path_focus_graph(graph_data: dict[str, Any], *, path_only: bool = True) -> dict[str, Any]:
@@ -512,7 +553,8 @@ def filter_path_focus_graph(graph_data: dict[str, Any], *, path_only: bool = Tru
 
     kept_nodes = [n for n in nodes if n["id"] in path_ids]
     kept_edges = [
-        e for e in edges
+        e
+        for e in edges
         if e["source"] in path_ids
         and e["target"] in path_ids
         and (e.get("highlight") or e.get("type") in _PATH_EDGE_TYPES)
@@ -553,20 +595,24 @@ def diagnosis_map_steps(diagnosis: dict[str, Any] | None) -> list[dict[str, str]
     ]
     if parts:
         part = parts[0]
-        steps.append({
-            "stage": "4",
-            "label": "Resolution",
-            "value": part.get("name", "Part"),
-            "meta": part.get("part_number", ""),
-        })
+        steps.append(
+            {
+                "stage": "4",
+                "label": "Resolution",
+                "value": part.get("name", "Part"),
+                "meta": part.get("part_number", ""),
+            }
+        )
     resolutions = diagnosis.get("historical_resolutions") or []
     if resolutions:
-        steps.append({
-            "stage": str(len(steps) + 1),
-            "label": "Precedent",
-            "value": (resolutions[0].get("description") or "")[:42],
-            "meta": resolutions[0].get("resolution_date", ""),
-        })
+        steps.append(
+            {
+                "stage": str(len(steps) + 1),
+                "label": "Precedent",
+                "value": (resolutions[0].get("description") or "")[:42],
+                "meta": resolutions[0].get("resolution_date", ""),
+            }
+        )
     return steps
 
 
@@ -781,12 +827,8 @@ def _pyvis_head_assets(pyvis_html: str) -> str:
     chunks: list[str] = []
     for source in (head_content, body_content):
         chunks.extend(re.findall(r"<link[^>]*vis-network[^>]*/?>", source, re.IGNORECASE))
-        chunks.extend(
-            re.findall(r"<script[^>]*vis-network[^>]*>.*?</script>", source, re.DOTALL | re.IGNORECASE)
-        )
-        chunks.extend(
-            re.findall(r"<style[^>]*>[\s\S]*?#mynetwork[\s\S]*?</style>", source, re.IGNORECASE)
-        )
+        chunks.extend(re.findall(r"<script[^>]*vis-network[^>]*>.*?</script>", source, re.DOTALL | re.IGNORECASE))
+        chunks.extend(re.findall(r"<style[^>]*>[\s\S]*?#mynetwork[\s\S]*?</style>", source, re.IGNORECASE))
 
     seen: set[str] = set()
     unique = []
@@ -961,9 +1003,7 @@ def render_diagnosis_map_html(
     pyvis_raw = _sanitize_pyvis_html(net.generate_html(notebook=False))
 
     steps = diagnosis_map_steps(diagnosis)
-    product = html.escape(
-        (diagnosis or {}).get("product_name") or (diagnosis or {}).get("product_id") or "Diagnosis"
-    )
+    product = html.escape((diagnosis or {}).get("product_name") or (diagnosis or {}).get("product_id") or "Diagnosis")
     conf = (diagnosis or {}).get("confidence", 0)
     escalate = (diagnosis or {}).get("should_escalate", False)
     status_label = "Escalate" if escalate else "Resolved"
@@ -975,15 +1015,15 @@ def render_diagnosis_map_html(
         arrow = '<div class="dm-arrow">→</div>' if i < len(steps) - 1 else ""
         stepper_html += f"""
         <div class="dm-step">
-          <div class="dm-step-num">{html.escape(step['stage'])}</div>
-          <div class="dm-step-label">{html.escape(step['label'])}</div>
-          <div class="dm-step-value">{html.escape(step['value'])}</div>
-          <div class="dm-step-meta">{html.escape(step['meta'])}</div>
+          <div class="dm-step-num">{html.escape(step["stage"])}</div>
+          <div class="dm-step-label">{html.escape(step["label"])}</div>
+          <div class="dm-step-value">{html.escape(step["value"])}</div>
+          <div class="dm-step-meta">{html.escape(step["meta"])}</div>
         </div>{arrow}"""
 
     legend_html = "".join(
         f'<span class="dm-legend-item"><i style="background:{color}"></i>'
-        f'{html.escape(name)} <em>{html.escape(desc)}</em></span>'
+        f"{html.escape(name)} <em>{html.escape(desc)}</em></span>"
         for name, color, desc in _legend_items()
     )
 
@@ -1077,7 +1117,8 @@ def render_pyvis_html(
         directed=True,
         notebook=False,
     )
-    net.set_options("""
+    net.set_options(
+        """
     {
       "nodes": {
         "font": {"size": 13, "face": "Arial"},
@@ -1108,7 +1149,9 @@ def render_pyvis_html(
         "keyboard": true
       }
     }
-    """ % ("true" if physics else "false"))
+    """
+        % ("true" if physics else "false")
+    )
 
     for node in graph_data.get("nodes", []):
         color = node.get("color", "#CCCCCC")

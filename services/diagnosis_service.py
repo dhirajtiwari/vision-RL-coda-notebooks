@@ -23,10 +23,7 @@ from integrations.case_management import create_case_from_escalation
 
 
 def _out_of_warranty_message(warranty: dict) -> str:
-    return (
-        f"Warranty check: {warranty.get('reason')}. "
-        "Please contact support for out-of-warranty options."
-    )
+    return f"Warranty check: {warranty.get('reason')}. Please contact support for out-of-warranty options."
 
 
 def run_full_diagnosis(

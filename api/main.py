@@ -18,21 +18,29 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import json
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from agents.diagnosis_graph import run_diagnosis
 from api.schemas import ClaimStatus, DiagnoseRequest, DiagnoseResponse, GraphSubgraphResponse
+from config.settings import settings
+
+# Admin pipeline imports for enterprise control
+from graph.enterprise_pipeline.pipelines.knowledge_etl import run_knowledge_etl
+from graph.enterprise_pipeline.pipelines.smoke_validation import run_smoke_validation
+from graph.enterprise_pipeline.pipelines.staging_promotion import run_staging_promotion
+from graph.graph_rag import list_products as list_all_products
 from graph.graph_visualization import (
     diagnosis_subgraph_from_result,
     get_diagnosis_subgraph,
     get_ontology_schema,
     get_product_subgraph,
 )
-from config.settings import settings
 from graph.neo4j_client import close_driver, verify_connection
-from graph.graph_rag import list_products as list_all_products
 from integrations.claims_workflow import (
     get_claim,
     list_submitted_claims,
@@ -44,14 +52,6 @@ from integrations.warranty_eligibility import check_warranty_eligibility
 from services.diagnosis_service import run_full_diagnosis
 from utils.connector_status import integration_status
 from utils.lineage_store import list_batches
-
-# Admin pipeline imports for enterprise control
-from graph.enterprise_pipeline.orchestrator import run_all
-from graph.enterprise_pipeline.pipelines.knowledge_etl import run_knowledge_etl
-from graph.enterprise_pipeline.pipelines.smoke_validation import run_smoke_validation
-from graph.enterprise_pipeline.pipelines.staging_promotion import run_staging_promotion
-import json
-from pathlib import Path
 
 logger = logging.getLogger("diagnostics.api")
 
@@ -132,9 +132,7 @@ def graph_diagnosis_subgraph(
     if not verify_connection():
         raise HTTPException(503, "Neo4j unavailable")
     ids = [s.strip() for s in symptom_ids.split(",") if s.strip()]
-    return GraphSubgraphResponse(
-        **get_diagnosis_subgraph(product_id, symptom_ids=ids, failure_mode_id=failure_mode_id)
-    )
+    return GraphSubgraphResponse(**get_diagnosis_subgraph(product_id, symptom_ids=ids, failure_mode_id=failure_mode_id))
 
 
 @app.get("/claims")
@@ -234,10 +232,11 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
 # - Approval required (simulates change control board)
 # - Audit via lineage + simple admin log
 # - Onboarding supports new products without breaking existing catalog
-# - Complications addressed: data quality (smoke), rollback (re-run previous batch), 
+# - Complications addressed: data quality (smoke), rollback (re-run previous batch),
 #   incremental vs full, visibility before production impact on live diagnosis.
 
 ADMIN_REVIEW_STATE: dict = {"reviewed": False, "last_report": None, "last_smoke_ok": False}
+
 
 @app.post("/admin/pipeline/dry-run-etl")
 def admin_dry_run_etl() -> dict:
@@ -255,8 +254,9 @@ def admin_dry_run_etl() -> dict:
         "sources": report.sources,
         "product_count": report.product_count,
         "errors": report.errors,
-        "message": "Review the source counts and errors before proceeding to validation."
+        "message": "Review the source counts and errors before proceeding to validation.",
     }
+
 
 @app.post("/admin/pipeline/validate")
 def admin_validate() -> dict:
@@ -269,8 +269,11 @@ def admin_validate() -> dict:
         "passed": smoke.passed,
         "failed": smoke.failed,
         "details": smoke.details[-20:],
-        "message": "All critical scenarios must pass before promotion." if not smoke.ok else "Smoke passed. Ready for human review."
+        "message": "All critical scenarios must pass before promotion."
+        if not smoke.ok
+        else "Smoke passed. Ready for human review.",
     }
+
 
 @app.get("/admin/pipeline/review")
 def admin_review() -> dict:
@@ -283,14 +286,16 @@ def admin_review() -> dict:
         "smoke_passed": smoke_ok,
         "reviewed": ADMIN_REVIEW_STATE.get("reviewed", False),
         "recommendation": "Review source counts, entity impact, and test results. Check 'Reviewed' before promoting.",
-        "can_promote": smoke_ok and ADMIN_REVIEW_STATE.get("reviewed", False)
+        "can_promote": smoke_ok and ADMIN_REVIEW_STATE.get("reviewed", False),
     }
+
 
 @app.post("/admin/pipeline/approve-review")
 def admin_approve_review() -> dict:
     """Admin explicitly approves the reviewed changes (enterprise gate)."""
     ADMIN_REVIEW_STATE["reviewed"] = True
     return {"status": "approved", "message": "Changes reviewed and approved. Promotion now allowed."}
+
 
 @app.post("/admin/pipeline/promote")
 def admin_promote() -> dict:
@@ -305,10 +310,11 @@ def admin_promote() -> dict:
     return {
         "stage": "promotion",
         "promoted": promo.promoted,
-        "batch_id": getattr(promo, 'batch_id', None),
-        "entity_counts": getattr(promo, 'entity_counts', {}),
-        "message": "Knowledge base updated. New products and data are now live for diagnosis."
+        "batch_id": getattr(promo, "batch_id", None),
+        "entity_counts": getattr(promo, "entity_counts", {}),
+        "message": "Knowledge base updated. New products and data are now live for diagnosis.",
     }
+
 
 @app.post("/admin/onboard-product")
 def admin_onboard_product(payload: dict) -> dict:
@@ -355,8 +361,9 @@ def admin_onboard_product(payload: dict) -> dict:
         "status": "staged",
         "product_id": payload["product_id"],
         "message": "Product added to staging catalog. Run Dry-run ETL → Validate → Review → Promote to incorporate into GraphRAG.",
-        "catalog_products": len(catalog.get("products", []))
+        "catalog_products": len(catalog.get("products", [])),
     }
+
 
 @app.get("/admin/pipeline/status")
 def admin_pipeline_status() -> dict:
@@ -374,10 +381,11 @@ def admin_pipeline_status() -> dict:
         "catalog_stats": {
             "path": str(settings.enterprise_catalog_file),
             "exists": settings.enterprise_catalog_file.exists(),
-            "products": catalog_products
+            "products": catalog_products,
         },
-        "lineage_last": list_batches(limit=3)
+        "lineage_last": list_batches(limit=3),
     }
+
 
 @app.get("/products")
 def get_products():
@@ -394,15 +402,17 @@ def get_products():
                 {"product_id": "oem-lg-wm4000", "name": "LG WM4000HWA Front Load Washer"},
             ]
         return {"products": products}
-    except Exception as e:
+    except Exception:
         # Comprehensive fallback
-        return {"products": [
-            {"product_id": "wm-001", "name": "Front Load Washing Machine 8kg"},
-            {"product_id": "dw-001", "name": "Built-in Dishwasher 12 Place Setting"},
-            {"product_id": "mw-001", "name": "Convection Microwave 25L"},
-            {"product_id": "oem-sam-wf45", "name": "Samsung WF45T6000AW Front Load Washer"},
-            {"product_id": "oem-lg-wm4000", "name": "LG WM4000HWA Front Load Washer"},
-        ]}
+        return {
+            "products": [
+                {"product_id": "wm-001", "name": "Front Load Washing Machine 8kg"},
+                {"product_id": "dw-001", "name": "Built-in Dishwasher 12 Place Setting"},
+                {"product_id": "mw-001", "name": "Convection Microwave 25L"},
+                {"product_id": "oem-sam-wf45", "name": "Samsung WF45T6000AW Front Load Washer"},
+                {"product_id": "oem-lg-wm4000", "name": "LG WM4000HWA Front Load Washer"},
+            ]
+        }
 
 
 if __name__ == "__main__":

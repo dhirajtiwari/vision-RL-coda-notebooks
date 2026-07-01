@@ -9,16 +9,17 @@ from __future__ import annotations
 import json
 import sqlite3
 import uuid
+from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 from config.settings import settings
 
 
 def _utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class OperationalStore:
@@ -184,9 +185,7 @@ class OperationalStore:
                     (status,),
                 ).fetchall()
             else:
-                rows = conn.execute(
-                    "SELECT * FROM escalations ORDER BY created_at DESC"
-                ).fetchall()
+                rows = conn.execute("SELECT * FROM escalations ORDER BY created_at DESC").fetchall()
         return [self._escalation_from_row(r) for r in rows]
 
     def save_escalation(

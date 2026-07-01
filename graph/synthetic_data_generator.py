@@ -144,10 +144,30 @@ def build_washing_machine() -> ProductKnowledge:
         ),
     ]
     diagnostic_steps = [
-        DiagnosticStep(step_id="wm-d01", description="Run empty spin cycle and listen for motor engagement.", order=1, expected_outcome="Motor hums but drum does not rotate"),
-        DiagnosticStep(step_id="wm-d02", description="Inspect drive belt through rear access panel.", order=2, expected_outcome="Belt slack, fraying, or missing"),
-        DiagnosticStep(step_id="wm-d03", description="Check drain filter and run pump test mode.", order=3, expected_outcome="Pump does not activate or makes grinding noise"),
-        DiagnosticStep(step_id="wm-d04", description="Inspect suspension rods for play and oil leakage.", order=4, expected_outcome="Rods loose or shocks leaking fluid"),
+        DiagnosticStep(
+            step_id="wm-d01",
+            description="Run empty spin cycle and listen for motor engagement.",
+            order=1,
+            expected_outcome="Motor hums but drum does not rotate",
+        ),
+        DiagnosticStep(
+            step_id="wm-d02",
+            description="Inspect drive belt through rear access panel.",
+            order=2,
+            expected_outcome="Belt slack, fraying, or missing",
+        ),
+        DiagnosticStep(
+            step_id="wm-d03",
+            description="Check drain filter and run pump test mode.",
+            order=3,
+            expected_outcome="Pump does not activate or makes grinding noise",
+        ),
+        DiagnosticStep(
+            step_id="wm-d04",
+            description="Inspect suspension rods for play and oil leakage.",
+            order=4,
+            expected_outcome="Rods loose or shocks leaking fluid",
+        ),
     ]
     parts = [
         Part(part_id="wm-p01", name="Drive Belt Assembly", part_number="AH-DB-8842", estimated_cost_usd=28.50),
@@ -232,10 +252,30 @@ def build_dishwasher() -> ProductKnowledge:
         ),
     ]
     diagnostic_steps = [
-        DiagnosticStep(step_id="dw-d01", description="Run rinse-only cycle and measure outlet water temperature.", order=1, expected_outcome="Water stays below 40°C"),
-        DiagnosticStep(step_id="dw-d02", description="Inspect drain hose for kinks behind kick plate.", order=2, expected_outcome="Hose pinched or filled with grease buildup"),
-        DiagnosticStep(step_id="dw-d03", description="Remove lower spray arm and check impeller chamber.", order=3, expected_outcome="Foreign object visible or impeller does not spin freely"),
-        DiagnosticStep(step_id="dw-d04", description="Test detergent dispenser solenoid with multimeter.", order=4, expected_outcome="No continuity on wax motor solenoid"),
+        DiagnosticStep(
+            step_id="dw-d01",
+            description="Run rinse-only cycle and measure outlet water temperature.",
+            order=1,
+            expected_outcome="Water stays below 40°C",
+        ),
+        DiagnosticStep(
+            step_id="dw-d02",
+            description="Inspect drain hose for kinks behind kick plate.",
+            order=2,
+            expected_outcome="Hose pinched or filled with grease buildup",
+        ),
+        DiagnosticStep(
+            step_id="dw-d03",
+            description="Remove lower spray arm and check impeller chamber.",
+            order=3,
+            expected_outcome="Foreign object visible or impeller does not spin freely",
+        ),
+        DiagnosticStep(
+            step_id="dw-d04",
+            description="Test detergent dispenser solenoid with multimeter.",
+            order=4,
+            expected_outcome="No continuity on wax motor solenoid",
+        ),
     ]
     parts = [
         Part(part_id="dw-p01", name="Heating Element", part_number="CW-HE-4412", estimated_cost_usd=45.00),
@@ -319,10 +359,30 @@ def build_microwave() -> ProductKnowledge:
         ),
     ]
     diagnostic_steps = [
-        DiagnosticStep(step_id="mw-d01", description="Heat cup of water for 60 seconds on high power.", order=1, expected_outcome="Water temperature unchanged"),
-        DiagnosticStep(step_id="mw-d02", description="Inspect waveguide cover for burn marks or holes.", order=2, expected_outcome="Charring or missing mica section"),
-        DiagnosticStep(step_id="mw-d03", description="Run convection bake at 180°C and listen for fan.", order=3, expected_outcome="No airflow; fan motor silent"),
-        DiagnosticStep(step_id="mw-d04", description="Check door switch continuity with door closed.", order=4, expected_outcome="Interlock switch fails continuity test"),
+        DiagnosticStep(
+            step_id="mw-d01",
+            description="Heat cup of water for 60 seconds on high power.",
+            order=1,
+            expected_outcome="Water temperature unchanged",
+        ),
+        DiagnosticStep(
+            step_id="mw-d02",
+            description="Inspect waveguide cover for burn marks or holes.",
+            order=2,
+            expected_outcome="Charring or missing mica section",
+        ),
+        DiagnosticStep(
+            step_id="mw-d03",
+            description="Run convection bake at 180°C and listen for fan.",
+            order=3,
+            expected_outcome="No airflow; fan motor silent",
+        ),
+        DiagnosticStep(
+            step_id="mw-d04",
+            description="Check door switch continuity with door closed.",
+            order=4,
+            expected_outcome="Interlock switch fails continuity test",
+        ),
     ]
     parts = [
         Part(part_id="mw-p01", name="Magnetron Assembly", part_number="HP-MG-7700", estimated_cost_usd=95.00),
