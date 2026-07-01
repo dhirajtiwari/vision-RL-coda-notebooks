@@ -13,7 +13,6 @@ from config.settings import settings
 from graph import reliability
 from graph.diagnostic_engine import (
     get_diagnostic_steps,
-    get_diagnostic_steps_for_failure_mode,
     get_diagnostic_tree,
     resolve_dynamic_steps,
 )
@@ -140,16 +139,54 @@ def _load_json_catalog() -> dict[str, Any]:
         return json.load(f)
 
 
+def _static_product_list() -> list[dict[str, Any]]:
+    """Neo4j-free product catalog derived from the OEM blueprints.
+
+    Used as a graceful fallback when Neo4j is unreachable (CI runners and
+    local dev machines without Docker). Keeps the app functional for product
+    detection and UI listing without a live graph.
+    """
+    from graph.oem_product_catalog import build_oem_enterprise_catalog
+
+    catalog = build_oem_enterprise_catalog()
+    rows: list[dict[str, Any]] = []
+    for entry in catalog.get("products", []):
+        prod = entry.get("product", entry)
+        rows.append(
+            {
+                "product_id": prod.get("product_id"),
+                "name": prod.get("name"),
+                "category": prod.get("category"),
+                "brand": prod.get("brand"),
+            }
+        )
+    rows.sort(key=lambda r: r.get("name") or "")
+    return rows
+
+
 def list_products() -> list[dict[str, Any]]:
-    driver = get_driver()
-    with driver.session() as session:
-        result = session.run("""
-            MATCH (p:Product)
-            RETURN p.product_id AS product_id, p.name AS name,
-                   p.category AS category, p.brand AS brand
-            ORDER BY p.name
-        """)
-        return [dict(r) for r in result]
+    """List products from Neo4j, falling back to the static OEM catalog.
+
+    Falls back gracefully when Neo4j is unreachable so the application and its
+    test suite work without a running graph database (CI, Docker-less dev).
+    """
+    try:
+        driver = get_driver()
+        with driver.session() as session:
+            result = session.run("""
+                MATCH (p:Product)
+                RETURN p.product_id AS product_id, p.name AS name,
+                       p.category AS category, p.brand AS brand
+                ORDER BY p.name
+            """)
+            rows = [dict(r) for r in result]
+        if rows:
+            return rows
+        # Empty graph (not yet populated) — use static catalog.
+        return _static_product_list()
+    except Exception:
+        # Neo4j unreachable — degrade gracefully to the static catalog.
+        return _static_product_list()
 
 
 PRODUCT_KEYWORDS: dict[str, list[str]] = {
@@ -171,10 +208,7 @@ PRODUCT_KEYWORDS: dict[str, list[str]] = {
 
 def score_products_from_message(user_message: str) -> dict[str, int]:
     message = user_message.lower()
-    return {
-        product_id: sum(1 for term in terms if term in message)
-        for product_id, terms in PRODUCT_KEYWORDS.items()
-    }
+    return {product_id: sum(1 for term in terms if term in message) for product_id, terms in PRODUCT_KEYWORDS.items()}
 
 
 def detect_product(user_message: str) -> dict[str, Any] | None:
@@ -219,8 +253,7 @@ def resolve_product_for_diagnosis(
         bound = products.get(product_id)
         bound_name = bound["name"] if bound else product_id
         warnings.append(
-            f"Your message indicates **{detected['name']}**, overriding the bound product "
-            f"**{bound_name}**."
+            f"Your message indicates **{detected['name']}**, overriding the bound product **{bound_name}**."
         )
         effective_asset_id = None if asset_product_id and asset_product_id != detected["product_id"] else asset_id
         if effective_asset_id is None:
@@ -250,7 +283,8 @@ def resolve_product_for_diagnosis(
 def match_symptoms(product_id: str, user_message: str) -> list[dict[str, Any]]:
     driver = get_driver()
     with driver.session() as session:
-        symptoms = session.run("""
+        symptoms = session.run(
+            """
             MATCH (p:Product {product_id: $product_id})-[:HAS_SYMPTOM]->(s:Symptom)
             RETURN s.symptom_id AS symptom_id, s.description AS description,
                    s.severity AS severity,
@@ -258,7 +292,9 @@ def match_symptoms(product_id: str, user_message: str) -> list[dict[str, Any]]:
                    s.source_record_id AS source_record_id,
                    s.source_document_uri AS source_document_uri,
                    s.approval_status AS approval_status
-        """, product_id=product_id)
+        """,
+            product_id=product_id,
+        )
         symptom_list = [dict(r) for r in symptoms]
 
     corpus = [s["description"] for s in symptom_list]
@@ -336,16 +372,15 @@ def _composite_confidence(
         if sid in score_by_id and edge is not None:
             graph_conf = max(graph_conf, float(edge))
 
-    strength = reliability.recommendation_strength(
-        overall, graph_conf, language_conf, dominance_ratio=dominance_ratio
-    )
+    strength = reliability.recommendation_strength(overall, graph_conf, language_conf, dominance_ratio=dominance_ratio)
     return round(overall, 2), round(graph_conf, 2), round(language_conf, 2), strength, dominance_ratio
 
 
 def list_failure_modes(product_id: str) -> list[dict[str, Any]]:
     driver = get_driver()
     with driver.session() as session:
-        result = session.run("""
+        result = session.run(
+            """
             MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)
             RETURN fm.failure_mode_id AS failure_mode_id,
                    fm.name AS name,
@@ -353,7 +388,9 @@ def list_failure_modes(product_id: str) -> list[dict[str, Any]]:
                    fm.estimated_repair_time_minutes AS repair_minutes,
                    fm.safety_notes AS safety_notes
             ORDER BY fm.name
-        """, product_id=product_id)
+        """,
+            product_id=product_id,
+        )
         return [dict(r) for r in result]
 
 
@@ -410,14 +447,21 @@ def rank_failure_modes(product_id: str, symptom_ids: list[str]) -> list[dict[str
     if not symptom_ids:
         failures = list_failure_modes(product_id)
         return [
-            {**fm, "indications": [], "total_confidence": 0, "link_count": 0,
-             "aggregate_confidence": 0.0, "posterior": 0.0}
+            {
+                **fm,
+                "indications": [],
+                "total_confidence": 0,
+                "link_count": 0,
+                "aggregate_confidence": 0.0,
+                "posterior": 0.0,
+            }
             for fm in failures
         ]
 
     driver = get_driver()
     with driver.session() as session:
-        result = session.run("""
+        result = session.run(
+            """
             MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)
             OPTIONAL MATCH (s:Symptom)-[ind:INDICATES]->(fm)
             WHERE s.symptom_id IN $symptom_ids
@@ -439,13 +483,14 @@ def rank_failure_modes(product_id: str, symptom_ids: list[str]) -> list[dict[str
                    size([ (fm)<-[:CONFIRMED]-(ev) | ev ]) AS evidence_count,
                    size([ (ds:DiagnosticStep)-[:CONFIRMS]->(fm) | ds ]) AS step_count
             ORDER BY total_confidence DESC, link_count DESC
-        """, product_id=product_id, symptom_ids=symptom_ids)
+        """,
+            product_id=product_id,
+            symptom_ids=symptom_ids,
+        )
         ranked = []
         for record in result:
             row = dict(record)
-            row["aggregate_confidence"] = round(
-                row["total_confidence"] / max(len(symptom_ids), 1), 2
-            )
+            row["aggregate_confidence"] = round(row["total_confidence"] / max(len(symptom_ids), 1), 2)
             ranked.append(row)
 
     return _apply_fmea_and_posteriors(ranked, symptom_ids)
@@ -671,7 +716,8 @@ def diagnose(
     # for context but must not fabricate a competing failure mode. Fall back to
     # the single best match if nothing clears the bar.
     strong_symptom_ids = [
-        s["symptom_id"] for s in matched_symptoms
+        s["symptom_id"]
+        for s in matched_symptoms
         if float(s.get("match_score", 0.0)) >= settings.symptom_match_min_score
     ]
     symptom_ids = strong_symptom_ids or [s["symptom_id"] for s in matched_symptoms[:1]]
@@ -697,16 +743,12 @@ def diagnose(
         # separation signal, not a raw symptom count).
         posterior_margin = 1.0
         if len(ranked) >= 2:
-            posterior_margin = (ranked[0].get("posterior", 0.0) or 0.0) - (
-                ranked[1].get("posterior", 0.0) or 0.0
-            )
+            posterior_margin = (ranked[0].get("posterior", 0.0) or 0.0) - (ranked[1].get("posterior", 0.0) or 0.0)
         ambiguous = posterior_margin < settings.diagnosis_ambiguity_margin
         strong_graph = graph_confidence >= 0.85 and not ambiguous
 
         should_escalate = critical or (
-            confidence < settings.escalation_confidence_threshold
-            and not strong_graph
-            and (weak_language or ambiguous)
+            confidence < settings.escalation_confidence_threshold and not strong_graph and (weak_language or ambiguous)
         )
         escalation_reason = ""
         if ambiguous and not strong_graph:
@@ -722,13 +764,9 @@ def diagnose(
                 "escalating for human review."
             )
         elif should_escalate and ambiguous:
-            escalation_reason = (
-                "Multiple symptom patterns matched — escalating for human confirmation."
-            )
+            escalation_reason = "Multiple symptom patterns matched — escalating for human confirmation."
         elif should_escalate:
-            escalation_reason = (
-                f"Overall confidence ({confidence:.0%}) below threshold — escalating to human agent."
-            )
+            escalation_reason = f"Overall confidence ({confidence:.0%}) below threshold — escalating to human agent."
 
     top_fm_id = top["failure_mode_id"] if top else None
     evidence = []
@@ -760,36 +798,25 @@ def diagnose(
 
     top_posterior = float(top.get("posterior", 1.0)) if top else 1.0
     predicted_parts = (
-        predict_parts(pid, top_fm_id, sku_id=sku_id or None, fm_posterior=top_posterior)
-        if top_fm_id else []
+        predict_parts(pid, top_fm_id, sku_id=sku_id or None, fm_posterior=top_posterior) if top_fm_id else []
     )
     parts = predicted_parts or get_parts_for_product(pid, top_fm_id)
 
     provenance_trail: list[dict[str, Any]] = []
     if settings.enable_provenance:
         for s in matched_symptoms[:3]:
-            provenance_trail.append(
-                provenance_evidence_line("Symptom", s.get("symptom_id", ""), s)
-            )
+            provenance_trail.append(provenance_evidence_line("Symptom", s.get("symptom_id", ""), s))
         if top:
             fm_props = enrich_entity_props("FailureMode", top.get("failure_mode_id", ""), top)
-            provenance_trail.append(
-                provenance_evidence_line("FailureMode", top.get("failure_mode_id", ""), fm_props)
-            )
+            provenance_trail.append(provenance_evidence_line("FailureMode", top.get("failure_mode_id", ""), fm_props))
         for step in steps[:2]:
             step_props = enrich_entity_props("DiagnosticStep", step.get("step_id", ""), step)
-            provenance_trail.append(
-                provenance_evidence_line("DiagnosticStep", step.get("step_id", ""), step_props)
-            )
+            provenance_trail.append(provenance_evidence_line("DiagnosticStep", step.get("step_id", ""), step_props))
         for part in predicted_parts[:2]:
             part_props = enrich_entity_props("Part", part.get("part_id", ""), part)
-            provenance_trail.append(
-                provenance_evidence_line("Part", part.get("part_id", ""), part_props)
-            )
+            provenance_trail.append(provenance_evidence_line("Part", part.get("part_id", ""), part_props))
         for res in resolutions[:1]:
-            res_props = enrich_entity_props(
-                "HistoricalResolution", res.get("resolution_id", ""), res
-            )
+            res_props = enrich_entity_props("HistoricalResolution", res.get("resolution_id", ""), res)
             provenance_trail.append(
                 provenance_evidence_line("HistoricalResolution", res.get("resolution_id", ""), res_props)
             )
@@ -845,10 +872,7 @@ def format_diagnosis_response(result: DiagnosisResult) -> str:
         )
     lines.extend(["", "**Matched Symptoms:**"])
     for s in result.matched_symptoms[:3]:
-        lines.append(
-            f"- {s['description']} (severity: {s['severity']}, "
-            f"text match: {s.get('match_score', 0):.0%})"
-        )
+        lines.append(f"- {s['description']} (severity: {s['severity']}, text match: {s.get('match_score', 0):.0%})")
 
     if result.matched_error_codes:
         lines.extend(["", "**Matched Error Codes:**"])
@@ -857,16 +881,18 @@ def format_diagnosis_response(result: DiagnosisResult) -> str:
 
     if result.ranked_failure_modes:
         top = result.ranked_failure_modes[0]
-        lines.extend([
-            "",
-            f"**Most Likely Diagnosis (Failure Mode):** {top['name']}",
-            f"- {top['description']}",
-            f"- Estimated repair time: {top['repair_minutes']} minutes",
-            f"- Safety: {top['safety_notes']}",
-            f"- Diagnostic confidence: {result.confidence:.0%} "
-            f"(Bayesian posterior P(failure|symptoms) · strongest graph link "
-            f"{result.graph_confidence:.0%} · language match {result.language_confidence:.0%})",
-        ])
+        lines.extend(
+            [
+                "",
+                f"**Most Likely Diagnosis (Failure Mode):** {top['name']}",
+                f"- {top['description']}",
+                f"- Estimated repair time: {top['repair_minutes']} minutes",
+                f"- Safety: {top['safety_notes']}",
+                f"- Diagnostic confidence: {result.confidence:.0%} "
+                f"(Bayesian posterior P(failure|symptoms) · strongest graph link "
+                f"{result.graph_confidence:.0%} · language match {result.language_confidence:.0%})",
+            ]
+        )
         if top.get("action_priority"):
             lines.append(
                 f"- FMEA risk: Action Priority **{top.get('action_priority')}** · "
@@ -877,8 +903,7 @@ def format_diagnosis_response(result: DiagnosisResult) -> str:
             lines.append("- Differential (ranked by posterior):")
             for fm in result.ranked_failure_modes[:3]:
                 lines.append(
-                    f"  - {fm['name']} — {float(fm.get('posterior', 0)):.0%} "
-                    f"(AP {fm.get('action_priority', '?')})"
+                    f"  - {fm['name']} — {float(fm.get('posterior', 0)):.0%} (AP {fm.get('action_priority', '?')})"
                 )
 
     if result.impacted_components:
@@ -922,11 +947,13 @@ def format_diagnosis_response(result: DiagnosisResult) -> str:
             lines.append(f"- {res['description']} ({res['resolution_date']})")
 
     if result.should_escalate:
-        lines.extend([
-            "",
-            f"**Escalation:** {result.escalation_reason}",
-            "A human agent will review this case.",
-        ])
+        lines.extend(
+            [
+                "",
+                f"**Escalation:** {result.escalation_reason}",
+                "A human agent will review this case.",
+            ]
+        )
     else:
         lines.extend(["", "**Status:** Resolved at automated tier (no escalation needed)."])
 

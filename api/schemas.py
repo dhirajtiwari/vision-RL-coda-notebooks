@@ -1,10 +1,10 @@
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class ClaimStatus(str, Enum):
+class ClaimStatus(StrEnum):
     """Allowed lifecycle states for a warranty claim (API boundary allow-list)."""
 
     submitted = "submitted"

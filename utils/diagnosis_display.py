@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from graph.provenance import enrich_entity_props, provenance_evidence_line
+from graph.provenance import provenance_evidence_line
 
 
 def format_traceability_lines(trail: list[dict[str, Any]], *, limit: int = 8) -> list[str]:
@@ -40,22 +40,26 @@ def grounding_records(diagnosis: dict[str, Any]) -> list[dict[str, str]]:
     """Tabular evidence grounding for executives and auditors."""
     rows: list[dict[str, str]] = []
     for pt in enrich_provenance_trail(diagnosis.get("provenance_trail") or []):
-        rows.append({
-            "Evidence": pt.get("entity_type", ""),
-            "Record ID": pt.get("entity_id") or pt.get("source_record_id", ""),
-            "Source System": pt.get("source_system", ""),
-            "Document / URI": pt.get("source_document_uri", "") or "—",
-            "Approval": pt.get("approval_status", "") or "—",
-        })
+        rows.append(
+            {
+                "Evidence": pt.get("entity_type", ""),
+                "Record ID": pt.get("entity_id") or pt.get("source_record_id", ""),
+                "Source System": pt.get("source_system", ""),
+                "Document / URI": pt.get("source_document_uri", "") or "—",
+                "Approval": pt.get("approval_status", "") or "—",
+            }
+        )
     for ev in diagnosis.get("evidence") or []:
         if not any(ev in r.get("Record ID", "") for r in rows):
-            rows.append({
-                "Evidence": "Graph query",
-                "Record ID": "—",
-                "Source System": "Neo4j",
-                "Document / URI": ev[:120],
-                "Approval": "runtime",
-            })
+            rows.append(
+                {
+                    "Evidence": "Graph query",
+                    "Record ID": "—",
+                    "Source System": "Neo4j",
+                    "Document / URI": ev[:120],
+                    "Approval": "runtime",
+                }
+            )
     return rows
 
 
@@ -82,19 +86,20 @@ def reasoning_mermaid(diagnosis: dict[str, Any]) -> str:
     if sym_nodes:
         for i in range(len(sym_nodes)):
             lines.append(f"    P --> S{i}")
-        join = sym_nodes[0].split("[")[0].strip()
         if len(sym_nodes) > 1:
             lines.append(f"    {sym_nodes[0].split('[')[0].strip()} --> FM")
             lines.append(f"    {sym_nodes[1].split('[')[0].strip()} --> FM")
         else:
-            lines.append(f"    S0 --> FM")
+            lines.append("    S0 --> FM")
     else:
-        lines.append('    P --> FM')
-    lines.extend([
-        f'    FM["Diagnosis: {fm_name}<br/>Confidence {conf:.0%}"]',
-        f'    PT["Recommended part: {part_name}"]',
-        '    FM --> PT',
-    ])
+        lines.append("    P --> FM")
+    lines.extend(
+        [
+            f'    FM["Diagnosis: {fm_name}<br/>Confidence {conf:.0%}"]',
+            f'    PT["Recommended part: {part_name}"]',
+            "    FM --> PT",
+        ]
+    )
     resolutions = diagnosis.get("historical_resolutions") or []
     if resolutions:
         res = (resolutions[0].get("description") or "")[:45].replace('"', "'")
@@ -108,11 +113,13 @@ def knowledge_sources_summary(profile: dict[str, Any] | None) -> list[dict[str, 
         return []
     rows = []
     for src, count in (profile.get("source_counts") or {}).items():
-        rows.append({
-            "Enterprise source": src,
-            "Knowledge records": str(count),
-            "Role": _source_role(src),
-        })
+        rows.append(
+            {
+                "Enterprise source": src,
+                "Knowledge records": str(count),
+                "Role": _source_role(src),
+            }
+        )
     return rows
 
 
@@ -199,7 +206,7 @@ def executive_summary_markdown(
     escalate = diagnosis.get("should_escalate", False)
 
     lines = [
-        f"### Diagnosis summary",
+        "### Diagnosis summary",
         f"**Customer report:** {user_prompt[:200] or '—'}",
         f"**Product:** {product}",
     ]
@@ -226,11 +233,13 @@ def executive_summary_markdown(
 
     graph_conf = diagnosis.get("graph_confidence", 0)
     lang_conf = diagnosis.get("language_confidence", 0)
-    lines.extend([
-        "",
-        f"**Conclusion:** {fm_name} _(overall {conf:.0%} · graph {graph_conf:.0%} · language {lang_conf:.0%})_",
-        f"**Action:** {'Escalate to human agent' if escalate else 'Automated resolution path'}",
-    ])
+    lines.extend(
+        [
+            "",
+            f"**Conclusion:** {fm_name} _(overall {conf:.0%} · graph {graph_conf:.0%} · language {lang_conf:.0%})_",
+            f"**Action:** {'Escalate to human agent' if escalate else 'Automated resolution path'}",
+        ]
+    )
     if graph_conf and lang_conf and graph_conf > lang_conf + 0.25:
         lines.append(
             "> _Graph ontology strongly supports this diagnosis; language match is the limiting factor — "
@@ -240,14 +249,16 @@ def executive_summary_markdown(
         lines.append(f"**Escalation reason:** {diagnosis['escalation_reason']}")
 
     if knowledge_profile:
-        lines.extend([
-            "",
-            f"**Knowledge base for this product:** "
-            f"{knowledge_profile.get('symptom_count', 0)} symptoms · "
-            f"{knowledge_profile.get('failure_mode_count', 0)} failure modes · "
-            f"{knowledge_profile.get('part_count', 0)} parts · "
-            f"ETL batch `{knowledge_profile.get('etl_batch_id', 'n/a')}`",
-        ])
+        lines.extend(
+            [
+                "",
+                f"**Knowledge base for this product:** "
+                f"{knowledge_profile.get('symptom_count', 0)} symptoms · "
+                f"{knowledge_profile.get('failure_mode_count', 0)} failure modes · "
+                f"{knowledge_profile.get('part_count', 0)} parts · "
+                f"ETL batch `{knowledge_profile.get('etl_batch_id', 'n/a')}`",
+            ]
+        )
 
     for w in diagnosis.get("warnings") or []:
         lines.append(f"> ⚠️ {w}")

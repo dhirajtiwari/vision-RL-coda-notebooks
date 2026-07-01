@@ -2,11 +2,10 @@
 
 from __future__ import annotations
 
-import math
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
 
 OUT = Path(__file__).resolve().parent.parent / "diagrams"
@@ -93,7 +92,16 @@ def draw_full_knowledge_graph():
         _box(ax, x, y, 2.4, 0.8, t, "#EDE7F6", 7)
         _arrow(ax, 7, 8.55, x, y + 0.4, "HAS_DIAGNOSTIC_STEP", "#888888")
 
-    _box(ax, 7, 0.6, 5.5, 0.7, "HistoricalResolution: Replaced drive belt (2025-11-12) → CONFIRMED → wm-fm01", "#FCE4D6", 8)
+    _box(
+        ax,
+        7,
+        0.6,
+        5.5,
+        0.7,
+        "HistoricalResolution: Replaced drive belt (2025-11-12) → CONFIRMED → wm-fm01",
+        "#FCE4D6",
+        8,
+    )
     _arrow(ax, 3.5, 3.9, 7, 0.95, "CONFIRMED", "#C55A11")
 
     legend = [
@@ -124,7 +132,7 @@ def draw_query_flow():
     )
 
     steps = [
-        (6, 9.2, "Customer: \"My washing machine won't spin\nand water stays in the drum\"", "#D5E8F0"),
+        (6, 9.2, 'Customer: "My washing machine won\'t spin\nand water stays in the drum"', "#D5E8F0"),
         (6, 8.0, "Step 1: detect_product\nPython keywords → wm-001", "#FFFFFF"),
         (6, 6.9, "Cypher #1: list_products()\nMATCH (p:Product) RETURN ...", "#E2EFDA"),
         (6, 5.8, "Step 2a: match_symptoms\nCypher #2: HAS_SYMPTOM → Symptom nodes", "#E2EFDA"),
@@ -138,7 +146,7 @@ def draw_query_flow():
     ]
 
     sizes = [1.0, 0.8, 0.9, 0.9, 0.8, 0.9, 0.9, 0.8, 0.8, 0.8, 0.8]
-    for (x, y, text, color), h in zip(steps, sizes):
+    for (x, y, text, color), h in zip(steps, sizes, strict=False):
         _box(ax, x, y, 5.2, h, text, color, 8)
 
     for y1, y2 in [(9.2, 8.4), (8.0, 7.25), (6.9, 6.25), (5.8, 5.15), (4.7, 4.05), (3.6, 2.95), (2.5, 1.7)]:
@@ -179,7 +187,9 @@ def draw_matched_path():
     _arrow(ax, 6, 5.8, 2.5, 2.7, "CAN_HAVE", "#999")
     _arrow(ax, 6, 5.8, 9.5, 2.7, "CAN_HAVE", "#999")
 
-    _box(ax, 6, 0.7, 8.5, 0.9, "Winner: Worn Drive Belt · Confidence 46% · ESCALATE (below 65% threshold)", "#FCE4D6", 9)
+    _box(
+        ax, 6, 0.7, 8.5, 0.9, "Winner: Worn Drive Belt · Confidence 46% · ESCALATE (below 65% threshold)", "#FCE4D6", 9
+    )
 
     fig.tight_layout()
     fig.savefig(OUT / "wm-001-matched-path.png", dpi=180, bbox_inches="tight", facecolor="white")

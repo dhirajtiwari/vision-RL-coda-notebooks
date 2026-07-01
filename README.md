@@ -283,6 +283,63 @@ python -m pytest tests/test_product_resolution.py
 python -m pytest tests/test_enterprise_scenarios.py
 ```
 
+> Tests run **without Neo4j** — `list_products()` degrades gracefully to the static
+> OEM catalog when the graph is unreachable, so CI and Docker-less machines pass.
+
+---
+
+## Developer Setup (hooks, lint, auto-fix)
+
+All tooling is **cross-platform (Windows / macOS / Linux) and Docker-free**.
+
+### One-time setup after cloning
+
+```bash
+python -m venv venv
+source venv/bin/activate            # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+pre-commit install                  # commit hook (auto-fix on every commit)
+pre-commit install -t pre-push      # pre-push hook (runs full test suite)
+
+cd frontend && npm install && cd ..
+```
+
+### What the hooks do automatically
+
+| Stage | Tool | Action |
+|-------|------|--------|
+| **pre-commit** | ruff | Python lint **+ auto-fix** |
+| **pre-commit** | ruff-format | Python formatting |
+| **pre-commit** | ESLint | Frontend lint **+ auto-fix** (`--fix`) |
+| **pre-commit** | tsc | Frontend TypeScript typecheck |
+| **pre-commit** | hygiene | Trailing whitespace, EOF, YAML/JSON/TOML, line endings, merge conflicts |
+| **pre-push** | pytest | Full backend test suite |
+
+Hooks **auto-fix in place** — if a commit is blocked, the files are already fixed;
+just re-stage (`git add -u`) and commit again.
+
+### Manual commands
+
+```bash
+# Python
+ruff check . --fix          # lint + auto-fix
+ruff format .               # format
+pytest tests/ -q            # tests
+
+# Frontend
+cd frontend
+npm run lint:fix            # ESLint auto-fix
+npm run typecheck           # tsc --noEmit
+npm run build               # production build
+
+# Run every hook on the whole repo
+pre-commit run --all-files
+```
+
+These are the **exact same checks CI runs** — passing locally means CI passes.
+
 ---
 
 ## Configuration

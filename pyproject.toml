@@ -1,0 +1,39 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Python tooling config (ruff = linter + formatter, replaces flake8/black/isort)
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = [
+    "venv",
+    ".venv",
+    "ui-streamlit-archive",   # archived, not maintained
+    "frontend",               # JS/TS handled by ESLint
+]
+
+[tool.ruff.lint]
+# Focused, high-signal, auto-fixable rule set — avoids noisy churn.
+select = [
+    "F",    # pyflakes  — real bugs (undefined names, unused imports)
+    "I",    # isort     — import ordering (auto-fix)
+    "UP",   # pyupgrade — modern syntax (auto-fix)
+    "B",    # bugbear   — likely bugs
+    "C4",   # comprehensions
+    "SIM",  # simplifications
+]
+ignore = [
+    "B008",   # function call in default arg (FastAPI Depends pattern)
+    "SIM108", # ternary — readability preference
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["F401", "F811"]   # test fixtures / re-imports
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"
