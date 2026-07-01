@@ -354,6 +354,7 @@ cp .env.example .env
 | `ENABLE_PROVENANCE` | `true` | Source-system trail on diagnoses |
 | `ESCALATION_CONFIDENCE_THRESHOLD` | `0.65` | Escalate below this |
 | `API_PORT` | `8080` | FastAPI port |
+| `ADMIN_API_TOKEN` | `""` (open) | When set, all `/admin/*` routes require a matching `X-Admin-Token` header. **Set this for any non-local deployment.** Frontend sends `NEXT_PUBLIC_ADMIN_TOKEN`. |
 
 ---
 

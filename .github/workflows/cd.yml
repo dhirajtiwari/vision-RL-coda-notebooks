@@ -22,7 +22,6 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_REPO: ${{ github.repository }}
 
 jobs:
   deploy-staging:

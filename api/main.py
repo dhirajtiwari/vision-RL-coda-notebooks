@@ -19,9 +19,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import json
-from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -238,7 +237,22 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
 ADMIN_REVIEW_STATE: dict = {"reviewed": False, "last_report": None, "last_smoke_ok": False}
 
 
-@app.post("/admin/pipeline/dry-run-etl")
+def require_admin(x_admin_token: str | None = Header(default=None)) -> None:
+    """Guard for /admin/* routes.
+
+    When `settings.admin_api_token` is set, every admin request must present a
+    matching `X-Admin-Token` header. When it is empty (local demo default),
+    access is open. This prevents unauthenticated graph mutation / file writes
+    in any non-local deployment while keeping the local demo friction-free.
+    """
+    expected = settings.admin_api_token
+    if not expected:
+        return  # open access in local/demo mode
+    if not x_admin_token or x_admin_token != expected:
+        raise HTTPException(status_code=401, detail="Invalid or missing admin token")
+
+
+@app.post("/admin/pipeline/dry-run-etl", dependencies=[Depends(require_admin)])
 def admin_dry_run_etl() -> dict:
     """Stage 1: Fetch & transform without touching Neo4j. Returns preview report."""
     report = run_knowledge_etl(load_neo4j=False, dry_run=True)
@@ -258,7 +272,7 @@ def admin_dry_run_etl() -> dict:
     }
 
 
-@app.post("/admin/pipeline/validate")
+@app.post("/admin/pipeline/validate", dependencies=[Depends(require_admin)])
 def admin_validate() -> dict:
     """Stage 2: Run smoke tests against current graph. Critical enterprise gate."""
     smoke = run_smoke_validation()
@@ -275,7 +289,7 @@ def admin_validate() -> dict:
     }
 
 
-@app.get("/admin/pipeline/review")
+@app.get("/admin/pipeline/review", dependencies=[Depends(require_admin)])
 def admin_review() -> dict:
     """Stage 3: Human review gate. Shows what is staged and requires explicit approval."""
     last = ADMIN_REVIEW_STATE.get("last_report") or {}
@@ -290,14 +304,14 @@ def admin_review() -> dict:
     }
 
 
-@app.post("/admin/pipeline/approve-review")
+@app.post("/admin/pipeline/approve-review", dependencies=[Depends(require_admin)])
 def admin_approve_review() -> dict:
     """Admin explicitly approves the reviewed changes (enterprise gate)."""
     ADMIN_REVIEW_STATE["reviewed"] = True
     return {"status": "approved", "message": "Changes reviewed and approved. Promotion now allowed."}
 
 
-@app.post("/admin/pipeline/promote")
+@app.post("/admin/pipeline/promote", dependencies=[Depends(require_admin)])
 def admin_promote() -> dict:
     """Stage 4: Promote validated data to the live knowledge graph (Neo4j)."""
     if not ADMIN_REVIEW_STATE.get("last_smoke_ok"):
@@ -316,7 +330,7 @@ def admin_promote() -> dict:
     }
 
 
-@app.post("/admin/onboard-product")
+@app.post("/admin/onboard-product", dependencies=[Depends(require_admin)])
 def admin_onboard_product(payload: dict) -> dict:
     """
     Strategic onboarding for new products.
@@ -365,7 +379,7 @@ def admin_onboard_product(payload: dict) -> dict:
     }
 
 
-@app.get("/admin/pipeline/status")
+@app.get("/admin/pipeline/status", dependencies=[Depends(require_admin)])
 def admin_pipeline_status() -> dict:
     """Current state of the knowledge base onboarding process."""
     catalog_products = 0

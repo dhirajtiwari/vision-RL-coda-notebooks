@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { 
-  MessageCircle, Users, GitBranch, Activity, FileText, Send, RefreshCw, 
-  ChevronRight, Shield, Zap, AlertTriangle 
+import {
+  MessageCircle, Users, GitBranch, Activity, FileText, Send, RefreshCw,
+  ChevronRight, Shield, Zap, AlertTriangle
 } from 'lucide-react';
 import { AnimatePresence } from 'framer-motion';
 import { api } from '../lib/api';
@@ -225,9 +225,17 @@ export default function WarrantyGraphModern() {
   };
 
   // ===== ADMIN HANDLERS (Enterprise gated pipeline) =====
+  const ADMIN_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+  // Include the admin token header when configured (required by the API in
+  // non-local deployments; omitted for the open local demo).
+  const adminHeaders = (extra: Record<string, string> = {}): Record<string, string> => {
+    const token = process.env.NEXT_PUBLIC_ADMIN_TOKEN;
+    return token ? { ...extra, 'X-Admin-Token': token } : extra;
+  };
+
   const refreshAdminStatus = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/pipeline/status`).then(r => r.json());
+      const res = await fetch(`${ADMIN_BASE}/admin/pipeline/status`, { headers: adminHeaders() }).then(r => r.json());
       setAdminStatus(res);
     } catch (e) {
       toast.error("Failed to fetch admin status");
@@ -236,7 +244,7 @@ export default function WarrantyGraphModern() {
 
   const fetchReview = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/pipeline/review`).then(r => r.json());
+      const res = await fetch(`${ADMIN_BASE}/admin/pipeline/review`, { headers: adminHeaders() }).then(r => r.json());
       setAdminStatus((prev: any) => ({ ...prev, ...res }));
     } catch (e) {
       toast.error("Failed to load review");
@@ -245,8 +253,8 @@ export default function WarrantyGraphModern() {
 
   const handleOnboardProduct = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/onboard-product`, {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(onboardForm)
+      const res = await fetch(`${ADMIN_BASE}/admin/onboard-product`, {
+        method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(onboardForm)
       }).then(r => r.json());
       toast.success(res.message || "Product staged");
       refreshAdminStatus();
@@ -254,13 +262,13 @@ export default function WarrantyGraphModern() {
   };
 
   const handleDryRunETL = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/pipeline/dry-run-etl`, {method: 'POST'}).then(r => r.json());
+    await fetch(`${ADMIN_BASE}/admin/pipeline/dry-run-etl`, { method: 'POST', headers: adminHeaders() }).then(r => r.json());
     toast.info("Dry-run complete — review in Admin");
     refreshAdminStatus();
   };
 
   const handleValidate = async () => {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/pipeline/validate`, {method: 'POST'}).then(r => r.json());
+    const res = await fetch(`${ADMIN_BASE}/admin/pipeline/validate`, { method: 'POST', headers: adminHeaders() }).then(r => r.json());
     toast[res.ok ? "success" : "error"](res.message);
     refreshAdminStatus();
   };
@@ -271,14 +279,14 @@ export default function WarrantyGraphModern() {
   };
 
   const handleApprove = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/pipeline/approve-review`, {method: 'POST'});
+    await fetch(`${ADMIN_BASE}/admin/pipeline/approve-review`, { method: 'POST', headers: adminHeaders() });
     refreshAdminStatus();
     toast.success("Review approved — promotion unlocked");
   };
 
   const handlePromote = async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/admin/pipeline/promote`, {method: 'POST'}).then(r => r.json());
+      const res = await fetch(`${ADMIN_BASE}/admin/pipeline/promote`, { method: 'POST', headers: adminHeaders() }).then(r => r.json());
       if (res.error) toast.error(res.error);
       else toast.success(res.message);
       refreshAdminStatus();
@@ -316,9 +324,9 @@ export default function WarrantyGraphModern() {
 
     nodes.forEach((node) => {
       const nodeWithDimensions = node as any;
-      dagreGraph.setNode(node.id, { 
-        width: nodeWithDimensions.width || 180, 
-        height: nodeWithDimensions.height || 50 
+      dagreGraph.setNode(node.id, {
+        width: nodeWithDimensions.width || 180,
+        height: nodeWithDimensions.height || 50
       });
     });
 
@@ -667,8 +675,8 @@ export default function WarrantyGraphModern() {
             <div className="glass px-3 py-1 rounded-full flex items-center gap-2 border border-white/10">
               <Shield className="w-3.5 h-3.5" /> Graph-native • No LLM required
             </div>
-            <button 
-              onClick={toggleTheme} 
+            <button
+              onClick={toggleTheme}
               className="btn btn-ghost px-3 py-1 text-xs flex items-center gap-1 border border-white/10 dark:border-white/10 border-black/10 text-current"
               title="Toggle dark / light theme"
             >
@@ -1303,7 +1311,7 @@ export default function WarrantyGraphModern() {
                 {/* Stage 1: Onboard + Fetch */}
                 <div className="card p-6">
                   <div className="font-semibold mb-4 flex items-center gap-2">1. Onboard New Product &amp; Fetch (Dry Run)</div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Onboard Form */}
                     <div>
@@ -1324,7 +1332,7 @@ export default function WarrantyGraphModern() {
                 {/* Stage 2 + 3: Validate + Review Gate */}
                 <div className="card p-6">
                   <div className="font-semibold mb-4">2. Validate &amp; 3. Human Review Gate</div>
-                  
+
                   <div className="flex gap-3 mb-4">
                     <button onClick={handleValidate} className="btn btn-secondary">Run Smoke Validation</button>
                     <button onClick={handleReview} className="btn btn-secondary">Refresh Review</button>
@@ -1341,8 +1349,8 @@ export default function WarrantyGraphModern() {
                 {/* Stage 4: Promote */}
                 <div className="card p-6">
                   <div className="font-semibold mb-3">4. Promote to Live Knowledge Base</div>
-                  <button 
-                    onClick={handlePromote} 
+                  <button
+                    onClick={handlePromote}
                     disabled={!adminStatus?.can_promote}
                     className={`btn w-full ${adminStatus?.can_promote ? 'btn-primary' : 'opacity-50 cursor-not-allowed bg-white/5'}`}
                   >

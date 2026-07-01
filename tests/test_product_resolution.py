@@ -58,7 +58,8 @@ def test_composite_confidence_separates_posterior_and_language() -> None:
 
     # Overall may be boosted by dominance when posterior is dominant,
     # but language match quality must NOT be mixed into it.
-    # (Both should produce the same boosted value since they share the same ranked input.)\n    assert strong_overall == weak_overall
+    # (Both should produce the same boosted value since they share the same ranked input.)
+    assert strong_overall == weak_overall
     # Strongest engineering indication for the top failure mode is surfaced.
     assert strong_graph == 0.94
     # Language signal alone tracks the retrieval match score.

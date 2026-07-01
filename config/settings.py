@@ -41,6 +41,11 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8080
 
+    # Admin API protection. When set to a non-empty value, all /admin/* routes
+    # require a matching `X-Admin-Token` header. Left empty for the local demo
+    # (open access); MUST be set for any non-local deployment.
+    admin_api_token: str = ""
+
     escalation_confidence_threshold: float = 0.65
     symptom_match_min_score: float = 0.30
     # Minimum gap between the top two failure-mode posteriors for a "clear
