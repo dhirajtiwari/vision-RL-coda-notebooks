@@ -67,7 +67,10 @@ repos:
     hooks:
       - id: pytest
         name: pytest (full suite, pre-push)
-        entry: pytest tests/ -q
+        # Run tests, capture the real exit code, then restore any seed files the
+        # suite regenerates (pim_catalog.json only differs by a synced_at
+        # timestamp) so the working tree stays clean. Real test failures still block.
+        entry: bash -c 'pytest tests/ -q; ec=$?; git checkout -- data/enterprise_sources/pim_catalog.json 2>/dev/null || true; exit $ec'
         language: system
         pass_filenames: false
         stages: [pre-push]
