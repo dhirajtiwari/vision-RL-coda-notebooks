@@ -17,8 +17,8 @@
       "message": "Dishwasher leaves dishes wet and cold after the cycle",
       "expected_product_id": "dw-001",
       "min_confidence": 0.4,
-      "expect_escalate": true,
-      "notes": "Dominant heating-element match but confidence ~45% still below 0.65 threshold"
+      "expect_escalate": false,
+      "notes": "Dominant heating-element match with strong graph signal (graph_conf ~0.90, clear posterior leader) — no escalation under current refined rules (overall ~57%, strong_graph=True, not ambiguous)"
     },
     {
       "id": "ENT-003",
@@ -34,6 +34,7 @@
       "category": "failure_ranking",
       "message": "Washer drum does not spin during final cycle",
       "product_id": "wm-001",
+      "expected_product_id": "wm-001",
       "expected_top_failure": "Worn Drive Belt",
       "min_confidence": 0.3,
       "expect_escalate": null

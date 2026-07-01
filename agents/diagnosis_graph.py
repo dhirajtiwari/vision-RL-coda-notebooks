@@ -28,11 +28,18 @@ class AgentState(TypedDict):
 
 
 def node_detect_product(state: AgentState) -> AgentState:
-    product = tool_detect_product(state["user_message"])
+    from graph.graph_rag import resolve_product_for_diagnosis
+
+    product, _, effective_asset_id, _warnings = resolve_product_for_diagnosis(
+        state["user_message"],
+        product_id=state.get("product_id"),
+        asset_id=state.get("asset_id"),
+    )
     return {
         **state,
         "product_id": product["product_id"] if product else state.get("product_id"),
         "product_name": product["name"] if product else state.get("product_name"),
+        "asset_id": effective_asset_id,
     }
 
 

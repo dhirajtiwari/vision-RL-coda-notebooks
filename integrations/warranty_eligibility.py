@@ -7,6 +7,7 @@ from datetime import date
 from typing import Any
 
 from config.settings import settings
+from domain.models import WarrantyDecision
 from graph.enterprise_pipeline.http_client import get_json
 
 CLAIMS_FIXTURE = settings.enterprise_sources_dir / "claims_history.json"
@@ -66,15 +67,15 @@ def check_warranty_eligibility(
         elif not parts_covered:
             coverage_notes.append("Policy excludes parts coverage")
 
-    return {
-        "eligible": eligible,
-        "reason": reason,
-        "warranty_status": status,
-        "warranty_expiry": expiry,
-        "policy_reference": policy.get("policy_id"),
-        "covers_parts": parts_covered,
-        "covers_labor": labor_covered,
-        "estimated_parts_cost_usd": round(parts_cost, 2) if predicted_parts else None,
-        "coverage_notes": coverage_notes,
-        "source_system": "CRM+Claims",
-    }
+    return WarrantyDecision(
+        eligible=eligible,
+        reason=reason,
+        warranty_status=status,
+        warranty_expiry=expiry,
+        policy_reference=policy.get("policy_id"),
+        covers_parts=parts_covered,
+        covers_labor=labor_covered,
+        estimated_parts_cost_usd=round(parts_cost, 2) if predicted_parts else None,
+        coverage_notes=coverage_notes,
+        source_system="CRM+Claims",
+    ).model_dump()

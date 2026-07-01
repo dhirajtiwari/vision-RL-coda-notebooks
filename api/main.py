@@ -9,17 +9,20 @@ Run: python -m api.main
 
 from __future__ import annotations
 
+import logging
 import sys
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import JSONResponse
 
 from agents.diagnosis_graph import run_diagnosis
-from api.schemas import DiagnoseRequest, DiagnoseResponse, GraphSubgraphResponse
+from api.schemas import ClaimStatus, DiagnoseRequest, DiagnoseResponse, GraphSubgraphResponse
 from graph.graph_visualization import (
     diagnosis_subgraph_from_result,
     get_diagnosis_subgraph,
@@ -27,8 +30,7 @@ from graph.graph_visualization import (
     get_product_subgraph,
 )
 from config.settings import settings
-from graph.neo4j_client import verify_connection
-from integrations.case_management import create_case_from_escalation
+from graph.neo4j_client import close_driver, verify_connection
 from integrations.claims_workflow import (
     get_claim,
     list_submitted_claims,
@@ -37,13 +39,33 @@ from integrations.claims_workflow import (
 )
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
+from services.diagnosis_service import run_full_diagnosis
+from utils.connector_status import integration_status
 from utils.lineage_store import list_batches
+
+logger = logging.getLogger("diagnostics.api")
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    """Application lifespan: close the shared Neo4j driver on shutdown."""
+    yield
+    close_driver()
+
 
 app = FastAPI(
     title="Enterprise Diagnostics API",
     description="GraphRAG warranty diagnosis with CRM enrichment and provenance",
     version="1.0.0",
+    lifespan=_lifespan,
 )
+
+
+@app.exception_handler(Exception)
+async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Return a controlled 500 instead of leaking stack traces to clients."""
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})
 
 
 @app.get("/health")
@@ -59,6 +81,11 @@ def health() -> dict:
 @app.get("/lineage/batches")
 def lineage_batches(limit: int = 20) -> dict:
     return {"batches": list_batches(limit=limit)}
+
+
+@app.get("/integrations/status")
+def integrations_status() -> dict:
+    return integration_status()
 
 
 @app.get("/graph/ontology", response_model=GraphSubgraphResponse)
@@ -126,8 +153,8 @@ def submit_claim(req: DiagnoseRequest) -> dict:
 
 
 @app.patch("/claims/{claim_id}/status")
-def patch_claim_status(claim_id: str, status: str, agent_notes: str = "") -> dict:
-    claim = update_claim_status(claim_id, status, agent_notes=agent_notes)
+def patch_claim_status(claim_id: str, status: ClaimStatus, agent_notes: str = "") -> dict:
+    claim = update_claim_status(claim_id, status.value, agent_notes=agent_notes)
     if not claim:
         raise HTTPException(404, f"Claim not found: {claim_id}")
     return claim
@@ -144,37 +171,34 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
     warranty: dict = {}
     if crm.get("enriched") and crm.get("warranty_status"):
         warranty = check_warranty_eligibility(crm)
-        if not warranty.get("eligible"):
-            return DiagnoseResponse(
-                response=f"Warranty check: {warranty.get('reason')}. Please contact support for out-of-warranty options.",
-                crm_context=crm,
-                warranty=warranty,
-            )
 
-    result = run_diagnosis(req.message, product_id=product_id, asset_id=req.asset_id)
-    diagnosis = result.get("diagnosis") or {}
-    provenance_trail = diagnosis.get("provenance_trail", [])
+    outcome = run_full_diagnosis(
+        req.message,
+        product_id=product_id,
+        asset_id=req.asset_id,
+        crm_context=crm,
+        warranty=warranty,
+    )
 
-    case_id = result.get("case_id")
-    if result.get("escalated") and crm.get("customer_id") and crm.get("asset_id"):
-        case = create_case_from_escalation(
-            customer_id=crm["customer_id"],
-            asset_id=crm["asset_id"],
-            user_message=req.message,
-            diagnosis=diagnosis,
+    if outcome.warranty_blocked:
+        return DiagnoseResponse(
+            response=outcome.response,
+            crm_context=crm,
+            warranty=outcome.warranty,
         )
-        if case.get("case_id"):
-            case_id = case["case_id"]
+
+    diagnosis = outcome.diagnosis
+    provenance_trail = diagnosis.get("provenance_trail", [])
 
     graph_subgraph = diagnosis.get("graph_subgraph")
     if not graph_subgraph and diagnosis.get("product_id"):
         graph_subgraph = diagnosis_subgraph_from_result(diagnosis)
 
     return DiagnoseResponse(
-        response=result["response"],
+        response=outcome.response,
         diagnosis=diagnosis,
-        escalated=result.get("escalated", False),
-        case_id=case_id,
+        escalated=outcome.escalated,
+        case_id=outcome.case_id,
         crm_context=crm,
         warranty=warranty,
         provenance_trail=provenance_trail,

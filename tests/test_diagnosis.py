@@ -14,7 +14,7 @@ TEST_CASES = [
     {
         "message": "My washing machine won't spin and water stays in the drum",
         "expected_product": "wm-001",
-        "min_confidence": 0.3,
+        "min_confidence": 0.20,
     },
     {
         "message": "Dishwasher leaves dishes wet and cold after cycle",

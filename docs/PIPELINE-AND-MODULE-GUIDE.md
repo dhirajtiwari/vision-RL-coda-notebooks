@@ -25,11 +25,40 @@ See **`35-layer-architecture-symmetric.dot`** — six balanced layers:
 | Layer | Responsibility | Key modules |
 |-------|----------------|-------------|
 | **L6 Experience** | UI, API, dashboards | `ui/app.py`, `api/main.py` |
-| **L5 Orchestration** | Agent, claims, warranty gate | `diagnosis_graph.py`, `claims_workflow.py` |
-| **L4 Intelligence** | GraphRAG, trees, parts | `graph_rag.py`, `diagnostic_engine.py`, `parts_predictor.py` |
+| **L5 Orchestration** | Shared service, agent, claims, warranty gate | `services/diagnosis_service.py`, `diagnosis_graph.py`, `claims_workflow.py` |
+| **L4 Intelligence** | GraphRAG, deterministic reliability scoring, trees, parts | `graph_rag.py`, `reliability.py`, `diagnostic_engine.py`, `parts_predictor.py` |
 | **L3 Integration** | Enterprise connectors | `*_connector.py`, `crm_enrichment.py`, mock API |
 | **L2 Knowledge Store** | Neo4j load & query | `populate_graph.py`, `neo4j_client.py` |
 | **L1 Data Platform** | Blueprints, ETL, fixtures | `oem_product_catalog.py`, `orchestrator.py` |
+
+Typed domain contracts live in `domain/models.py` (`DiagnosisOutcome`, `WarrantyDecision`).
+
+---
+
+## Deterministic diagnosis — the Neo4j graph is the evidence source
+
+See **`38-reliability-diagnosis-engine.dot`**. Diagnosis, confidence, and part
+prediction are **deterministic and reproducible**, grounded in established
+reliability-engineering methods (**FMEA / FMECA** — MIL-STD-1629A, AIAG-VDA 2019;
+and **naive-Bayes diagnostic inference** — Pearl 1988; Russell & Norvig, *AIMA*).
+
+**Crucially, every input is read directly from Neo4j graph relationships** — the
+graph is what makes the diagnosis accurate:
+
+| Signal | Graph source (Cypher) |
+|--------|------------------------|
+| Severity (S) | `(:Symptom)-[:INDICATES]->(fm)` — worst `Symptom.severity` |
+| Occurrence (O) | count of `(:Claim\|:HistoricalResolution)-[:CONFIRMED]->(fm)` |
+| Detection (D) | count of `(:DiagnosticStep)-[:CONFIRMS]->(fm)` |
+| Likelihood `P(sᵢ\|fm)` | `(:Symptom)-[:INDICATES]->(fm).confidence` |
+| Part need `P(part\|fm)` | `(fm)-[:REQUIRES_PART]->(:Part).probability` |
+
+The engine computes `RPN = S×O×D` and an **Action Priority**, then a normalised
+posterior `P(fm | symptoms) ∝ P(fm)·∏ᵢ P(sᵢ|fm)` across candidate failure modes.
+Overall confidence is that posterior (not a hand-tuned blend); part-need
+likelihood is `posterior × source_reliability × P(part|fm)`. Implementation:
+`graph/reliability.py` (pure/testable) wired into `graph_rag.rank_failure_modes`
+and `parts_predictor.predict_parts`.
 
 ---
 

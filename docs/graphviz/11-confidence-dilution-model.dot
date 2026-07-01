@@ -1,8 +1,14 @@
-// Figure 11: Confidence dilution — why 94% becomes 47% with two symptoms
-digraph ConfidenceDilution {
+// Figure 11: Deterministic Confidence Model — FMEA + naive-Bayes posterior
+// (graph/reliability.py + graph/graph_rag.py rank_failure_modes / _composite_confidence)
+//
+// Replaces the earlier "confidence dilution" formula
+// (total_confidence / len(symptom_ids)), which diluted confidence purely by
+// symptom count. Confidence is now a normalised Bayesian posterior grounded in
+// FMEA ratings — deterministic and reproducible for a given graph state.
+digraph DeterministicConfidence {
   graph [
     rankdir=LR
-    label="Figure 11: Confidence Dilution Model (graph/graph_rag.py rank_failure_modes)"
+    label="Figure 11: Deterministic Confidence Model (FMEA S/O/D + naive-Bayes posterior)"
     labelloc=t
     fontsize=14
     fontname="Arial"
@@ -11,31 +17,43 @@ digraph ConfidenceDilution {
   node [fontname="Arial", fontsize=10]
   edge [fontname="Arial", fontsize=9]
 
-  Formula [label="aggregate_confidence =\ntotal_confidence ÷ max(len(symptom_ids), 1)", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
-
-  subgraph cluster_t1 {
-    label="Turn 1 — 1 matched symptom"
+  subgraph cluster_fmea {
+    label="FMEA ratings (from graph evidence) — MIL-STD-1629A / AIAG-VDA 2019"
     style=dashed
-    S1 [label="symptom_ids = [wm-s01]", shape=box, fillcolor="#E2EFDA"]
-    E1 [label="Cypher: (wm-s01)-[INDICATES 0.94]->(wm-fm01)\ntotal_confidence = 0.94", shape=box, fillcolor="#E2EFDA"]
-    R1 [label="0.94 ÷ 1 = 0.94 (94%)\nshould_escalate = false", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
-    S1 -> E1 -> R1
+    Sev [label="Severity S (1-10)\n<- worst symptom severity", shape=box, style=filled, fillcolor="#E2EFDA"]
+    Occ [label="Occurrence O (1-10)\n<- count of CONFIRMED claims/resolutions", shape=box, style=filled, fillcolor="#E2EFDA"]
+    Det [label="Detection D (1-10)\n<- diagnostic-step coverage (CONFIRMS)", shape=box, style=filled, fillcolor="#E2EFDA"]
+    RPN [label="RPN = S x O x D\nAction Priority (High/Med/Low)", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+    Sev -> RPN
+    Occ -> RPN
+    Det -> RPN
   }
 
-  subgraph cluster_t2 {
-    label="Turn 2 — 2 matched symptoms"
+  subgraph cluster_bayes {
+    label="naive-Bayes diagnosis (Pearl 1988; Russell & Norvig, AIMA)"
     style=dashed
-    S2 [label="symptom_ids = [wm-s02, wm-s01]", shape=box, fillcolor="#FCE4D6"]
-    E2a [label="wm-s02 → wm-fm03 (0.85)\n(not top — lower total)", shape=box, fillcolor="#FCE4D6"]
-    E2b [label="wm-s01 → wm-fm01 (0.94)\nstill ranked #1", shape=box, fillcolor="#FCE4D6"]
-    R2 [label="0.94 ÷ 2 = 0.47 (47%)\nshould_escalate = true", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
-    S2 -> E2a
-    S2 -> E2b -> R2
+    Prior [label="Prior P(fm)\n= occurrence_prior(O)", shape=box, style=filled, fillcolor="#FFF2CC"]
+    Like [label="Likelihood P(s_i|fm)\n= INDICATES edge confidence\n(miss = 0.15 when no edge)", shape=box, style=filled, fillcolor="#FFF2CC"]
+    Post [label="Posterior\nP(fm|S) proportional to P(fm) * prod_i P(s_i|fm)\nnormalised across candidates", shape=box, style="rounded,filled", fillcolor="#BDD7EE"]
+    Prior -> Post
+    Like -> Post
   }
 
-  Threshold [label="ESCALATION_CONFIDENCE_THRESHOLD = 0.65\n(config/settings.py)", shape=note, fillcolor="#D5E8F0"]
+  Occ -> Prior [style=dotted, label="O -> prior"]
 
-  Formula -> S1 [style=dashed]
-  Formula -> S2 [style=dashed]
-  R2 -> Threshold [label="below threshold", color="#C00000"]
+  Overall [label="confidence = top posterior\n(diagnostic probability)", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+  GraphSig [label="graph_confidence =\nmax INDICATES edge for top fm", shape=box, style=filled, fillcolor="#DDEBF7"]
+  Lang    [label="language_confidence =\nretrieval match quality (TF-IDF/lexical)", shape=box, style=filled, fillcolor="#DDEBF7"]
+
+  Post -> Overall
+  Like -> GraphSig
+
+  Margin [label="ambiguity = (posterior_1 - posterior_2)\n< diagnosis_ambiguity_margin (0.15)", shape=diamond, style=filled, fillcolor="#FFF2CC"]
+  Gate [label="ESCALATE if critical OR\n(confidence < 0.65 AND not strong_graph\nAND (weak_language OR ambiguous))", shape=note, fillcolor="#F8CBAD"]
+
+  Overall -> Margin
+  Post -> Margin [style=dotted]
+  Margin -> Gate
+  GraphSig -> Gate [style=dotted, label="strong_graph = edge>=0.85 & clear leader"]
+  Lang -> Gate [style=dotted]
 }

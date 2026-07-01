@@ -61,6 +61,65 @@ def get_diagnostic_tree(product_id: str) -> dict[str, Any]:
     }
 
 
+def get_diagnostic_steps(product_id: str) -> list[dict[str, Any]]:
+    """All ordered diagnostic steps for a product (product-level fallback)."""
+    driver = get_driver()
+    with driver.session() as session:
+        result = session.run("""
+            MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
+            RETURN ds.step_id AS step_id, ds.description AS description,
+                   ds.order AS step_order, ds.expected_outcome AS expected_outcome,
+                   ds.source_system AS source_system,
+                   ds.source_document_uri AS source_document_uri
+            ORDER BY ds.order
+        """, product_id=product_id)
+        return [dict(r) for r in result]
+
+
+def get_diagnostic_steps_for_failure_mode(
+    product_id: str,
+    failure_mode_id: str,
+) -> list[dict[str, Any]]:
+    """
+    Steps that CONFIRM a specific failure mode, with prerequisite steps prepended.
+
+    Returns all steps from step 1 up to and including the confirming step so
+    technicians always have full diagnostic context instead of jumping mid-sequence.
+    Falls back to all product steps when no confirming step exists.
+    """
+    driver = get_driver()
+    with driver.session() as session:
+        all_steps = [
+            dict(r) for r in session.run("""
+                MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
+                RETURN ds.step_id AS step_id, ds.description AS description,
+                       ds.order AS step_order, ds.expected_outcome AS expected_outcome,
+                       ds.source_system AS source_system,
+                       ds.source_document_uri AS source_document_uri
+                ORDER BY ds.order
+            """, product_id=product_id)
+        ]
+        confirming_ids = {
+            row["step_id"] for row in session.run("""
+                MATCH (ds:DiagnosticStep)-[:CONFIRMS]->(fm:FailureMode {failure_mode_id: $fm_id})
+                RETURN ds.step_id AS step_id
+            """, fm_id=failure_mode_id)
+        }
+
+    if not confirming_ids:
+        return all_steps
+
+    max_confirming_order = max(
+        (s["step_order"] for s in all_steps if s["step_id"] in confirming_ids),
+        default=None,
+    )
+    if max_confirming_order is None:
+        return all_steps
+
+    targeted = [s for s in all_steps if s["step_order"] <= max_confirming_order]
+    return targeted if targeted else all_steps
+
+
 def resolve_dynamic_steps(
     product_id: str,
     failure_mode_id: str | None,
@@ -73,8 +132,6 @@ def resolve_dynamic_steps(
     """
     tree = get_diagnostic_tree(product_id)
     if not tree["is_dynamic"] or not failure_mode_id:
-        from graph.graph_rag import get_diagnostic_steps_for_failure_mode
-
         return get_diagnostic_steps_for_failure_mode(product_id, failure_mode_id or "")
 
     confirm_map: dict[str, list[str]] = {}
@@ -106,8 +163,6 @@ def resolve_dynamic_steps(
         current = branch["to_step_id"]
 
     if not ordered:
-        from graph.graph_rag import get_diagnostic_steps_for_failure_mode
-
         return get_diagnostic_steps_for_failure_mode(product_id, failure_mode_id)
 
     return ordered

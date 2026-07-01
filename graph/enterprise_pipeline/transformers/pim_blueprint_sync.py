@@ -27,8 +27,11 @@ def sync_pim_fixture(
     target = target or settings.enterprise_sources_dir / "pim_catalog.json"
 
     pim_payload = {
-        "source_system": "SAP PLM / PIM (OEM blueprint sync)",
-        "synced_at": datetime.now(timezone.utc).isoformat(),
+        "source_system": "SAP PLM / PIM (simulated OEM blueprint sync)",
+        "simulation": True,
+        "note": "Synthetic fixture generated from graph.oem_product_catalog — "
+                "not a live SAP extract.",
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "catalog_metadata": catalog.get("catalog_metadata", {}),
         "products": catalog["products"],
     }

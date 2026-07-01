@@ -22,6 +22,7 @@
 | **35** | `35-layer-architecture-symmetric.dot` | `rendered/png/35-layer-architecture-symmetric.png` | **6-layer architecture** |
 | **36** | `36-end-to-end-pipeline-io.dot` | `rendered/png/36-end-to-end-pipeline-io.png` | **Pipeline I/O** |
 | **37** | `37-module-catalog-by-phase.dot` | `rendered/png/37-module-catalog-by-phase.png` | **Module catalog** |
+| **38** | `38-reliability-diagnosis-engine.dot` | `rendered/38-reliability-diagnosis-engine.png` | **Reliability engine** (FMEA + Bayesian) |
 
 SVG copies live alongside PNG under `rendered/svg/`.
 

@@ -15,11 +15,11 @@ digraph EscalationDecision {
 
   Q1 [label="product_id\nidentified?", shape=diamond, style=filled, fillcolor="#FFF2CC"]
   Q2 [label="any matched symptom\nseverity = critical?", shape=diamond, style=filled, fillcolor="#FFF2CC"]
-  Q3 [label="confidence < 0.65?\n(ESCALATION_CONFIDENCE_THRESHOLD)", shape=diamond, style=filled, fillcolor="#FFF2CC"]
+  Q3 [label="confidence (top posterior) < 0.65\nAND not strong_graph AND\n(weak_language OR ambiguous)?", shape=diamond, style=filled, fillcolor="#FFF2CC"]
 
   Esc1 [label="ESCALATE\nReason: unknown appliance", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
   Esc2 [label="ESCALATE\nReason: critical severity\n(e.g. mw-s01 microwave cold,\nmw-s02 arcing)", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
-  Esc3 [label="ESCALATE\nReason: low confidence\n(e.g. washer multi-symptom\n→ 46% aggregate)", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
+  Esc3 [label="ESCALATE\nReason: low posterior / ambiguous\n(competing failure modes:\nposterior margin < 0.15)", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
   Resolve [label="NO ESCALATION\nCustomer receives\nself-service steps", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
 
   Save [label="save_escalation()\nutils/escalation_store.py\n→ data/escalations.json", shape=box, style="rounded,filled", fillcolor="#FCE4D6"]

@@ -5,7 +5,6 @@ from diagnosis outcomes using graph-backed evidence.
 
 from __future__ import annotations
 
-import json
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -14,23 +13,7 @@ from config.settings import settings
 from graph.neo4j_client import get_driver
 from graph.parts_predictor import predict_parts
 from integrations.warranty_eligibility import check_warranty_eligibility
-
-
-def _claims_store_path():
-    return settings.enterprise_sources_dir / "claims_submissions.json"
-
-
-def _load_submissions() -> list[dict]:
-    path = _claims_store_path()
-    if not path.exists():
-        return []
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _save_submissions(claims: list[dict]) -> None:
-    path = _claims_store_path()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(claims, indent=2), encoding="utf-8")
+from utils.persistence import get_store
 
 
 def submit_claim_from_diagnosis(
@@ -85,10 +68,7 @@ def submit_claim_from_diagnosis(
         "graph_evidence": diagnosis.get("evidence", []),
     }
 
-    submissions = _load_submissions()
-    submissions.insert(0, claim)
-    _save_submissions(submissions)
-
+    get_store().save_claim(claim)
     _persist_claim_to_neo4j(claim)
     return claim
 
@@ -143,23 +123,15 @@ def _persist_claim_to_neo4j(claim: dict[str, Any]) -> None:
 
 
 def list_submitted_claims(limit: int = 50) -> list[dict]:
-    return _load_submissions()[:limit]
+    return get_store().list_claims(limit=limit)
 
 
 def get_claim(claim_id: str) -> dict | None:
-    for c in _load_submissions():
-        if c.get("claim_id") == claim_id:
-            return c
-    return None
+    return get_store().get_claim(claim_id)
 
 
 def update_claim_status(claim_id: str, status: str, *, agent_notes: str = "") -> dict | None:
-    submissions = _load_submissions()
-    for claim in submissions:
-        if claim.get("claim_id") == claim_id:
-            claim["status"] = status
-            claim["agent_notes"] = agent_notes
-            claim["updated_at"] = datetime.now(timezone.utc).isoformat()
-            _save_submissions(submissions)
-            return claim
-    return None
+    return get_store().update_claim(
+        claim_id,
+        {"status": status, "agent_notes": agent_notes},
+    )

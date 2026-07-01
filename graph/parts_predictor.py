@@ -1,6 +1,17 @@
 """
 Parts predictor: ranks replacement parts from failure mode, BOM components,
 SKU compatibility, and historical claim usage.
+
+Scoring is deterministic and probability-based rather than hand-tuned:
+
+    prediction_score = P(failure_mode | symptoms)          # diagnostic posterior
+                     * source_reliability                  # trust in the evidence path
+                     * P(part | failure_mode)              # BOM edge probability
+
+P(failure_mode | symptoms) is the naive-Bayes posterior from the diagnosis
+engine (graph/reliability.py). Each evidence path (direct BOM link, inferred
+component realisation, SKU compatibility, historical claim usage) carries a
+reliability weight reflecting how directly it implies the part is required.
 """
 
 from __future__ import annotations
@@ -9,12 +20,23 @@ from typing import Any
 
 from graph.neo4j_client import get_driver
 
+# Reliability of each evidence path = how strongly it implies the part is the
+# one actually required for the repair. Direct engineering BOM links are
+# authoritative; component-inferred and historical paths are corroborating.
+SOURCE_RELIABILITY: dict[str, float] = {
+    "REQUIRES_PART": 1.00,     # direct FailureMode -> Part BOM link
+    "CLAIM_PRECEDENT": 0.85,   # part used to resolve confirmed field claims
+    "BOM_COMPONENT": 0.70,     # part realises an impacted component
+    "SKU_FIT": 0.90,           # confirmed compatible with the asset's SKU
+}
+
 
 def predict_parts(
     product_id: str,
     failure_mode_id: str,
     *,
     sku_id: str | None = None,
+    fm_posterior: float = 1.0,
 ) -> list[dict[str, Any]]:
     """
     Enterprise parts prediction chain:
@@ -22,7 +44,12 @@ def predict_parts(
     FailureMode -[:IMPACTS_COMPONENT]-> Component -[:REALIZED_BY]-> Part
     SKU -[:COMPATIBLE_WITH]-> Part (when asset-bound)
     Claim -[:USED_PART]-> Part (historical precedent boost)
+
+    `fm_posterior` is the diagnosis posterior P(failure_mode | symptoms); it
+    scales every prediction so a part can never be reported as more likely than
+    the failure mode it treats.
     """
+    weight = max(float(fm_posterior), 0.0) or 1.0
     driver = get_driver()
     predictions: dict[str, dict[str, Any]] = {}
 
@@ -39,7 +66,10 @@ def predict_parts(
             product_id=product_id,
             fm_id=failure_mode_id,
         ):
-            _upsert_prediction(predictions, dict(row), base_score=row["probability"] or 0.9)
+            _upsert_prediction(
+                predictions, dict(row),
+                base_score=weight * SOURCE_RELIABILITY["REQUIRES_PART"] * (row["probability"] or 0.9),
+            )
 
         for row in session.run(
             """
@@ -54,7 +84,11 @@ def predict_parts(
             fm_id=failure_mode_id,
         ):
             rec = dict(row)
-            _upsert_prediction(predictions, rec, base_score=0.75, component=rec.get("component_name"))
+            _upsert_prediction(
+                predictions, rec,
+                base_score=weight * SOURCE_RELIABILITY["BOM_COMPONENT"],
+                component=rec.get("component_name"),
+            )
 
         if sku_id:
             for row in session.run(
@@ -69,7 +103,10 @@ def predict_parts(
                 product_id=product_id,
                 fm_id=failure_mode_id,
             ):
-                _upsert_prediction(predictions, dict(row), base_score=0.95, sku_fit=True)
+                _upsert_prediction(
+                    predictions, dict(row),
+                    base_score=weight * SOURCE_RELIABILITY["SKU_FIT"], sku_fit=True,
+                )
 
         for row in session.run(
             """
@@ -86,7 +123,8 @@ def predict_parts(
         ):
             rec = dict(row)
             _upsert_prediction(
-                predictions, rec, base_score=0.88,
+                predictions, rec,
+                base_score=weight * SOURCE_RELIABILITY["CLAIM_PRECEDENT"],
                 claim_precedent=rec.get("claim_id"),
             )
 
@@ -116,7 +154,7 @@ def _upsert_prediction(
             "estimated_cost_usd": row.get("estimated_cost_usd"),
             "quantity": row.get("quantity", 1),
             "is_primary": row.get("is_primary", False),
-            "prediction_score": base_score,
+            "prediction_score": round(float(base_score), 4),
             "evidence_sources": [row.get("source", "graph")],
             "impacted_components": [],
             "claim_precedents": [],

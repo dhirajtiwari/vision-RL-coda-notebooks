@@ -25,6 +25,11 @@ package-lock.json
 data/escalations.json
 data/simulated_cases.json
 data/lineage/
+data/*.db
+data/enterprise_sources/claims_submissions.json
+
+# Generated docs / diagrams
+docs/graphviz/rendered/
 
 # Build artifacts
 *.log

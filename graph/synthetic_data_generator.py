@@ -91,7 +91,16 @@ class KnowledgeGraphData(BaseModel):
     products: list[ProductKnowledge]
 
 
-def _export_catalog_dict(data: KnowledgeGraphData) -> dict:
+def build_authoritative_catalog() -> dict:
+    """
+    Single source of truth for the knowledge graph: the OEM enterprise catalog.
+
+    ``generate_knowledge_graph_data()`` produces a Pydantic-validated *core*
+    subset (the three base appliances) that is used as a schema self-check. The
+    authoritative artifact written to disk is the richer OEM enterprise catalog
+    — a superset built from the same base product builders plus enterprise
+    blueprint fields (models, SKUs, error codes, components, claim history).
+    """
     from graph.oem_product_catalog import build_oem_enterprise_catalog
 
     return build_oem_enterprise_catalog()
@@ -370,20 +379,27 @@ def generate_knowledge_graph_data() -> KnowledgeGraphData:
 
 
 def main() -> None:
-    data = generate_knowledge_graph_data()
-    catalog = _export_catalog_dict(data)
+    # Schema self-check: validate the core appliance models before exporting.
+    core = generate_knowledge_graph_data()
+
+    # Authoritative export = the OEM enterprise catalog (single source of truth).
+    catalog = build_authoritative_catalog()
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     OUTPUT_FILE.write_text(json.dumps(catalog, indent=2), encoding="utf-8")
 
     from graph.enterprise_pipeline.transformers.pim_blueprint_sync import sync_pim_fixture
 
     sync_pim_fixture(write_enterprise_catalog=True)
-    print(f"✅ Generated synthetic data: {OUTPUT_FILE}")
-    for item in data.products:
-        print(f"   • {item.product.name}")
+
+    print(f"✅ Generated authoritative catalog: {OUTPUT_FILE}")
+    print(f"   Core schema self-check passed: {len(core.products)} base product(s) validated")
+    for item in catalog.get("products", []):
+        product = item.get("product", {})
         print(
-            f"     {len(item.symptoms)} symptoms, {len(item.failure_modes)} failure modes, "
-            f"{len(item.diagnostic_steps)} steps, {len(item.parts)} parts"
+            f"   • {product.get('name', product.get('product_id', '?'))} "
+            f"({len(item.get('symptoms', []))} symptoms, "
+            f"{len(item.get('failure_modes', []))} failure modes, "
+            f"{len(item.get('parts', []))} parts)"
         )
 
 

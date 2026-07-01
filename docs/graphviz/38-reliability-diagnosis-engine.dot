@@ -1,0 +1,53 @@
+// Figure 38: Deterministic Reliability & Diagnosis Engine (FMEA + Bayesian + service layer)
+// Modules: graph/reliability.py, graph/graph_rag.py, graph/parts_predictor.py,
+//          services/diagnosis_service.py, domain/models.py
+digraph ReliabilityEngine {
+  graph [
+    rankdir=TB
+    label="Figure 38: Deterministic Reliability & Diagnosis Engine"
+    labelloc=t
+    fontsize=14
+    fontname="Arial"
+    bgcolor="white"
+  ]
+  node [fontname="Arial", fontsize=10, shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  edge [fontname="Arial", fontsize=9]
+
+  Msg [label="Customer message", fillcolor="#D5E8F0"]
+
+  subgraph cluster_service {
+    label="services/diagnosis_service.py (shared by API + UI)"
+    style=dashed
+    Gate [label="1. Warranty gate\n(if CRM-enriched & ineligible -> stop)", fillcolor="#FCE4D6"]
+    Diag [label="2. run_diagnosis (GraphRAG)"]
+    Esc  [label="3. Escalation handoff\n(create_case_from_escalation)", fillcolor="#FCE4D6"]
+    Gate -> Diag -> Esc
+  }
+
+  subgraph cluster_engine {
+    label="graph/reliability.py (deterministic scoring)"
+    style=dashed
+    Sev [label="Severity S\n<- symptom severity", fillcolor="#E2EFDA"]
+    Occ [label="Occurrence O\n<- CONFIRMED count", fillcolor="#E2EFDA"]
+    Det [label="Detection D\n<- CONFIRMS coverage", fillcolor="#E2EFDA"]
+    RPN [label="RPN = S x O x D\nAction Priority", fillcolor="#C6E0B4"]
+    Post [label="naive-Bayes posterior\nP(fm|S) prop P(fm) * prod P(s|fm)", fillcolor="#BDD7EE"]
+    Sev -> RPN
+    Occ -> RPN
+    Det -> RPN
+    Occ -> Post [label="prior"]
+  }
+
+  Parts [label="parts_predictor.py\nscore = posterior x source_reliability x P(part|fm)", fillcolor="#FFF2CC"]
+  Out [label="domain/models.py DiagnosisOutcome\n(response, diagnosis, escalated, case_id)", fillcolor="#C6E0B4"]
+
+  Msg -> Gate
+  Diag -> Sev [style=dotted, label="rank_failure_modes"]
+  Diag -> Occ [style=dotted]
+  Diag -> Det [style=dotted]
+  Post -> Parts [label="top posterior"]
+  RPN -> Out [style=dotted]
+  Post -> Out
+  Parts -> Out
+  Esc -> Out
+}

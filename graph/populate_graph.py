@@ -11,15 +11,20 @@ from typing import Any
 
 from config.settings import settings
 from graph.neo4j_client import get_driver
+from graph.provenance import manifest_provenance_for_entity
 
 
-def _provenance_props(catalog: dict[str, Any], entity_id: str) -> dict[str, Any]:
+def _provenance_props(
+    catalog: dict[str, Any],
+    entity_id: str,
+    entity_type: str,
+) -> dict[str, Any]:
     if not settings.enable_provenance:
         return {}
     prov = catalog.get("provenance", {}).get(entity_id, {})
-    if not prov:
-        return {}
-    return {k: v for k, v in prov.items() if v is not None}
+    if prov:
+        return {k: v for k, v in prov.items() if v is not None}
+    return manifest_provenance_for_entity(entity_type, entity_id)
 
 
 def create_constraints(tx) -> None:
@@ -56,7 +61,7 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
         for product_data in data.get("products", []):
             product = product_data["product"]
             product_id = product["product_id"]
-            p_prov = _provenance_props(data, product_id)
+            p_prov = _provenance_props(data, product_id, "Product")
 
             session.run(
                 """
@@ -74,7 +79,7 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
 
             for symptom in product_data.get("symptoms", []):
                 sid = symptom["symptom_id"]
-                s_prov = _provenance_props(data, sid)
+                s_prov = _provenance_props(data, sid, "Symptom")
                 session.run(
                     """
                     MERGE (s:Symptom {symptom_id: $symptom_id})
@@ -98,7 +103,7 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
 
             for fm in product_data.get("failure_modes", []):
                 fid = fm["failure_mode_id"]
-                f_prov = _provenance_props(data, fid)
+                f_prov = _provenance_props(data, fid, "FailureMode")
                 session.run(
                     """
                     MERGE (fm:FailureMode {failure_mode_id: $failure_mode_id})
@@ -124,7 +129,7 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
 
             for step in product_data.get("diagnostic_steps", []):
                 stid = step["step_id"]
-                d_prov = _provenance_props(data, stid)
+                d_prov = _provenance_props(data, stid, "DiagnosticStep")
                 session.run(
                     """
                     MERGE (ds:DiagnosticStep {step_id: $step_id})
@@ -145,15 +150,22 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                 counts["steps"] += 1
 
             for part in product_data.get("parts", []):
-                pt_prov = _provenance_props(data, part["part_id"])
+                pt_prov = _provenance_props(data, part["part_id"], "Part")
                 session.run(
                     """
                     MERGE (pt:Part {part_id: $part_id})
                     SET pt.name = $name, pt.part_number = $part_number,
                         pt.estimated_cost_usd = $estimated_cost_usd,
-                        pt.source_system = $source_system
+                        pt.source_system = $source_system,
+                        pt.source_record_id = $source_record_id,
+                        pt.source_document_uri = $source_document_uri
                     """,
-                    {**part, "source_system": pt_prov.get("source_system", "")},
+                    {
+                        **part,
+                        "source_system": pt_prov.get("source_system", ""),
+                        "source_record_id": pt_prov.get("source_record_id", part["part_id"]),
+                        "source_document_uri": pt_prov.get("source_document_uri", ""),
+                    },
                 )
 
             model = product_data.get("model")
@@ -332,7 +344,7 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
 
             for resolution in product_data.get("historical_resolutions", []):
                 rid = resolution["resolution_id"]
-                r_prov = _provenance_props(data, rid)
+                r_prov = _provenance_props(data, rid, "HistoricalResolution")
                 session.run(
                     """
                     MERGE (r:HistoricalResolution {resolution_id: $resolution_id})

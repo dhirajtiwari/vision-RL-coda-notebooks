@@ -32,7 +32,6 @@ app = FastAPI(
 )
 
 SOURCES = settings.enterprise_sources_dir
-CASES_FILE = settings.cases_file
 
 
 def _load(name: str) -> dict[str, Any]:
@@ -40,17 +39,6 @@ def _load(name: str) -> dict[str, Any]:
     if not path.exists():
         raise HTTPException(404, f"Fixture not found: {name}")
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _load_cases() -> list[dict[str, Any]]:
-    if not CASES_FILE.exists():
-        CASES_FILE.write_text("[]", encoding="utf-8")
-    return json.loads(CASES_FILE.read_text(encoding="utf-8"))
-
-
-def _save_cases(cases: list[dict[str, Any]]) -> None:
-    CASES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    CASES_FILE.write_text(json.dumps(cases, indent=2), encoding="utf-8")
 
 
 @app.get("/health")
@@ -112,7 +100,8 @@ class CaseCreate(BaseModel):
 
 @app.post("/api/cases")
 def create_case(body: CaseCreate) -> dict[str, Any]:
-    cases = _load_cases()
+    from utils.persistence import get_store
+
     case = {
         "case_id": f"CASE-{uuid.uuid4().hex[:8].upper()}",
         "created_at": datetime.now(timezone.utc).isoformat(),
@@ -120,14 +109,14 @@ def create_case(body: CaseCreate) -> dict[str, Any]:
         "source_system": "DiagnosticsPlatform",
         **body.model_dump(),
     }
-    cases.insert(0, case)
-    _save_cases(cases)
-    return case
+    return get_store().save_case(case)
 
 
 @app.get("/api/cases")
 def list_cases() -> dict[str, Any]:
-    return {"cases": _load_cases()}
+    from utils.persistence import get_store
+
+    return {"cases": get_store().list_cases()}
 
 
 if __name__ == "__main__":

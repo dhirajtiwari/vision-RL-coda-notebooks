@@ -9,6 +9,7 @@ from graph.graph_rag import (
     rank_failure_modes,
 )
 from graph.graph_visualization import diagnosis_subgraph_from_result
+from graph.knowledge_lineage import get_product_knowledge_profile
 
 
 def tool_list_products() -> list[dict]:
@@ -43,14 +44,18 @@ def tool_diagnose(
         "diagnostic_tree": result.diagnostic_tree,
         "historical_resolutions": result.historical_resolutions,
         "confidence": result.confidence,
+        "graph_confidence": result.graph_confidence,
+        "language_confidence": result.language_confidence,
         "should_escalate": result.should_escalate,
         "escalation_reason": result.escalation_reason,
         "evidence": result.evidence,
         "provenance_trail": result.provenance_trail,
+        "warnings": result.warnings,
         "formatted_response": format_diagnosis_response(result),
     }
     if result.product_id:
         payload["graph_subgraph"] = diagnosis_subgraph_from_result(payload)
+        payload["knowledge_profile"] = get_product_knowledge_profile(result.product_id)
     return payload
 
 

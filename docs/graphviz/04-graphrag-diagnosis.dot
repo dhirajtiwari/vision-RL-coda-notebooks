@@ -19,10 +19,10 @@ digraph GraphRAGDiagnosis {
   P2 [label="match_symptoms()\n────────────\nCypher fetch symptoms\n+ Python _text_similarity()\n+ SYNONYMS expansion", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
   C2 [label="Cypher #2\nMATCH (p)-[:HAS_SYMPTOM]->(s)\nRETURN symptom_id, description, severity", shape=note, fillcolor="#E2EFDA"]
 
-  P3 [label="rank_failure_modes()\n────────────\nAggregate INDICATES\nconfidence scores", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
-  C3 [label="Cypher #3\nMATCH (p)-[:CAN_HAVE]->(fm)\nMATCH (s)-[ind:INDICATES]->(fm)\nWHERE symptom_id IN $ids\nORDER BY total_confidence DESC", shape=note, fillcolor="#E2EFDA"]
+  P3 [label="rank_failure_modes()\n────────────\nFMEA S/O/D + RPN / Action Priority\nnaive-Bayes posterior P(fm|symptoms)\n(graph/reliability.py)", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
+  C3 [label="Cypher #3\nMATCH (p)-[:CAN_HAVE]->(fm)\nMATCH (s)-[ind:INDICATES]->(fm)\nWHERE symptom_id IN $ids\n+ severities, CONFIRMED & CONFIRMS counts", shape=note, fillcolor="#E2EFDA"]
 
-  P4 [label="Escalation Decision (Python)\n────────────\ncritical severity?\nOR confidence < 0.65?", shape=diamond, style=filled, fillcolor="#FCE4D6"]
+  P4 [label="Escalation Decision (Python)\n────────────\ncritical severity? OR\n(posterior < 0.65 AND not strong_graph\nAND (weak_language OR ambiguous))", shape=diamond, style=filled, fillcolor="#FCE4D6"]
 
   P5 [label="get_diagnostic_steps()", shape=box, style="rounded,filled", fillcolor="#FFFFFF"]
   C4 [label="Cypher #4\nHAS_DIAGNOSTIC_STEP", shape=note, fillcolor="#E2EFDA"]
@@ -32,7 +32,7 @@ digraph GraphRAGDiagnosis {
 
   P7 [label="get_parts_for_product()\n(JSON catalog — no Cypher)", shape=box, style="rounded,filled", fillcolor="#FFF2CC"]
 
-  Output [label="DiagnosisResult\n• matched_symptoms\n• ranked_failure_modes\n• diagnostic_steps\n• historical_resolutions\n• confidence\n• should_escalate\n• evidence[]", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
+  Output [label="DiagnosisResult\n• matched_symptoms\n• ranked_failure_modes (posterior, RPN, Action Priority)\n• diagnostic_steps\n• historical_resolutions\n• confidence (top posterior)\n• should_escalate\n• evidence[]", shape=box, style="rounded,filled", fillcolor="#C6E0B4"]
 
   NoProduct [label="should_escalate = true\n'Could not identify appliance'", shape=box, style="rounded,filled", fillcolor="#F8CBAD"]
 

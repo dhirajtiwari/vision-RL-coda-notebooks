@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -23,6 +24,7 @@ class Settings(BaseSettings):
     data_file: Path = PROJECT_ROOT / "data" / "synthetic_diagnosis_data.json"
     enterprise_catalog_file: Path = PROJECT_ROOT / "data" / "enterprise_knowledge_catalog.json"
     provenance_manifest_file: Path = PROJECT_ROOT / "data" / "provenance_manifest.json"
+    database_path: Path = PROJECT_ROOT / "data" / "diagnostics.db"
     escalations_file: Path = PROJECT_ROOT / "data" / "escalations.json"
     cases_file: Path = PROJECT_ROOT / "data" / "simulated_cases.json"
     lineage_dir: Path = PROJECT_ROOT / "data" / "lineage"
@@ -40,8 +42,35 @@ class Settings(BaseSettings):
     api_port: int = 8080
 
     escalation_confidence_threshold: float = 0.65
+    symptom_match_min_score: float = 0.30
+    # Minimum gap between the top two failure-mode posteriors for a "clear
+    # leader". Below this the diagnosis is treated as ambiguous (competing
+    # failure modes) and routed for human confirmation.
+    diagnosis_ambiguity_margin: float = 0.15
     demo_mode: bool = True
+    allow_fixture_fallback: bool = True
+    use_hybrid_symptom_matching: bool = True
     enable_provenance: bool = True
+
+    @property
+    def production_integrations(self) -> bool:
+        """True when mock APIs are off and real connector URLs are expected."""
+        return not self.use_mock_enterprise_apis and not self.demo_mode
+
+    @property
+    def effective_fixture_fallback(self) -> bool:
+        """JSON fixture fallback only when demo mode is active."""
+        return self.demo_mode and self.allow_fixture_fallback
+
+    @model_validator(mode="after")
+    def _guard_default_password(self) -> "Settings":
+        """Fail fast if deployed outside demo mode with the insecure default password."""
+        if not self.demo_mode and self.neo4j_password == "password":
+            raise ValueError(
+                "Refusing to start with the default Neo4j password outside demo_mode. "
+                "Set NEO4J_PASSWORD to a real secret via environment/.env."
+            )
+        return self
 
     xai_api_key: str | None = None
     openai_api_key: str | None = None

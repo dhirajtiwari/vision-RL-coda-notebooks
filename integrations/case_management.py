@@ -6,6 +6,7 @@ from typing import Any
 
 from config.settings import settings
 from graph.enterprise_pipeline.http_client import post_json
+from utils.persistence import get_store
 
 
 def create_case_from_escalation(
@@ -25,5 +26,10 @@ def create_case_from_escalation(
     }
     try:
         return post_json(url, payload)
-    except ConnectionError as exc:
-        return {"created": False, "error": str(exc)}
+    except ConnectionError:
+        case = get_store().save_case({
+            "status": "open",
+            "source_system": "DiagnosticsPlatform",
+            **payload,
+        })
+        return {**case, "created": True, "fallback": "sqlite"}
