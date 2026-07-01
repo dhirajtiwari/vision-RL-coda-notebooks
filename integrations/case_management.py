@@ -27,9 +27,11 @@ def create_case_from_escalation(
     try:
         return post_json(url, payload)
     except ConnectionError:
-        case = get_store().save_case({
-            "status": "open",
-            "source_system": "DiagnosticsPlatform",
-            **payload,
-        })
+        case = get_store().save_case(
+            {
+                "status": "open",
+                "source_system": "DiagnosticsPlatform",
+                **payload,
+            }
+        )
         return {**case, "created": True, "fallback": "sqlite"}

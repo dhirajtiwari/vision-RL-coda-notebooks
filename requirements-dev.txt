@@ -1,0 +1,6 @@
+# Development & CI tooling (install with: pip install -r requirements-dev.txt)
+# Everything here is cross-platform (Windows / macOS / Linux) and Docker-free.
+
+pytest>=8.0
+ruff>=0.6            # Python linter + formatter (auto-fix)
+pre-commit>=3.7      # Git hook manager (runs the same checks locally as CI)

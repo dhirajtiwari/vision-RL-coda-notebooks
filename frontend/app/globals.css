@@ -1,0 +1,368 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  /* ── Token system: dark (default) ──────────────────────── */
+  --surface-0:  #050505;     /* page bg            */
+  --surface-1:  #0e0e12;     /* card / panel bg    */
+  --surface-2:  #161620;     /* raised card        */
+  --surface-3:  #1f1f2a;     /* interactive hover  */
+  --border-0:   rgba(255,255,255,0.10);
+  --border-1:   rgba(255,255,255,0.16);
+  --border-2:   rgba(255,255,255,0.26);
+  --text-0:     #f1f1f3;     /* primary text       */
+  --text-1:     rgba(241,241,243,0.72);  /* secondary          */
+  --text-2:     rgba(241,241,243,0.48);  /* tertiary           */
+  --text-3:     rgba(241,241,243,0.32);  /* hint / caption     */
+  --accent:     #10b981;     /* emerald primary    */
+  --accent-dim: rgba(16,185,129,0.18);
+}
+
+html:not(.dark) {
+  --surface-0:  #f5f5f7;
+  --surface-1:  #ffffff;
+  --surface-2:  #f0f0f4;
+  --surface-3:  #e8e8ef;
+  --border-0:   rgba(0,0,0,0.08);
+  --border-1:   rgba(0,0,0,0.14);
+  --border-2:   rgba(0,0,0,0.22);
+  --text-0:     #111113;
+  --text-1:     rgba(17,17,19,0.72);
+  --text-2:     rgba(17,17,19,0.52);
+  --text-3:     rgba(17,17,19,0.36);
+  --accent:     #047857;
+  --accent-dim: rgba(4,120,87,0.12);
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+body {
+  font-family: var(--font-geist-sans);
+  background: var(--surface-0);
+  color: var(--text-0);
+}
+
+/* ── Glass surfaces (elevated from page) ─────────────────── */
+.glass {
+  background: rgba(255,255,255,0.055);   /* was 0.035 — too faint */
+  border: 1px solid var(--border-0);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+}
+html:not(.dark) .glass {
+  background: rgba(255,255,255,0.88);
+  border: 1px solid var(--border-1);
+  color: var(--text-0);
+}
+
+.glass-strong {
+  background: rgba(10,10,14,0.82);       /* was 0.72 — more opaque = more legible */
+  border: 1px solid var(--border-1);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  backdrop-filter: blur(24px) saturate(200%);
+}
+html:not(.dark) .glass-strong {
+  background: rgba(255,255,255,0.97);
+  border: 1px solid var(--border-1);
+}
+
+/* ── Card ────────────────────────────────────────────────── */
+.card {
+  background: var(--surface-1);          /* was rgba(255,255,255,0.035) = invisible */
+  border: 1px solid var(--border-0);
+  border-radius: 1rem;
+  transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.card:hover {
+  background: var(--surface-2);
+  border-color: var(--border-1);
+  transform: translateY(-1px);
+}
+.diagnosis-card, .card {
+  transform-style: preserve-3d;
+  transition: transform 0.2s cubic-bezier(0.23,1,0.32,1), box-shadow 0.2s;
+}
+.diagnosis-card:hover {
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+}
+
+/* ── Button base ─────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.55rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.1s;
+  cursor: pointer;
+  line-height: 1;
+}
+.btn:active { transform: scale(0.985); }
+
+.btn-primary {
+  background: var(--accent);
+  color: #052e16;
+  border: 1px solid transparent;
+}
+.btn-primary:hover { filter: brightness(1.12); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+
+/* Secondary: was rgba(255,255,255,0.035) = invisible — raised to surface-2 */
+.btn-secondary {
+  background: var(--surface-2);          /* was rgba(255,255,255,0.035) */
+  border: 1px solid var(--border-1);     /* was rgba(255,255,255,0.1) */
+  color: var(--text-0);
+}
+.btn-secondary:hover { background: var(--surface-3); border-color: var(--border-2); }
+.btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border-0);
+  color: var(--text-1);
+}
+.btn-ghost:hover { background: var(--surface-2); border-color: var(--border-1); }
+
+/* ── Input / Select / Textarea ───────────────────────────── */
+.input {
+  width: 100%;
+  background: var(--surface-2);          /* was rgba(255,255,255,0.035) = invisible */
+  border: 1px solid var(--border-1);     /* was rgba(255,255,255,0.1) — too faint   */
+  border-radius: 0.75rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.875rem;
+  color: var(--text-0);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input::placeholder {
+  color: var(--text-2);                  /* was unset → inherited near-invisible    */
+}
+.input:focus {
+  border-color: var(--accent);           /* was rgba(255,255,255,0.3) — no identity */
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+/* Dark select option elements */
+select.input option {
+  background: #1a1a22;
+  color: #f1f1f3;
+}
+html:not(.dark) select.input option {
+  background: #fff;
+  color: #111;
+}
+
+/* ── Badge ───────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  background: var(--surface-2);          /* was rgba(255,255,255,0.05) = invisible */
+  border: 1px solid var(--border-1);     /* was rgba(255,255,255,0.1) = invisible  */
+  color: var(--text-1);
+}
+/* Status badge variants — fully opaque so linter can verify contrast */
+.badge-ok    { background: #064e3b; border-color: #059669; color: #a7f3d0; }
+.badge-warn  { background: #451a03; border-color: #d97706; color: #fde68a; }
+.badge-error { background: #450a0a; border-color: #dc2626; color: #fca5a5; }
+.badge-info  { background: #1e3a5f; border-color: #2563eb; color: #bfdbfe; }
+html:not(.dark) .badge-ok    { background: #d1fae5; border-color: #6ee7b7; color: #065f46; }
+html:not(.dark) .badge-warn  { background: #fef3c7; border-color: #fbbf24; color: #92400e; }
+html:not(.dark) .badge-error { background: #fee2e2; border-color: #f87171; color: #991b1b; }
+html:not(.dark) .badge-info  { background: #dbeafe; border-color: #60a5fa; color: #1d4ed8; }
+
+/* ── Failure mode row (inside diagnosis card) ────────────── */
+.failure-mode {
+  background: var(--surface-2);          /* was rgba(0,0,0,0.2) = invisible on dark */
+  border: 1px solid var(--border-1);
+  border-radius: 0.875rem;
+  padding: 0.875rem 1rem;
+}
+html:not(.dark) .failure-mode {
+  background: #f8f8fb;
+  border-color: var(--border-1);
+}
+
+/* ── Diagnosis card ──────────────────────────────────────── */
+.diagnosis-card {
+  background: rgba(12,12,18,0.90);       /* was 0.72 — punchier on dark */
+  border: 1px solid var(--border-1);     /* was rgba(255,255,255,0.15) */
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+html:not(.dark) .diagnosis-card {
+  background: #ffffff;
+  border-color: var(--border-1);
+  color: var(--text-0);
+}
+
+/* ── Provenance trail item ───────────────────────────────── */
+/* MISSING in original CSS — referenced in JSX */
+.provenance-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border-0);
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-1);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.provenance-item::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ── Graph container ─────────────────────────────────────── */
+.graph-container {
+  background: #06060a;                   /* slightly distinguishable from #050505 */
+  border: 1px solid var(--border-1);     /* was rgba(255,255,255,0.08) — too faint */
+  border-radius: 1rem;
+  overflow: hidden;
+}
+html:not(.dark) .graph-container {
+  background: #f2f2f6;
+  border-color: var(--border-1);
+}
+
+/* ── Tailwind white-opacity class overrides for readability ─ */
+/* text-white/40 and text-white/50 at their face values are
+   too faint (WCAG AA fails at < 4.5:1 contrast).
+   We lift them here without touching the JSX.              */
+.dark .text-white\/40,
+.dark [class~="text-white/40"] { color: var(--text-2) !important; }
+.dark .text-white\/50,
+.dark [class~="text-white/50"] { color: var(--text-2) !important; }
+.dark .text-white\/60,
+.dark [class~="text-white/60"] { color: var(--text-1) !important; }
+
+/* Light mode Tailwind white-opacity fixes */
+html:not(.dark) .text-white,
+html:not(.dark) [class*="text-white"] { color: var(--text-0) !important; }
+html:not(.dark) .bg-white\/5,
+html:not(.dark) .bg-white\/10,
+html:not(.dark) [class*="bg-white/"] { background-color: rgba(0,0,0,0.05) !important; }
+html:not(.dark) .border-white\/10,
+html:not(.dark) [class*="border-white/"] { border-color: var(--border-1) !important; }
+
+/* ── React Flow — theme-aware ────────────────────────────── */
+.react-flow__background { stroke: #1f2937 !important; }
+
+html:not(.dark) .react-flow__background { stroke: #d1d5db !important; }
+/* Node colours are set via inline styles in buildFlow();
+   only override the controls / minimap chrome here. */
+html:not(.dark) .react-flow__edge-text { fill: #374151; }
+
+/* ── Node highlight state (className, per ReactFlow theming docs) ────────── */
+/* Opacity lives on the .react-flow__node wrapper — safe, doesn't fight        */
+/* inline background/border/color styles set per-node in buildFlow().           */
+.react-flow__node {
+  transition: opacity 0.2s ease, box-shadow 0.2s ease;
+}
+/* On-path: fully opaque; glow is handled by inline boxShadow (dynamic color). */
+.react-flow__node.node-on-path { opacity: 1; }
+/* Off-path: clearly dimmed but still perceptible — never invisible.            */
+.react-flow__node.node-off-path { opacity: 0.42; }
+html:not(.dark) .react-flow__controls button {
+  background: #fff;
+  border-color: #d1d5db;
+  fill: #374151;
+}
+html:not(.dark) .react-flow__minimap { background: #f2f2f6; }
+
+/* ── Dark sidebar role buttons active state ──────────────── */
+/* The JSX uses `bg-white text-black` for active role buttons;
+   in light mode, flip to a visible active state.            */
+html:not(.dark) .flex.gap-1 button[class*="bg-white.text-black"] {
+  background: #111 !important;
+  color: #fff !important;
+}
+
+/* ── Scrollbar (aesthetic, low-priority) ─────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: rgba(255,255,255,0.15); border-radius: 99px; }
+html:not(.dark) ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.18); }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+html:not(.dark) ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.28); }
+
+/* ── Textarea resize handle visibility ───────────────────── */
+textarea { resize: vertical; }
+
+/* ── Node inspection panel (Knowledge Explorer) ─────────── */
+.node-panel        { background: var(--surface-1); }
+.node-panel-body   { color: var(--text-1); }
+.node-panel-label  { color: var(--text-3); }
+.node-panel-value  { color: var(--text-0); }
+.node-panel-muted  { color: var(--text-2); }
+.node-panel-edge-row {
+  background: var(--surface-2);
+  color: var(--text-1);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+.node-panel-edge-row:hover { opacity: 0.75; }
+
+/* ── Diagnosis card inner panels ─────────────────────────── */
+.score-tile {
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  text-align: center;
+}
+.no-product-panel {
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.875rem;
+}
+
+/* Graph overlay states */
+.graph-empty-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  color: var(--text-2);
+}
+.graph-loading-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.42);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  color: var(--text-1);
+}
+.graph-legend { color: var(--text-2); }
+
+/* ── React Flow edge labels ──────────────────────────────── */
+/* Prevent label–edge overlap (React Flow + yFiles best practice) */
+.react-flow__edge-text { pointer-events: none; }
+.react-flow__edge:hover .react-flow__edge-text,
+.react-flow__edge.selected .react-flow__edge-text { font-weight: 600; }
+.react-flow__edge .react-flow__edge-textbg       { fill: rgba(255,255,255,0.9); }
+.dark .react-flow__edge .react-flow__edge-textbg { fill: rgba(15,23,42,0.85); }

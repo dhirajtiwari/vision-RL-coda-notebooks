@@ -1,0 +1,76 @@
+# Pre-commit hooks — auto-fix issues BEFORE they reach CI.
+# Cross-platform (Windows/macOS/Linux), no Docker required.
+#
+# Setup (once, after cloning):
+#   pip install -r requirements-dev.txt
+#   pre-commit install                 # installs the pre-commit (commit) hook
+#   pre-commit install -t pre-push     # installs the pre-push (test) hook
+#
+# Run manually on all files:
+#   pre-commit run --all-files
+#
+# Hooks marked with auto-fix will modify files in place; just re-stage & commit.
+
+default_install_hook_types: [pre-commit, pre-push]
+
+repos:
+  # ── General hygiene (all files) ──────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^ui-streamlit-archive/
+      - id: end-of-file-fixer
+        exclude: ^(ui-streamlit-archive/|.*\.svg$)
+      - id: check-yaml
+      - id: check-json
+        exclude: ^frontend/tsconfig\.json$   # tsconfig allows comments (JSONC)
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+        args: ["--maxkb=1024"]
+      - id: mixed-line-ending
+        args: ["--fix=lf"]
+
+  # ── Python: lint (auto-fix) + format ─────────────────────────────────────
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
+    hooks:
+      - id: ruff
+        name: ruff (lint + auto-fix)
+        args: ["--fix"]
+      - id: ruff-format
+        name: ruff (format)
+
+  # ── Frontend: ESLint auto-fix + TypeScript typecheck (local hooks) ────────
+  # These run only when files under frontend/ change. They require Node.js
+  # (already needed to run the app) but NOT Docker. They lint the whole
+  # frontend app (pass_filenames: false) to avoid path-prefix mismatches.
+  - repo: local
+    hooks:
+      - id: eslint-fix
+        name: eslint (auto-fix, frontend)
+        entry: bash -c 'cd frontend && npm run lint:fix || true'
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|mjs)$
+        pass_filenames: false
+
+      - id: tsc-typecheck
+        name: tsc --noEmit (frontend typecheck)
+        entry: bash -c 'cd frontend && npx tsc --noEmit'
+        language: system
+        files: ^frontend/.*\.(ts|tsx)$
+        pass_filenames: false
+
+  # ── Pre-push: run the full Python test suite before pushing ──────────────
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest (full suite, pre-push)
+        # Run tests, capture the real exit code, then restore any seed files the
+        # suite regenerates (pim_catalog.json only differs by a synced_at
+        # timestamp) so the working tree stays clean. Real test failures still block.
+        entry: bash -c 'pytest tests/ -q; ec=$?; git checkout -- data/enterprise_sources/pim_catalog.json 2>/dev/null || true; exit $ec'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

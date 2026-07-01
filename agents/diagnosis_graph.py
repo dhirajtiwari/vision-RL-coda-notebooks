@@ -8,7 +8,7 @@ from typing import Any, TypedDict
 
 from langgraph.graph import END, StateGraph
 
-from agents.tools import tool_diagnose, tool_detect_product
+from agents.tools import tool_diagnose
 from graph.graph_rag import DiagnosisResult, diagnose
 from utils.escalation_store import save_escalation
 from utils.logger import get_logger

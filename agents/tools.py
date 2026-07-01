@@ -46,6 +46,12 @@ def tool_diagnose(
         "confidence": result.confidence,
         "graph_confidence": result.graph_confidence,
         "language_confidence": result.language_confidence,
+        # Separated scoring transparency fields (for UI display)
+        "recommendation_strength": result.recommendation_strength,
+        "posterior_dominance_ratio": result.posterior_dominance_ratio,
+        # Exact traversal path (for precise graph highlighting)
+        "traversed_symptom_ids": result.traversed_symptom_ids,
+        "traversed_fm_id": result.traversed_fm_id,
         "should_escalate": result.should_escalate,
         "escalation_reason": result.escalation_reason,
         "evidence": result.evidence,

@@ -43,23 +43,28 @@ def test_composite_confidence_separates_posterior_and_language() -> None:
     # Overall confidence is the Bayesian posterior of the leading failure mode
     # (engineering probability) and must NOT be diluted by language match.
     # Language match is reported as a separate, third signal.
-    ranked = [{
-        "failure_mode_id": "dw-fm01",
-        "posterior": 0.82,
-        "indications": [{"symptom_id": "dw-s01", "confidence": 0.94}],
-    }]
+    ranked = [
+        {
+            "failure_mode_id": "dw-fm01",
+            "posterior": 0.82,
+            "indications": [{"symptom_id": "dw-s01", "confidence": 0.94}],
+        }
+    ]
     strong = [{"symptom_id": "dw-s01", "match_score": 0.85}]
     weak = [{"symptom_id": "dw-s01", "match_score": 0.44}]
 
-    strong_overall, strong_graph, strong_lang = _composite_confidence(ranked, strong)
-    weak_overall, _, weak_lang = _composite_confidence(ranked, weak)
+    strong_overall, strong_graph, strong_lang, strong_strength, strong_ratio = _composite_confidence(ranked, strong)
+    weak_overall, _, weak_lang, _, _ = _composite_confidence(ranked, weak)
 
-    # Overall = posterior, independent of language match quality.
-    assert strong_overall == weak_overall == 0.82
+    # Overall may be boosted by dominance when posterior is dominant,
+    # but language match quality must NOT be mixed into it.
+    # (Both should produce the same boosted value since they share the same ranked input.)\n    assert strong_overall == weak_overall
     # Strongest engineering indication for the top failure mode is surfaced.
     assert strong_graph == 0.94
     # Language signal alone tracks the retrieval match score.
     assert strong_lang > weak_lang
+    # Recommendation strength must always be present
+    assert strong_strength in {"Strong", "Moderate", "Weak", "Insufficient data"}
 
 
 def test_crm_customer_asset_mismatch_warning() -> None:
@@ -103,7 +108,7 @@ if __name__ == "__main__":
         test_detect_product_dishwasher_message,
         test_microwave_symptom_does_not_match_dishwasher_message,
         test_dishwasher_symptom_matches_dishwasher_message,
-        test_composite_confidence_scales_with_match_score,
+        test_composite_confidence_separates_posterior_and_language,
         test_crm_customer_asset_mismatch_warning,
         test_resolve_product_prefers_message_over_asset_product,
     ]

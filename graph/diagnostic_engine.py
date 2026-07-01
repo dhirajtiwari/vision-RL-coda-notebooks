@@ -65,14 +65,17 @@ def get_diagnostic_steps(product_id: str) -> list[dict[str, Any]]:
     """All ordered diagnostic steps for a product (product-level fallback)."""
     driver = get_driver()
     with driver.session() as session:
-        result = session.run("""
+        result = session.run(
+            """
             MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
             RETURN ds.step_id AS step_id, ds.description AS description,
                    ds.order AS step_order, ds.expected_outcome AS expected_outcome,
                    ds.source_system AS source_system,
                    ds.source_document_uri AS source_document_uri
             ORDER BY ds.order
-        """, product_id=product_id)
+        """,
+            product_id=product_id,
+        )
         return [dict(r) for r in result]
 
 
@@ -90,20 +93,28 @@ def get_diagnostic_steps_for_failure_mode(
     driver = get_driver()
     with driver.session() as session:
         all_steps = [
-            dict(r) for r in session.run("""
+            dict(r)
+            for r in session.run(
+                """
                 MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
                 RETURN ds.step_id AS step_id, ds.description AS description,
                        ds.order AS step_order, ds.expected_outcome AS expected_outcome,
                        ds.source_system AS source_system,
                        ds.source_document_uri AS source_document_uri
                 ORDER BY ds.order
-            """, product_id=product_id)
+            """,
+                product_id=product_id,
+            )
         ]
         confirming_ids = {
-            row["step_id"] for row in session.run("""
+            row["step_id"]
+            for row in session.run(
+                """
                 MATCH (ds:DiagnosticStep)-[:CONFIRMS]->(fm:FailureMode {failure_mode_id: $fm_id})
                 RETURN ds.step_id AS step_id
-            """, fm_id=failure_mode_id)
+            """,
+                fm_id=failure_mode_id,
+            )
         }
 
     if not confirming_ids:

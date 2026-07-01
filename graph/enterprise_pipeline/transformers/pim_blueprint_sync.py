@@ -7,7 +7,7 @@ Run: python -m graph.enterprise_pipeline.transformers.pim_blueprint_sync
 from __future__ import annotations
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from config.settings import settings
@@ -29,9 +29,8 @@ def sync_pim_fixture(
     pim_payload = {
         "source_system": "SAP PLM / PIM (simulated OEM blueprint sync)",
         "simulation": True,
-        "note": "Synthetic fixture generated from graph.oem_product_catalog — "
-                "not a live SAP extract.",
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "note": "Synthetic fixture generated from graph.oem_product_catalog — not a live SAP extract.",
+        "generated_at": datetime.now(UTC).isoformat(),
         "catalog_metadata": catalog.get("catalog_metadata", {}),
         "products": catalog["products"],
     }

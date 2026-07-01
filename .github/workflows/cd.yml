@@ -55,7 +55,8 @@ jobs:
 
       - name: Patch image registry for staging
         run: |
-          export IMG_PREFIX="${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}"
+          # GHCR requires lowercase repository names (github.repository may have uppercase).
+          export IMG_PREFIX="${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}"
           find k8s/overlays/staging -name '*.yaml' -exec \
             sed -i "s|ghcr.io/OWNER/REPO|${IMG_PREFIX}|g" {} +
           sed -i "s|newTag: latest|newTag: ${{ steps.tag.outputs.sha }}|g" k8s/overlays/staging/kustomization.yaml
@@ -103,7 +104,8 @@ jobs:
 
       - name: Patch image registry for production
         run: |
-          export IMG_PREFIX="${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}"
+          # GHCR requires lowercase repository names (github.repository may have uppercase).
+          export IMG_PREFIX="${{ env.REGISTRY }}/${GITHUB_REPOSITORY,,}"
           find k8s/overlays/prod -name '*.yaml' -exec \
             sed -i "s|ghcr.io/OWNER/REPO|${IMG_PREFIX}|g" {} +
           sed -i "s|newTag: latest|newTag: ${{ github.sha }}|g" k8s/overlays/prod/kustomization.yaml

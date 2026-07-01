@@ -37,7 +37,7 @@ def get_product_knowledge_profile(product_id: str) -> dict[str, Any] | None:
         profile = dict(row)
 
         source_counts: dict[str, int] = {}
-        for label, prop in (
+        for label, _prop in (
             ("Symptom", "s"),
             ("FailureMode", "fm"),
             ("DiagnosticStep", "ds"),

@@ -2,11 +2,9 @@
 
 from __future__ import annotations
 
-import json
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from pathlib import Path
 
 from config.settings import settings
 from utils.lineage_store import log_batch

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from config.settings import settings
@@ -25,9 +24,7 @@ class CRMConnector(EnterpriseConnector):
                 payload = get_json(f"{self.api_base_url.rstrip('/')}/customers")
                 assets: list[dict] = []
                 for customer in payload.get("customers", []):
-                    detail = get_json(
-                        f"{self.api_base_url.rstrip('/')}/customers/{customer['customer_id']}/assets"
-                    )
+                    detail = get_json(f"{self.api_base_url.rstrip('/')}/customers/{customer['customer_id']}/assets")
                     assets.extend(detail.get("registered_assets", []))
                 return ConnectorResult(
                     source=self.source_name,

@@ -13,7 +13,9 @@ __pycache__/
 
 # Node
 node_modules/
-package-lock.json
+# Ignore only the root-level docs lockfile; the frontend lockfile MUST be
+# committed so CI's `npm ci` (and the setup-node cache) works.
+/package-lock.json
 
 # IDE / OS
 .DS_Store

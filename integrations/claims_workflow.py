@@ -6,10 +6,9 @@ from diagnosis outcomes using graph-backed evidence.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
-from config.settings import settings
 from graph.neo4j_client import get_driver
 from graph.parts_predictor import predict_parts
 from integrations.warranty_eligibility import check_warranty_eligibility
@@ -42,9 +41,7 @@ def submit_claim_from_diagnosis(
 
     claim_id = f"CLM-SUB-{uuid.uuid4().hex[:8].upper()}"
     primary_part = predicted[0] if predicted else {}
-    total_cost = sum(
-        (p.get("estimated_cost_usd") or 0) * (p.get("quantity") or 1) for p in predicted
-    )
+    total_cost = sum((p.get("estimated_cost_usd") or 0) * (p.get("quantity") or 1) for p in predicted)
 
     claim = {
         "claim_id": claim_id,
@@ -64,7 +61,7 @@ def submit_claim_from_diagnosis(
         "warranty_check": warranty,
         "user_message": user_message,
         "diagnosis_confidence": diagnosis.get("confidence"),
-        "submitted_at": datetime.now(timezone.utc).isoformat(),
+        "submitted_at": datetime.now(UTC).isoformat(),
         "graph_evidence": diagnosis.get("evidence", []),
     }
 

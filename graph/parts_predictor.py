@@ -24,10 +24,10 @@ from graph.neo4j_client import get_driver
 # one actually required for the repair. Direct engineering BOM links are
 # authoritative; component-inferred and historical paths are corroborating.
 SOURCE_RELIABILITY: dict[str, float] = {
-    "REQUIRES_PART": 1.00,     # direct FailureMode -> Part BOM link
-    "CLAIM_PRECEDENT": 0.85,   # part used to resolve confirmed field claims
-    "BOM_COMPONENT": 0.70,     # part realises an impacted component
-    "SKU_FIT": 0.90,           # confirmed compatible with the asset's SKU
+    "REQUIRES_PART": 1.00,  # direct FailureMode -> Part BOM link
+    "CLAIM_PRECEDENT": 0.85,  # part used to resolve confirmed field claims
+    "BOM_COMPONENT": 0.70,  # part realises an impacted component
+    "SKU_FIT": 0.90,  # confirmed compatible with the asset's SKU
 }
 
 
@@ -67,7 +67,8 @@ def predict_parts(
             fm_id=failure_mode_id,
         ):
             _upsert_prediction(
-                predictions, dict(row),
+                predictions,
+                dict(row),
                 base_score=weight * SOURCE_RELIABILITY["REQUIRES_PART"] * (row["probability"] or 0.9),
             )
 
@@ -85,7 +86,8 @@ def predict_parts(
         ):
             rec = dict(row)
             _upsert_prediction(
-                predictions, rec,
+                predictions,
+                rec,
                 base_score=weight * SOURCE_RELIABILITY["BOM_COMPONENT"],
                 component=rec.get("component_name"),
             )
@@ -104,8 +106,10 @@ def predict_parts(
                 fm_id=failure_mode_id,
             ):
                 _upsert_prediction(
-                    predictions, dict(row),
-                    base_score=weight * SOURCE_RELIABILITY["SKU_FIT"], sku_fit=True,
+                    predictions,
+                    dict(row),
+                    base_score=weight * SOURCE_RELIABILITY["SKU_FIT"],
+                    sku_fit=True,
                 )
 
         for row in session.run(
@@ -123,7 +127,8 @@ def predict_parts(
         ):
             rec = dict(row)
             _upsert_prediction(
-                predictions, rec,
+                predictions,
+                rec,
                 base_score=weight * SOURCE_RELIABILITY["CLAIM_PRECEDENT"],
                 claim_precedent=rec.get("claim_id"),
             )

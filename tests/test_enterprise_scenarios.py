@@ -9,7 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from graph.graph_rag import diagnose, detect_product
+from graph.graph_rag import detect_product, diagnose
 from graph.neo4j_client import verify_connection
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
@@ -58,9 +58,8 @@ def _run_case(case: dict, smoke: bool = False) -> tuple[bool, str]:
         if top != case["expected_top_failure"]:
             return False, f"top={top}"
 
-    if case.get("expect_escalate") is not None:
-        if result.should_escalate != case["expect_escalate"]:
-            return False, f"escalate={result.should_escalate}"
+    if case.get("expect_escalate") is not None and result.should_escalate != case["expect_escalate"]:
+        return False, f"escalate={result.should_escalate}"
 
     if case.get("require_diagnostic_steps") and not result.diagnostic_steps:
         return False, "no steps"

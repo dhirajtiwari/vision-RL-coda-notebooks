@@ -9,7 +9,6 @@ sys.path.insert(0, str(ROOT))
 from graph.graph_rag import detect_product, diagnose
 from graph.neo4j_client import verify_connection
 
-
 TEST_CASES = [
     {
         "message": "My washing machine won't spin and water stays in the drum",

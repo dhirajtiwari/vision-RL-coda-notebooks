@@ -2,7 +2,7 @@
   "source_system": "SAP PLM / PIM (simulated OEM blueprint sync)",
   "simulation": true,
   "note": "Synthetic fixture generated from graph.oem_product_catalog \u2014 not a live SAP extract.",
-  "generated_at": "2026-07-01T08:49:55.547540+00:00",
+  "generated_at": "2026-07-01T13:38:16.130024+00:00",
   "catalog_metadata": {
     "version": "2.1-enterprise-oem-expanded",
     "product_count": 13,

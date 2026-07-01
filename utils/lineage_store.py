@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -17,7 +17,7 @@ def _path() -> Path:
 
 
 def new_batch_id() -> str:
-    return f"ETL-{datetime.now(timezone.utc).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
+    return f"ETL-{datetime.now(UTC).strftime('%Y%m%d')}-{uuid.uuid4().hex[:8]}"
 
 
 def log_batch(
@@ -33,7 +33,7 @@ def log_batch(
         "batch_id": new_batch_id(),
         "pipeline": pipeline,
         "status": status,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "product_count": product_count,
         "neo4j_target": neo4j_target,
         "sources": sources or {},

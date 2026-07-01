@@ -1,8 +1,34 @@
-# Enterprise Diagnostics GraphRAG Platform
+# WarrantyGraph — Enterprise AI Diagnostics Platform
 
-A production-style demo for **explainable appliance warranty diagnosis** using **Neo4j GraphRAG**, **LangGraph**, **enterprise ETL pipelines**, and **Streamlit**.
+> **Graph-native appliance warranty diagnosis** powered by **Neo4j GraphRAG**, **LangGraph**, **FastAPI**, and a **Next.js 16** enterprise UI. No LLM required for core diagnosis — reasoning runs entirely on the knowledge graph with full provenance.
 
-The platform simulates how a manufacturer would integrate CRM, PIM, FSM, and Claims systems into a knowledge graph, run diagnosis with full provenance, and hand off escalations to human agents.
+---
+
+## What it does
+
+A customer describes an appliance problem in natural language. The platform:
+
+1. **Matches symptoms** to the knowledge graph (Cypher + lexical scoring)
+2. **Runs Bayesian inference** over failure modes (FMEA-weighted posteriors)
+3. **Returns an explainable diagnosis** with ranked failure modes, confidence breakdown, parts prediction, and a provenance trail back to source systems
+4. **Highlights the exact reasoning path** through the knowledge graph interactively
+5. **Escalates to a human agent** when confidence is below threshold or symptoms are critical
+
+---
+
+## Stack (2026)
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 16 · React 19 · React Flow · Tailwind CSS · React Query |
+| **Backend API** | FastAPI · Uvicorn (port 8080) |
+| **Agent Workflow** | LangGraph · LangChain |
+| **Knowledge Graph** | Neo4j (bolt://localhost:7687) |
+| **Confidence Engine** | FMEA + Bayesian inference + dominance boost |
+| **Enterprise ETL** | Python pipelines: PIM / CRM / FSM / Claims → Neo4j |
+| **Archived UI** | Streamlit (moved to `ui-streamlit-archive/`) |
+
+---
 
 ## Architecture
 
@@ -11,146 +37,161 @@ Enterprise Sources (CRM · PIM · FSM · Claims)
         │
         ▼
 Knowledge ETL Pipeline ──► Ontology Builder ──► Neo4j Knowledge Graph
-        │                                              │
-        ▼                                              ▼
-Lineage Audit Log                              GraphRAG Layer
                                                        │
-Customer / Agent UI ◄── LangGraph Agent ◄─────────────┘
-        │
-        ▼
-Case Management (escalations) · Warranty Gate · REST API
+                              FMEA / Bayesian ◄────────┘
+                              Reliability Engine
+                                     │
+Customer / Agent UI ◄── LangGraph Agent ◄── GraphRAG (Cypher + lexical match)
+  (Next.js :3000)              │
+                        Case Management
+                        Warranty Gate
+                        REST API (:8080)
 ```
 
-**Runtime flow:** Customer message → LangGraph (`detect → diagnose → format → escalate`) → GraphRAG Cypher queries → ranked failure modes with provenance trail → optional CRM enrichment and warranty check → human agent dashboard on escalation.
+**Diagnosis path:** `detect → diagnose → score → format → escalate?`
 
-## Prerequisites
-
-| Requirement | Version / Notes |
-|-------------|-----------------|
-| **Python** | 3.12+ (venv recommended) |
-| **Docker** | Running daemon; used for Neo4j (`neo4j-demo` container on ports 7474/7687) |
-| **Node.js** | 18+ (optional — only for regenerating Word docs in `docs/`) |
-| **Disk** | ~2 GB free (Neo4j image, Python packages, generated data) |
-| **Ports** | 7474, 7687, 8080, 8090, 8501 available locally |
-| **LLM API key** | Not required — demo runs in graph-native mode |
-
-**Before first run:**
-
-```bash
-python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env   # optional; defaults work for local demo
-```
-
-## Dependencies
-
-### Runtime (Python)
-
-| Package | Role |
-|---------|------|
-| `neo4j` | Bolt driver for knowledge graph queries |
-| `langgraph`, `langchain` | Agent workflow orchestration |
-| `pydantic`, `pydantic-settings` | Ontology validation and configuration |
-| `streamlit` | Demo UI (customer chat, agent dashboard) |
-| `fastapi`, `uvicorn` | Diagnostics REST API |
-| `httpx` | Enterprise connector HTTP calls |
-| `pandas` | Data transforms in ETL pipelines |
-
-### Infrastructure
-
-| Service | Default | Purpose |
-|---------|---------|---------|
-| **Neo4j** | `bolt://localhost:7687` | Knowledge graph store |
-| **Mock Enterprise APIs** | `http://localhost:8090` | Simulated CRM, PIM, FSM, Claims |
-| **Diagnostics API** | `http://localhost:8080` | `POST /diagnose`, lineage endpoints |
-| **Streamlit** | `http://localhost:8501` | Interactive demo |
-
-### Documentation tooling (optional)
-
-```bash
-npm install   # docx package for Word doc generation
-```
-
-## Assumptions
-
-> **Enterprise delivery:** Document **11** (`11-Enterprise-Delivery-Assumptions-Dependencies-and-Open-Questions.docx`) is the authoritative register of program-level assumptions, client unknowns, and mandatory dependencies. **Nothing is validated today** — including this demo. The demo is a design illustration on synthetic data; it does not confirm architecture, accuracy, integrations, or roadmap feasibility. Documents 01, 05, and 10 are hypothetical reference designs for discussion only.
-
-**Local demo assumptions:**
-
-- **Demo scope:** Three appliance families (washer, dishwasher, microwave) with synthetic or fixture-based enterprise data — not a production catalog.
-- **Graph-native diagnosis:** Reasoning uses Neo4j Cypher and lexical symptom matching; no LLM is required for core diagnosis.
-- **Mock integrations by default:** `USE_MOCK_ENTERPRISE_APIS=true` serves CRM/PIM/Claims/FSM from local fixtures unless real URLs are set in `.env`.
-- **Single Neo4j instance:** Staging and production share one database in the demo; production would separate instances.
-- **Escalation threshold:** Default 65% confidence (`ESCALATION_CONFIDENCE_THRESHOLD`); critical symptoms always escalate regardless of score.
-- **Provenance enabled:** ETL attaches source-system metadata when `ENABLE_PROVENANCE=true`.
-- **Local trust boundary:** Demo stores escalations and cases in local JSON files, not a live case management system.
-
-## Risk Mitigation
-
-| Risk | Mitigation in this platform |
-|------|----------------------------|
-| **Unsafe repair advice** | Answers grounded in graph data with safety notes; critical symptoms force human escalation |
-| **Low-confidence misdiagnosis** | Mandatory escalation below confidence threshold; multi-symptom dilution demonstrated in tests |
-| **Stale knowledge graph** | Enterprise ETL pipelines with smoke validation gate before graph promotion |
-| **Unexplainable AI output** | `provenance_trail` and `evidence[]` on every diagnosis; no black-box LLM in demo path |
-| **Invalid warranty claims** | CRM asset binding + warranty eligibility gate before diagnosis proceeds |
-| **Bad ETL loads** | Smoke validation pipeline blocks staging promotion on regression failure |
-| **Integration failures** | Connectors fall back to local fixtures; health checks on mock and REST APIs |
-| **PII in knowledge graph** | Neo4j holds product/diagnostic knowledge only; customer context fetched at runtime from CRM |
+---
 
 ## Quick Start
 
-### Option A — Full enterprise demo (recommended)
+### Prerequisites
 
-Starts mock enterprise APIs, runs all ETL pipelines, REST API, and Streamlit UI:
+| Requirement | Notes |
+|-------------|-------|
+| Python 3.12+ | `python -m venv venv && source venv/bin/activate` |
+| Node.js 18+ | For Next.js frontend |
+| Docker | Neo4j container on ports 7474 / 7687 |
+| Ports free | 3000 (UI), 8080 (API), 7474/7687 (Neo4j) |
+
+### One-command restart (recommended)
 
 ```bash
 cd diagnostic-chatbot
-python -m venv venv && source venv/bin/activate
+source venv/bin/activate
+./restart-all.sh
+```
+
+Kills stale processes, clears the Next.js build cache, starts FastAPI and the Next.js dev server, and verifies all three services are healthy.
+
+### Manual start
+
+```bash
+# Terminal 1 — API
+source venv/bin/activate
+uvicorn api.main:app --host 0.0.0.0 --port 8080
+
+# Terminal 2 — UI
+cd frontend
+npm install        # first time only
+npm run dev        # http://localhost:3000
+```
+
+### First run (populate graph)
+
+```bash
+source venv/bin/activate
 pip install -r requirements.txt
-chmod +x run_enterprise_demo.sh
-./run_enterprise_demo.sh
+python graph/populate_graph.py          # loads 13 products into Neo4j
 ```
 
-| Service | URL |
-|---------|-----|
-| Streamlit UI | http://localhost:8501 |
-| Diagnostics REST API | http://localhost:8080/docs |
-| Mock Enterprise APIs | http://localhost:8090/docs |
-| Neo4j Browser | http://localhost:7474 (`neo4j` / `password`) |
+### Service URLs
 
-### Option B — Quick demo (synthetic data)
+| Service | URL | Notes |
+|---------|-----|-------|
+| **Next.js UI** | http://localhost:3000 | Primary interface |
+| **API docs** | http://localhost:8080/docs | FastAPI Swagger |
+| **API health** | http://localhost:8080/health | `{"status":"ok","neo4j":true}` |
+| **Neo4j Browser** | http://localhost:7474 | `neo4j` / `password` |
 
-```bash
-chmod +x run_demo.sh
-./run_demo.sh
+---
+
+## UI Features (Next.js Frontend)
+
+### Diagnosis Chat
+- Describe appliance problems in natural language
+- Structured diagnosis card with:
+  - **Recommendation strength badge** — `Strong / Moderate / Weak` (Bayesian dominance)
+  - **3-tile confidence breakdown** — Posterior % · Graph Link % · Text Match % with explanations
+  - Ranked failure modes with FMEA confidence scores
+  - Provenance trail (source system → entity → record ID)
+  - `🔍 Explore Exact Path` — jumps to Knowledge Explorer with the diagnosis path highlighted
+
+### Knowledge Explorer (Interactive Graph)
+- Live graph from Neo4j — 13 OEM products, typed nodes (Product · Symptom · Failure Mode · Part · Diagnostic Step · Resolution)
+- **Dagre hierarchical layout** (TB direction, automatic)
+- **Diagnosis path highlight** — `applyHighlight()` overlays the reasoning path on the full graph without replacing it or re-running layout
+  - Path nodes: solid fill + dynamic-color glow
+  - Off-path nodes: 42% opacity (clearly dimmed, never invisible)
+  - Path edges: animated emerald + drop-shadow
+- **Node inspection panel** — click any node to see its ID, type, path status, and connected nodes; click connections to navigate
+- **Keyboard navigation** — Arrow keys pan the viewport (80 px; Shift = 200 px)
+- **Dark / Light theme** — full CSS variable token system for both themes
+
+### Agent Cases
+Escalations dashboard with claim submission and status tracking.
+
+### Enterprise Ops
+ETL pipeline lineage batches and integration connector health.
+
+### Admin
+Onboard new products, dry-run ETL, validate, approve, and promote to the knowledge graph — all through the UI.
+
+---
+
+## Confidence & Reliability Engine
+
+`graph/reliability.py` — deterministic scoring, no LLM:
+
+| Function | Purpose |
+|----------|---------|
+| `composite_confidence()` | Combines Bayesian posterior + graph edge strength + text match |
+| `dominance_boost()` | Boosts confidence when top FM is clearly dominant (ratio ≥ 1.8×) |
+| `recommendation_strength()` | Maps signal combination to `Strong / Moderate / Weak / Insufficient data` |
+
+**Why scores look modest (e.g. 57%):**
+Bayesian posteriors distribute probability across all competing failure modes. A 57% posterior with a 1.72 dominance ratio means the top diagnosis is well-supported — the `recommendation_strength` label translates the full signal to a clear decision for the user.
+
+---
+
+## Knowledge Graph (13 Products)
+
+```
+Asset → Product/Model/SKU
+  → Symptoms + Error Codes
+  → Failure Modes          (Bayesian P(fm|symptoms))
+  → Troubleshooting Steps  (CONFIRMS edges)
+  → Impacted Components    (BOM)
+  → Parts Prediction       (REQUIRES_PART + claim precedent)
+  → Warranty Policy / Claim History
 ```
 
-### Option C — Quick demo with enterprise ETL
+| OEM | Model | Product ID |
+|-----|-------|------------|
+| Samsung | WF45T6000AW Front Load Washer | `oem-sam-wf45` |
+| Samsung | DW80B7070US Smart Dishwasher | `oem-sam-dw80` |
+| Samsung | RF28R7351SG French Door Refrigerator | `oem-sam-rf28` |
+| LG | LDF5545ST Built-in Dishwasher | `oem-lg-ldf5545` |
+| LG | WM4000HWA Front Load Washer | `oem-lg-wm4000` |
+| LG | DLE3400W Electric Dryer | `oem-lg-dle3400` |
+| Whirlpool | WTW5000DW Top Load Washer | `oem-whi-wtw5000` |
+| Whirlpool | WFG505M0BS Gas Range | `oem-whi-wfg505` |
+| Bosch | SHPM88Z75N 800 Series Dishwasher | `oem-bos-shpm88` |
+| GE | JVM3160RFSS Over-the-Range Microwave | `oem-ge-jvm3160` |
+| — | Front Load Washing Machine 8kg | `wm-001` |
+| — | Built-in Dishwasher 12 Place Setting | `dw-001` |
+| — | Convection Microwave 25L | `mw-001` |
 
-```bash
-USE_ENTERPRISE=true ./run_demo.sh
-```
-
-## Demo Features
-
-| Tab / Surface | What it does |
-|---------------|--------------|
-| **Customer Chatbot** | Describe problems → graph-backed diagnosis with provenance |
-| **Diagnosis Graph (interactive)** | Force-directed subgraph per chat answer — same pattern as Neo4j Browser tutorials |
-| **CRM Context** | Bind customer/asset (`CUST-10042` / `AST-WM-4421`) for warranty-aware sessions |
-| **Human Agent Dashboard** | Review escalated cases with full payload and provenance trail |
-| **Knowledge Graph** | ER ontology diagram, interactive product graphs, Cypher Explorer |
-| **Enterprise Systems** | ETL lineage batches, simulated CCaaS cases, pipeline commands |
-| **REST API** | `POST /diagnose`, `GET /graph/ontology`, `GET /graph/product/{id}` |
+---
 
 ## Example Queries
 
-- "My washing machine won't spin and water stays in the drum"
-- "Dishwasher leaves dishes wet and cold after the cycle"
-- "Microwave runs but food stays cold, and I see arcing inside"
+```
+"My washing machine won't spin and water stays in the drum"
+"Dishwasher leaves dishes wet and cold after the cycle"
+"Microwave runs but food stays cold, and I see arcing inside"
+```
 
-**CRM demo customers** (from `data/enterprise_sources/crm_assets.json`):
+**Demo CRM customers:**
 
 | Customer | Asset | Product |
 |----------|-------|---------|
@@ -158,52 +199,165 @@ USE_ENTERPRISE=true ./run_demo.sh
 | CUST-10087 (Robert Chen) | AST-DW-1180 | dw-001 (dishwasher) |
 | CUST-10042 | AST-MW-7702 | mw-001 (microwave) |
 
+---
+
 ## Project Structure
 
 ```
 diagnostic-chatbot/
-├── api/                          # REST API (FastAPI)
-│   ├── main.py                   # /diagnose, /health, /lineage/batches
+├── frontend/                         # Next.js 16 UI (primary)
+│   ├── app/
+│   │   ├── page.tsx                  # All views: Chat, Cases, Explorer, Ops, Admin
+│   │   ├── globals.css               # CSS token system + ReactFlow overrides
+│   │   └── layout.tsx
+│   └── lib/
+│       ├── api.ts                    # API client
+│       └── types.ts                  # TypeScript interfaces
+├── api/
+│   ├── main.py                       # /diagnose, /health, /graph/*, /admin/*
 │   └── schemas.py
 ├── agents/
-│   ├── diagnosis_graph.py        # LangGraph workflow
-│   └── tools.py
-├── config/settings.py            # Environment + enterprise URLs
+│   ├── diagnosis_graph.py            # LangGraph workflow
+│   └── tools.py                      # Tool wrappers for agent
 ├── graph/
-│   ├── graph_rag.py              # GraphRAG queries + provenance trail
-│   ├── graph_visualization.py    # Interactive subgraph payloads + PyVis renderer
-│   ├── populate_graph.py         # Neo4j loader (MERGE + provenance)
-│   ├── provenance.py             # Provenance models
-│   ├── neo4j_client.py
-│   ├── synthetic_data_generator.py
-│   └── enterprise_pipeline/      # ETL pipelines
-│       ├── orchestrator.py       # Pipeline runner
-│       ├── connectors/           # PIM, FSM, Claims, CRM
-│       ├── transformers/         # OntologyBuilder
-│       └── pipelines/            # knowledge_etl, smoke_validation, staging_promotion
+│   ├── graph_rag.py                  # GraphRAG queries + DiagnosisResult
+│   ├── reliability.py                # FMEA + Bayesian confidence engine
+│   ├── graph_visualization.py        # Subgraph payloads for API
+│   ├── populate_graph.py             # Neo4j MERGE loader
+│   ├── oem_product_catalog.py        # 13 OEM product blueprints
+│   ├── parts_predictor.py
+│   ├── symptom_retrieval.py
+│   └── enterprise_pipeline/          # ETL: connectors / transformers / pipelines
 ├── integrations/
-│   ├── crm_enrichment.py         # Runtime CRM session binding
-│   ├── warranty_eligibility.py   # Warranty gate
-│   └── case_management.py        # CCaaS handoff
-├── simulation/
-│   └── mock_enterprise_apps.py   # Mock CRM/PIM/Claims/FSM (:8090)
-├── ui/app.py                     # Streamlit demo (4 tabs)
+│   ├── crm_enrichment.py
+│   ├── warranty_eligibility.py
+│   └── case_management.py
+├── simulation/mock_enterprise_apps.py  # Simulated CRM/PIM/FSM/Claims (:8090)
+├── config/settings.py
 ├── utils/
-│   ├── escalation_store.py       # Human agent cases
-│   └── lineage_store.py          # ETL batch audit log
+│   ├── escalation_store.py
+│   ├── lineage_store.py
+│   └── persistence.py
 ├── data/
-│   ├── enterprise_sources/       # CRM, PIM, FSM, Claims fixtures
-│   ├── enterprise_knowledge_catalog.json
+│   ├── enterprise_sources/           # CRM, PIM, FSM, Claims fixtures
 │   └── provenance_manifest.json
-├── tests/                        # Diagnosis, enterprise, pipeline, API tests
-├── docs/                         # Architecture docs + Graphviz diagrams
-├── run_demo.sh                   # Quick launcher
-└── run_enterprise_demo.sh        # Full enterprise launcher
+├── tests/                            # 46 pytest tests
+├── docs/                             # Architecture docs, C4/Graphviz diagrams
+├── ui-streamlit-archive/             # Archived Streamlit UI (replaced by Next.js)
+├── restart-all.sh                    # One-command service restart
+├── run_demo.sh
+└── run_enterprise_demo.sh
 ```
 
-## Enterprise Pipelines
+---
 
-Three pipelines run in order via the orchestrator:
+## REST API
+
+```bash
+# Health
+curl http://localhost:8080/health
+
+# Diagnose
+curl -X POST http://localhost:8080/diagnose \
+  -H "Content-Type: application/json" \
+  -d '{"message":"washer wont spin","customer_id":"CUST-10042","asset_id":"AST-WM-4421","product_id":"wm-001"}'
+
+# Full product graph (Knowledge Explorer)
+curl http://localhost:8080/graph/product/wm-001
+
+# Diagnosis path subgraph
+curl "http://localhost:8080/graph/diagnosis-subgraph?product_id=wm-001&symptom_ids=wm-s03,wm-s01&failure_mode_id=wm-fm01"
+```
+
+Response includes: `recommendation_strength`, `posterior_dominance_ratio`, `traversed_symptom_ids`, `traversed_fm_id`, `provenance_trail[]`, `evidence[]`.
+
+---
+
+## Tests
+
+```bash
+source venv/bin/activate
+python -m pytest -q                              # 46 tests
+python -m pytest tests/test_diagnosis.py
+python -m pytest tests/test_product_resolution.py
+python -m pytest tests/test_enterprise_scenarios.py
+```
+
+> Tests run **without Neo4j** — `list_products()` degrades gracefully to the static
+> OEM catalog when the graph is unreachable, so CI and Docker-less machines pass.
+
+---
+
+## Developer Setup (hooks, lint, auto-fix)
+
+All tooling is **cross-platform (Windows / macOS / Linux) and Docker-free**.
+
+### One-time setup after cloning
+
+```bash
+python -m venv venv
+source venv/bin/activate            # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+pip install -r requirements-dev.txt
+
+pre-commit install                  # commit hook (auto-fix on every commit)
+pre-commit install -t pre-push      # pre-push hook (runs full test suite)
+
+cd frontend && npm install && cd ..
+```
+
+### What the hooks do automatically
+
+| Stage | Tool | Action |
+|-------|------|--------|
+| **pre-commit** | ruff | Python lint **+ auto-fix** |
+| **pre-commit** | ruff-format | Python formatting |
+| **pre-commit** | ESLint | Frontend lint **+ auto-fix** (`--fix`) |
+| **pre-commit** | tsc | Frontend TypeScript typecheck |
+| **pre-commit** | hygiene | Trailing whitespace, EOF, YAML/JSON/TOML, line endings, merge conflicts |
+| **pre-push** | pytest | Full backend test suite |
+
+Hooks **auto-fix in place** — if a commit is blocked, the files are already fixed;
+just re-stage (`git add -u`) and commit again.
+
+### Manual commands
+
+```bash
+# Python
+ruff check . --fix          # lint + auto-fix
+ruff format .               # format
+pytest tests/ -q            # tests
+
+# Frontend
+cd frontend
+npm run lint:fix            # ESLint auto-fix
+npm run typecheck           # tsc --noEmit
+npm run build               # production build
+
+# Run every hook on the whole repo
+pre-commit run --all-files
+```
+
+These are the **exact same checks CI runs** — passing locally means CI passes.
+
+---
+
+## Configuration
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `USE_MOCK_ENTERPRISE_APIS` | `true` | Simulated CRM/PIM/Claims/FSM |
+| `ENABLE_PROVENANCE` | `true` | Source-system trail on diagnoses |
+| `ESCALATION_CONFIDENCE_THRESHOLD` | `0.65` | Escalate below this |
+| `API_PORT` | `8080` | FastAPI port |
+
+---
+
+## Enterprise ETL Pipelines
 
 ```bash
 python -m graph.enterprise_pipeline.orchestrator
@@ -211,185 +365,41 @@ python -m graph.enterprise_pipeline.orchestrator
 
 | # | Pipeline | Purpose |
 |---|----------|---------|
-| 1 | **Knowledge ETL** | Extract from PIM/FSM/Claims/CRM → build ontology → load Neo4j |
-| 2 | **Smoke Validation** | Run regression scenarios before promotion |
-| 3 | **Staging Promotion** | Promote validated catalog to Neo4j |
+| 1 | Knowledge ETL | PIM/FSM/Claims/CRM → ontology → Neo4j |
+| 2 | Smoke Validation | Regression scenarios before promotion |
+| 3 | Staging Promotion | Promote validated catalog to graph |
 
-Lineage batches are logged to `data/lineage/etl_batches.jsonl` (gitignored at runtime).
+---
 
-## REST API
+## Risk Mitigation
 
-```bash
-python -m api.main
-# or: uvicorn api.main:app --port 8080
-```
+| Risk | Mitigation |
+|------|-----------|
+| Unsafe repair advice | Graph-grounded answers + safety notes; critical symptoms force escalation |
+| Low-confidence misdiagnosis | Mandatory escalation below threshold; `recommendation_strength` label |
+| Unexplainable AI output | `provenance_trail` and `evidence[]` on every diagnosis; no black-box LLM |
+| Stale knowledge graph | ETL smoke validation gate before graph promotion |
+| Bad ETL loads | Validation pipeline blocks staging promotion on failure |
 
-```bash
-curl -X POST http://localhost:8080/diagnose \
-  -H "Content-Type: application/json" \
-  -d '{"message":"washer won'\''t spin","customer_id":"CUST-10042","asset_id":"AST-WM-4421"}'
-```
+---
 
-## Configuration
-
-Copy `.env.example` to `.env`:
+## Architecture Diagrams
 
 ```bash
-cp .env.example .env
+bash docs/graphviz/render_all.sh    # renders .dot → PNG
 ```
 
-Key settings:
+See `docs/PIPELINE-AND-MODULE-GUIDE.md` for a full module-by-module reference.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `USE_MOCK_ENTERPRISE_APIS` | `true` | Use simulated CRM/PIM/Claims/FSM on :8090 |
-| `MOCK_ENTERPRISE_API_URL` | `http://localhost:8090` | Mock enterprise base URL |
-| `ENABLE_PROVENANCE` | `true` | Attach source-system trail to diagnoses |
-| `ESCALATION_CONFIDENCE_THRESHOLD` | `0.65` | Escalate below this confidence |
-| `API_PORT` | `8080` | Diagnostics REST API port |
+---
 
-## Tests
+## Assumptions
 
-```bash
-python tests/test_diagnosis.py
-python tests/test_enterprise_scenarios.py
-python tests/test_enterprise_scenarios.py --smoke
-python tests/test_pipeline_integration.py
-python tests/test_api.py
-```
+This is a design illustration on synthetic data — not a validated production system.
 
-## Documentation
+- **Scope:** 3 appliance families + 10 OEM models on synthetic/fixture data
+- **Graph-native:** No LLM required for core diagnosis (optional for response formatting)
+- **Mock integrations by default:** Real enterprise URLs configurable via `.env`
+- **Local trust boundary:** Escalations stored in JSON, not a live case management system
 
-Word documents in `docs/` (generate with Node.js + `docx` package). Each document includes **prerequisites**, **dependencies**, **assumptions**, and **risk mitigation** where applicable:
-
-| Doc | Topic |
-|-----|-------|
-| 01 | Architecture & Solution Design |
-| 02 | Knowledge Graph Ontology & GraphRAG Deep Dive |
-| 03 | Beginner's Guide |
-| 04 | Cypher Query Walkthrough with Diagrams |
-| 05 | Enterprise Implementation Roadmap |
-| 06 | Architecture Diagrams (Graphviz) |
-| 07 | Enterprise Pipelines & Data Lineage |
-| 08 | Customer Interaction Scripts & Presentation Runbook |
-| 09 | Live Diagnostic Session Technical Walkthrough |
-| 10 | Production Pipelines & Phased Roadmap |
-| **11** | **Enterprise Delivery Assumptions, Dependencies & Open Questions** |
-| **12** | **Solution Approach & Delivery Methodology** |
-
-**Executive proposal deck (client-facing):**
-
-`docs/Enterprise-Warranty-Diagnostics-Executive-Proposal.pptx` — generate with:
-
-```bash
-npm install
-node docs/scripts/generate_executive_presentation.js
-node docs/scripts/generate_documents.js
-node docs/scripts/generate_implementation_plan.js
-node docs/scripts/generate_assumptions_doc.js
-node docs/scripts/generate_methodology_doc.js
-node docs/scripts/generate_graph_visualization_guide_doc.js
-node docs/scripts/generate_warranty_ontology_doc.js
-node docs/scripts/generate_pipelines_doc.js
-bash docs/graphviz/render_all.sh
-```
-
-## Graph Visualization
-
-The Streamlit UI embeds **interactive force-directed graphs** (PyVis) — the same mental model as Neo4j Browser / Bloom tutorials:
-
-| View | Where |
-|------|--------|
-| ER ontology schema | Knowledge Graph → **Ontology (ER Diagram)** |
-| Full product neighborhood | Knowledge Graph → **Product Graph** |
-| Query-driven subgraph | Knowledge Graph → **Cypher Explorer** |
-| Per-chat diagnosis path | Customer Chatbot → **Diagnosis Graph** expander |
-
-REST endpoints return `{nodes, edges}` for custom portals: `GET /graph/ontology`, `GET /graph/product/{product_id}`, `GET /graph/diagnosis-subgraph`.
-
-See **Document 13** (graph visualization) and **Document 14** (`14-Enterprise-Warranty-Diagnosis-Ontology-and-Industry-Alignment.docx`) for the full warranty-claims chain, parts predictor design, and industry research alignment.
-
-## Warranty Diagnosis Chain (Enterprise Ontology)
-
-```
-Asset (serial) → Product / Model / SKU
-    → Symptoms + Error codes
-    → Failure modes (diagnosis)
-    → Troubleshooting steps (CONFIRMS)
-    → Impacted components (BOM)
-    → Predicted parts (REQUIRES_PART + SKU fit + claim precedent)
-    → Warranty policy / claim history
-```
-
-Bind a CRM asset in the chat UI to enable model/SKU-scoped parts prediction. Reload graph after updates: `python graph/populate_graph.py`.
-
-## Enterprise OEM Product Catalog
-
-| OEM | Model | Product ID | Public sources |
-|-----|-------|------------|----------------|
-| Samsung | WF45T6000AW | `oem-sam-wf45` | Samsung support (UE, 4E, 5E, spin troubleshooting) |
-| LG | LDF5545ST | `oem-lg-ldf5545` | LG dishwasher error code list (OE, IE, HE, AE) |
-| Whirlpool | WTW5000DW | `oem-whi-wtw5000` | Whirlpool top-load diagnostic |
-| Bosch | SHPM88Z75N | `oem-bos-shpm88` | Bosch E24/E01 dishwasher codes |
-| GE | JVM3160RFSS | `oem-ge-jvm3160` | GE OTR microwave service |
-
-| LG | WM4000HWA Washer | `oem-lg-wm4000` |
-| Samsung | DW80B7070US Dishwasher | `oem-sam-dw80` |
-| Samsung | RF28R7351SG Refrigerator | `oem-sam-rf28` |
-| LG | DLE3400W Dryer | `oem-lg-dle3400` |
-| Whirlpool | WFG505M0BS Gas Range | `oem-whi-wfg505` |
-
-Plus 3 legacy demo products (`wm-001`, `dw-001`, `mw-001`) — **13 products total**. Each blueprint includes model/SKU, BOM components, OEM error codes, dynamic `NEXT_STEP` diagnostic trees, parts predictor links, and `oem_sources[]` URLs.
-
-**PIM sync (ETL ingestion):**
-```bash
-python -m graph.synthetic_data_generator          # regenerates catalog + syncs PIM
-python -m graph.enterprise_pipeline.transformers.pim_blueprint_sync
-python graph/populate_graph.py
-```
-
-**Data policy:** Catalog uses publicly available OEM support documentation only. Part numbers are representative service references — validate against live PIM before production.
-
-## Architecture Diagrams (C4 + LLD)
-
-Rendered via `bash docs/graphviz/render_all.sh` → `docs/graphviz/rendered/png/`:
-
-| Diagram | File | Level |
-|---------|------|-------|
-| System Context | `21-architecture-L1-system-context.dot` | L1 |
-| Containers | `22-architecture-L2-container.dot` | L2 |
-| Components | `23-architecture-L3-component.dot` | L3 |
-| Code / classes | `24-architecture-L4-code.dot` | L4 |
-| Diagnosis + claim sequence | `25-architecture-LLD-diagnosis-claim-sequence.dot` | LLD |
-| Product blueprint ontology | `26-enterprise-product-blueprint.dot` | Ontology |
-
-## Neo4j Browser
-
-http://localhost:7474 — login `neo4j` / `password`
-
-```cypher
-MATCH (s:Symptom)-[r:INDICATES]->(fm:FailureMode)
-RETURN s.description, fm.name, r.confidence
-ORDER BY r.confidence DESC
-```
-
-## Escalation Rules
-
-Cases escalate automatically when:
-
-- Product cannot be detected
-- Any matched symptom has `critical` severity
-- Diagnosis confidence is below `ESCALATION_CONFIDENCE_THRESHOLD` (default 65%)
-
-Example: washer multi-symptom query may rank the correct failure mode but still escalate at ~46% confidence.
-
-## Notes
-
-- Works **without an LLM API key** (graph-native demo mode)
-- Optional: set `XAI_API_KEY` or `OPENAI_API_KEY` in `.env` for future LLM-enhanced responses
-- Mock enterprise APIs simulate Salesforce CRM, PIM, FSM, and Claims for local development
-- Production path: replace mock URLs with real connector credentials (see Document 05)
-
-## License
-
-Demo / educational use.
+See `docs/` document 11 for the full enterprise delivery assumptions register.
