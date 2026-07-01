@@ -56,7 +56,12 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        # Use `npm install` (not `npm ci`): Tailwind v4's oxide engine pulls in
+        # @napi-rs/wasm-runtime whose optional @emnapi/* sub-deps are recorded as
+        # references but not resolved packages, making `npm ci` strict validation
+        # fail on all platforms (known npm bug). `npm install` reconciles the
+        # committed lockfile deterministically and is cross-platform safe.
+        run: npm install --no-audit --no-fund
 
       - name: Lint (non-blocking — reports style issues)
         run: npm run lint
