@@ -1,0 +1,10 @@
+# PDF build intermediates
+.pdf-build/node_modules/
+.pdf-build/.tmp-*.html
+.pdf-build/*.png
+.pdf-build/package-lock.json
+
+# Keep the build script and config
+# .pdf-build/render.mjs — check in
+# .pdf-build/README.md — check in
+# .pdf-build/package.json — check in
