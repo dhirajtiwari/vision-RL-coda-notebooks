@@ -38,3 +38,9 @@ docs/graphviz/rendered/
 
 # Kubernetes secrets (use secrets.yaml.example)
 k8s/**/secrets.yaml
+
+# Coverage / eval artifacts
+.coverage
+coverage.xml
+htmlcov/
+eval-report.json

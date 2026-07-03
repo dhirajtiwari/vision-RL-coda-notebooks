@@ -12,3 +12,9 @@ fastapi>=0.110
 uvicorn>=0.27
 httpx>=0.27
 pyvis>=0.3.2
+# --- LLMOps: observability + config (lightweight, always installed) ---
+prometheus-client>=0.20
+PyYAML>=6.0
+jsonschema>=4.0
+# --- Optional OpenTelemetry stack: `pip install -r requirements-observability.txt`
+#     (kept out of the core install so the local demo stays lean)

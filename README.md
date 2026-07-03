@@ -251,6 +251,36 @@ diagnostic-chatbot/
 
 ---
 
+## Enterprise LLMOps
+
+This repo follows the [Enterprise LLMOps Handbook](docs/llmops-handbook/00-index.md)
+(kickoff prompt in [ch20](docs/llmops-handbook/20-project-kickoff-prompt.md), repo
+blueprint in [ch21](docs/llmops-handbook/21-reference-repository-blueprint.md)).
+The core diagnosis engine is **deterministic** (Neo4j + FMEA/Bayes); the LLM
+disciplines are wired in **ready-but-inactive** (`LLM_ENABLED=false`) so activating
+OpenAI / Azure AI Foundry later is a config flip.
+
+| Discipline | Lives in | Status |
+|-----------|----------|--------|
+| PromptOps | [`prompts/`](prompts/), [`promptops/`](promptops/) | Ready (LLM path) |
+| EvalOps | [`evals/`](evals/) (`run_eval.py`, `thresholds.yaml`, golden+safety) | **Active gate** |
+| Guardrails | [`guardrails/`](guardrails/) (input/output/action/rate-limit) | **Active** |
+| Model gateway / ModelOps | [`gateway/`](gateway/), [`models/registry.yaml`](models/registry.yaml) | Ready (inactive) |
+| FinOps | [`finops/`](finops/) (budget + circuit breaker) | Ready (LLM path) |
+| Observability | [`observability/`](observability/) (OTel + metrics + JSON logs + redaction) | **Active** |
+| Metric catalog | [`monitoring/`](monitoring/) (Prometheus rules, Grafana, alerts) | **Active** |
+| Security | [`security/`](security/) (threat model, OWASP LLM mapping) | **Active** |
+| Governance | [`docs/governance/`](docs/governance/) (DPIA, classification, retention), [`docs/model-cards/`](docs/model-cards/) | **Active** |
+| Platform / IaC | [`infra/terraform/`](infra/terraform/) (AWS/GCP/Azure placeholders) | Placeholder |
+| CI/CD & supply chain | [`.github/workflows/`](.github/workflows/) (lint→audit→test→eval gate) | **Active** |
+| Progressive delivery | [`deploy/rollouts/`](deploy/rollouts/) (Argo + Flagger) | Configurable |
+| Operations | [`docs/runbooks/`](docs/runbooks/) + [`monitoring/`](monitoring/) | **Active** |
+
+Paved-road commands: see the [`Makefile`](Makefile) (`make eval-smoke`, `make audit`,
+`make test-cov`, `make up`). New runtime flags are documented in [`.env.example`](.env.example).
+
+---
+
 ## REST API
 
 ```bash

@@ -1,0 +1,91 @@
+# Argo Rollouts — canary for the diagnostics API (kickoff prompt §N, ch14)
+# Requires the Argo Rollouts controller. Traffic is shifted in steps with an
+# AnalysisTemplate that gates on infra AND diagnosis-quality metrics; any breach
+# triggers automatic rollback to the stable ReplicaSet.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: diagnostics-api
+  namespace: diagnostics
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: diagnostics-api
+  strategy:
+    canary:
+      analysis:
+        templates:
+          - templateName: diagnostics-canary-analysis
+        startingStep: 1
+      steps:
+        - setWeight: 20
+        - pause: { duration: 2m }
+        - setWeight: 50
+        - pause: { duration: 5m }
+        - setWeight: 100
+  template:
+    metadata:
+      labels:
+        app: diagnostics-api
+    spec:
+      containers:
+        - name: api
+          # Deploy by immutable digest (never a floating tag) — §M.
+          image: ghcr.io/dhirajtiwari/remote-diagnostics-graphdb-api@sha256:REPLACE_WITH_DIGEST
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: diagnostics-canary-analysis
+  namespace: diagnostics
+spec:
+  metrics:
+    # Infra: error rate must stay under 5%.
+    - name: error-rate
+      interval: 1m
+      count: 5
+      successCondition: result < 0.05
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            sum(rate(diagnostics_requests_total{route="/diagnose",status=~"5.."}[2m]))
+            / sum(rate(diagnostics_requests_total{route="/diagnose"}[2m]))
+    # Infra: p95 latency must stay under 2s.
+    - name: latency-p95
+      interval: 1m
+      count: 5
+      successCondition: result < 2
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            histogram_quantile(0.95,
+              sum(rate(diagnostics_request_latency_seconds_bucket{route="/diagnose"}[2m])) by (le))
+    # Quality: median diagnosis confidence must not collapse.
+    - name: diagnosis-confidence
+      interval: 1m
+      count: 5
+      successCondition: result >= 0.40
+      failureLimit: 1
+      provider:
+        prometheus:
+          address: http://prometheus.monitoring:9090
+          query: |
+            histogram_quantile(0.5,
+              sum(rate(diagnostics_diagnosis_confidence_bucket[5m])) by (le))

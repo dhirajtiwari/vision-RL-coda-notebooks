@@ -1,0 +1,30 @@
+# Kyverno image-signature admission (kickoff prompt §M, handbook ch13)
+# Only allow images signed with cosign (keyless/OIDC). Blocks unsigned/ tampered
+# images from running. Requires the Kyverno controller in-cluster.
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-diagnostics-image-signatures
+spec:
+  validationFailureAction: Enforce
+  webhookTimeoutSeconds: 30
+  rules:
+    - name: verify-cosign-signature
+      match:
+        any:
+          - resources:
+              kinds: [Pod]
+              namespaces: [diagnostics]
+      verifyImages:
+        - imageReferences:
+            - "ghcr.io/dhirajtiwari/remote-diagnostics-graphdb-*"
+          attestors:
+            - entries:
+                # Keyless cosign: verify against the GitHub Actions OIDC identity
+                # that signed the image in CI (cd.yml).
+                - keyless:
+                    issuer: "https://token.actions.githubusercontent.com"
+                    subject: "https://github.com/dhirajtiwari/remote-diagnostics-graphDB/*"
+                    rekor:
+                      url: https://rekor.sigstore.dev

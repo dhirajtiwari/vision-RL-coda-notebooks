@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Prompt artifact schema (kickoff prompt §B, handbook ch02)",
+  "description": "Every prompt file under prompts/<id>/vN.yaml MUST satisfy this schema. Prompts are versioned artifacts, not string literals.",
+  "type": "object",
+  "required": ["id", "version", "owner", "system", "output_schema"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$",
+      "description": "Stable prompt identifier; matches the folder name."
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonic version. Bumps require a CHANGELOG entry."
+    },
+    "owner": {
+      "type": "string",
+      "description": "Team or individual accountable for this prompt."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["active", "canary", "deprecated"],
+      "default": "active"
+    },
+    "model_alias": {
+      "type": "string",
+      "description": "models/registry.yaml alias this prompt targets."
+    },
+    "system": {
+      "type": "string",
+      "minLength": 1,
+      "description": "System instruction text."
+    },
+    "user_template": {
+      "type": "string",
+      "description": "Optional user-message template with {placeholders}."
+    },
+    "output_schema": {
+      "type": "object",
+      "description": "JSON Schema the model output must validate against."
+    },
+    "eval_suite": {
+      "type": "string",
+      "description": "evals/ suite that gates changes to this prompt."
+    }
+  }
+}

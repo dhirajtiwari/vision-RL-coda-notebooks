@@ -1,0 +1,8 @@
+# Optional OpenTelemetry stack (kickoff prompt §H, handbook ch08).
+# Install only when OTEL_ENABLED=true and you have an OTLP collector:
+#     pip install -r requirements-observability.txt
+# The app degrades gracefully (tracing = no-op) when these are absent.
+opentelemetry-api>=1.27
+opentelemetry-sdk>=1.27
+opentelemetry-exporter-otlp-proto-grpc>=1.27
+opentelemetry-instrumentation-fastapi>=0.48b0

@@ -1,0 +1,87 @@
+# Flagger — canary for the diagnostics API (kickoff prompt §N, ch14)
+# Alternative to Argo Rollouts. Requires the Flagger controller + a supported
+# mesh/ingress (e.g. nginx, Istio, Linkerd) and Prometheus. Same metric gates.
+---
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: diagnostics-api
+  namespace: diagnostics
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: diagnostics-api
+  progressDeadlineSeconds: 600
+  service:
+    port: 8080
+    targetPort: 8080
+  analysis:
+    interval: 1m
+    threshold: 5          # max failed checks before rollback
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+      - name: error-rate
+        templateRef:
+          name: diagnostics-error-rate
+        thresholdRange:
+          max: 5          # percent
+        interval: 1m
+      - name: latency-p95
+        templateRef:
+          name: diagnostics-latency
+        thresholdRange:
+          max: 2000       # milliseconds
+        interval: 1m
+      - name: diagnosis-confidence
+        templateRef:
+          name: diagnostics-confidence
+        thresholdRange:
+          min: 0.40       # median confidence floor
+        interval: 1m
+    webhooks:
+      # Run the eval smoke gate as a pre-rollout acceptance test.
+      - name: eval-smoke
+        type: pre-rollout
+        url: http://diagnostics-api-canary.diagnostics:8080/health
+        timeout: 30s
+---
+apiVersion: flagger.app/v1beta1
+kind: MetricTemplate
+metadata:
+  name: diagnostics-error-rate
+  namespace: diagnostics
+spec:
+  provider:
+    type: prometheus
+    address: http://prometheus.monitoring:9090
+  query: |
+    100 * sum(rate(diagnostics_requests_total{route="/diagnose",status=~"5.."}[2m]))
+    / sum(rate(diagnostics_requests_total{route="/diagnose"}[2m]))
+---
+apiVersion: flagger.app/v1beta1
+kind: MetricTemplate
+metadata:
+  name: diagnostics-latency
+  namespace: diagnostics
+spec:
+  provider:
+    type: prometheus
+    address: http://prometheus.monitoring:9090
+  query: |
+    1000 * histogram_quantile(0.95,
+      sum(rate(diagnostics_request_latency_seconds_bucket{route="/diagnose"}[2m])) by (le))
+---
+apiVersion: flagger.app/v1beta1
+kind: MetricTemplate
+metadata:
+  name: diagnostics-confidence
+  namespace: diagnostics
+spec:
+  provider:
+    type: prometheus
+    address: http://prometheus.monitoring:9090
+  query: |
+    histogram_quantile(0.5,
+      sum(rate(diagnostics_diagnosis_confidence_bucket[5m])) by (le))

@@ -1,0 +1,65 @@
+{
+  "__comment": "Grafana dashboard (kickoff prompt §F/§H/§I). Import into Grafana; datasource = Prometheus. Panels reuse observability/metrics.py series.",
+  "title": "Remote Diagnostics — LLMOps Overview",
+  "schemaVersion": 39,
+  "editable": true,
+  "tags": ["diagnostics", "llmops"],
+  "templating": { "list": [] },
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Request rate by route",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum by (route) (rate(diagnostics_requests_total[5m]))", "legendFormat": "{{route}}" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Error rate (/diagnose 5xx)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(diagnostics_requests_total{route=\"/diagnose\",status=~\"5..\"}[5m])) / sum(rate(diagnostics_requests_total{route=\"/diagnose\"}[5m]))", "legendFormat": "error ratio" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Latency p95 (/diagnose)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(diagnostics_request_latency_seconds_bucket{route=\"/diagnose\"}[5m])) by (le))", "legendFormat": "p95 s" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Diagnosis confidence (median)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        { "expr": "histogram_quantile(0.5, sum(rate(diagnostics_diagnosis_confidence_bucket[30m])) by (le))", "legendFormat": "median confidence" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Escalation ratio",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+      "targets": [
+        { "expr": "sum(rate(diagnostics_escalations_total[15m])) / sum(rate(diagnostics_requests_total{route=\"/diagnose\"}[15m]))", "legendFormat": "escalation ratio" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "LLM cost (USD, cumulative) — optional path",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+      "targets": [
+        { "expr": "sum(diagnostics_llm_cost_usd_total)", "legendFormat": "usd total" }
+      ]
+    }
+  ]
+}

@@ -37,3 +37,32 @@ indent-style = "space"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --tb=short"
+
+# ─────────────────────────────────────────────────────────────────────────────
+[tool.coverage.run]
+branch = true
+source = [
+    "agents",
+    "api",
+    "config",
+    "domain",
+    "finops",
+    "gateway",
+    "guardrails",
+    "observability",
+    "promptops",
+    "services",
+    "utils",
+]
+omit = [
+    "*/__init__.py",
+    "tests/*",
+    "venv/*",
+    "ui-streamlit-archive/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_empty = true
+# Raise this floor as coverage grows; keep it enforceable in CI.
+fail_under = 0

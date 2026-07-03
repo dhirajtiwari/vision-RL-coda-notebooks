@@ -1,0 +1,26 @@
+# Local observability stack (kickoff prompt §H) — OPT-IN.
+# Brings up an OTel Collector + Prometheus so you can see traces/metrics from the
+# API on the Mac mini. Start the API with OTEL_ENABLED=true.
+#
+#   docker compose -f docker/docker-compose.observability.yaml up -d
+#
+# Then point the API at it: OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.109.0
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ../monitoring/otel-collector.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus exporter (scraped by prometheus below)
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    volumes:
+      - ../monitoring/prometheus:/etc/prometheus/rules:ro
+    ports:
+      - "9090:9090"
+
+  # Add Grafana + Tempo here when you want dashboards/trace UI locally.

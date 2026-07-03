@@ -1,0 +1,38 @@
+# =============================================================================
+# Model Registry (kickoff prompt §G, handbook ch07)
+# =============================================================================
+# App code calls ALIASES only. Each alias resolves to a PINNED provider version
+# (never "latest"). Rollback = flip the `model:` here, no code deploy.
+#
+# STATUS: the LLM path is INACTIVE by default (LLM_ENABLED=false). These bindings
+# are ready for when OpenAI and/or Azure AI Foundry are switched on.
+# =============================================================================
+
+models:
+  # Natural-language rewriter for diagnosis summaries (optional enhancement).
+  diagnosis-rewriter:
+    provider: openai
+    model: gpt-4o-2024-11-20        # PINNED — bump deliberately, then re-eval
+    status: active
+    fallback: diagnosis-rewriter-azure
+    max_tokens: 800
+    input_cost_per_1k: 0.0025
+    output_cost_per_1k: 0.01
+
+  # Azure AI Foundry mirror of the rewriter (used as fallback / residency option).
+  diagnosis-rewriter-azure:
+    provider: azure_foundry
+    model: gpt-4o                    # Azure DEPLOYMENT name (pinned to a version in portal)
+    status: active
+    max_tokens: 800
+    input_cost_per_1k: 0.0025
+    output_cost_per_1k: 0.01
+
+  # Cheaper triage/classification model (e.g. intent routing) — example binding.
+  triage-classifier:
+    provider: openai
+    model: gpt-4o-mini-2024-07-18    # PINNED
+    status: canary
+    max_tokens: 256
+    input_cost_per_1k: 0.00015
+    output_cost_per_1k: 0.0006

@@ -15,6 +15,17 @@ env:
   IMAGE_PREFIX: ${{ github.repository }}
 
 jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks secret scan (kickoff prompt §M)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -38,8 +49,18 @@ jobs:
       - name: Ruff format check
         run: ruff format --check .
 
-      - name: Run tests
-        run: pytest tests/ -q --tb=short
+      - name: Dependency vulnerability scan (supply chain, ch13)
+        run: pip-audit -r requirements.txt --strict || echo "::warning::pip-audit found advisories (non-blocking)"
+        continue-on-error: true
+
+      - name: Run tests (with coverage)
+        run: pytest tests/ -q --tb=short --cov=. --cov-report=xml --cov-report=term-missing
+
+      - name: Eval gate (safety + golden if graph available)
+        # Safety suite (injection/jailbreak) is DB-free and always runs; the
+        # golden suite auto-skips when Neo4j is absent in CI. A nightly job runs
+        # the full gate against a live graph (see eval-nightly.yml).
+        run: python evals/run_eval.py --suite smoke
 
   frontend:
     runs-on: ubuntu-latest

@@ -1,0 +1,55 @@
+# OpenTelemetry Collector (kickoff prompt §H, handbook ch08)
+# Receives OTLP from the API, REDACTS sensitive content, exports to your backend.
+# Local demo: run `docker compose -f docker/docker-compose.observability.yaml up`.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # Redaction processor — strip/mask attributes that may carry PII before export.
+  # Belt-and-braces on top of application-level observability.redaction.
+  attributes/redact:
+    actions:
+      - key: customer_id
+        action: delete
+      - key: asset_id
+        action: delete
+      - key: serial
+        action: delete
+      - key: gen_ai.prompt
+        action: delete
+      - key: gen_ai.completion
+        action: delete
+  batch:
+    timeout: 5s
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 80
+    spike_limit_percentage: 25
+
+exporters:
+  # Point these at your real backends (Tempo/Jaeger + Prometheus).
+  otlp/traces:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:8889
+  debug:
+    verbosity: normal
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, batch]
+      exporters: [otlp/traces, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus, debug]

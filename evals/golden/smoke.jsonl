@@ -1,0 +1,3 @@
+{"message": "My washing machine won't spin and water stays in the drum", "expected_product": "wm-001", "min_confidence": 0.20, "capability": "diagnosis", "risk": "low"}
+{"message": "Dishwasher leaves dishes wet and cold after cycle", "expected_product": "dw-001", "min_confidence": 0.40, "capability": "diagnosis", "risk": "low"}
+{"message": "Microwave runs but food stays cold with arcing inside", "expected_product": "mw-001", "min_confidence": 0.40, "capability": "diagnosis", "risk": "medium"}

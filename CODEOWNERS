@@ -1,0 +1,26 @@
+# Code ownership & review gates (kickoff prompt §A, handbook ch21 §21.3)
+# A discipline with no owner is a discipline you are not actually doing.
+
+# Default owner
+*                                   @dhirajtiwari
+
+# --- Security-sensitive paths require extra review ---
+/guardrails/                        @dhirajtiwari
+/security/                          @dhirajtiwari
+/config/settings.py                 @dhirajtiwari
+
+# --- Quality gates: prompts, evals, models are first-class artifacts ---
+/prompts/                           @dhirajtiwari
+/evals/                             @dhirajtiwari
+/models/                            @dhirajtiwari
+
+# --- Platform / delivery / observability ---
+/infra/                             @dhirajtiwari
+/deploy/                            @dhirajtiwari
+/monitoring/                        @dhirajtiwari
+/observability/                     @dhirajtiwari
+/.github/workflows/                 @dhirajtiwari
+
+# --- Governance evidence ---
+/docs/governance/                   @dhirajtiwari
+/docs/model-cards/                  @dhirajtiwari

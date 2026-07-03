@@ -4,3 +4,5 @@
 pytest>=8.0
 ruff>=0.6            # Python linter + formatter (auto-fix)
 pre-commit>=3.7      # Git hook manager (runs the same checks locally as CI)
+pytest-cov>=5.0      # coverage reporting + CI coverage gate
+pip-audit>=2.7       # dependency vulnerability scan (supply chain, ch13)

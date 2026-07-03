@@ -9,7 +9,6 @@ Run: python -m api.main
 
 from __future__ import annotations
 
-import logging
 import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -22,7 +21,7 @@ import json
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from agents.diagnosis_graph import run_diagnosis
 from api.schemas import ClaimStatus, DiagnoseRequest, DiagnoseResponse, GraphSubgraphResponse
@@ -40,6 +39,12 @@ from graph.graph_visualization import (
     get_product_subgraph,
 )
 from graph.neo4j_client import close_driver, verify_connection
+
+# --- LLMOps: observability + guardrails (kickoff prompt §E/§H) ---------------
+from guardrails.input import GuardrailViolation
+from guardrails.output import validate_output
+from guardrails.pipeline import guard_request
+from guardrails.rate_limit import RateLimiter
 from integrations.claims_workflow import (
     get_claim,
     list_submitted_claims,
@@ -48,11 +53,34 @@ from integrations.claims_workflow import (
 )
 from integrations.crm_enrichment import enrich_session_from_crm
 from integrations.warranty_eligibility import check_warranty_eligibility
+from observability.logging_setup import get_logger, set_request_id, setup_logging
+from observability.metrics import (
+    METRICS_CONTENT_TYPE,
+    observe_diagnosis,
+    observe_request,
+    render_latest_metrics,
+)
+from observability.tracing import instrument_fastapi, setup_tracing, span
 from services.diagnosis_service import run_full_diagnosis
 from utils.connector_status import integration_status
 from utils.lineage_store import list_batches
 
-logger = logging.getLogger("diagnostics.api")
+# Configure structured logging + tracing at import time (idempotent).
+setup_logging(
+    level=settings.log_level,
+    json_output=settings.log_json,
+    redact=settings.enable_pii_redaction,
+)
+setup_tracing(
+    enabled=settings.otel_enabled,
+    service_name=settings.otel_service_name,
+    otlp_endpoint=settings.otel_exporter_otlp_endpoint,
+    sampler_ratio=settings.otel_traces_sampler_arg,
+)
+
+logger = get_logger("diagnostics.api")
+
+_rate_limiter = RateLimiter(max_per_window=settings.rate_limit_per_minute)
 
 
 @asynccontextmanager
@@ -78,6 +106,49 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Attach OpenTelemetry auto-instrumentation when OTEL_ENABLED=true (no-op otherwise).
+instrument_fastapi(app)
+
+
+@app.middleware("http")
+async def _observability_and_limits(request: Request, call_next):
+    """Per-request: correlation id, rate limiting, latency + metrics.
+
+    Kickoff prompt §E (rate limiting) + §H (tracing/metrics/correlation ids).
+    """
+    import time
+    import uuid
+
+    request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:16]
+    set_request_id(request_id)
+
+    # Rate limit keyed by admin token → customer → client host (best-effort).
+    client_key = (
+        request.headers.get("x-admin-token")
+        or request.headers.get("x-customer-id")
+        or (request.client.host if request.client else "anon")
+    )
+    route = request.url.path
+    if route == "/diagnose" and not _rate_limiter.allow(client_key):
+        retry = _rate_limiter.retry_after(client_key)
+        observe_request(route, 429, 0.0)
+        return JSONResponse(
+            status_code=429,
+            content={"detail": "rate limit exceeded"},
+            headers={"Retry-After": str(retry), "X-Request-ID": request_id},
+        )
+
+    start = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception:
+        observe_request(route, 500, time.perf_counter() - start)
+        raise
+    elapsed = time.perf_counter() - start
+    observe_request(route, response.status_code, elapsed)
+    response.headers["X-Request-ID"] = request_id
+    return response
+
 
 @app.exception_handler(Exception)
 async def _unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
@@ -94,6 +165,14 @@ def health() -> dict:
         "demo_mode": settings.demo_mode,
         "provenance_enabled": settings.enable_provenance,
     }
+
+
+@app.get("/metrics")
+def metrics() -> Response:
+    """Prometheus scrape endpoint (kickoff prompt §H/§I)."""
+    if not settings.enable_prometheus_metrics:
+        raise HTTPException(404, "metrics disabled")
+    return Response(content=render_latest_metrics(), media_type=METRICS_CONTENT_TYPE)
 
 
 @app.get("/lineage/batches")
@@ -181,6 +260,13 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
     if not verify_connection():
         raise HTTPException(503, "Neo4j unavailable")
 
+    # Input guardrails (kickoff prompt §E): sanitise + block injection/jailbreak.
+    try:
+        message = guard_request(req.message, max_input_length=settings.max_input_length)
+    except GuardrailViolation as violation:
+        logger.warning("input guardrail blocked request: %s", violation.rule)
+        raise HTTPException(400, f"input rejected: {violation.rule}") from violation
+
     crm = enrich_session_from_crm(customer_id=req.customer_id, asset_id=req.asset_id)
     product_id = req.product_id or crm.get("product_id")
 
@@ -188,30 +274,51 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
     if crm.get("enriched") and crm.get("warranty_status"):
         warranty = check_warranty_eligibility(crm)
 
-    outcome = run_full_diagnosis(
-        req.message,
-        product_id=product_id,
-        asset_id=req.asset_id,
-        crm_context=crm,
-        warranty=warranty,
-    )
-
-    if outcome.warranty_blocked:
-        return DiagnoseResponse(
-            response=outcome.response,
+    with span(
+        "diagnosis.run",
+        **{"diagnosis.product_id": product_id or "auto", "diagnosis.has_asset": bool(req.asset_id)},
+    ) as current_span:
+        outcome = run_full_diagnosis(
+            message,
+            product_id=product_id,
+            asset_id=req.asset_id,
             crm_context=crm,
-            warranty=outcome.warranty,
+            warranty=warranty,
         )
 
-    diagnosis = outcome.diagnosis
-    provenance_trail = diagnosis.get("provenance_trail", [])
+        if outcome.warranty_blocked:
+            observe_diagnosis(0.0, escalated=False, reason="warranty_blocked")
+            return DiagnoseResponse(
+                response=outcome.response,
+                crm_context=crm,
+                warranty=outcome.warranty,
+            )
+
+        diagnosis = outcome.diagnosis
+        provenance_trail = diagnosis.get("provenance_trail", [])
+        confidence = float(diagnosis.get("confidence", 0.0) or 0.0)
+        observe_diagnosis(
+            confidence,
+            escalated=bool(outcome.escalated),
+            reason="low_confidence" if outcome.escalated else "none",
+        )
+        if current_span is not None:
+            current_span.set_attribute("diagnosis.confidence", confidence)
+            current_span.set_attribute("diagnosis.escalated", bool(outcome.escalated))
 
     graph_subgraph = diagnosis.get("graph_subgraph")
     if not graph_subgraph and diagnosis.get("product_id"):
         graph_subgraph = diagnosis_subgraph_from_result(diagnosis)
 
+    # Output guardrails (kickoff prompt §E): cap length + redact PII in prose.
+    guarded = validate_output(
+        {"response": outcome.response},
+        max_chars=settings.max_response_chars,
+        redact_pii=settings.enable_pii_redaction,
+    )
+
     return DiagnoseResponse(
-        response=outcome.response,
+        response=guarded["response"],
         diagnosis=diagnosis,
         escalated=outcome.escalated,
         case_id=outcome.case_id,

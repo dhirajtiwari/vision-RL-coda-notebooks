@@ -1,0 +1,30 @@
+# Alert → runbook index (kickoff prompt §O)
+# Every alert defined in prometheus/rules/ links to a rehearsed runbook.
+
+alerts:
+  - name: DiagnoseHighErrorRate
+    severity: critical
+    slo: availability
+    runbook: docs/runbooks/provider-outage.md
+  - name: DiagnoseLatencyP95High
+    severity: warning
+    slo: latency-p95
+    runbook: docs/runbooks/latency-regression.md
+  - name: DiagnosisConfidenceDrop
+    severity: warning
+    slo: quality
+    runbook: docs/runbooks/quality-regression.md
+  - name: EscalationSurge
+    severity: warning
+    slo: quality
+    runbook: docs/runbooks/rag-stale.md
+  - name: LLMCostSpike
+    severity: warning
+    slo: cost
+    runbook: docs/runbooks/cost-spike.md
+
+slos:
+  availability: {objective: 99.5, window: 30d}
+  latency-p95: {objective_seconds: 2.0, window: 30d}
+  quality: {median_confidence_floor: 0.40, window: 30d}
+  cost: {daily_budget_usd: 5.00}

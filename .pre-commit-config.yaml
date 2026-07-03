@@ -23,6 +23,7 @@ repos:
       - id: end-of-file-fixer
         exclude: ^(ui-streamlit-archive/|.*\.svg$)
       - id: check-yaml
+        args: ["--allow-multiple-documents"]  # K8s/rollout manifests use ---
       - id: check-json
         exclude: ^frontend/tsconfig\.json$   # tsconfig allows comments (JSONC)
       - id: check-toml
@@ -41,6 +42,11 @@ repos:
         args: ["--fix"]
       - id: ruff-format
         name: ruff (format)
+
+  # Secret scanning (kickoff prompt §M) runs in CI (.github/workflows/ci.yml
+  # `secret-scan` job via gitleaks-action) so it works even on machines that
+  # can't fetch the gitleaks pre-commit environment. Add the local hook too if
+  # your network allows: repo https://github.com/gitleaks/gitleaks (id: gitleaks).
 
   # ── Frontend: ESLint auto-fix + TypeScript typecheck (local hooks) ────────
   # These run only when files under frontend/ change. They require Node.js

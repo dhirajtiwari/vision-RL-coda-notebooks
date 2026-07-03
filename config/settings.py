@@ -81,6 +81,32 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     llm_model: str = "grok-2-latest"
 
+    # --- Guardrails (kickoff prompt §E) ---
+    rate_limit_per_minute: int = 60
+    enable_pii_redaction: bool = True
+    max_response_chars: int = 8000
+    max_input_length: int = 2000
+
+    # --- Observability (§H) ---
+    log_level: str = "INFO"
+    log_json: bool = True
+    otel_enabled: bool = False
+    otel_service_name: str = "diagnostics-api"
+    otel_exporter_otlp_endpoint: str = "http://localhost:4317"
+    otel_traces_sampler_arg: float = 1.0
+    enable_prometheus_metrics: bool = True
+
+    # --- LLM gateway (INACTIVE by default — §B/§G) ---
+    llm_enabled: bool = False
+    llm_provider: str = "openai"
+    llm_model_alias: str = "diagnosis-rewriter"
+    azure_openai_api_key: str | None = None
+    azure_openai_endpoint: str | None = None
+    azure_openai_api_version: str = "2024-10-21"
+
+    # --- FinOps (§F) ---
+    llm_cost_budget_usd_per_day: float = 5.00
+
     def resolved_crm_url(self) -> str | None:
         if self.crm_api_url:
             return self.crm_api_url
