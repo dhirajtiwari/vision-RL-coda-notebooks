@@ -75,6 +75,7 @@ This handbook is an **implementation manual**. It defines every concept you need
 
 ### Part XIII — Build It End-to-End
 - [`21-reference-repository-blueprint.md`](21-reference-repository-blueprint.md) — Complete reference repo tree, file-to-chapter matrix, and the phased Day-0→production implementation sequence
+- [`LLMOPS-IMPLEMENTATION-PLAYBOOK.md`](LLMOPS-IMPLEMENTATION-PLAYBOOK.md) — Reusable, copy-paste field guide: the exact 9-step sequence, per-discipline code + significance/value/impact + pitfalls, a readiness checklist, and an adaptation guide by archetype
 
 ---
 
