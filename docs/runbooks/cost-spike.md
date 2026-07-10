@@ -19,6 +19,8 @@ circuit-breaker (`finops.budget`) tripping.
 - Lower `LLM_COST_BUDGET_USD_PER_DAY` or route to the cheaper `triage-classifier`
   alias while investigating.
 - If a prompt change caused token bloat, roll back the prompt version.
+- Multi-replica: set `REDIS_URL` so `finops.budget.DailyCostBudget` shares one
+  daily counter across pods (empty URL = per-process memory only).
 
 ## Verify & close
 - Cost rate returns to baseline; add a budget/eval assertion if a regression slipped through.

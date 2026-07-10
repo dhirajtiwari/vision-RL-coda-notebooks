@@ -3,6 +3,9 @@ Interactive graph visualization payloads for Neo4j subgraphs and ontology schema
 
 Returns {nodes, edges} structures suitable for PyVis / D3 / neovis.js and embeds
 the same reasoning paths shown in Neo4j Browser tutorials.
+
+Read-heavy endpoints use ``runtime.cache`` (TTL) for ontology schema and product
+subgraphs. Caches are invalidated after successful ETL loads.
 """
 
 from __future__ import annotations
@@ -11,7 +14,9 @@ import html
 import re
 from typing import Any
 
+from config.settings import settings
 from graph.neo4j_client import get_driver
+from runtime.cache import get_named_cache
 
 NODE_COLORS = {
     "Product": "#5B9BD5",
@@ -104,6 +109,15 @@ def graph_payload(nodes: dict[str, dict[str, Any]], edges: list[dict[str, Any]])
 
 def get_ontology_schema() -> dict[str, Any]:
     """ER-style meta-graph of node labels and relationship types (no Neo4j query)."""
+    cache = get_named_cache(
+        "ontology_schema",
+        ttl_seconds=settings.cache_ttl_ontology_seconds,
+        maxsize=4,
+    )
+    return cache.get_or_set("schema", _build_ontology_schema)
+
+
+def _build_ontology_schema() -> dict[str, Any]:
     nodes: dict[str, dict[str, Any]] = {}
     edges: list[dict[str, Any]] = []
 
@@ -158,6 +172,15 @@ def get_ontology_schema() -> dict[str, Any]:
 
 def get_product_subgraph(product_id: str) -> dict[str, Any]:
     """Full product neighborhood — equivalent to exploring a product in Neo4j Browser."""
+    cache = get_named_cache(
+        "product_subgraph",
+        ttl_seconds=settings.cache_ttl_subgraph_seconds,
+        maxsize=settings.cache_maxsize_subgraph,
+    )
+    return cache.get_or_set(product_id, lambda: _load_product_subgraph(product_id))
+
+
+def _load_product_subgraph(product_id: str) -> dict[str, Any]:
     driver = get_driver()
     nodes: dict[str, dict[str, Any]] = {}
     edges: list[dict[str, Any]] = []

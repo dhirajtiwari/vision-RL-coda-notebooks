@@ -1,0 +1,495 @@
+@prefix wd: <https://example.org/warranty-diagnosis#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+
+<https://example.org/warranty-diagnosis/ontology> a owl:Ontology ;
+  rdfs:label "Enterprise Warranty Diagnosis Ontology" ;
+  rdfs:comment "Formal schema for product, symptom, failure mode, BOM component, parts, diagnostic steps, assets, and claims. Product structure (Component/Part) implements the industrial hierarchy aspect often called topology in ISO 14224 / IEC 81346 product-aspect terms — not a separate subsystem." ;
+  owl:versionInfo "1.0.0" .
+
+wd:Product a owl:Class ;
+  rdfs:label "Product" ;
+  rdfs:comment "A manufacturable product family / catalog product." .
+
+wd:Model a owl:Class ;
+  rdfs:label "Model" ;
+  rdfs:comment "Engineering model under a product family." .
+
+wd:SKU a owl:Class ;
+  rdfs:label "SKU" ;
+  rdfs:comment "Sellable stock-keeping unit / revision of a model." .
+
+wd:Asset a owl:Class ;
+  rdfs:label "Asset" ;
+  rdfs:comment "Installed unit (serial) bound to a product/SKU." .
+
+wd:Symptom a owl:Class ;
+  rdfs:label "Symptom" ;
+  rdfs:comment "Customer-observable or technician-observed symptom." .
+
+wd:ErrorCode a owl:Class ;
+  rdfs:label "ErrorCode" ;
+  rdfs:comment "Device-reported diagnostic code." .
+
+wd:FailureMode a owl:Class ;
+  rdfs:label "FailureMode" ;
+  rdfs:comment "Diagnosed failure mode (FMEA-aligned)." .
+
+wd:DiagnosticStep a owl:Class ;
+  rdfs:label "DiagnosticStep" ;
+  rdfs:comment "Troubleshooting or confirmation step." .
+
+wd:Component a owl:Class ;
+  rdfs:label "Component" ;
+  rdfs:comment "BOM / subsystem component (product structure)." .
+
+wd:Part a owl:Class ;
+  rdfs:label "Part" ;
+  rdfs:comment "Serviceable replacement part." .
+
+wd:Claim a owl:Class ;
+  rdfs:label "Claim" ;
+  rdfs:comment "Warranty claim with confirmed failure and parts used." .
+
+wd:HistoricalResolution a owl:Class ;
+  rdfs:label "HistoricalResolution" ;
+  rdfs:comment "Closed field or claim resolution precedent." .
+
+wd:WarrantyPolicy a owl:Class ;
+  rdfs:label "WarrantyPolicy" ;
+  rdfs:comment "Coverage rules for parts/labor." .
+
+wd:hasModel a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:Model ;
+  rdfs:label "hasModel" ;
+  rdfs:comment "Product has engineering model. Neo4j type: HAS_MODEL." .
+
+wd:hasSku a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:SKU ;
+  rdfs:label "hasSku" ;
+  rdfs:comment "Product has SKU. Neo4j type: HAS_SKU." .
+
+wd:modelHasSku a owl:ObjectProperty ;
+  rdfs:domain wd:Model ;
+  rdfs:range wd:SKU ;
+  rdfs:label "modelHasSku" ;
+  rdfs:comment "Model has SKU revision. Neo4j type: HAS_SKU." .
+
+wd:instanceOf a owl:ObjectProperty ;
+  rdfs:domain wd:Asset ;
+  rdfs:range wd:Product ;
+  rdfs:label "instanceOf" ;
+  rdfs:comment "Installed asset is instance of product. Neo4j type: INSTANCE_OF." .
+
+wd:boundToSku a owl:ObjectProperty ;
+  rdfs:domain wd:Asset ;
+  rdfs:range wd:SKU ;
+  rdfs:label "boundToSku" ;
+  rdfs:comment "Asset bound to SKU. Neo4j type: BOUND_TO_SKU." .
+
+wd:hasSymptom a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:Symptom ;
+  rdfs:label "hasSymptom" ;
+  rdfs:comment "Product can present symptom. Neo4j type: HAS_SYMPTOM." .
+
+wd:hasErrorCode a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:ErrorCode ;
+  rdfs:label "hasErrorCode" ;
+  rdfs:comment "Product can raise error code. Neo4j type: HAS_ERROR_CODE." .
+
+wd:canHave a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "canHave" ;
+  rdfs:comment "Product can exhibit failure mode. Neo4j type: CAN_HAVE." .
+
+wd:hasDiagnosticStep a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:DiagnosticStep ;
+  rdfs:label "hasDiagnosticStep" ;
+  rdfs:comment "Product has diagnostic step. Neo4j type: HAS_DIAGNOSTIC_STEP." .
+
+wd:indicates a owl:ObjectProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "indicates" ;
+  rdfs:comment "Symptom indicates failure mode (confidence on edge in graph). Neo4j type: INDICATES." .
+
+wd:errorCodeIndicates a owl:ObjectProperty ;
+  rdfs:domain wd:ErrorCode ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "errorCodeIndicates" ;
+  rdfs:comment "Error code indicates failure mode. Neo4j type: INDICATES." .
+
+wd:confirms a owl:ObjectProperty ;
+  rdfs:domain wd:DiagnosticStep ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "confirms" ;
+  rdfs:comment "Step confirms failure mode. Neo4j type: CONFIRMS." .
+
+wd:rulesOut a owl:ObjectProperty ;
+  rdfs:domain wd:DiagnosticStep ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "rulesOut" ;
+  rdfs:comment "Step rules out failure mode. Neo4j type: RULES_OUT." .
+
+wd:nextStep a owl:ObjectProperty ;
+  rdfs:domain wd:DiagnosticStep ;
+  rdfs:range wd:DiagnosticStep ;
+  rdfs:label "nextStep" ;
+  rdfs:comment "Diagnostic tree branch to next step. Neo4j type: NEXT_STEP." .
+
+wd:impactsComponent a owl:ObjectProperty ;
+  rdfs:domain wd:FailureMode ;
+  rdfs:range wd:Component ;
+  rdfs:label "impactsComponent" ;
+  rdfs:comment "Failure impacts BOM component. Neo4j type: IMPACTS_COMPONENT." .
+
+wd:realizedBy a owl:ObjectProperty ;
+  rdfs:domain wd:Component ;
+  rdfs:range wd:Part ;
+  rdfs:label "realizedBy" ;
+  rdfs:comment "Component realized by service part. Neo4j type: REALIZED_BY." .
+
+wd:requiresPart a owl:ObjectProperty ;
+  rdfs:domain wd:FailureMode ;
+  rdfs:range wd:Part ;
+  rdfs:label "requiresPart" ;
+  rdfs:comment "Failure requires replacement part. Neo4j type: REQUIRES_PART." .
+
+wd:compatibleWith a owl:ObjectProperty ;
+  rdfs:domain wd:SKU ;
+  rdfs:range wd:Part ;
+  rdfs:label "compatibleWith" ;
+  rdfs:comment "SKU compatible with part. Neo4j type: COMPATIBLE_WITH." .
+
+wd:confirmed a owl:ObjectProperty ;
+  rdfs:domain wd:Claim ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "confirmed" ;
+  rdfs:comment "Claim confirmed failure mode. Neo4j type: CONFIRMED." .
+
+wd:usedPart a owl:ObjectProperty ;
+  rdfs:domain wd:Claim ;
+  rdfs:range wd:Part ;
+  rdfs:label "usedPart" ;
+  rdfs:comment "Claim used part. Neo4j type: USED_PART." .
+
+wd:forProduct a owl:ObjectProperty ;
+  rdfs:domain wd:HistoricalResolution ;
+  rdfs:range wd:Product ;
+  rdfs:label "forProduct" ;
+  rdfs:comment "Resolution for product. Neo4j type: FOR_PRODUCT." .
+
+wd:resolutionConfirmed a owl:ObjectProperty ;
+  rdfs:domain wd:HistoricalResolution ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "resolutionConfirmed" ;
+  rdfs:comment "Resolution confirmed FM. Neo4j type: CONFIRMED." .
+
+wd:coveredBy a owl:ObjectProperty ;
+  rdfs:domain wd:Asset ;
+  rdfs:range wd:WarrantyPolicy ;
+  rdfs:label "coveredBy" ;
+  rdfs:comment "Asset covered by policy. Neo4j type: COVERED_BY." .
+
+wd:productId a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "productId" ;
+  rdfs:comment "Stable product identifier." .
+
+wd:name a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "name" ;
+  rdfs:comment "Display name." .
+
+wd:category a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "category" ;
+  rdfs:comment "Product category." .
+
+wd:brand a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "brand" ;
+  rdfs:comment "Brand." .
+
+wd:symptomId a owl:DatatypeProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range xsd:string ;
+  rdfs:label "symptomId" ;
+  rdfs:comment "Symptom identifier." .
+
+wd:description a owl:DatatypeProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range xsd:string ;
+  rdfs:label "description" ;
+  rdfs:comment "Symptom text." .
+
+wd:severity a owl:DatatypeProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range xsd:string ;
+  rdfs:label "severity" ;
+  rdfs:comment "low | medium | high | critical." .
+
+wd:failureModeId a owl:DatatypeProperty ;
+  rdfs:domain wd:FailureMode ;
+  rdfs:range xsd:string ;
+  rdfs:label "failureModeId" ;
+  rdfs:comment "Failure mode identifier." .
+
+wd:confidence a owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "confidence" ;
+  rdfs:comment "Link confidence 0–1 (reified as datatype on instances)." .
+
+wd:partNumber a owl:DatatypeProperty ;
+  rdfs:domain wd:Part ;
+  rdfs:range xsd:string ;
+  rdfs:label "partNumber" ;
+  rdfs:comment "OEM / service part number." .
+
+wd:estimatedCostUsd a owl:DatatypeProperty ;
+  rdfs:domain wd:Part ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "estimatedCostUsd" ;
+  rdfs:comment "Estimated part cost." .
+
+wd:subsystem a owl:DatatypeProperty ;
+  rdfs:domain wd:Component ;
+  rdfs:range xsd:string ;
+  rdfs:label "subsystem" ;
+  rdfs:comment "Subsystem label (product structure aspect)." .
+
+
+# --- Product wm-001 ---
+wd:product_wm-001 a wd:Product ;
+  wd:productId "wm-001" ;
+  wd:name "Front Load Washing Machine 8kg" ;
+  wd:category "Laundry" ;
+  wd:brand "AquaHome" .
+
+wd:model_mdl-wm8k a wd:Model ;
+  rdfs:label "AquaHome Front Load 8kg" ;
+  rdfs:comment "AH-WM8K" .
+wd:product_wm-001 wd:hasModel wd:model_mdl-wm8k .
+
+wd:sku_SKU-WM8K-2023 a wd:SKU ;
+  rdfs:label "SKU-WM8K-2023" .
+wd:product_wm-001 wd:hasSku wd:sku_SKU-WM8K-2023 .
+wd:model_mdl-wm8k wd:modelHasSku wd:sku_SKU-WM8K-2023 .
+
+wd:sku_SKU-WM8K-2024 a wd:SKU ;
+  rdfs:label "SKU-WM8K-2024" .
+wd:product_wm-001 wd:hasSku wd:sku_SKU-WM8K-2024 .
+wd:model_mdl-wm8k wd:modelHasSku wd:sku_SKU-WM8K-2024 .
+
+wd:symptom_wm-s01 a wd:Symptom ;
+  wd:symptomId "wm-s01" ;
+  wd:description "Machine does not spin during final cycle" ;
+  wd:severity "high" .
+wd:product_wm-001 wd:hasSymptom wd:symptom_wm-s01 .
+
+wd:symptom_wm-s02 a wd:Symptom ;
+  wd:symptomId "wm-s02" ;
+  wd:description "Excessive vibration and banging noise" ;
+  wd:severity "medium" .
+wd:product_wm-001 wd:hasSymptom wd:symptom_wm-s02 .
+
+wd:symptom_wm-s03 a wd:Symptom ;
+  wd:symptomId "wm-s03" ;
+  wd:description "Water remains in drum after cycle completes" ;
+  wd:severity "high" .
+wd:product_wm-001 wd:hasSymptom wd:symptom_wm-s03 .
+
+wd:symptom_wm-s04 a wd:Symptom ;
+  wd:symptomId "wm-s04" ;
+  wd:description "Error code E21 displayed on panel" ;
+  wd:severity "medium" .
+wd:product_wm-001 wd:hasSymptom wd:symptom_wm-s04 .
+
+wd:fm_wm-fm01 a wd:FailureMode ;
+  wd:failureModeId "wm-fm01" ;
+  rdfs:label "Worn Drive Belt" ;
+  rdfs:comment "Drive belt has stretched or snapped, preventing drum rotation." .
+wd:product_wm-001 wd:canHave wd:fm_wm-fm01 .
+
+wd:fm_wm-fm02 a wd:FailureMode ;
+  wd:failureModeId "wm-fm02" ;
+  rdfs:label "Failed Drain Pump" ;
+  rdfs:comment "Pump impeller blocked or motor burned out, preventing water evacuation." .
+wd:product_wm-001 wd:canHave wd:fm_wm-fm02 .
+
+wd:fm_wm-fm03 a wd:FailureMode ;
+  wd:failureModeId "wm-fm03" ;
+  rdfs:label "Unbalanced Load Sensor Fault" ;
+  rdfs:comment "Suspension rods or shock absorbers degraded, triggering imbalance shutdown." .
+wd:product_wm-001 wd:canHave wd:fm_wm-fm03 .
+
+wd:symptom_wm-s01 wd:indicates wd:fm_wm-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm01 ; wd:confidence "0.92"^^xsd:decimal .
+
+wd:symptom_wm-s02 wd:indicates wd:fm_wm-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm03 ; wd:confidence "0.85"^^xsd:decimal .
+
+wd:symptom_wm-s03 wd:indicates wd:fm_wm-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm02 ; wd:confidence "0.88"^^xsd:decimal .
+
+wd:symptom_wm-s04 wd:indicates wd:fm_wm-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm02 ; wd:confidence "0.7"^^xsd:decimal .
+
+wd:symptom_wm-s04 wd:indicates wd:fm_wm-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm01 ; wd:confidence "0.55"^^xsd:decimal .
+
+wd:step_wm-d01 a wd:DiagnosticStep ;
+  rdfs:label "wm-d01" ;
+  rdfs:comment "Run empty spin cycle and listen for motor engagement." .
+wd:product_wm-001 wd:hasDiagnosticStep wd:step_wm-d01 .
+
+wd:step_wm-d02 a wd:DiagnosticStep ;
+  rdfs:label "wm-d02" ;
+  rdfs:comment "Inspect drive belt through rear access panel." .
+wd:product_wm-001 wd:hasDiagnosticStep wd:step_wm-d02 .
+
+wd:step_wm-d03 a wd:DiagnosticStep ;
+  rdfs:label "wm-d03" ;
+  rdfs:comment "Check drain filter and run pump test mode." .
+wd:product_wm-001 wd:hasDiagnosticStep wd:step_wm-d03 .
+
+wd:step_wm-d04 a wd:DiagnosticStep ;
+  rdfs:label "wm-d04" ;
+  rdfs:comment "Inspect suspension rods for play and oil leakage." .
+wd:product_wm-001 wd:hasDiagnosticStep wd:step_wm-d04 .
+
+wd:step_wm-d01 wd:confirms wd:fm_wm-fm01 .
+wd:step_wm-d02 wd:confirms wd:fm_wm-fm01 .
+wd:step_wm-d03 wd:confirms wd:fm_wm-fm02 .
+wd:step_wm-d04 wd:confirms wd:fm_wm-fm03 .
+wd:step_wm-d01 wd:rulesOut wd:fm_wm-fm02 .
+wd:component_wm-c01 a wd:Component ;
+  rdfs:label "Drive System" ;
+  wd:subsystem "Mechanical Drive" .
+
+wd:component_wm-c02 a wd:Component ;
+  rdfs:label "Drain System" ;
+  wd:subsystem "Plumbing" .
+
+wd:component_wm-c03 a wd:Component ;
+  rdfs:label "Suspension System" ;
+  wd:subsystem "Structural" .
+
+wd:part_wm-p01 a wd:Part ;
+  rdfs:label "Drive Belt Assembly" ;
+  wd:partNumber "AH-DB-8842" ;
+  wd:estimatedCostUsd "28.5"^^xsd:decimal .
+
+wd:part_wm-p02 a wd:Part ;
+  rdfs:label "Drain Pump Motor" ;
+  wd:partNumber "AH-DP-3310" ;
+  wd:estimatedCostUsd "62.0"^^xsd:decimal .
+
+wd:part_wm-p03 a wd:Part ;
+  rdfs:label "Shock Absorber Kit (x4)" ;
+  wd:partNumber "AH-SA-2201" ;
+  wd:estimatedCostUsd "84.99"^^xsd:decimal .
+
+wd:fm_wm-fm01 wd:impactsComponent wd:component_wm-c01 .
+wd:fm_wm-fm02 wd:impactsComponent wd:component_wm-c02 .
+wd:fm_wm-fm03 wd:impactsComponent wd:component_wm-c03 .
+wd:component_wm-c01 wd:realizedBy wd:part_wm-p01 .
+wd:component_wm-c02 wd:realizedBy wd:part_wm-p02 .
+wd:component_wm-c03 wd:realizedBy wd:part_wm-p03 .
+wd:fm_wm-fm01 wd:requiresPart wd:part_wm-p01 .
+wd:fm_wm-fm02 wd:requiresPart wd:part_wm-p02 .
+wd:fm_wm-fm03 wd:requiresPart wd:part_wm-p03 .
+wd:sku_SKU-WM8K-2023 wd:compatibleWith wd:part_wm-p01 .
+wd:sku_SKU-WM8K-2023 wd:compatibleWith wd:part_wm-p02 .
+wd:sku_SKU-WM8K-2023 wd:compatibleWith wd:part_wm-p03 .
+wd:sku_SKU-WM8K-2024 wd:compatibleWith wd:part_wm-p01 .
+wd:sku_SKU-WM8K-2024 wd:compatibleWith wd:part_wm-p02 .
+wd:sku_SKU-WM8K-2024 wd:compatibleWith wd:part_wm-p03 .
+wd:ec_wm-ec-e21 a wd:ErrorCode ;
+  rdfs:label "E21" ;
+  rdfs:comment "Drain timeout — pump or blockage fault" .
+wd:product_wm-001 wd:hasErrorCode wd:ec_wm-ec-e21 .
+
+wd:ec_wm-ec-e21 wd:errorCodeIndicates wd:fm_wm-fm02 .
+
+wd:asset_AST-WM-4421 a wd:Asset ;
+  rdfs:label "AH-WM8K-2023-99421" .
+wd:asset_AST-WM-4421 wd:instanceOf wd:product_wm-001 .
+wd:asset_AST-WM-4421 wd:boundToSku wd:sku_SKU-WM8K-2023 .
+wd:asset_AST-WM-4421 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-DW-1180 a wd:Asset ;
+  rdfs:label "CW-DW12-2022-33180" .
+wd:asset_AST-DW-1180 wd:instanceOf wd:product_dw-001 .
+wd:asset_AST-DW-1180 wd:boundToSku wd:sku_SKU-DW12-2022 .
+wd:asset_AST-DW-1180 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-MW-7702 a wd:Asset ;
+  rdfs:label "HP-MW25-2024-07702" .
+wd:asset_AST-MW-7702 wd:instanceOf wd:product_mw-001 .
+wd:asset_AST-MW-7702 wd:boundToSku wd:sku_SKU-MW25-2024 .
+wd:asset_AST-MW-7702 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-SAM-WF45-001 a wd:Asset ;
+  rdfs:label "SAM-WF45T6000AW-2022-88001" .
+wd:asset_AST-SAM-WF45-001 wd:instanceOf wd:product_oem-sam-wf45 .
+wd:asset_AST-SAM-WF45-001 wd:boundToSku wd:sku_SKU-SAM-WF45-2022 .
+wd:asset_AST-SAM-WF45-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-LG-DW-001 a wd:Asset ;
+  rdfs:label "LG-LDF5545ST-2021-22001" .
+wd:asset_AST-LG-DW-001 wd:instanceOf wd:product_oem-lg-ldf5545 .
+wd:asset_AST-LG-DW-001 wd:boundToSku wd:sku_SKU-LG-LDF5545-2021 .
+wd:asset_AST-LG-DW-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-SAM-RF28-001 a wd:Asset ;
+  rdfs:label "SAM-RF28R7351SG-2021-55001" .
+wd:asset_AST-SAM-RF28-001 wd:instanceOf wd:product_oem-sam-rf28 .
+wd:asset_AST-SAM-RF28-001 wd:boundToSku wd:sku_SKU-SAM-RF28-2021 .
+wd:asset_AST-SAM-RF28-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-LG-DLE-001 a wd:Asset ;
+  rdfs:label "LG-DLE3400W-2022-77001" .
+wd:asset_AST-LG-DLE-001 wd:instanceOf wd:product_oem-lg-dle3400 .
+wd:asset_AST-LG-DLE-001 wd:boundToSku wd:sku_SKU-LG-DLE3400-2022 .
+wd:asset_AST-LG-DLE-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:asset_AST-WHI-RNG-001 a wd:Asset ;
+  rdfs:label "WHI-WFG505M0BS-2023-12001" .
+wd:asset_AST-WHI-RNG-001 wd:instanceOf wd:product_oem-whi-wfg505 .
+wd:asset_AST-WHI-RNG-001 wd:boundToSku wd:sku_SKU-WHI-WFG505-2023 .
+wd:asset_AST-WHI-RNG-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
+
+wd:policy_WP-STANDARD-24M a wd:WarrantyPolicy ;
+  rdfs:label "Standard 24-month manufacturer warranty" .
+
+wd:claim_CLM-2026-00481 a wd:Claim ;
+  rdfs:label "CLM-2026-00481" ;
+  rdfs:comment "Approved drain pump replacement under warranty." .
+wd:claim_CLM-2026-00481 wd:confirmed wd:fm_wm-fm02 .
+wd:claim_CLM-2026-00481 wd:usedPart wd:part_wm-p02 .
+
+wd:claim_CLM-2025-01933 a wd:Claim ;
+  rdfs:label "CLM-2025-01933" ;
+  rdfs:comment "Waveguide cover replaced; arcing resolved." .
+wd:claim_CLM-2025-01933 wd:confirmed wd:fm_mw-fm02 .
+wd:claim_CLM-2025-01933 wd:usedPart wd:part_mw-p02 .
+
+wd:claim_CLM-2026-00812 a wd:Claim ;
+  rdfs:label "CLM-2026-00812" ;
+  rdfs:comment "Pump filter cleaned; drain pump replaced under warranty." .
+wd:claim_CLM-2026-00812 wd:confirmed wd:fm_oem-sam-wf45-fm01 .
+wd:claim_CLM-2026-00812 wd:usedPart wd:part_oem-sam-wf45-p01 .

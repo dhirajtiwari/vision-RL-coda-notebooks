@@ -1,0 +1,127 @@
+// Complete enterprise system pipeline — as built in this repository
+// Narrative: docs/17-Enterprise-Landscape-Pipeline-and-Topology.md
+digraph CompleteEnterpriseSystemPipeline {
+  graph [
+    rankdir=LR
+    label="39 — Complete Enterprise System Pipeline (As Built)\nBlueprints → ETL → Staging → Neo4j → Runtime Diagnosis → Claims  |  Redis optional shared state"
+    labelloc=t
+    fontsize=14
+    fontname="Helvetica"
+    bgcolor="white"
+    pad=0.4
+    nodesep=0.35
+    ranksep=0.55
+    splines=true
+  ]
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=9, margin="0.12,0.08"]
+  edge [fontname="Helvetica", fontsize=8, color="#37474F"]
+
+  // ── Left: enterprise sources ──
+  subgraph cluster_src {
+    label="Enterprise Source Landscape"
+    style="rounded,filled"
+    color="#546E7A"
+    fillcolor="#ECEFF1"
+    PIM [label="PIM / PLM\nproducts · BOM · parts", fillcolor="#CFD8DC"]
+    CRM [label="CRM\nassets · customers · warranty", fillcolor="#CFD8DC"]
+    FSM [label="FSM\nwork orders · resolutions", fillcolor="#CFD8DC"]
+    CLM [label="Claims\nclosed claims · parts used", fillcolor="#CFD8DC"]
+    MOCK [label="Mock Enterprise API\n:8090  OR  JSON fixtures\ndata/enterprise_sources/", fillcolor="#FFE082", shape=component]
+    PIM -> MOCK [style=dashed, label="demo"]
+    CRM -> MOCK [style=dashed]
+    FSM -> MOCK [style=dashed]
+    CLM -> MOCK [style=dashed]
+  }
+
+  // ── Blueprint authoring ──
+  subgraph cluster_bp {
+    label="Phase 0–1 · Knowledge Authoring"
+    style="rounded,filled"
+    color="#6D4C41"
+    fillcolor="#EFEBE9"
+    OEM [label="oem_product_catalog.py\nOEM blueprints (symptoms, FM, steps)", fillcolor="#D7CCC8"]
+    WCE [label="warranty_catalog_extensions.py\nModel · SKU · Component · Asset", fillcolor="#D7CCC8"]
+    SYNC [label="pim_blueprint_sync\n→ pim_catalog.json", fillcolor="#BCAAA4"]
+    OEM -> WCE -> SYNC
+  }
+
+  // ── ETL ──
+  subgraph cluster_etl {
+    label="Phase 2 · Knowledge ETL (parallel extract)"
+    style="rounded,filled"
+    color="#2E7D32"
+    fillcolor="#E8F5E9"
+    ORCH [label="orchestrator.py\n1) ETL  2) Smoke  3) Promote", fillcolor="#81C784", penwidth=2]
+    CONN [label="connectors/*\nPIM FSM Claims CRM\nruntime.parallel_map (workers)", fillcolor="#A5D6A7"]
+    OB [label="OntologyBuilder\nmerge + provenance\nbuild_catalog_payload()", fillcolor="#C8E6C9"]
+    CAT [label="Catalog JSON\nenterprise_knowledge_catalog.json\nsynthetic_diagnosis_data.json", shape=note, fillcolor="#FFF9C4"]
+    LIN [label="lineage\netl_batches.jsonl", shape=note, fillcolor="#FFFDE7"]
+    ORCH -> CONN -> OB -> CAT
+    OB -> LIN [style=dashed]
+  }
+
+  // ── Quality gates ──
+  subgraph cluster_gate {
+    label="Quality Gates"
+    style="rounded,filled"
+    color="#EF6C00"
+    fillcolor="#FFF3E0"
+    SMOKE [label="smoke_validation.py\nenterprise scenarios", fillcolor="#FFCC80"]
+    PROMO [label="staging_promotion.py\npopulate_graph if smoke OK", fillcolor="#FFB74D"]
+    SMOKE -> PROMO
+  }
+
+  // ── Graph store ──
+  subgraph cluster_graph {
+    label="Phase 3 · Knowledge Graph Store"
+    style="rounded,filled"
+    color="#1565C0"
+    fillcolor="#E3F2FD"
+    POP [label="populate_graph.py\nMERGE + constraints\nBolt pool (neo4j_client)", fillcolor="#90CAF9"]
+    NEO [label="Neo4j\n:7687\nProduct→Symptom→FM→Part\nComponent BOM · NEXT_STEP", shape=cylinder, fillcolor="#64B5F6", penwidth=2]
+    CACHE [label="runtime cache\nontology + product subgraph\n(Redis if REDIS_URL)", fillcolor="#BBDEFB"]
+    POP -> NEO
+    NEO -> CACHE [style=dashed, label="read cache"]
+  }
+
+  // ── Runtime ──
+  subgraph cluster_rt {
+    label="Phase 4–5 · Runtime Serving"
+    style="rounded,filled"
+    color="#6A1B9A"
+    fillcolor="#F3E5F5"
+    UI [label="Next.js UI\n:3000", fillcolor="#CE93D8"]
+    API [label="FastAPI\n:8080\nrate limit · admission\nguardrails · OTEL", fillcolor="#BA68C8", penwidth=2]
+    SVC [label="diagnosis_service\nrun_full_diagnosis()", fillcolor="#E1BEE7"]
+    LG [label="LangGraph\ndetect→diagnose→format→escalate", fillcolor="#E1BEE7"]
+    RAG [label="graph_rag.diagnose()\n+ reliability FMEA/Bayes\n+ diagnostic_engine\n+ parts_predictor", fillcolor="#F8BBD0"]
+    CLAIM [label="claims_workflow\nwarranty_eligibility", fillcolor="#F48FB1"]
+    UI -> API
+    API -> SVC -> LG -> RAG
+    API -> CLAIM
+  }
+
+  // ── Cross links ──
+  MOCK -> CONN [label="HTTP / fixtures"]
+  SYNC -> CONN [style=dashed, label="fixtures"]
+  CAT -> SMOKE
+  CAT -> POP [label="optional ETL load"]
+  PROMO -> POP
+  NEO -> RAG [label="Cypher multi-hop", penwidth=2, color="#0D47A1"]
+  ORCH -> SMOKE [style=dashed]
+  SMOKE -> PROMO
+
+  // ── Shared platform (bottom rank) ──
+  subgraph cluster_plat {
+    label="Platform Cross-Cutting (as built)"
+    style="rounded,filled"
+    color="#455A64"
+    fillcolor="#FAFAFA"
+    REDIS [label="Redis (optional)\ncache · rate · budget · inflight", shape=cylinder, fillcolor="#FFCDD2"]
+    SQLITE [label="SQLite ops\nclaims · escalations · cases", shape=cylinder, fillcolor="#DCEDC8"]
+    SETT [label="config/settings.py\npaths · pools · REDIS_URL · tenants", fillcolor="#E0E0E0"]
+  }
+  API -> REDIS [style=dotted, color="#C62828"]
+  API -> SQLITE [style=dotted, color="#558B2F"]
+  CACHE -> REDIS [style=dotted, color="#C62828"]
+}

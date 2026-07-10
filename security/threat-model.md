@@ -44,7 +44,7 @@ Trust boundaries:
 | Risk | Owner | Mitigation plan |
 |------|-------|-----------------|
 | No end-user authentication (demo open) | Platform | Add OIDC/JWT before external exposure |
-| Single-node rate limiter | Platform | Move to Redis-backed limiter for multi-replica |
+| Multi-replica rate limit / cache without Redis | Platform | Set `REDIS_URL` — rate limit, budget, caches, diagnose admission share Redis; empty URL remains single-node memory |
 | Unencrypted Neo4j in demo | Platform | `bolt+s://` + cert in staging/prod (see settings) |
 | Ingestion approval not enforced | Data Gov | Enforce approval gate in ETL promote step |
 

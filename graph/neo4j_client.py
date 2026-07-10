@@ -6,11 +6,14 @@ _driver: Driver | None = None
 
 
 def get_driver() -> Driver:
+    """Shared Bolt driver with an explicit connection pool (thread-safe)."""
     global _driver
     if _driver is None:
         _driver = GraphDatabase.driver(
             settings.neo4j_uri,
             auth=(settings.neo4j_user, settings.neo4j_password),
+            max_connection_pool_size=settings.neo4j_max_connection_pool_size,
+            connection_acquisition_timeout=settings.neo4j_connection_acquisition_timeout,
         )
     return _driver
 

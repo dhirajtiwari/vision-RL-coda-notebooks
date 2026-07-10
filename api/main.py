@@ -61,6 +61,10 @@ from observability.metrics import (
     render_latest_metrics,
 )
 from observability.tracing import instrument_fastapi, setup_tracing, span
+from runtime.cache import cache_stats_snapshot
+from runtime.concurrency_limit import ConcurrencyLimiter, ConcurrencyLimitExceeded
+from runtime.partitioning import partition_for_rate_limit
+from runtime.redis_client import close_redis_client, redis_health
 from services.diagnosis_service import run_full_diagnosis
 from utils.connector_status import integration_status
 from utils.lineage_store import list_batches
@@ -80,14 +84,16 @@ setup_tracing(
 
 logger = get_logger("diagnostics.api")
 
-_rate_limiter = RateLimiter(max_per_window=settings.rate_limit_per_minute)
+_rate_limiter = RateLimiter.from_settings(settings)
+_diagnose_limiter = ConcurrencyLimiter.from_settings(settings)
 
 
 @asynccontextmanager
 async def _lifespan(_app: FastAPI):
-    """Application lifespan: close the shared Neo4j driver on shutdown."""
+    """Application lifespan: close shared drivers on shutdown."""
     yield
     close_driver()
+    close_redis_client()
 
 
 app = FastAPI(
@@ -122,15 +128,17 @@ async def _observability_and_limits(request: Request, call_next):
     request_id = request.headers.get("x-request-id") or uuid.uuid4().hex[:16]
     set_request_id(request_id)
 
-    # Rate limit keyed by admin token → customer → client host (best-effort).
+    # Rate limit keyed by tenant + client (admin token → customer → host).
     client_key = (
         request.headers.get("x-admin-token")
         or request.headers.get("x-customer-id")
         or (request.client.host if request.client else "anon")
     )
+    tenant_id = request.headers.get("x-tenant-id") or settings.default_tenant_id
     route = request.url.path
-    if route == "/diagnose" and not _rate_limiter.allow(client_key):
-        retry = _rate_limiter.retry_after(client_key)
+    rate_key = partition_for_rate_limit(client_key=client_key, route=route, tenant_id=tenant_id)
+    if route == "/diagnose" and not _rate_limiter.allow(rate_key):
+        retry = _rate_limiter.retry_after(rate_key)
         observe_request(route, 429, 0.0)
         return JSONResponse(
             status_code=429,
@@ -164,6 +172,16 @@ def health() -> dict:
         "neo4j": verify_connection(),
         "demo_mode": settings.demo_mode,
         "provenance_enabled": settings.enable_provenance,
+        "runtime": {
+            "caches": cache_stats_snapshot(),
+            "redis": redis_health(),
+            "rate_limit_backend": getattr(_rate_limiter, "backend", "memory"),
+            "diagnose_concurrency_backend": getattr(_diagnose_limiter, "backend", "memory"),
+            "max_concurrent_diagnoses": settings.max_concurrent_diagnoses,
+            "etl_connector_max_workers": settings.etl_connector_max_workers,
+            "neo4j_max_connection_pool_size": settings.neo4j_max_connection_pool_size,
+            "default_tenant_id": settings.default_tenant_id,
+        },
     }
 
 
@@ -260,6 +278,23 @@ def diagnose(req: DiagnoseRequest) -> DiagnoseResponse:
     if not verify_connection():
         raise HTTPException(503, "Neo4j unavailable")
 
+    # Admission control — bound concurrent graph diagnoses (process or Redis shared).
+    slot = _diagnose_limiter.try_acquire()
+    if slot is None:
+        raise HTTPException(
+            503,
+            "too many concurrent diagnoses; retry shortly",
+            headers={"Retry-After": "2"},
+        )
+    try:
+        return _diagnose_inner(req)
+    except ConcurrencyLimitExceeded:
+        raise HTTPException(503, "too many concurrent diagnoses; retry shortly") from None
+    finally:
+        _diagnose_limiter.release(slot)
+
+
+def _diagnose_inner(req: DiagnoseRequest) -> DiagnoseResponse:
     # Input guardrails (kickoff prompt §E): sanitise + block injection/jailbreak.
     try:
         message = guard_request(req.message, max_input_length=settings.max_input_length)

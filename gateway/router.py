@@ -35,15 +35,19 @@ class ModelGateway:
         enabled: bool = False,
         registry: ModelRegistry | None = None,
         providers: dict[str, Provider] | None = None,
+        budget: object | None = None,
     ) -> None:
         self.enabled = enabled
         self._registry = registry or load_registry()
         self._providers = providers or {}
+        self._budget = budget
 
     @classmethod
     def from_settings(cls, settings) -> ModelGateway:
         """Build a gateway from app settings. Providers are wired only when
         their credentials + LLM_ENABLED are present (otherwise inactive)."""
+        from finops.budget import DailyCostBudget
+
         enabled = bool(getattr(settings, "llm_enabled", False))
         providers: dict[str, Provider] = {}
         if enabled:
@@ -55,7 +59,11 @@ class ModelGateway:
                     settings.azure_openai_endpoint,
                     getattr(settings, "azure_openai_api_version", "2024-10-21"),
                 )
-        return cls(enabled=enabled and bool(providers), providers=providers)
+        return cls(
+            enabled=enabled and bool(providers),
+            providers=providers,
+            budget=DailyCostBudget.from_settings(settings),
+        )
 
     def complete(self, alias: str, prompt: str, *, max_retries: int = 2) -> Completion:
         if not self.enabled:
@@ -63,6 +71,15 @@ class ModelGateway:
                 "LLM gateway is inactive (LLM_ENABLED=false or no provider "
                 "credentials). Core diagnosis is deterministic."
             )
+        if self._budget is not None:
+            try:
+                self._budget.check()  # type: ignore[attr-defined]
+            except Exception as exc:
+                from finops.budget import BudgetExceeded
+
+                if isinstance(exc, BudgetExceeded):
+                    raise GatewayError(str(exc)) from exc
+                raise
         binding = self._registry.resolve(alias)
         chain = [binding.provider]
         if binding.fallback:
@@ -104,5 +121,7 @@ class ModelGateway:
                 output_tokens=completion.output_tokens,
                 cost_usd=cost,
             )
+            if self._budget is not None:
+                self._budget.record(cost)  # type: ignore[attr-defined]
         except Exception:  # pragma: no cover - metering must never break a call
             logger.debug("metering skipped", exc_info=True)

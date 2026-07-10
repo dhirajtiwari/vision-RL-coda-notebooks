@@ -1,0 +1,271 @@
+@prefix wd: <https://example.org/warranty-diagnosis#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+<https://example.org/warranty-diagnosis/ontology> a owl:Ontology ;
+  rdfs:label "Enterprise Warranty Diagnosis Ontology" ;
+  rdfs:comment "Formal schema for product, symptom, failure mode, BOM component, parts, diagnostic steps, assets, and claims. Product structure (Component/Part) implements the industrial hierarchy aspect often called topology in ISO 14224 / IEC 81346 product-aspect terms — not a separate subsystem." ;
+  owl:versionInfo "1.0.0" .
+
+wd:Product a owl:Class ;
+  rdfs:label "Product" ;
+  rdfs:comment "A manufacturable product family / catalog product." .
+
+wd:Model a owl:Class ;
+  rdfs:label "Model" ;
+  rdfs:comment "Engineering model under a product family." .
+
+wd:SKU a owl:Class ;
+  rdfs:label "SKU" ;
+  rdfs:comment "Sellable stock-keeping unit / revision of a model." .
+
+wd:Asset a owl:Class ;
+  rdfs:label "Asset" ;
+  rdfs:comment "Installed unit (serial) bound to a product/SKU." .
+
+wd:Symptom a owl:Class ;
+  rdfs:label "Symptom" ;
+  rdfs:comment "Customer-observable or technician-observed symptom." .
+
+wd:ErrorCode a owl:Class ;
+  rdfs:label "ErrorCode" ;
+  rdfs:comment "Device-reported diagnostic code." .
+
+wd:FailureMode a owl:Class ;
+  rdfs:label "FailureMode" ;
+  rdfs:comment "Diagnosed failure mode (FMEA-aligned)." .
+
+wd:DiagnosticStep a owl:Class ;
+  rdfs:label "DiagnosticStep" ;
+  rdfs:comment "Troubleshooting or confirmation step." .
+
+wd:Component a owl:Class ;
+  rdfs:label "Component" ;
+  rdfs:comment "BOM / subsystem component (product structure)." .
+
+wd:Part a owl:Class ;
+  rdfs:label "Part" ;
+  rdfs:comment "Serviceable replacement part." .
+
+wd:Claim a owl:Class ;
+  rdfs:label "Claim" ;
+  rdfs:comment "Warranty claim with confirmed failure and parts used." .
+
+wd:HistoricalResolution a owl:Class ;
+  rdfs:label "HistoricalResolution" ;
+  rdfs:comment "Closed field or claim resolution precedent." .
+
+wd:WarrantyPolicy a owl:Class ;
+  rdfs:label "WarrantyPolicy" ;
+  rdfs:comment "Coverage rules for parts/labor." .
+
+wd:hasModel a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:Model ;
+  rdfs:label "hasModel" ;
+  rdfs:comment "Product has engineering model. Neo4j type: HAS_MODEL." .
+
+wd:hasSku a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:SKU ;
+  rdfs:label "hasSku" ;
+  rdfs:comment "Product has SKU. Neo4j type: HAS_SKU." .
+
+wd:modelHasSku a owl:ObjectProperty ;
+  rdfs:domain wd:Model ;
+  rdfs:range wd:SKU ;
+  rdfs:label "modelHasSku" ;
+  rdfs:comment "Model has SKU revision. Neo4j type: HAS_SKU." .
+
+wd:instanceOf a owl:ObjectProperty ;
+  rdfs:domain wd:Asset ;
+  rdfs:range wd:Product ;
+  rdfs:label "instanceOf" ;
+  rdfs:comment "Installed asset is instance of product. Neo4j type: INSTANCE_OF." .
+
+wd:boundToSku a owl:ObjectProperty ;
+  rdfs:domain wd:Asset ;
+  rdfs:range wd:SKU ;
+  rdfs:label "boundToSku" ;
+  rdfs:comment "Asset bound to SKU. Neo4j type: BOUND_TO_SKU." .
+
+wd:hasSymptom a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:Symptom ;
+  rdfs:label "hasSymptom" ;
+  rdfs:comment "Product can present symptom. Neo4j type: HAS_SYMPTOM." .
+
+wd:hasErrorCode a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:ErrorCode ;
+  rdfs:label "hasErrorCode" ;
+  rdfs:comment "Product can raise error code. Neo4j type: HAS_ERROR_CODE." .
+
+wd:canHave a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "canHave" ;
+  rdfs:comment "Product can exhibit failure mode. Neo4j type: CAN_HAVE." .
+
+wd:hasDiagnosticStep a owl:ObjectProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range wd:DiagnosticStep ;
+  rdfs:label "hasDiagnosticStep" ;
+  rdfs:comment "Product has diagnostic step. Neo4j type: HAS_DIAGNOSTIC_STEP." .
+
+wd:indicates a owl:ObjectProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "indicates" ;
+  rdfs:comment "Symptom indicates failure mode (confidence on edge in graph). Neo4j type: INDICATES." .
+
+wd:errorCodeIndicates a owl:ObjectProperty ;
+  rdfs:domain wd:ErrorCode ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "errorCodeIndicates" ;
+  rdfs:comment "Error code indicates failure mode. Neo4j type: INDICATES." .
+
+wd:confirms a owl:ObjectProperty ;
+  rdfs:domain wd:DiagnosticStep ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "confirms" ;
+  rdfs:comment "Step confirms failure mode. Neo4j type: CONFIRMS." .
+
+wd:rulesOut a owl:ObjectProperty ;
+  rdfs:domain wd:DiagnosticStep ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "rulesOut" ;
+  rdfs:comment "Step rules out failure mode. Neo4j type: RULES_OUT." .
+
+wd:nextStep a owl:ObjectProperty ;
+  rdfs:domain wd:DiagnosticStep ;
+  rdfs:range wd:DiagnosticStep ;
+  rdfs:label "nextStep" ;
+  rdfs:comment "Diagnostic tree branch to next step. Neo4j type: NEXT_STEP." .
+
+wd:impactsComponent a owl:ObjectProperty ;
+  rdfs:domain wd:FailureMode ;
+  rdfs:range wd:Component ;
+  rdfs:label "impactsComponent" ;
+  rdfs:comment "Failure impacts BOM component. Neo4j type: IMPACTS_COMPONENT." .
+
+wd:realizedBy a owl:ObjectProperty ;
+  rdfs:domain wd:Component ;
+  rdfs:range wd:Part ;
+  rdfs:label "realizedBy" ;
+  rdfs:comment "Component realized by service part. Neo4j type: REALIZED_BY." .
+
+wd:requiresPart a owl:ObjectProperty ;
+  rdfs:domain wd:FailureMode ;
+  rdfs:range wd:Part ;
+  rdfs:label "requiresPart" ;
+  rdfs:comment "Failure requires replacement part. Neo4j type: REQUIRES_PART." .
+
+wd:compatibleWith a owl:ObjectProperty ;
+  rdfs:domain wd:SKU ;
+  rdfs:range wd:Part ;
+  rdfs:label "compatibleWith" ;
+  rdfs:comment "SKU compatible with part. Neo4j type: COMPATIBLE_WITH." .
+
+wd:confirmed a owl:ObjectProperty ;
+  rdfs:domain wd:Claim ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "confirmed" ;
+  rdfs:comment "Claim confirmed failure mode. Neo4j type: CONFIRMED." .
+
+wd:usedPart a owl:ObjectProperty ;
+  rdfs:domain wd:Claim ;
+  rdfs:range wd:Part ;
+  rdfs:label "usedPart" ;
+  rdfs:comment "Claim used part. Neo4j type: USED_PART." .
+
+wd:forProduct a owl:ObjectProperty ;
+  rdfs:domain wd:HistoricalResolution ;
+  rdfs:range wd:Product ;
+  rdfs:label "forProduct" ;
+  rdfs:comment "Resolution for product. Neo4j type: FOR_PRODUCT." .
+
+wd:resolutionConfirmed a owl:ObjectProperty ;
+  rdfs:domain wd:HistoricalResolution ;
+  rdfs:range wd:FailureMode ;
+  rdfs:label "resolutionConfirmed" ;
+  rdfs:comment "Resolution confirmed FM. Neo4j type: CONFIRMED." .
+
+wd:coveredBy a owl:ObjectProperty ;
+  rdfs:domain wd:Asset ;
+  rdfs:range wd:WarrantyPolicy ;
+  rdfs:label "coveredBy" ;
+  rdfs:comment "Asset covered by policy. Neo4j type: COVERED_BY." .
+
+wd:productId a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "productId" ;
+  rdfs:comment "Stable product identifier." .
+
+wd:name a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "name" ;
+  rdfs:comment "Display name." .
+
+wd:category a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "category" ;
+  rdfs:comment "Product category." .
+
+wd:brand a owl:DatatypeProperty ;
+  rdfs:domain wd:Product ;
+  rdfs:range xsd:string ;
+  rdfs:label "brand" ;
+  rdfs:comment "Brand." .
+
+wd:symptomId a owl:DatatypeProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range xsd:string ;
+  rdfs:label "symptomId" ;
+  rdfs:comment "Symptom identifier." .
+
+wd:description a owl:DatatypeProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range xsd:string ;
+  rdfs:label "description" ;
+  rdfs:comment "Symptom text." .
+
+wd:severity a owl:DatatypeProperty ;
+  rdfs:domain wd:Symptom ;
+  rdfs:range xsd:string ;
+  rdfs:label "severity" ;
+  rdfs:comment "low | medium | high | critical." .
+
+wd:failureModeId a owl:DatatypeProperty ;
+  rdfs:domain wd:FailureMode ;
+  rdfs:range xsd:string ;
+  rdfs:label "failureModeId" ;
+  rdfs:comment "Failure mode identifier." .
+
+wd:confidence a owl:DatatypeProperty ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "confidence" ;
+  rdfs:comment "Link confidence 0–1 (reified as datatype on instances)." .
+
+wd:partNumber a owl:DatatypeProperty ;
+  rdfs:domain wd:Part ;
+  rdfs:range xsd:string ;
+  rdfs:label "partNumber" ;
+  rdfs:comment "OEM / service part number." .
+
+wd:estimatedCostUsd a owl:DatatypeProperty ;
+  rdfs:domain wd:Part ;
+  rdfs:range xsd:decimal ;
+  rdfs:label "estimatedCostUsd" ;
+  rdfs:comment "Estimated part cost." .
+
+wd:subsystem a owl:DatatypeProperty ;
+  rdfs:domain wd:Component ;
+  rdfs:range xsd:string ;
+  rdfs:label "subsystem" ;
+  rdfs:comment "Subsystem label (product structure aspect)." .

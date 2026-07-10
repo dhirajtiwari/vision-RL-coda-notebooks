@@ -20,6 +20,25 @@ class Settings(BaseSettings):
     neo4j_password: str = "password"
     neo4j_staging_uri: str = "bolt://localhost:7687"
     neo4j_database: str = "neo4j"
+    # Bolt driver pool (enterprise connection pooling). Neo4j Python driver default is 100.
+    neo4j_max_connection_pool_size: int = 50
+    neo4j_connection_acquisition_timeout: float = 30.0
+
+    # --- Runtime: cache / concurrency / partition (see docs/16-...) ---
+    cache_ttl_ontology_seconds: float = 300.0
+    cache_ttl_subgraph_seconds: float = 60.0
+    cache_maxsize_subgraph: int = 128
+    etl_connector_max_workers: int = 4
+    etl_product_batch_size: int = 0  # 0 = no product chunking (single transform batch)
+    default_tenant_id: str = "default"
+
+    # Shared multi-replica state (empty REDIS_URL = in-process memory fallback).
+    redis_url: str = ""  # e.g. redis://localhost:6379/0
+    redis_key_prefix: str = "diagnostics:"
+    redis_connect_timeout_seconds: float = 1.0
+    redis_socket_timeout_seconds: float = 1.0
+    max_concurrent_diagnoses: int = 32  # admission control for /diagnose
+    diagnose_lease_seconds: int = 120
 
     data_file: Path = PROJECT_ROOT / "data" / "synthetic_diagnosis_data.json"
     enterprise_catalog_file: Path = PROJECT_ROOT / "data" / "enterprise_knowledge_catalog.json"

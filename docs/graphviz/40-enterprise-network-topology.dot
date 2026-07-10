@@ -1,0 +1,129 @@
+// Enterprise network / deployment topology — demo + production-shaped landscape
+// Narrative: docs/17-Enterprise-Landscape-Pipeline-and-Topology.md
+digraph EnterpriseNetworkTopology {
+  graph [
+    rankdir=TB
+    label="40 — Enterprise Network Topology\n(Client · Edge · App · Data · Integration · Ops)  |  Ports & protocols as built / production-ready"
+    labelloc=t
+    fontsize=14
+    fontname="Helvetica"
+    bgcolor="white"
+    pad=0.35
+    nodesep=0.4
+    ranksep=0.5
+    compound=true
+  ]
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=9]
+  edge [fontname="Helvetica", fontsize=8, color="#37474F"]
+
+  subgraph cluster_users {
+    label="Users & Channels"
+    style="rounded,filled"
+    color="#5D4037"
+    fillcolor="#EFEBE9"
+    AGENT [label="Contact-center agent\n/ CSR browser", fillcolor="#D7CCC8"]
+    CUST [label="Customer self-service\n(future channel)", fillcolor="#E0E0E0", style="rounded,dashed,filled"]
+    ADMIN [label="Knowledge / ETL admin\nX-Admin-Token", fillcolor="#D7CCC8"]
+  }
+
+  subgraph cluster_edge {
+    label="Edge / Ingress (prod: K8s Ingress · demo: localhost)"
+    style="rounded,filled"
+    color="#1565C0"
+    fillcolor="#E3F2FD"
+    ING [label="Ingress / reverse proxy\ndiagnostics.example.com\nTLS termination", fillcolor="#90CAF9"]
+    CORS [label="CORS\nUI origin → API", fillcolor="#BBDEFB"]
+  }
+
+  subgraph cluster_dmz_app {
+    label="Application Tier"
+    style="rounded,filled"
+    color="#6A1B9A"
+    fillcolor="#F3E5F5"
+    UI [label="Frontend\nNext.js :3000\n(React Query client cache)", fillcolor="#CE93D8"]
+    API [label="Diagnostics API\nFastAPI / Uvicorn :8080\n/diagnose · /graph/* · /claims\n/admin/pipeline/* · /health", fillcolor="#BA68C8", penwidth=2]
+    MOCK [label="Mock Enterprise Apps\nFastAPI :8090\n/api/pim|crm|claims|fsm", fillcolor="#FFE082"]
+  }
+
+  subgraph cluster_data {
+    label="Data Tier (cluster / VPC private)"
+    style="rounded,filled"
+    color="#2E7D32"
+    fillcolor="#E8F5E9"
+    NEO [label="Neo4j StatefulSet\nBolt :7687  Browser :7474\nKnowledge graph (MERGE catalog)\nmax_connection_pool_size", shape=cylinder, fillcolor="#81C784", penwidth=2]
+    REDIS [label="Redis (optional)\n:6379\nshared cache · rate limit\nbudget · diagnose inflight", shape=cylinder, fillcolor="#EF9A9A"]
+    SQLITE [label="SQLite / PVC\ndiagnostics.db\nclaims · escalations · cases", shape=cylinder, fillcolor="#A5D6A7"]
+    FS [label="File / PVC volume\ncatalog JSON · lineage JSONL\nenterprise_sources/", shape=folder, fillcolor="#C8E6C9"]
+  }
+
+  subgraph cluster_batch {
+    label="Batch / Jobs"
+    style="rounded,filled"
+    color="#EF6C00"
+    fillcolor="#FFF3E0"
+    ETLJOB [label="ETL CronJob / admin trigger\norchestrator.py\nETL → smoke → promote", fillcolor="#FFB74D"]
+  }
+
+  subgraph cluster_enterprise {
+    label="Enterprise Integration Zone (prod URLs via settings)"
+    style="rounded,filled"
+    color="#455A64"
+    fillcolor="#ECEFF1"
+    EPIM [label="PIM / PLM SaaS\nHTTPS", fillcolor="#B0BEC5"]
+    ECRM [label="CRM (Salesforce-like)\nHTTPS", fillcolor="#B0BEC5"]
+    ECLAIMS [label="Claims system\nHTTPS", fillcolor="#B0BEC5"]
+    EFSM [label="Field Service Mgmt\nHTTPS", fillcolor="#B0BEC5"]
+    ECCAS [label="CCaaS / case mgmt\n(simulated)", fillcolor="#CFD8DC"]
+  }
+
+  subgraph cluster_ops {
+    label="Observability & Delivery"
+    style="rounded,filled"
+    color="#37474F"
+    fillcolor="#FAFAFA"
+    OTEL [label="OTEL Collector\n(optional OTEL_ENABLED)", fillcolor="#E0E0E0"]
+    PROM [label="Prometheus scrape\n/metrics", fillcolor="#E0E0E0"]
+    GH [label="GitHub Actions\nCI · CD · GHCR images", fillcolor="#E0E0E0"]
+    K8S [label="K8s overlays\nstaging / prod\n(k8s/)", fillcolor="#E0E0E0"]
+  }
+
+  // User paths
+  AGENT -> ING [label="HTTPS"]
+  CUST -> ING [style=dashed]
+  ADMIN -> ING
+  ING -> UI [label="/  :3000"]
+  ING -> API [label="/api  :8080"]
+  UI -> API [label="JSON REST\nX-Tenant-Id · X-Request-ID"]
+  UI -> CORS [style=invis]
+  API -> CORS [style=invis]
+
+  // App to data
+  API -> NEO [label="Bolt", penwidth=2, color="#1B5E20"]
+  API -> REDIS [label="optional", style=dashed, color="#B71C1C"]
+  API -> SQLITE [label="ops store"]
+  API -> FS [label="lineage read", style=dashed]
+
+  // Batch
+  ETLJOB -> MOCK [label="HTTP extract\n(demo)"]
+  ETLJOB -> EPIM [label="HTTPS", style=dashed]
+  ETLJOB -> ECRM [style=dashed]
+  ETLJOB -> ECLAIMS [style=dashed]
+  ETLJOB -> EFSM [style=dashed]
+  ETLJOB -> FS [label="catalog write"]
+  ETLJOB -> NEO [label="populate_graph\nBolt MERGE", penwidth=2, color="#1B5E20"]
+  API -> ETLJOB [label="POST /admin/pipeline/*", style=dotted]
+
+  // Runtime CRM enrichment
+  API -> MOCK [label="CRM enrich (demo)", style=dashed]
+  API -> ECRM [label="CRM (prod)", style=dashed]
+  API -> ECCAS [label="escalation case", style=dashed]
+
+  // Ops
+  API -> OTEL [style=dotted]
+  API -> PROM [style=dotted]
+  GH -> K8S [label="deploy"]
+  K8S -> API [style=dashed]
+  K8S -> UI [style=dashed]
+  K8S -> NEO [style=dashed]
+  K8S -> ETLJOB [style=dashed]
+}

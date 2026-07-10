@@ -4,6 +4,12 @@ This guide explains how product ontology and the knowledge graph are created, ho
 
 **C4 diagrams:** [`docs/c4/README.md`](c4/README.md) · **Pipeline diagrams:** 34–37 in `docs/graphviz/`.
 
+**Deep dive (ontology pipeline + RDF/OWL + topology decision):** [`docs/15-Ontology-Build-Pipeline-RDF-and-Topology-Decision.md`](15-Ontology-Build-Pipeline-RDF-and-Topology-Decision.md) · export via `python -m graph.rdf_ontology_export`.
+
+**Runtime scale (cache, concurrency, partitioning):** [`docs/16-Enterprise-Runtime-Capabilities.md`](16-Enterprise-Runtime-Capabilities.md) · package `runtime/`.
+
+**Enterprise landscape + network topology + ETL→graph + code wiring:** [`docs/17-Enterprise-Landscape-Pipeline-and-Topology.md`](17-Enterprise-Landscape-Pipeline-and-Topology.md) · Graphviz **39–41**.
+
 ## Do we need Entity-Relationship Diagrams (ERDs)?
 
 **Yes — for the blueprinting approach they are essential.**

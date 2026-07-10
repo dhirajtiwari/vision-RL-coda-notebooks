@@ -1,0 +1,14 @@
+# Optional shared-state Redis for multi-replica rate limit / cache / budget.
+#   docker compose -f docker/docker-compose.redis.yaml up -d
+#   export REDIS_URL=redis://localhost:6379/0
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5

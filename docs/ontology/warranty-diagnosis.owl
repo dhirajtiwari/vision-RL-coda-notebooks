@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:wd="https://example.org/warranty-diagnosis#">
+  <owl:Ontology rdf:about="https://example.org/warranty-diagnosis/ontology">
+    <rdfs:label>Enterprise Warranty Diagnosis Ontology</rdfs:label>
+    <owl:versionInfo>1.0.0</owl:versionInfo>
+  </owl:Ontology>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Product">
+    <rdfs:label>Product</rdfs:label>
+    <rdfs:comment>A manufacturable product family / catalog product.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Model">
+    <rdfs:label>Model</rdfs:label>
+    <rdfs:comment>Engineering model under a product family.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#SKU">
+    <rdfs:label>SKU</rdfs:label>
+    <rdfs:comment>Sellable stock-keeping unit / revision of a model.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Asset">
+    <rdfs:label>Asset</rdfs:label>
+    <rdfs:comment>Installed unit (serial) bound to a product/SKU.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Symptom">
+    <rdfs:label>Symptom</rdfs:label>
+    <rdfs:comment>Customer-observable or technician-observed symptom.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#ErrorCode">
+    <rdfs:label>ErrorCode</rdfs:label>
+    <rdfs:comment>Device-reported diagnostic code.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#FailureMode">
+    <rdfs:label>FailureMode</rdfs:label>
+    <rdfs:comment>Diagnosed failure mode (FMEA-aligned).</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#DiagnosticStep">
+    <rdfs:label>DiagnosticStep</rdfs:label>
+    <rdfs:comment>Troubleshooting or confirmation step.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Component">
+    <rdfs:label>Component</rdfs:label>
+    <rdfs:comment>BOM / subsystem component (product structure).</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Part">
+    <rdfs:label>Part</rdfs:label>
+    <rdfs:comment>Serviceable replacement part.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#Claim">
+    <rdfs:label>Claim</rdfs:label>
+    <rdfs:comment>Warranty claim with confirmed failure and parts used.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#HistoricalResolution">
+    <rdfs:label>HistoricalResolution</rdfs:label>
+    <rdfs:comment>Closed field or claim resolution precedent.</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="https://example.org/warranty-diagnosis#WarrantyPolicy">
+    <rdfs:label>WarrantyPolicy</rdfs:label>
+    <rdfs:comment>Coverage rules for parts/labor.</rdfs:comment>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#hasModel">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Model"/>
+    <rdfs:comment>Product has engineering model. Neo4j: HAS_MODEL</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#hasSku">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:comment>Product has SKU. Neo4j: HAS_SKU</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#modelHasSku">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Model"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:comment>Model has SKU revision. Neo4j: HAS_SKU</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#instanceOf">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:comment>Installed asset is instance of product. Neo4j: INSTANCE_OF</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#boundToSku">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:comment>Asset bound to SKU. Neo4j: BOUND_TO_SKU</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#hasSymptom">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:comment>Product can present symptom. Neo4j: HAS_SYMPTOM</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#hasErrorCode">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#ErrorCode"/>
+    <rdfs:comment>Product can raise error code. Neo4j: HAS_ERROR_CODE</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#canHave">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Product can exhibit failure mode. Neo4j: CAN_HAVE</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#hasDiagnosticStep">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdfs:comment>Product has diagnostic step. Neo4j: HAS_DIAGNOSTIC_STEP</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#indicates">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Symptom indicates failure mode (confidence on edge in graph). Neo4j: INDICATES</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#errorCodeIndicates">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#ErrorCode"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Error code indicates failure mode. Neo4j: INDICATES</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#confirms">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Step confirms failure mode. Neo4j: CONFIRMS</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#rulesOut">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Step rules out failure mode. Neo4j: RULES_OUT</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#nextStep">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdfs:comment>Diagnostic tree branch to next step. Neo4j: NEXT_STEP</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#impactsComponent">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Component"/>
+    <rdfs:comment>Failure impacts BOM component. Neo4j: IMPACTS_COMPONENT</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#realizedBy">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Component"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:comment>Component realized by service part. Neo4j: REALIZED_BY</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#requiresPart">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:comment>Failure requires replacement part. Neo4j: REQUIRES_PART</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#compatibleWith">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:comment>SKU compatible with part. Neo4j: COMPATIBLE_WITH</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#confirmed">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Claim"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Claim confirmed failure mode. Neo4j: CONFIRMED</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#usedPart">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Claim"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:comment>Claim used part. Neo4j: USED_PART</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#forProduct">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#HistoricalResolution"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:comment>Resolution for product. Neo4j: FOR_PRODUCT</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#resolutionConfirmed">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#HistoricalResolution"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Resolution confirmed FM. Neo4j: CONFIRMED</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="https://example.org/warranty-diagnosis#coveredBy">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#WarrantyPolicy"/>
+    <rdfs:comment>Asset covered by policy. Neo4j: COVERED_BY</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#productId">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Stable product identifier.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#name">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Display name.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#category">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Product category.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#brand">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Brand.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#symptomId">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Symptom identifier.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#description">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Symptom text.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#severity">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>low | medium | high | critical.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#failureModeId">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Failure mode identifier.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#confidence">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:comment>Link confidence 0–1 (reified as datatype on instances).</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#partNumber">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>OEM / service part number.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#estimatedCostUsd">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:comment>Estimated part cost.</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="https://example.org/warranty-diagnosis#subsystem">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Component"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Subsystem label (product structure aspect).</rdfs:comment>
+  </owl:DatatypeProperty>
+  <wd:Product rdf:about="https://example.org/warranty-diagnosis#product_wm-001">
+    <wd:productId>wm-001</wd:productId>
+    <wd:name>AquaHome Front Load 8kg</wd:name>
+    <wd:hasSymptom rdf:resource="https://example.org/warranty-diagnosis#symptom_wm-s03"/>
+    <wd:canHave rdf:resource="https://example.org/warranty-diagnosis#fm_wm-fm02"/>
+  </wd:Product>
+  <wd:Symptom rdf:about="https://example.org/warranty-diagnosis#symptom_wm-s03">
+    <wd:description>Will not drain / E21</wd:description>
+    <wd:severity>high</wd:severity>
+    <wd:indicates rdf:resource="https://example.org/warranty-diagnosis#fm_wm-fm02"/>
+  </wd:Symptom>
+  <wd:FailureMode rdf:about="https://example.org/warranty-diagnosis#fm_wm-fm02">
+    <rdfs:label>Drain pump failure</rdfs:label>
+    <wd:impactsComponent rdf:resource="https://example.org/warranty-diagnosis#component_wm-c02"/>
+    <wd:requiresPart rdf:resource="https://example.org/warranty-diagnosis#part_wm-p02"/>
+  </wd:FailureMode>
+  <wd:Component rdf:about="https://example.org/warranty-diagnosis#component_wm-c02">
+    <rdfs:label>Drain System</rdfs:label>
+    <wd:subsystem>Plumbing</wd:subsystem>
+    <wd:realizedBy rdf:resource="https://example.org/warranty-diagnosis#part_wm-p02"/>
+  </wd:Component>
+  <wd:Part rdf:about="https://example.org/warranty-diagnosis#part_wm-p02">
+    <rdfs:label>Drain pump</rdfs:label>
+    <wd:partNumber>DP-8K-01</wd:partNumber>
+  </wd:Part>
+</rdf:RDF>

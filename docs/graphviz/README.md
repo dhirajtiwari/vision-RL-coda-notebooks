@@ -23,10 +23,15 @@
 | **36** | `36-end-to-end-pipeline-io.dot` | `rendered/png/36-end-to-end-pipeline-io.png` | **Pipeline I/O** |
 | **37** | `37-module-catalog-by-phase.dot` | `rendered/png/37-module-catalog-by-phase.png` | **Module catalog** |
 | **38** | `38-reliability-diagnosis-engine.dot` | `rendered/38-reliability-diagnosis-engine.png` | **Reliability engine** (FMEA + Bayesian) |
+| **39** | `39-complete-enterprise-system-pipeline.dot` | `rendered/png/39-complete-enterprise-system-pipeline.png` | **Complete system pipeline (as built)** |
+| **40** | `40-enterprise-network-topology.dot` | `rendered/png/40-enterprise-network-topology.png` | **Enterprise network topology** |
+| **41** | `41-etl-staging-graph-traversal.dot` | `rendered/png/41-etl-staging-graph-traversal.png` | **ETL → staging → graph traversal** |
 
 SVG copies live alongside PNG under `rendered/svg/`.
 
 **Narrative guide:** `docs/PIPELINE-AND-MODULE-GUIDE.md` — blueprint → graph → diagnosis → claim (files, formats, commands).
+
+**Full landscape + code wiring:** [`docs/17-Enterprise-Landscape-Pipeline-and-Topology.md`](../17-Enterprise-Landscape-Pipeline-and-Topology.md) (diagrams **39–41**).
 
 ## Ontology (not C4 architecture)
 
