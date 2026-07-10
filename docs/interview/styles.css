@@ -1,0 +1,223 @@
+@page {
+  size: A4;
+  margin: 18mm 16mm 20mm 16mm;
+  @bottom-center {
+    content: "Remote Diagnostics Graph · Interview Guide  ·  " counter(page);
+    font-size: 9pt;
+    color: #64748b;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  }
+}
+
+html {
+  font-size: 10.5pt;
+}
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #0f172a;
+  line-height: 1.45;
+  max-width: 100%;
+}
+
+h1 {
+  color: #0f172a;
+  font-size: 22pt;
+  border-bottom: 3px solid #0f766e;
+  padding-bottom: 8px;
+  margin-top: 0;
+  page-break-after: avoid;
+}
+
+h2 {
+  color: #134e4a;
+  font-size: 14pt;
+  border-left: 5px solid #0f766e;
+  padding-left: 10px;
+  margin-top: 1.4em;
+  page-break-after: avoid;
+}
+
+h3 {
+  color: #1e3a5f;
+  font-size: 11.5pt;
+  margin-top: 1.1em;
+  page-break-after: avoid;
+}
+
+h4 {
+  color: #334155;
+  font-size: 10.5pt;
+  margin-top: 0.9em;
+  page-break-after: avoid;
+}
+
+p, li {
+  orphans: 3;
+  widows: 3;
+}
+
+code, pre {
+  font-family: "SF Mono", Menlo, Consolas, monospace;
+  font-size: 8.5pt;
+}
+
+code {
+  background: #f1f5f9;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #0f172a;
+}
+
+pre {
+  background: #0f172a;
+  color: #e2e8f0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  line-height: 1.35;
+  page-break-inside: avoid;
+}
+
+pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8em 0 1.1em;
+  font-size: 9pt;
+  page-break-inside: avoid;
+}
+
+th {
+  background: #134e4a;
+  color: white;
+  text-align: left;
+  padding: 6px 8px;
+  font-weight: 600;
+}
+
+td {
+  border: 1px solid #cbd5e1;
+  padding: 5px 8px;
+  vertical-align: top;
+}
+
+tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+blockquote {
+  border-left: 4px solid #14b8a6;
+  margin: 0.8em 0;
+  padding: 6px 12px;
+  background: #f0fdfa;
+  color: #134e4a;
+  page-break-inside: avoid;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #cbd5e1;
+  margin: 1.5em 0;
+}
+
+.cover {
+  text-align: center;
+  padding: 48px 12px 24px;
+  page-break-after: always;
+}
+
+.cover h1 {
+  border: none;
+  font-size: 26pt;
+  color: #0f172a;
+}
+
+.cover .subtitle {
+  font-size: 13pt;
+  color: #475569;
+  margin: 12px 0;
+}
+
+.cover .meta {
+  margin-top: 28px;
+  font-size: 10pt;
+  color: #64748b;
+}
+
+.badge {
+  display: inline-block;
+  background: #0f766e;
+  color: white;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 9pt;
+  margin: 4px;
+}
+
+.pointer {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 0.6em 0;
+  page-break-inside: avoid;
+}
+
+.pointer strong {
+  color: #9a3412;
+}
+
+.qa {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin: 0.7em 0 1em;
+  page-break-inside: avoid;
+}
+
+.qa .q {
+  font-weight: 700;
+  color: #1e3a5f;
+  margin-bottom: 4px;
+}
+
+.qa .a {
+  color: #334155;
+}
+
+.persona {
+  display: inline-block;
+  font-size: 8.5pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+}
+
+.persona-academic { background: #dbeafe; color: #1e40af; }
+.persona-dev { background: #dcfce7; color: #166534; }
+.persona-arch { background: #f3e8ff; color: #6b21a8; }
+.persona-industry { background: #ffedd5; color: #9a3412; }
+
+ul.compact li {
+  margin: 0.15em 0;
+}
+
+.toc a {
+  color: #0f766e;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}

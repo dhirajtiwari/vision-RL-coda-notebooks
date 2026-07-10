@@ -10,6 +10,12 @@ This guide explains how product ontology and the knowledge graph are created, ho
 
 **Enterprise landscape + network topology + ETL→graph + code wiring:** [`docs/17-Enterprise-Landscape-Pipeline-and-Topology.md`](17-Enterprise-Landscape-Pipeline-and-Topology.md) · Graphviz **39–41**.
 
+**Full project / full codebase encyclopedia (entire repo):** [`docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md`](18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md) · PDF [`docs/full-project/WarrantyGraph-Full-Project-Codebase-Encyclopedia.pdf`](full-project/WarrantyGraph-Full-Project-Codebase-Encyclopedia.pdf).
+
+**Indexes (Neo4j constraints + SQLite):** [`docs/19-Indexes-Constraints-and-Lookup-Performance.md`](19-Indexes-Constraints-and-Lookup-Performance.md) · multi-volume Vol 05.
+
+**Multi-volume (theory + code + RDF + WWWH):** [`docs/multi-volume/`](multi-volume/).
+
 ## Do we need Entity-Relationship Diagrams (ERDs)?
 
 **Yes — for the blueprinting approach they are essential.**

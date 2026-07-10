@@ -30,6 +30,19 @@ A customer describes an appliance problem in natural language. The platform:
 
 ---
 
+## Full project documentation
+
+| Document | What it covers |
+|----------|----------------|
+| [`docs/multi-volume/`](docs/multi-volume/) | **Multi-volume library** — theory, annotated code, RDF/OWL, indexes, WWWH cards (PDFs 00–05) |
+| [`docs/19-Indexes-Constraints-and-Lookup-Performance.md`](docs/19-Indexes-Constraints-and-Lookup-Performance.md) | Neo4j/SQLite indexes — What/Where/When/How/Why |
+| [`docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md`](docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md) | Single-file full codebase inventory |
+| [`docs/full-project/WarrantyGraph-Full-Project-Codebase-Encyclopedia.pdf`](docs/full-project/WarrantyGraph-Full-Project-Codebase-Encyclopedia.pdf) | Compact full-project encyclopedia PDF |
+| [`docs/interview/Remote-Diagnostics-Interview-Mastery-Guide.pdf`](docs/interview/Remote-Diagnostics-Interview-Mastery-Guide.pdf) | Interview Q&A (personas) — complementary |
+| [`docs/PIPELINE-AND-MODULE-GUIDE.md`](docs/PIPELINE-AND-MODULE-GUIDE.md) | Blueprint → diagnosis → claim phases |
+
+---
+
 ## Architecture
 
 ```
