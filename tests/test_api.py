@@ -24,7 +24,9 @@ def test_integrations_status_endpoint():
     assert r.status_code == 200
     body = r.json()
     assert "connectors" in body
-    assert "neo4j" in body["connectors"]
+    # Dual Neo4j (prod + staging) or legacy single neo4j key
+    conns = body["connectors"]
+    assert "neo4j" in conns or "neo4j_production" in conns or any(str(k).startswith("neo4j") for k in conns)
 
 
 def test_diagnose_requires_neo4j():

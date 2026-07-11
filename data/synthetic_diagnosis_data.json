@@ -10893,5 +10893,11 @@
     "product_ids_filter": [
       "oem-sam-dw80"
     ]
+  },
+  "catalog_metadata": {
+    "version": "2.1-enterprise-oem-expanded",
+    "product_count": 23,
+    "oem_product_count": 10,
+    "data_policy": "Public OEM support documentation only; verify before production use."
   }
 }
