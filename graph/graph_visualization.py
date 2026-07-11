@@ -856,21 +856,59 @@ def get_diagnosis_subgraph(
                 )
 
         if include_steps:
-            for row in session.run(
-                """
-                MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
-                RETURN ds.step_id AS step_id, ds.description AS description, ds.order AS step_order
-                ORDER BY ds.order LIMIT 4
-                """,
-                product_id=product_id,
-            ):
+            # Prefer steps that CONFIRMS the top failure mode (+ entry steps with no CONFIRMS).
+            # Avoid dumping every product step (other-FM checks) into Explore Exact Path.
+            if failure_mode_id:
+                step_rows = list(
+                    session.run(
+                        """
+                        MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
+                        OPTIONAL MATCH (ds)-[:CONFIRMS]->(fm:FailureMode)
+                        WITH ds, collect(DISTINCT fm.failure_mode_id) AS fms
+                        WHERE $failure_mode_id IN fms
+                           OR (size(fms) = 0 AND coalesce(ds.order, 99) <= 1)
+                        RETURN ds.step_id AS step_id, ds.description AS description,
+                               ds.order AS step_order,
+                               ($failure_mode_id IN fms) AS targets_fm
+                        ORDER BY targets_fm DESC, ds.order
+                        LIMIT 6
+                        """,
+                        product_id=product_id,
+                        failure_mode_id=failure_mode_id,
+                    )
+                )
+            else:
+                step_rows = list(
+                    session.run(
+                        """
+                        MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
+                        RETURN ds.step_id AS step_id, ds.description AS description,
+                               ds.order AS step_order, false AS targets_fm
+                        ORDER BY ds.order LIMIT 4
+                        """,
+                        product_id=product_id,
+                    )
+                )
+            for row in step_rows:
+                # Skip untargeted steps that confirm nothing when we already have a confirming step
+                # Keep order-1 entry (shared prereq) only if no other CONFIRMS-less noise
+                targets = bool(row.get("targets_fm"))
                 ds_key = _add_node(
                     nodes,
                     "DiagnosticStep",
                     row["step_id"],
                     f"Step {row['step_order']}: {row['description'][:45]}",
+                    highlight=targets,
                 )
-                _add_edge(edges, p_key, ds_key, "HAS_DIAGNOSTIC_STEP")
+                _add_edge(edges, p_key, ds_key, "HAS_DIAGNOSTIC_STEP", highlight=targets)
+                if failure_mode_id and targets:
+                    _add_edge(
+                        edges,
+                        ds_key,
+                        _node_key("FailureMode", failure_mode_id),
+                        "CONFIRMS",
+                        highlight=True,
+                    )
 
         if include_resolutions and failure_mode_id:
             for row in session.run(

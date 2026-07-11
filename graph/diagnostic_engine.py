@@ -84,11 +84,16 @@ def get_diagnostic_steps_for_failure_mode(
     failure_mode_id: str,
 ) -> list[dict[str, Any]]:
     """
-    Steps that CONFIRM a specific failure mode, with prerequisite steps prepended.
+    Steps targeted to a failure mode via CONFIRMS, plus true prerequisites only.
 
-    Returns all steps from step 1 up to and including the confirming step so
-    technicians always have full diagnostic context instead of jumping mid-sequence.
-    Falls back to all product steps when no confirming step exists.
+    Includes:
+      - steps that CONFIRMS the target failure mode
+      - earlier steps that CONFIRMS *no* failure mode (shared entry checks)
+
+    Does **not** include steps that only CONFIRMS a *different* failure mode
+    (e.g. ice-maker checks when top FM is defrost heater).
+
+    Falls back to all product steps when no CONFIRMS edge exists for the FM.
     """
     driver = get_driver()
     with driver.session() as session:
@@ -106,28 +111,44 @@ def get_diagnostic_steps_for_failure_mode(
                 product_id=product_id,
             )
         ]
-        confirming_ids = {
-            row["step_id"]
-            for row in session.run(
-                """
-                MATCH (ds:DiagnosticStep)-[:CONFIRMS]->(fm:FailureMode {failure_mode_id: $fm_id})
-                RETURN ds.step_id AS step_id
+        # step_id -> set of FM ids it confirms
+        confirms_by_step: dict[str, set[str]] = {}
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
+            MATCH (ds)-[:CONFIRMS]->(fm:FailureMode)
+            RETURN ds.step_id AS step_id, fm.failure_mode_id AS failure_mode_id
             """,
-                fm_id=failure_mode_id,
-            )
-        }
+            product_id=product_id,
+        ):
+            confirms_by_step.setdefault(row["step_id"], set()).add(row["failure_mode_id"])
+
+        confirming_ids = {sid for sid, fms in confirms_by_step.items() if failure_mode_id in fms}
 
     if not confirming_ids:
         return all_steps
 
-    max_confirming_order = max(
-        (s["step_order"] for s in all_steps if s["step_id"] in confirming_ids),
-        default=None,
-    )
-    if max_confirming_order is None:
-        return all_steps
+    confirming_orders = [
+        s["step_order"] for s in all_steps if s["step_id"] in confirming_ids and s.get("step_order") is not None
+    ]
+    min_confirm_order = min(confirming_orders) if confirming_orders else None
 
-    targeted = [s for s in all_steps if s["step_order"] <= max_confirming_order]
+    targeted: list[dict[str, Any]] = []
+    for step in all_steps:
+        sid = step["step_id"]
+        fms = confirms_by_step.get(sid) or set()
+        if failure_mode_id in fms:
+            targeted.append({**step, "targets_top_fm": True, "confirms_failure_modes": list(fms)})
+            continue
+        # Shared prerequisites: no CONFIRMS to any FM, and not after the confirming step
+        if not fms and min_confirm_order is not None:
+            order = step.get("step_order")
+            if order is None or order <= min_confirm_order:
+                targeted.append(
+                    {**step, "targets_top_fm": False, "confirms_failure_modes": [], "is_prerequisite": True}
+                )
+        # Explicitly skip steps that only confirm other FMs
+
     return targeted if targeted else all_steps
 
 
@@ -138,16 +159,33 @@ def resolve_dynamic_steps(
     max_steps: int = 6,
 ) -> list[dict[str, Any]]:
     """
-    Walk diagnostic tree preferring CONFIRMS path to target failure mode.
-    Falls back to product-ordered steps when no tree exists.
+    Resolve troubleshooting steps for a top failure mode.
+
+    Prefer CONFIRMS-targeted steps (+ shared prerequisites). Linear NEXT_STEP
+    chains that only encode a generic sequence are **not** used as a substitute
+    for FM targeting (they incorrectly pull in checks for other FMs).
+
+    Tree walk is used only when it actually lands on a step that CONFIRMS the
+    target FM and no better CONFIRMS set exists.
     """
+    if not failure_mode_id:
+        return get_diagnostic_steps(product_id)[:max_steps]
+
+    targeted = get_diagnostic_steps_for_failure_mode(product_id, failure_mode_id)
+    if any(s.get("targets_top_fm") for s in targeted):
+        return targeted[:max_steps]
+
     tree = get_diagnostic_tree(product_id)
-    if not tree["is_dynamic"] or not failure_mode_id:
-        return get_diagnostic_steps_for_failure_mode(product_id, failure_mode_id or "")
+    if not tree["is_dynamic"]:
+        return targeted[:max_steps] if targeted else get_diagnostic_steps(product_id)[:max_steps]
 
     confirm_map: dict[str, list[str]] = {}
     for c in tree["confirmations"]:
         confirm_map.setdefault(c["step_id"], []).append(c["failure_mode_id"])
+
+    # If the tree has no step confirming this FM, stay with product-order fallback
+    if failure_mode_id not in {fm for fms in confirm_map.values() for fm in fms}:
+        return targeted[:max_steps] if targeted else get_diagnostic_steps(product_id)[:max_steps]
 
     branch_map = {e["from_step_id"]: e for e in tree["branches"]}
     steps_by_id = {s["step_id"]: s for s in tree["steps"]}
@@ -161,19 +199,31 @@ def resolve_dynamic_steps(
         step = steps_by_id.get(current)
         if step:
             confirms = confirm_map.get(current, [])
-            step = {
-                **step,
-                "confirms_failure_modes": confirms,
-                "targets_top_fm": failure_mode_id in confirms,
-            }
-            ordered.append(step)
+            ordered.append(
+                {
+                    **step,
+                    "confirms_failure_modes": confirms,
+                    "targets_top_fm": failure_mode_id in confirms,
+                }
+            )
+            # Stop once we reach a step that confirms the top FM
+            if failure_mode_id in confirms:
+                break
 
         branch = branch_map.get(current)
         if not branch:
             break
         current = branch["to_step_id"]
 
-    if not ordered:
-        return get_diagnostic_steps_for_failure_mode(product_id, failure_mode_id)
+    # Drop steps that only confirm other FMs (keep prereqs + target)
+    cleaned = [
+        s
+        for s in ordered
+        if s.get("targets_top_fm")
+        or not s.get("confirms_failure_modes")
+        or failure_mode_id in (s.get("confirms_failure_modes") or [])
+    ]
+    if any(s.get("targets_top_fm") for s in cleaned):
+        return cleaned[:max_steps]
 
-    return ordered
+    return targeted[:max_steps] if targeted else get_diagnostic_steps(product_id)[:max_steps]

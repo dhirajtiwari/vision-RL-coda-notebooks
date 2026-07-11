@@ -436,33 +436,23 @@ def resolve_product_for_diagnosis(
                 effective_asset_id=None,
             )
 
-        if _message_implies_other_product(asset_product_id, msg_product_id, scores) and not force_keep_context:
+        # Asset is source of truth: soft language mismatch is a warning, not a hard block.
+        # (Hard block still applies for anonymous sessions where product_id is inferred.)
+        if _message_implies_other_product(asset_product_id, msg_product_id, scores):
             det_name = (products.get(msg_product_id) or {}).get("name", msg_product_id)
-            detail = (
-                f"Your description sounds like **{det_name}**, but the selected appliance is "
-                f"**{bound['name']}**. Switch to the correct registered appliance, or keep this one "
-                f"if you are sure the note is about this unit."
-            )
-            return _blocked_resolution(
-                "soft_appliance_mismatch",
-                detail,
-                product=bound,
-                asset_ctx=asset_ctx,
-                effective_asset_id=effective_asset_id,
-                extra={
-                    "bound_product_id": asset_product_id,
-                    "message_product_id": msg_product_id,
-                    "suggested_product_id": msg_product_id,
-                    "can_force_keep": True,
-                },
-            )
-
-        if force_keep_context and _message_implies_other_product(asset_product_id, msg_product_id, scores):
-            det_name = (products.get(msg_product_id) or {}).get("name", msg_product_id)
-            warnings.append(
-                f"Proceeding on registered appliance **{bound['name']}** despite description "
-                f"mentioning **{det_name}** (operator confirmed)."
-            )
+            if force_keep_context:
+                warnings.append(
+                    f"Proceeding on registered appliance **{bound['name']}** despite description "
+                    f"mentioning **{det_name}** (operator confirmed)."
+                )
+            else:
+                warnings.append(
+                    f"Note: wording resembles **{det_name}**, but diagnosis stays on the bound asset "
+                    f"**{bound['name']}** (`{asset_product_id}`). Switch appliance if that is wrong."
+                )
+            meta["soft"] = True
+            meta["message_product_id"] = msg_product_id
+            meta["bound_product_id"] = asset_product_id
         return bound, asset_ctx, effective_asset_id, warnings, "", meta
 
     # ─── ANONYMOUS: no registered asset ────────────────────────────────────
@@ -1072,7 +1062,8 @@ def diagnose(
         if top:
             fm_props = enrich_entity_props("FailureMode", top.get("failure_mode_id", ""), top)
             provenance_trail.append(provenance_evidence_line("FailureMode", top.get("failure_mode_id", ""), fm_props))
-        for step in steps[:2]:
+        steps_for_prov = [s for s in steps if s.get("targets_top_fm")] or list(steps)
+        for step in steps_for_prov[:4]:
             step_props = enrich_entity_props("DiagnosticStep", step.get("step_id", ""), step)
             provenance_trail.append(provenance_evidence_line("DiagnosticStep", step.get("step_id", ""), step_props))
         for part in predicted_parts[:2]:
