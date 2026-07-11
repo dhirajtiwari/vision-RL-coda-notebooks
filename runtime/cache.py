@@ -18,11 +18,10 @@ import time
 from collections.abc import Callable, Hashable
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Generic, Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 
 from runtime.redis_client import get_redis_client, namespaced
 
-K = TypeVar("K", bound=Hashable)
 V = TypeVar("V")
 
 
@@ -63,12 +62,12 @@ class CacheLike(Protocol[V]):
 
 
 @dataclass
-class _Entry(Generic[V]):
+class _Entry[V]:
     value: V
     expires_at: float  # monotonic deadline; inf = no expiry
 
 
-class TtlCache(Generic[K, V]):
+class TtlCache[K: Hashable, V]:
     """In-process TTL + LRU-ish capacity cache (thread-safe)."""
 
     backend = "memory"
@@ -144,7 +143,7 @@ class TtlCache(Generic[K, V]):
             return len(self._store)
 
 
-class RedisTtlCache(Generic[V]):
+class RedisTtlCache[V]:
     """
     Redis-backed TTL cache with the same public surface as TtlCache.
 

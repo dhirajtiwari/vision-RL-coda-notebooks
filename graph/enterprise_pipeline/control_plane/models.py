@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class SourceKind(str, Enum):
+class SourceKind(StrEnum):
     STRUCTURED = "structured"
     SEMI_STRUCTURED = "semi_structured"
     UNSTRUCTURED = "unstructured"
@@ -15,13 +15,13 @@ class SourceKind(str, Enum):
     INTERNAL = "internal"  # graph/catalog only
 
 
-class RunMode(str, Enum):
+class RunMode(StrEnum):
     BOOTSTRAP = "bootstrap"  # full first-time / rebaseline
     INCREMENTAL = "incremental"  # delta / watermark
     ON_DEMAND = "on_demand"  # human / API triggered
 
 
-class PipelineStatus(str, Enum):
+class PipelineStatus(StrEnum):
     IDLE = "idle"
     RUNNING = "running"
     SUCCESS = "success"

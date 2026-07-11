@@ -9,6 +9,8 @@ on:
 permissions:
   contents: read
   packages: write
+  # gitleaks-action on pull_request lists PR commits via the GitHub API
+  pull-requests: read
 
 env:
   REGISTRY: ghcr.io
@@ -17,6 +19,9 @@ env:
 jobs:
   secret-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
         with:

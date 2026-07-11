@@ -18,9 +18,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
-from typing import Any, TypeVar
-
-T = TypeVar("T")
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -87,7 +85,7 @@ def partition_for_etl(
     return base
 
 
-def batch_items(items: Sequence[T] | Iterable[T], size: int) -> list[list[T]]:
+def batch_items[T](items: Sequence[T] | Iterable[T], size: int) -> list[list[T]]:
     """
     Partition a work list into fixed-size batches (ETL product chunks, bulk claims).
 
