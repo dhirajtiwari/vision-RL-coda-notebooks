@@ -746,21 +746,29 @@ def rank_failure_modes(product_id: str, symptom_ids: list[str]) -> list[dict[str
 
 
 def resolve_asset_context(asset_id: str) -> dict[str, Any] | None:
-    driver = get_driver()
-    with driver.session() as session:
-        row = session.run(
-            """
-            MATCH (a:Asset {asset_id: $asset_id})-[:INSTANCE_OF]->(p:Product)
-            OPTIONAL MATCH (a)-[:BOUND_TO_SKU]->(sku:SKU)
-            OPTIONAL MATCH (p)-[:HAS_MODEL]->(m:Model)
-            RETURN a.asset_id AS asset_id, a.serial_number AS serial_number,
-                   a.model_number AS model_number, a.customer_id AS customer_id,
-                   p.product_id AS product_id, p.name AS product_name,
-                   sku.sku_id AS sku_id, m.model_number AS graph_model_number
-            """,
-            asset_id=asset_id,
-        ).single()
-        return dict(row) if row else None
+    """Load asset→product binding from Neo4j.
+
+    Returns None when the graph is unreachable or the asset is missing so callers
+    (and CI) can fall back to CRM enrichment without hard-failing.
+    """
+    try:
+        driver = get_driver()
+        with driver.session() as session:
+            row = session.run(
+                """
+                MATCH (a:Asset {asset_id: $asset_id})-[:INSTANCE_OF]->(p:Product)
+                OPTIONAL MATCH (a)-[:BOUND_TO_SKU]->(sku:SKU)
+                OPTIONAL MATCH (p)-[:HAS_MODEL]->(m:Model)
+                RETURN a.asset_id AS asset_id, a.serial_number AS serial_number,
+                       a.model_number AS model_number, a.customer_id AS customer_id,
+                       p.product_id AS product_id, p.name AS product_name,
+                       sku.sku_id AS sku_id, m.model_number AS graph_model_number
+                """,
+                asset_id=asset_id,
+            ).single()
+            return dict(row) if row else None
+    except Exception:
+        return None
 
 
 def match_error_codes(product_id: str, user_message: str) -> list[dict[str, Any]]:
