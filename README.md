@@ -34,6 +34,8 @@ A customer describes an appliance problem in natural language. The platform:
 
 | Document | What it covers |
 |----------|----------------|
+| [`AGENTS.md`](AGENTS.md) + [`docs/sdd/`](docs/sdd/README.md) | **Agent-native SDD kit** (Claude Code / Codex) — thin ALWAYS-ON files; avoid pasting the full encyclopedia |
+| [`docs/23-Spec-Driven-Development-Platform-and-Domain.md`](docs/23-Spec-Driven-Development-Platform-and-Domain.md) | Full portable SDD (platform vs domain, as-built, gaps) — human reference |
 | [`docs/multi-volume/`](docs/multi-volume/) | **Multi-volume library** — theory, annotated code, RDF/OWL, indexes, WWWH cards (PDFs 00–05) |
 | [`docs/19-Indexes-Constraints-and-Lookup-Performance.md`](docs/19-Indexes-Constraints-and-Lookup-Performance.md) | Neo4j/SQLite indexes — What/Where/When/How/Why |
 | [`docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md`](docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md) | Single-file full codebase inventory |

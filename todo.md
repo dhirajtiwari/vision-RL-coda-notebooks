@@ -603,6 +603,7 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [x] Docs 20 Enterprise KG ingestion architecture
 - [x] Docs 21 KG ingestion step-by-step runbook
 - [x] Docs **22 TBox/ABox multi-source onboard mechanism** (sources → ABox; no per-product TBox)
+- [x] Docs **23 Spec-driven development** — platform vs domain, Docker-first, greenfield exit gates
 - [x] C4 workspace + diagrams
 - [x] Graphviz 01–41 (+ renders tracked for safekeeping)
 - [x] Multi-volume PDFs 00–05 (theory, code, RDF, pipelines)
@@ -797,6 +798,8 @@ Use this as the **true backlog** if continuing this product.
 | `docs/20-Enterprise-KG-Ingestion-Pipeline-Architecture.md` | Multi-source KG control plane architecture |
 | `docs/21-KG-Ingestion-Step-by-Step-Runbook.md` | How to run bootstrap / incremental / promote |
 | `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md` | **TBox vs ABox**, multi-source NEW packs, no per-product schema |
+| `docs/23-Spec-Driven-Development-Platform-and-Domain.md` | **SDD**: code-true §1; portable greenfield; **§6 gaps/anti-patterns**; **§0.4 agent-native** (NEVER/MUST/OVERRIDES, lost-in-middle) for Claude Code/Codex |
+| `docs/sdd/*` + root `AGENTS.md` | **Live agent kit** — thin always-on + pull modules; do not paste full docs/23 into every session |
 | `docs/todo-kg-ingestion-pipelines.md` | KG pipeline checklist detail |
 | `docs/multi-volume/*` | Theory + annotated code + RDF PDFs |
 | `docs/ontology/*` | Generated Turtle / OWL artifacts |
@@ -1410,6 +1413,7 @@ Chronological capability delivered **today** (Admin onboard through diagnosis ac
 
 | Topic | Doc / code |
 |-------|------------|
+| **Portable SDD (includes gaps for greenfield)** | `docs/23-…SDD…md` **§6** — copy into new projects |
 | TBox/ABox multi-source mechanism | `docs/22-…Mechanism.md` |
 | Runtime cache/parallel | `docs/16-Enterprise-Runtime-Capabilities.md`, `runtime/*` |
 | Ingestion architecture | `docs/20`, `docs/21` |
