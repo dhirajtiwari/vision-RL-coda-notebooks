@@ -38,6 +38,20 @@ When forking to a new vertical: rewrite this file **before** serious coding.
 | Fixture-only until | Live SAP/Salesforce/etc. **not** productized — fixtures + optional mock HTTP |
 | Demo mode | `demo_mode` / fixture fallback **ON** by default |
 
+## LLMOps archetype (this project)
+
+| Item | Override |
+|------|----------|
+| Archetype | **Deterministic core + optional LLM** (ADR 0001) |
+| `LLM_ENABLED` | **false** by default — do not turn on in demos unless product asks |
+| Optional LLM role | Diagnosis **rewriter** only (grounded result first); not primary reasoner |
+| Providers prepared | OpenAI + Azure Foundry adapters in `gateway/` |
+| FinOps budget default | $5 USD/day when LLM path used |
+| OTEL | **Off** by default; Prometheus **on** |
+| Progressive delivery | Manifests scaffolded (Argo + Flagger); **not** claimed as live multi-cluster |
+| IaC | Terraform **placeholders**; runtime = local/Docker |
+| Handbook location | `docs/llmops-handbook/` — human/recipe only; agents use `09-PLATFORM-LLMOPS.md` |
+
 ## Explicitly deferred gaps (from `08-GAPS.md` / SDD §6)
 
 Mark v1 scope honestly. Agents must not “implement enterprise auth” unless this section says so.
@@ -50,6 +64,9 @@ Mark v1 scope honestly. Agents must not “implement enterprise auth” unless t
 | P1 Redis multi-replica required | **Optional** — memory default single-node |
 | P1 Graph HA | **Deferred** — dual single-node Docker |
 | P2 SHACL engine / learning loop | **Deferred** |
+| P2 OTEL default-on | **Deferred** (opt-in flag exists) |
+| P2 LLM semantic cache | **Deferred** (diagnose cache exists; LLM path optional) |
+| Full cloud progressive delivery | **Scaffold only** |
 
 ## Forbidden platform changes (agents must not remove)
 

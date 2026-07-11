@@ -25,13 +25,15 @@ Thin, progressive files so Claude Code / Codex / humans avoid **lost-in-the-midd
 | [`06-DOMAIN-ONLINE.md`](./06-DOMAIN-ONLINE.md) | Diagnose / UI |
 | [`07-ACCEPTANCE.md`](./07-ACCEPTANCE.md) | Parity checklists |
 | [`08-GAPS.md`](./08-GAPS.md) | Roadmap beyond parity (planning) |
+| [`09-PLATFORM-LLMOPS.md`](./09-PLATFORM-LLMOPS.md) | Guardrails, evals, obs, gateway, FinOps, security, runbooks |
 
 ## Human full reference
 
 - Canonical long form: [`../23-Spec-Driven-Development-Platform-and-Domain.md`](../23-Spec-Driven-Development-Platform-and-Domain.md)
 - Pointer: [`REFERENCE-FULL.md`](./REFERENCE-FULL.md)
+- LLMOps recipes (not always-on): [`../llmops-handbook/`](../llmops-handbook/00-index.md) + playbook
 
-**Agents:** do **not** attach the full reference every turn.
+**Agents:** do **not** attach the full reference or entire handbook every turn.
 
 ## Repo entrypoint for tools
 

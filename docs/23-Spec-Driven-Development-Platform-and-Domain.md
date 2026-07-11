@@ -82,6 +82,7 @@ docs/sdd/
   06-DOMAIN-ONLINE.md
   07-ACCEPTANCE.md
   08-GAPS.md             # pull when planning beyond parity or production
+  09-PLATFORM-LLMOPS.md  # pull for guardrails/evals/obs/gateway/finops
   AS_BUILT.md            # agent updates after each phase (code-true)
   REFERENCE-FULL.md      # optional: this entire docs/23 for humans only
 ```
@@ -295,15 +296,41 @@ Control and gates (not exhaustive list of every route):
 
 | Workflow | Role |
 |----------|------|
-| `.github/workflows/ci.yml` | Secret scan, ruff, **multi-source/TBox tests**, full pytest, eval smoke, frontend build, image builds |
+| `.github/workflows/ci.yml` | Secret scan, ruff, **multi-source/TBox tests**, full pytest, **eval smoke**, frontend build, image builds |
 | Triggers | `main` and **`feature/**`** push/PR |
-| `eval-nightly.yml` | Heavier eval when graph available |
+| `eval-nightly.yml` | Full eval + safety when graph available |
 | `cd.yml` | Deploy after CI |
 
-**Test gate for multi-source / TBox discipline (as-built):**
-`tests/test_multi_source_tbox_abox.py` (+ related pipeline tests).
+**Test gates (as-built):**
+`tests/test_multi_source_tbox_abox.py`, `tests/test_guardrails.py`, `tests/test_observability.py`, `evals/run_eval.py`.
 
-### 1.8 Explicitly **not** as-built (do not claim in greenfield “done” until you build them)
+### 1.8 LLMOps disciplines (as-built — ADR 0001)
+
+**Architecture choice:** deterministic GraphRAG core; LLM path **ready-but-inactive** (`llm_enabled=false`).
+Enterprise shape from Enterprise LLMOps Handbook + Implementation Playbook, adapted to this layout (**no** forced `src/` reorg).
+
+| Discipline | Status | Code / artifacts |
+|------------|--------|------------------|
+| Observability | **ACTIVE** | `observability/` — JSON logs, `request_id`, Prometheus `/metrics`, OTEL opt-in, PII redaction |
+| Guardrails | **ACTIVE** | `guardrails/` — input (injection/jailbreak/cypher), output, action allowlist/HITL, rate limit |
+| EvalOps | **ACTIVE** | `evals/` — `run_eval.py`, `thresholds.yaml`, `golden/smoke.jsonl`, `safety/injection.jsonl` |
+| Security | **ACTIVE** | `security/threat-model.md`, `security/owasp-llm-mapping.md` |
+| Governance | **ACTIVE** (docs) | `docs/governance/*`, `docs/model-cards/system-card.md`, `docs/adr/0001-…` |
+| Monitoring / runbooks | **ACTIVE** | `monitoring/*`, `docs/runbooks/*` (cost, latency, PII, injection, provider, quality, rag-stale) |
+| Model gateway | **READY** inactive | `gateway/` (OpenAI + Azure adapters, retry/fallback, metering) |
+| PromptOps | **READY** inactive | `promptops/`, `prompts/` (+ `_schema.json`) |
+| FinOps | **READY** (on LLM call) | `finops/budget.py` — daily USD ceiling circuit breaker |
+| RAGOps (graph) | **ACTIVE** | GraphRAG dual Neo4j + provenance (not vector-only RAG) |
+| Progressive delivery | **SCAFFOLD** | `deploy/rollouts/` Argo + Flagger manifests |
+| IaC | **SCAFFOLD** | `infra/terraform/` placeholders; runtime Docker |
+
+**Settings defaults:** `llm_enabled=false`, `otel_enabled=false`, `enable_prometheus_metrics=true`, `enable_pii_redaction=true`, `rate_limit_per_minute=60`, `llm_cost_budget_usd_per_day=5.0`, `max_input_length=2000`, `max_response_chars=8000`.
+
+**Eval floors (as-built):** smoke `product_accuracy`/`confidence_pass` ≥ 0.66, `safety_pass` = **1.0**; full suite higher floors + `escalation_correct`.
+
+**Human recipes (not agent always-on):** `docs/llmops-handbook/` (ch00–21 + playbook). Agents use `docs/sdd/09-PLATFORM-LLMOPS.md`.
+
+### 1.9 Explicitly **not** as-built (do not claim in greenfield “done” until you build them)
 
 From live gaps / partials (see also backlog research):
 
@@ -317,6 +344,10 @@ From live gaps / partials (see also backlog research):
 | Redis required for demo | **Optional**; memory works single-node |
 | External SHACL engine / OWL reasoner in CI | **In-repo shapes only** |
 | Per-product OWL generation | **By design not done** |
+| LLM as primary reasoner | **By design off** — GraphRAG primary |
+| Live multi-cluster canary | **Manifests only** |
+| Full cloud Terraform landing zone | **Placeholders** |
+| Formal regulatory certification | **Docs/drafts** — residual risks listed |
 
 ---
 
@@ -396,12 +427,20 @@ docs/sdd/
   06-DOMAIN-ONLINE.md
   07-ACCEPTANCE.md           # §5
   08-GAPS.md                 # §6 full tables (human + planning agents only)
+  09-PLATFORM-LLMOPS.md      # §1.8 disciplines — guardrails/evals/obs/gateway
   REFERENCE-FULL.md          # points at this docs/23 for humans
   README.md                  # kit index
 AGENTS.md                    # repo root entrypoint → docs/sdd/
+
+# Companion (human recipes — not always-on agent context)
+docs/llmops-handbook/        # ch00–21 + LLMOPS-IMPLEMENTATION-PLAYBOOK.md
+docs/adr/                    # e.g. 0001-adopt-llmops-disciplines
+docs/governance/ docs/model-cards/ docs/runbooks/
+security/ monitoring/ evals/ guardrails/ observability/
+gateway/ promptops/ prompts/ models/ finops/
 ```
 
-**Humans** may read `REFERENCE-FULL.md` / this file once. **Agents** use always-on + one module per task (§0.4).
+**Humans** may read `REFERENCE-FULL.md` / this file / handbook once. **Agents** use always-on + one module per task (§0.4); LLMOps work → `09-PLATFORM-LLMOPS.md` only (not the whole handbook).
 
 ---
 
@@ -420,9 +459,13 @@ A fresh Docker project matches **this codebase’s current maturity** when:
 - [ ] Named caches + invalidate after promote/load
 - [ ] Rate limit + concurrent admission
 - [ ] Durable lineage/audit of pipeline/admin actions
-- [ ] CI: lint + unit/integration tests + pack-under-TBox tests + UI build
+- [ ] CI: lint + unit/integration tests + pack-under-TBox tests + UI build + **eval smoke**
 - [ ] Demo/live labeling for fixture data
 - [ ] **§6 anti-patterns checklist** reviewed by the team (sign-off)
+- [ ] **LLMOps Tier 1:** guardrails + rate limit + PII redaction + JSON logs + Prometheus
+- [ ] **LLMOps Tier 1:** eval golden + safety suites; safety floor 1.0
+- [ ] **LLMOps Tier 1:** threat model + OWASP map + system card + runbooks
+- [ ] **LLMOps Tier 3:** gateway/PromptOps/FinOps landing zones; LLM off by default unless OVERRIDES
 
 ### 5.2 Domain (must for vertical demo)
 
@@ -599,6 +642,21 @@ Copy this table into every new project’s SDD. These are **paid lessons**.
 | Claim capabilities not in code | Buyer distrust | Label simulated; keep gap list honest |
 | Depend on another machine’s monorepo docs | Cannot rebuild elsewhere | **This SDD travels alone** |
 
+#### LLMOps (from handbook playbook — paid lessons)
+
+| Mistake | What went wrong | Correct practice |
+|---------|-----------------|------------------|
+| Controls only in the prompt | Bypassable “safety” | Enforce in `guardrails/` + redaction; **test** them |
+| Prompts/models as string literals | No rollback/diff | Versioned `prompts/` + `models/registry.yaml` |
+| Model tag `latest` | Silent behavior change | Pin aliases; reject `latest` |
+| No eval/safety gate | Silent quality/safety rot | `evals/run_eval.py` + floors in CI; safety = 1.0 |
+| Loosen thresholds to go green | Quality rot | Fix regression, not the gate |
+| Prototype without obs/evals | Unshippable | Tier 1 first (playbook) |
+| Activate LLM without FinOps | Cost blowups | Budget breaker + metering before enable |
+| Claim compliance not built | Audit/legal risk | Drafts + residual risks + owners |
+| Dump entire handbook into agent | Lost-in-middle | `docs/sdd/09-PLATFORM-LLMOPS.md` + one chapter |
+| Treat scaffolds as live multi-cluster | False enterprise claim | Progressive delivery/Terraform = scaffold until wired |
+
 ---
 
 ### 6.8 What is **already good** (do not throw away on rewrite)
@@ -615,6 +673,11 @@ Carry these **as platform defaults** into new projects — they are as-built val
 8. Asset/identity-first online path when CRM exists
 9. Fail-closed empty selection
 10. CI pack-under-TBox tests
+11. Guardrails + rate limit + PII redaction
+12. Eval + safety gate in CI
+13. Observability (JSON logs, metrics; OTEL opt-in)
+14. Ready-but-inactive gateway / PromptOps / FinOps
+15. Security docs + system card + runbooks
 
 ---
 
@@ -627,6 +690,8 @@ On day 0 of a **new** project:
 - [ ] Add “anti-pattern of the week” review for first 4 sprints
 - [ ] Never mark P0 auth as “later” if external users will hit the API
 - [ ] Never invent per-entity OWL in sprint 1 “to look complete”
+- [ ] Scaffold LLMOps landing zones (Tier 1 active; Tier 3 ready-but-inactive if core is deterministic)
+- [ ] Point agents at `docs/sdd/09-PLATFORM-LLMOPS.md` — do not dump the full handbook into sessions
 
 ---
 
@@ -642,6 +707,8 @@ On day 0 of a **new** project:
 | **P5** | Runtime: parallel, caches, rate, admission, lineage | Health.runtime populated |
 | **P6** | UI personas | Manual smoke |
 | **P7** | CI workflows + pack contract tests | PR green |
+| **P7b** | LLMOps Tier 1 (obs, guardrails, evals, security, runbooks) | Eval smoke + guardrail tests green |
+| **P7c** | LLMOps Tier 3 ready-but-inactive (gateway/prompts/finops) | `LLM_ENABLED=false`; registry + budget present |
 | **P8** | Second multi-source pack + session reset | Fleet story works |
 | **P9** | Production hardening — **§6 P0/P1 gaps only as scoped** | Beyond demo |
 
@@ -664,19 +731,26 @@ project/
 ├── api/                             # FastAPI (or equivalent) + /health + /admin
 ├── graph/ or knowledge/             # TBox export, builder, populate, connectors
 ├── runtime/                         # cache, parallel_map, admission, partition, redis
-├── guardrails/                      # rate limit, input/output
+├── guardrails/                      # input/output/action + rate limit
+├── observability/                   # logs, metrics, tracing, redaction
+├── gateway/ promptops/ prompts/ models/ finops/   # LLM path (ready or active)
 ├── services/                        # online query orchestration
 ├── frontend/                        # chat + admin + explorer
+├── security/ monitoring/            # threat model, OWASP map, alerts/dashboards
 ├── data/
 │   ├── domain_sources/              # SoR fixtures (domain)
 │   ├── pipeline_sources/            # multi-source packs
 │   └── lineage/                     # runs + audit
 ├── tests/
 │   ├── test_pack_tbox_abox.py       # packs under shared TBox (no per-entity schema)
-│   └── ...
-├── evals/                           # golden + safety
-├── .github/workflows/ci.yml
-├── docs/sdd/00–08                   # includes 08-GAPS-AND-ANTI-PATTERNS from §6
+│   ├── test_guardrails.py
+│   └── test_observability.py
+├── evals/                           # run_eval + golden + safety + thresholds
+├── deploy/ infra/                   # K8s/canary scaffolds; Terraform placeholders
+├── .github/workflows/ci.yml         # + eval-nightly, cd
+├── docs/sdd/                        # agent kit 01–09 + always-on
+├── docs/llmops-handbook/            # human recipes (not always-on)
+├── docs/governance/ model-cards/ runbooks/ adr/
 ├── Makefile
 └── .env.example
 ```
@@ -702,7 +776,15 @@ If you **do** have the WarrantyGraph checkout, these paths match §1 (convenienc
 | Runtime | `runtime/*` |
 | CI multi-source tests | `tests/test_multi_source_tbox_abox.py` |
 | CI workflow | `.github/workflows/ci.yml` |
-| Duplicate gap tables (optional) | `todo.md` §26 — **§6 of this SDD is the portable source** |
+| Guardrails / rate limit | `guardrails/` |
+| Observability | `observability/` |
+| Eval gate | `evals/run_eval.py`, `evals/thresholds.yaml` |
+| Gateway / prompts / FinOps | `gateway/`, `prompts/`, `finops/` |
+| Security / runbooks | `security/`, `docs/runbooks/` |
+| LLMOps handbook + playbook | `docs/llmops-handbook/` |
+| ADR LLMOps | `docs/adr/0001-adopt-llmops-disciplines.md` |
+| Agent LLMOps module | `docs/sdd/09-PLATFORM-LLMOPS.md` |
+| Duplicate gap tables (optional) | `todo.md` — **§6 of this SDD is the portable source** |
 
 ---
 
@@ -718,6 +800,8 @@ If you **do** have the WarrantyGraph checkout, these paths match §1 (convenienc
 | Ontology on source add? | **ABox via pipeline only; shared TBox** |
 | Include gaps in SDD? | **Yes — §6 travels with every greenfield** so mistakes are not repeated |
 | Agent / lost-in-middle? | **Thin always-on files** (AGENTS/NEVER/MUST/OVERRIDES/PHASES); full doc is human reference only |
+| LLMOps in SDD? | **Yes** — §1.8 as-built + `docs/sdd/09-PLATFORM-LLMOPS.md`; handbook is recipe, not always-on context |
+| Deterministic vs LLM? | **GraphRAG primary**; LLM ready-but-inactive unless OVERRIDES |
 | New project nuances? | **OVERRIDES.md wins** when explicit; silent drift forbidden |
 
 ---
@@ -742,4 +826,4 @@ For agent sessions: if a constraint mattered enough to fix a bug, it belongs in 
 
 ---
 
-*Baseline: WarrantyGraph as-built 2026-07-11. Portable for greenfield Docker projects without local monorepo references. §6 gaps/anti-patterns + §0.4 agent packaging for Claude Code/Codex.*
+*Baseline: WarrantyGraph as-built 2026-07-11. Portable for greenfield Docker projects without local monorepo references. §1.8 LLMOps as-built (ADR 0001) + §6 gaps/anti-patterns + §0.4 agent packaging for Claude Code/Codex. Live kit: `docs/sdd/` including `09-PLATFORM-LLMOPS.md`.*

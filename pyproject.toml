@@ -7,7 +7,6 @@ target-version = "py312"
 extend-exclude = [
     "venv",
     ".venv",
-    "ui-streamlit-archive",   # archived, not maintained
     "frontend",               # JS/TS handled by ESLint
 ]
 
@@ -58,7 +57,6 @@ omit = [
     "*/__init__.py",
     "tests/*",
     "venv/*",
-    "ui-streamlit-archive/*",
 ]
 
 [tool.coverage.report]

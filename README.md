@@ -26,7 +26,6 @@ A customer describes an appliance problem in natural language. The platform:
 | **Knowledge Graph** | Neo4j (bolt://localhost:7687) |
 | **Confidence Engine** | FMEA + Bayesian inference + dominance boost |
 | **Enterprise ETL** | Python pipelines: PIM / CRM / FSM / Claims → Neo4j |
-| **Archived UI** | Streamlit (moved to `ui-streamlit-archive/`) |
 
 ---
 
@@ -34,8 +33,9 @@ A customer describes an appliance problem in natural language. The platform:
 
 | Document | What it covers |
 |----------|----------------|
-| [`AGENTS.md`](AGENTS.md) + [`docs/sdd/`](docs/sdd/README.md) | **Agent-native SDD kit** (Claude Code / Codex) — thin ALWAYS-ON files; avoid pasting the full encyclopedia |
-| [`docs/23-Spec-Driven-Development-Platform-and-Domain.md`](docs/23-Spec-Driven-Development-Platform-and-Domain.md) | Full portable SDD (platform vs domain, as-built, gaps) — human reference |
+| [`AGENTS.md`](AGENTS.md) + [`docs/sdd/`](docs/sdd/README.md) | **Agent-native SDD kit** (Claude Code / Codex) — thin ALWAYS-ON files + modules `01`–`09` (incl. LLMOps); avoid pasting the full encyclopedia/handbook |
+| [`docs/23-Spec-Driven-Development-Platform-and-Domain.md`](docs/23-Spec-Driven-Development-Platform-and-Domain.md) | Full portable SDD (platform vs domain, as-built KG + LLMOps, gaps) — human reference |
+| [`docs/llmops-handbook/`](docs/llmops-handbook/00-index.md) | Enterprise LLMOps Handbook 00–21 + implementation playbook (recipes) |
 | [`docs/multi-volume/`](docs/multi-volume/) | **Multi-volume library** — theory, annotated code, RDF/OWL, indexes, WWWH cards (PDFs 00–05) |
 | [`docs/19-Indexes-Constraints-and-Lookup-Performance.md`](docs/19-Indexes-Constraints-and-Lookup-Performance.md) | Neo4j/SQLite indexes — What/Where/When/How/Why |
 | [`docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md`](docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md) | Single-file full codebase inventory |
@@ -256,9 +256,8 @@ diagnostic-chatbot/
 ├── data/
 │   ├── enterprise_sources/           # CRM, PIM, FSM, Claims fixtures
 │   └── provenance_manifest.json
-├── tests/                            # 46 pytest tests
-├── docs/                             # Architecture docs, C4/Graphviz diagrams
-├── ui-streamlit-archive/             # Archived Streamlit UI (replaced by Next.js)
+├── tests/                            # pytest suite
+├── docs/                             # Architecture docs, C4/Graphviz diagrams, SDD kit
 ├── restart-all.sh                    # One-command service restart
 ├── run_demo.sh
 └── run_enterprise_demo.sh

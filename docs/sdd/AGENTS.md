@@ -21,7 +21,7 @@ You implement a Docker-first multi-source knowledge + query system (as-built: Wa
 2. Read `OVERRIDES.md` — if a conflict exists, **OVERRIDES wins**; record it in `AS_BUILT.md`.
 3. Open `PHASES.md`; identify current phase exit gate.
 4. Open `AS_BUILT.md` for code-true state (not wish-list prose).
-5. Open **ONLY** the module file for this task (`01`…`08`). Do not invent requirements from memory.
+5. Open **ONLY** the module file for this task (`01`…`09`). LLMOps → `09-PLATFORM-LLMOPS.md`. Do not invent requirements from memory.
 
 ## While coding
 
@@ -29,7 +29,9 @@ You implement a Docker-first multi-source knowledge + query system (as-built: Wa
 - Do **not** generate per-entity OWL/TBox files for new packs (ABox only under shared TBox).
 - Do **not** make chat/read path use the staging graph.
 - Do **not** promote without explicit selection when work exists.
-- After implement: run the phase’s tests; update `AS_BUILT.md` with what code actually does.
+- Do **not** enable `LLM_ENABLED` unless `OVERRIDES.md` / product asks; core stays deterministic.
+- Do **not** paste entire `docs/llmops-handbook/` — use `09-PLATFORM-LLMOPS.md` (+ one chapter if needed).
+- After implement: run the phase’s tests (and eval smoke if quality/safety touched); update `AS_BUILT.md`.
 - If a bug fix creates a lasting rule → add a bullet to `NEVER.md` or `MUST.md` in the same change.
 
 ## Prompt pattern (copy into sessions)
@@ -58,4 +60,8 @@ Exit gate checkboxes for this phase are true **AND** tests pass **AND** `AS_BUIL
 | Diagnose | `services/diagnosis_service.py`, `graph/graph_rag.py` |
 | Runtime | `runtime/*` |
 | Multi-source CI | `tests/test_multi_source_tbox_abox.py` |
+| LLMOps module | `docs/sdd/09-PLATFORM-LLMOPS.md` |
+| Guardrails / obs / evals | `guardrails/`, `observability/`, `evals/` |
+| Gateway / prompts / finops | `gateway/`, `prompts/`, `finops/` (LLM off by default) |
+| Handbook (human recipe only) | `docs/llmops-handbook/` — **do not dump whole book** |
 | Full SDD | `docs/23-Spec-Driven-Development-Platform-and-Domain.md` |

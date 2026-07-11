@@ -13,12 +13,14 @@
 | **P5** | Runtime: parallel, caches, rate, admission, lineage | `03-PLATFORM-RUNTIME.md` | `/health` → `runtime` populated |
 | **P6** | UI personas | `06-DOMAIN-ONLINE.md` | Manual smoke |
 | **P7** | CI workflows + pack contract tests | `04-PLATFORM-CI.md` | PR green |
+| **P7b** | LLMOps Tier 1 (obs, guardrails, evals, security, runbooks) | `09-PLATFORM-LLMOPS.md` | Eval smoke + guardrail tests green; residual risks listed |
+| **P7c** | LLMOps Tier 3 ready-but-inactive (gateway/prompts/finops) | `09-PLATFORM-LLMOPS.md` | `LLM_ENABLED=false`; registry pinned; budget module present |
 | **P8** | Second multi-source pack + session reset | `02` + `05` | Fleet story works |
-| **P9** | Production hardening — scoped §6 P0/P1 only | `08-GAPS.md` | Beyond demo as scoped |
+| **P9** | Production hardening — scoped §6 P0/P1 only | `08-GAPS.md` + `09` | Beyond demo as scoped |
 
 ## This repo status (WarrantyGraph baseline 2026-07)
 
-Phases **P0–P8** are largely **as-built**. Treat new work as:
+Phases **P0–P8** including **P7b/P7c LLMOps** are largely **as-built** (LLM path inactive by design). Treat new work as:
 
 - **Parity fixes** under existing phases (must update `AS_BUILT.md`), or
 - **P9 / gap work** only when `OVERRIDES.md` / product owner scopes it.
@@ -36,9 +38,10 @@ Phases **P0–P8** are largely **as-built**. Treat new work as:
 - [ ] Named caches + invalidate after promote/load
 - [ ] Rate limit + concurrent admission
 - [ ] Lineage/audit of admin actions
-- [ ] CI: lint + tests + pack-under-TBox + UI build
+- [ ] CI: lint + tests + pack-under-TBox + UI build + eval smoke
 - [ ] Demo/live labeling for fixtures
 - [ ] Anti-pattern checklist (`NEVER.md` / `08-GAPS.md` §6.7) team-reviewed
+- [ ] LLMOps Tier 1 + ready Tier 3 (see `09-PLATFORM-LLMOPS.md`)
 
 ### Domain
 

@@ -57,11 +57,26 @@ Redis required multi-replica; graph HA; load suite; OTEL default-on; product-lev
 
 **Already good:** dual graph, selection promote, parallel extract, caches, rate/admission, lineage, pack TBox tests.
 
+### LLMOps residual (vs handbook full enterprise)
+
+| Gap | As-built | Pri |
+|-----|----------|-----|
+| OTEL default-on in prod | Flag off by default | **P2** |
+| LLM semantic response cache | Diagnose cache only; LLM path optional | **P2** |
+| Live progressive delivery (Argo/Flagger) | Manifests scaffold | **P1** when multi-cluster |
+| Full Terraform cloud landing zone | Placeholders | **P1** when cloud target fixed |
+| Formal compliance certification | Docs/drafts only | Legal track |
+| LLM as primary reasoner | Deterministic GraphRAG primary | By design / OVERRIDES |
+
+**Already good (do not rebuild from zero):** guardrails, rate limit, eval+safety gate, JSON logs, Prometheus, redaction, ready gateway/PromptOps/FinOps, threat model, OWASP map, system card, runbooks, ADR 0001.
+
+Detail module: `09-PLATFORM-LLMOPS.md`.
+
 ## Anti-patterns (must not repeat)
 
-Short form lives in **`NEVER.md`**. Narrative tables: docs/23 §6.7.
+Short form lives in **`NEVER.md`**. Narrative tables: docs/23 §6.7 + playbook §8.
 
-Clusters: ontology/knowledge · ingest/promote/dual graph · diagnosis/UX · engineering process.
+Clusters: ontology/knowledge · ingest/promote/dual graph · diagnosis/UX · engineering process · **LLMOps** (prompt-only controls, `latest` models, loosened thresholds, handbook-as-context-dump).
 
 ## Kickoff checklist (new project)
 

@@ -36,3 +36,17 @@ Keep this file short. New paid lessons → add a bullet **the same week**.
 - NEVER skip updating `AS_BUILT.md` after a phase.
 - NEVER rewrite seed fixtures mid-suite without restore — keep CI hermetic.
 - NEVER depend on another machine’s monorepo docs to rebuild — SDD kit must travel alone.
+
+## LLMOps (handbook / playbook — paid lessons)
+
+- NEVER put security controls “only in the prompt” — enforce in `guardrails/` / redaction / infra and **test** them.
+- NEVER embed prompts or model IDs as unversioned string literals — use `prompts/` + `models/registry.yaml`.
+- NEVER pin models to `latest` — registry must pin versions; silent drift is a defect.
+- NEVER ship without an eval + safety gate (`evals/run_eval.py` + thresholds) when changing diagnose quality/safety.
+- NEVER loosen `thresholds.yaml` floors to make CI green — fix the regression.
+- NEVER claim EU AI Act / NIST / GDPR “certified” without legal + implemented controls — mark drafts, list residual risks.
+- NEVER log raw PII bodies “for debugging” — redaction on; see runbook `pii-incident`.
+- NEVER force heavy OTEL/LLM stacks into base install as required deps — keep opt-in where as-built does.
+- NEVER activate production LLM path without FinOps budget breaker + metering wired.
+- NEVER dump the entire `docs/llmops-handbook/` into agent context — load `09-PLATFORM-LLMOPS.md` + one chapter if needed.
+- NEVER treat progressive-delivery / Terraform scaffolds as “live multi-cluster prod” without evidence.

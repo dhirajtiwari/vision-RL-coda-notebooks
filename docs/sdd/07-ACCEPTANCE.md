@@ -14,9 +14,15 @@
 - [ ] Named caches + invalidate after promote/load
 - [ ] Rate limit + concurrent admission
 - [ ] Durable lineage/audit of pipeline/admin actions
-- [ ] CI: lint + tests + pack-under-TBox + UI build
+- [ ] CI: lint + tests + pack-under-TBox + UI build + **eval smoke**
 - [ ] Demo/live labeling for fixture data
 - [ ] Anti-patterns in `NEVER.md` / `08-GAPS.md` team-reviewed
+- [ ] **LLMOps Tier 1:** guardrails (input/output/action) + rate limit + PII redaction
+- [ ] **LLMOps Tier 1:** structured logs + Prometheus metrics (+ OTEL opt-in)
+- [ ] **LLMOps Tier 1:** eval golden + safety suites with floors; safety_pass = 1.0
+- [ ] **LLMOps Tier 1:** threat model + OWASP map + system card + runbooks
+- [ ] **LLMOps Tier 3:** gateway/PromptOps/FinOps present; default **LLM_ENABLED=false** unless OVERRIDES
+- [ ] Residual risks listed honestly (no fake compliance claims)
 
 ## Domain (must for vertical demo)
 

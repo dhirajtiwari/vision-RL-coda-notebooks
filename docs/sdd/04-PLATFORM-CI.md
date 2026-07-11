@@ -8,8 +8,20 @@
 - [ ] Unit + integration pytest
 - [ ] **Pack-under-TBox** tests (unknown keys / shapes fail)
 - [ ] Frontend build
-- [ ] Optional: image builds, secret scan, eval smoke
+- [ ] Image builds, secret scan as needed
+- [ ] **Eval smoke gate** (`python evals/run_eval.py --suite smoke`) — safety floor 1.0
+- [ ] Guardrails + observability unit tests
 - [ ] Triggers on main + long-lived feature branches as needed
+
+## EvalOps (as-built)
+
+| Suite | When | Script |
+|-------|------|--------|
+| smoke | Every CI PR | `evals/run_eval.py --suite smoke` |
+| full | Nightly / release with graph | `eval-nightly.yml` → `--suite full` |
+
+Thresholds: `evals/thresholds.yaml`. **Never** loosen floors to go green — see `NEVER.md`.
+LLMOps detail: `09-PLATFORM-LLMOPS.md`.
 
 ## Hermetic CI (paid lesson)
 
@@ -23,6 +35,9 @@
 |------|------|
 | `.github/workflows/ci.yml` | Main CI |
 | `tests/test_multi_source_tbox_abox.py` | Multi-source / TBox discipline |
+| `evals/run_eval.py` + `thresholds.yaml` | Eval + safety gate |
+| `tests/test_guardrails.py` | Injection / rate / action |
+| `tests/test_observability.py` | Redaction / budget / inactive gateway |
 | `eval-nightly.yml` | Heavier eval when graph available |
 | `cd.yml` | Deploy after CI |
 

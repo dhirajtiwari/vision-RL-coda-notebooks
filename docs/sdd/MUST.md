@@ -36,6 +36,22 @@ Unless `OVERRIDES.md` **explicitly** changes a line, agents implement these.
 - MUST label demo/fixture data vs live paths honestly.
 - MUST keep `AS_BUILT.md` code-true after each completed phase.
 
+## LLMOps (platform — ADR 0001)
+
+- MUST keep the **deterministic core** as the default diagnose path unless OVERRIDES activates LLM-primary.
+- MUST implement **Tier 1** before claiming enterprise readiness: observability, guardrails, eval gate, security artifacts, runbooks.
+- MUST enforce input/output/action guardrails **outside** the model (code), fail-closed on injection/jailbreak.
+- MUST rate-limit the public diagnose path; default memory backend, Redis for multi-replica.
+- MUST redaction-enable PII for logs/telemetry/responses by default (`enable_pii_redaction`).
+- MUST keep eval suites versioned (`evals/golden`, `evals/safety`) with floors in `thresholds.yaml`; **safety_pass = 1.0**.
+- MUST run eval smoke in CI; full suite when graph available (nightly or release).
+- MUST keep LLM gateway **ready-but-inactive** by default (`llm_enabled=false`) for deterministic-core archetypes — activation is a config flip.
+- MUST pin model aliases in `models/registry.yaml` when LLM is used (no `latest`).
+- MUST meter token/cost and enforce daily budget when LLM path is active.
+- MUST maintain threat model + OWASP LLM mapping + system/model card + governance notes.
+- MUST maintain one runbook per major alert class (cost, latency, PII, injection, provider outage, quality, rag-stale).
+- MUST document residual risks honestly; never claim compliance not implemented.
+
 ## Carry-forward platform value (do not throw away)
 
 1. Dual graph env
@@ -48,3 +64,8 @@ Unless `OVERRIDES.md` **explicitly** changes a line, agents implement these.
 8. Asset/identity-first online path when CRM exists
 9. Fail-closed empty selection
 10. CI pack-under-TBox tests
+11. Guardrails + rate limit + PII redaction
+12. Eval + safety gate in CI
+13. Observability (JSON logs, metrics; OTEL opt-in)
+14. Ready-but-inactive model gateway / PromptOps / FinOps
+15. Security docs + system card + runbooks

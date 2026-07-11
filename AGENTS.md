@@ -11,17 +11,21 @@
 5. [`docs/sdd/PHASES.md`](docs/sdd/PHASES.md) — current phase + exit gates
 6. [`docs/sdd/AS_BUILT.md`](docs/sdd/AS_BUILT.md) — code-true state
 
-Then open **exactly one** task module under `docs/sdd/01`…`08` for the current work.
+Then open **exactly one** task module under `docs/sdd/01`…`09` for the current work.
+For LLMOps (guardrails, evals, gateway, observability): use [`docs/sdd/09-PLATFORM-LLMOPS.md`](docs/sdd/09-PLATFORM-LLMOPS.md).
 
 ## Do not
 
 - Paste the entire monorepo encyclopedia or full `docs/23-…` into every session by default.
+- Dump all of `docs/llmops-handbook/` into context — use `09-PLATFORM-LLMOPS.md` (+ one chapter if needed).
 - Invent per-product OWL/TBox files.
 - Point chat at the staging graph.
 - Promote without selection when work exists.
+- Turn on production LLM (`LLM_ENABLED`) unless `docs/sdd/OVERRIDES.md` says so — core is deterministic GraphRAG.
 
 ## Human / full reference
 
 - Kit index: [`docs/sdd/README.md`](docs/sdd/README.md)
 - Full SDD: [`docs/23-Spec-Driven-Development-Platform-and-Domain.md`](docs/23-Spec-Driven-Development-Platform-and-Domain.md)
+- LLMOps handbook + playbook: [`docs/llmops-handbook/`](docs/llmops-handbook/00-index.md)
 - Product README: [`README.md`](README.md)

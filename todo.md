@@ -447,10 +447,10 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [x] `lib/api.ts` client for backend routes (CRM, RDF, diagnose, claims, …)
 - [x] React Query providers
 
-### 7.2 Archived Streamlit UI
+### 7.2 Streamlit UI (removed)
 
-- [x] Full enterprise demo UI archived under `ui-streamlit-archive/`
-- [x] Cached loaders pattern documented in archive
+- [x] Legacy Streamlit demo UI **removed** from the repo (Next.js `frontend/` is the UI)
+- [x] Historical diagram assets under `docs/graphviz/` may still mention Streamlit layers
 
 ### 7.3 Rebuild checklist
 
@@ -799,7 +799,8 @@ Use this as the **true backlog** if continuing this product.
 | `docs/21-KG-Ingestion-Step-by-Step-Runbook.md` | How to run bootstrap / incremental / promote |
 | `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md` | **TBox vs ABox**, multi-source NEW packs, no per-product schema |
 | `docs/23-Spec-Driven-Development-Platform-and-Domain.md` | **SDD**: code-true §1; portable greenfield; **§6 gaps/anti-patterns**; **§0.4 agent-native** (NEVER/MUST/OVERRIDES, lost-in-middle) for Claude Code/Codex |
-| `docs/sdd/*` + root `AGENTS.md` | **Live agent kit** — thin always-on + pull modules; do not paste full docs/23 into every session |
+| `docs/sdd/*` + root `AGENTS.md` | **Live agent kit** — thin always-on + pull modules (`01`–`09` incl. **LLMOps**); do not paste full docs/23 or entire handbook into every session |
+| `docs/llmops-handbook/*` + playbook + ADR 0001 | LLMOps recipes / sequence — human + planning; agents use `docs/sdd/09-PLATFORM-LLMOPS.md` for code-true map |
 | `docs/todo-kg-ingestion-pipelines.md` | KG pipeline checklist detail |
 | `docs/multi-volume/*` | Theory + annotated code + RDF PDFs |
 | `docs/ontology/*` | Generated Turtle / OWL artifacts |
