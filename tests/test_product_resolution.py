@@ -104,12 +104,14 @@ def test_soft_mismatch_washer_asset_dishwasher_text() -> None:
         crm_product_id="wm-001",
         crm_context=crm,
     )
-    assert block_code == "soft_appliance_mismatch"
-    assert meta.get("can_force_keep") is True
-    assert meta.get("suggested_product_id") == "dw-001"
+    # Asset-bound: soft language mismatch is warning-only (not a hard block)
+    assert block_code == ""
     assert product is not None and product["product_id"] == "wm-001"
     assert effective_asset_id == "AST-WM-4421"
     assert warnings
+    assert meta.get("soft") is True
+    assert meta.get("bound_product_id") == "wm-001"
+    assert meta.get("message_product_id") == "dw-001"
 
 
 def test_force_keep_allows_diagnose_on_bound_asset() -> None:
@@ -181,7 +183,8 @@ def test_diagnose_asset_first_aligned() -> None:
     assert all(int(fm.get("link_count") or 0) > 0 for fm in result.ranked_failure_modes)
 
 
-def test_diagnose_soft_block_then_force() -> None:
+def test_diagnose_soft_mismatch_warns_but_does_not_block_asset() -> None:
+    """Bound CRM asset is source of truth — soft text mismatch must not block ranking."""
     try:
         from graph.neo4j_client import verify_connection
     except Exception:
@@ -197,9 +200,12 @@ def test_diagnose_soft_block_then_force() -> None:
         "serial_number": "x",
     }
     msg = "Dishwasher leaves dishes wet and cold after the cycle"
-    blocked = diagnose(msg, asset_id="AST-WM-4421", crm_product_id="wm-001", crm_context=crm)
-    assert blocked.context_blocked is True
-    assert blocked.context_block_code == "soft_appliance_mismatch"
+    result = diagnose(msg, asset_id="AST-WM-4421", crm_product_id="wm-001", crm_context=crm)
+    assert result.context_blocked is False
+    assert result.product_id == "wm-001"
+    assert result.warnings  # soft mismatch noted
+    assert (result.resolution_meta or {}).get("soft") is True
+    # force_keep still allowed and stays on bound product
     forced = diagnose(
         msg,
         asset_id="AST-WM-4421",
