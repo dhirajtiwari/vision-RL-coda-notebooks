@@ -233,26 +233,36 @@ def diff_products(
         entity_note = None
         src_edges = row.get("edge_counts") or {}
         live_edges = g.get("edge_counts") or {}
-        for key in ("symptoms", "failure_modes", "diagnostic_steps", "components", "error_codes"):
+        # Diagnose-critical ABox (matches entity-delta "core" promote work).
+        # components/error_codes count only when source has them AND graph lags —
+        # still actionable MERGE work, not soft noise.
+        abox_keys = ("symptoms", "failure_modes", "diagnostic_steps", "components", "error_codes")
+        abox_grew = False
+        for key in abox_keys:
             a = int(src_edges.get(key) or 0)
             b = int(live_edges.get(key) or 0)
             if a > b:
+                abox_grew = True
                 field_diffs.append({"field": f"abox_{key}", "from": b, "to": a})
                 entity_note = (
                     f"Source ABox has more {key.replace('_', ' ')} than live graph "
                     f"({b} → {a}) — typically OEM bulletin / tech resolution updates"
                 )
         if ent_after > 0 and ent_before == 0:
+            abox_grew = True
             entity_note = "Catalog has full ontology; live graph product has no linked entities yet"
             field_diffs.append({"field": "entity_footprint", "from": ent_before, "to": ent_after})
-        # Bulletin revision not yet on graph product props
+        # Bulletin id alone is soft metadata — do NOT force PENDING UPDATE when
+        # diagnose ABox counts already match production (avoids IN SYNC vs UPDATE mix).
         src_bull = str(row.get("bulletin_id") or "")
         live_bull = str(g.get("last_bulletin_id") or "")
+        soft_diffs: list[dict[str, Any]] = []
         if src_bull and src_bull != live_bull:
-            field_diffs.append({"field": "bulletin_id", "from": live_bull or "(none)", "to": src_bull})
-            entity_note = entity_note or f"OEM bulletin pending promote: {src_bull}"
+            soft_diffs.append({"field": "bulletin_id", "from": live_bull or "(none)", "to": src_bull})
 
-        if field_diffs:
+        # Actionable UPDATE = metadata field change OR real ABox growth (not bulletin-only)
+        actionable = bool(field_diffs) or abox_grew
+        if actionable:
             updated_products.append(
                 {
                     **row,
@@ -267,7 +277,8 @@ def diff_products(
                         "edge_counts": live_edges,
                         "last_bulletin_id": g.get("last_bulletin_id"),
                     },
-                    "field_changes": field_diffs,
+                    "field_changes": field_diffs + soft_diffs,
+                    "soft_field_changes": soft_diffs,
                     "reason": entity_note or "Product details differ from live graph",
                 }
             )
@@ -277,6 +288,8 @@ def diff_products(
                     **row,
                     "change": "unchanged",
                     "live_linked_entities": ent_before,
+                    "soft_field_changes": soft_diffs,
+                    "reason": (f"Core ABox in sync; bulletin metadata only ({src_bull})" if soft_diffs else None),
                 }
             )
 
@@ -463,9 +476,10 @@ def build_change_preview(
         "diff_catalog_vs_production": catalog_vs_prod,
         "headline": _headline(vs_production),
         "fleet_note": (
-            "UPDATE/NEW is a live fleet diff of enterprise catalog vs production Neo4j "
-            "(not session history). Products fully promoted and matching production appear under "
-            "unchanged / already-in-sync — they leave the UPDATE list on the next Fetch/Refresh."
+            "UPDATE/NEW is a live fleet diff of catalog (+ PIM-only not yet materialised) vs "
+            "production Neo4j — what promote can still change. The selection entity-delta panel "
+            "re-checks catalog ↔ Neo4j per product (IN SYNC vs needs work). Use "
+            "“Drop IN SYNC from selection” if Select-all mixed finished products into the batch."
         ),
     }
     return apply_product_selection(

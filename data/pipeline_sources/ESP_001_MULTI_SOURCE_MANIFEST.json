@@ -1,0 +1,103 @@
+{
+  "title": "esp-001 multi-source NEW product pack (BrewBar espresso)",
+  "change_type": "new_product",
+  "product_ids": [
+    "esp-001"
+  ],
+  "generated_at": "2026-07-11T14:07:52+00:00",
+  "source_map": {
+    "PIM": {
+      "path": "data/enterprise_sources/pim_catalog.json",
+      "contributes": [
+        "product",
+        "model",
+        "skus",
+        "symptoms",
+        "failure_modes",
+        "diagnostic_steps",
+        "parts",
+        "components",
+        "error_codes",
+        "CONFIRMS links",
+        "baseline historical_resolution"
+      ]
+    },
+    "structured": {
+      "paths": [
+        "data/pipeline_sources/structured/esp-001_pim_note.json",
+        "data/pipeline_sources/structured/esp-001_new_product_pack.json"
+      ],
+      "contributes": [
+        "change_type new_product",
+        "sku/model pointers",
+        "primary symptom/error"
+      ]
+    },
+    "semi_structured": {
+      "paths": [
+        "data/pipeline_sources/semi_structured/bootstrap/esp-001_parts.csv",
+        "data/pipeline_sources/semi_structured/bootstrap/esp-001_work_orders.jsonl",
+        "data/pipeline_sources/semi_structured/incremental/esp-001_work_orders_delta.jsonl"
+      ],
+      "contributes": [
+        "parts catalog rows",
+        "work_order historical resolutions"
+      ]
+    },
+    "unstructured": {
+      "paths": [
+        "data/pipeline_sources/unstructured/bootstrap/esp-001_service_manual.txt",
+        "data/pipeline_sources/unstructured/bootstrap/esp-001_customer_ticket.md",
+        "data/pipeline_sources/unstructured/incremental/esp-001_tech_resolution_2026q3.md"
+      ],
+      "contributes": [
+        "diagnostic narrative",
+        "customer language",
+        "tech resolution narrative"
+      ]
+    },
+    "FSM": {
+      "path": "data/enterprise_sources/fsm_work_orders.json",
+      "contributes": [
+        "closed_work_orders WO-FSM-ESP-9400/01/02 \u2192 historical_resolutions"
+      ]
+    },
+    "Claims": {
+      "path": "data/enterprise_sources/claims_history.json",
+      "contributes": [
+        "closed_claims CLM-2026-ESP-01"
+      ]
+    },
+    "CRM": {
+      "path": "data/enterprise_sources/crm_assets.json",
+      "contributes": [
+        "registered_asset AST-ESP001-2200 for CUST-10120 (Maria Lopez)"
+      ]
+    }
+  },
+  "test_plan": {
+    "customer": "CUST-10120",
+    "customer_name": "Maria Lopez",
+    "asset_id": "AST-ESP001-2200",
+    "sku_id": "SKU-BB-ESP15-2026",
+    "model_number": "BB-ESP15",
+    "phrases": [
+      "Espresso machine will not heat",
+      "Error code E05 boiler temperature",
+      "weak crema low pressure",
+      "water leaks from group head"
+    ],
+    "expected_top_fms": [
+      "Boiler NTC Sensor Open / Out of Range",
+      "Brew Pump Failure / Cavitation",
+      "Group Head Gasket Wear"
+    ]
+  },
+  "admin_wizard": [
+    "1 Sources \u2014 scan for esp-001 across structured/semi/unstructured + enterprise connectors",
+    "2 Fetch \u2014 dry-run ETL; expect NEW product esp-001",
+    "3 Select \u2014 check esp-001 only",
+    "4 Validate ABox \u2192 5 Materialize \u2192 6 Smoke \u2192 7 Approve \u2192 8 Promote",
+    "9 Customer chat \u2014 Maria Lopez / AST-ESP001-2200"
+  ]
+}

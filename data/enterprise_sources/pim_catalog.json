@@ -7706,6 +7706,672 @@
           "source_bulletin": "TB-PR-HP-2026-07"
         }
       ]
+    },
+    {
+      "product": {
+        "product_id": "hmd-001",
+        "name": "DryZone Compact Dehumidifier 30pt",
+        "category": "Climate",
+        "brand": "DryZone",
+        "model_year": 2025,
+        "bulletin_revision": "A"
+      },
+      "model": {
+        "model_id": "MDL-DZ-HMD30",
+        "model_number": "DZ-HMD30",
+        "name": "DZ-HMD30 Compact",
+        "platform": "HMD-30"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-DZ-HMD30-2025",
+          "model_id": "MDL-DZ-HMD30",
+          "model_number": "DZ-HMD30",
+          "revision": "2025A",
+          "model_year": 2025,
+          "region": "NA",
+          "name": "DryZone HMD30 2025 NA"
+        }
+      ],
+      "symptoms": [
+        {
+          "symptom_id": "hmd-001-s01",
+          "description": "Dehumidifier runs but water tank never fills",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "hmd-001-s02",
+          "description": "Error code H3 frost sensor",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "hmd-001-s03",
+          "description": "Tank full indicator on with empty tank",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "hmd-001-s04",
+          "description": "Loud rattling during compressor pull-down",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "hmd-001-s05",
+          "description": "Room humidity stays high after continuous run",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "hmd-001-fm01",
+          "name": "Evaporator Coil Frost / Defrost Sensor Failure",
+          "description": "Frost sensor open/out of range; coil ices and collection stops.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Unplug unit before accessing evaporator. Coil fins are sharp; use gloves."
+        },
+        {
+          "failure_mode_id": "hmd-001-fm02",
+          "name": "Tank Full Float Switch Stuck",
+          "description": "Float hinge debris or stuck switch forces false tank-full shutdown.",
+          "estimated_repair_time_minutes": 25,
+          "safety_notes": "Empty and dry tank before servicing float hinge."
+        },
+        {
+          "failure_mode_id": "hmd-001-fm03",
+          "name": "Compressor Mount / Isolation Pad Wear",
+          "description": "Worn isolation pads transmit vibration and rattling on start.",
+          "estimated_repair_time_minutes": 50,
+          "safety_notes": "Support compressor when replacing pads; do not stress refrigerant lines."
+        },
+        {
+          "failure_mode_id": "hmd-001-fm04",
+          "name": "Humidity Sensor Drift / Control Calibration",
+          "description": "RH sensor offset causes early cut-out while room remains humid.",
+          "estimated_repair_time_minutes": 30,
+          "safety_notes": "ESD care when handling control board harness connectors."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "hmd-001-d01",
+          "description": "Confirm ambient above 41\u00b0F / 5\u00b0C and air filter is clean.",
+          "order": 1,
+          "expected_outcome": "Ambient OK; filter free of heavy dust"
+        },
+        {
+          "step_id": "hmd-001-d02",
+          "description": "Inspect evaporator for ice; test frost sensor resistance vs chart (H3).",
+          "order": 2,
+          "expected_outcome": "Sensor within chart range; coil free of ice after defrost"
+        },
+        {
+          "step_id": "hmd-001-d03",
+          "description": "Remove tank; manually actuate float switch and watch tank-full LED.",
+          "order": 3,
+          "expected_outcome": "LED follows float position; no false TF with empty tank"
+        },
+        {
+          "step_id": "hmd-001-d04",
+          "description": "Compare display RH to calibrated hygrometer; check sensor harness.",
+          "order": 4,
+          "expected_outcome": "Display RH within \u00b15% of reference hygrometer"
+        },
+        {
+          "step_id": "hmd-001-d05",
+          "description": "Inspect compressor isolation pads for crush/tear; reseat mounts.",
+          "order": 5,
+          "expected_outcome": "Pads intact; rattling reduced on pull-down"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "hmd-001-p01",
+          "part_number": "DZ-H3-SENS-30",
+          "name": "Frost / coil temperature sensor",
+          "estimated_cost_usd": 18.5
+        },
+        {
+          "part_id": "hmd-001-p02",
+          "part_number": "DZ-FLOAT-30",
+          "name": "Tank float switch assembly",
+          "estimated_cost_usd": 14.0
+        },
+        {
+          "part_id": "hmd-001-p03",
+          "part_number": "DZ-ISO-PAD-30",
+          "name": "Compressor isolation pad kit",
+          "estimated_cost_usd": 22.0
+        },
+        {
+          "part_id": "hmd-001-p04",
+          "part_number": "DZ-RH-SENS-30",
+          "name": "Humidity sensor module",
+          "estimated_cost_usd": 27.5
+        }
+      ],
+      "components": [
+        {
+          "component_id": "hmd-001-c01",
+          "name": "Evaporator / Defrost",
+          "subsystem": "Refrigeration"
+        },
+        {
+          "component_id": "hmd-001-c02",
+          "name": "Tank / Float System",
+          "subsystem": "Water Collection"
+        },
+        {
+          "component_id": "hmd-001-c03",
+          "name": "Controls / Sensing",
+          "subsystem": "Electronics"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "hmd-001-ec-h3",
+          "code": "H3",
+          "description": "Frost sensor fault / coil freeze risk"
+        },
+        {
+          "error_code_id": "hmd-001-ec-tf",
+          "code": "TF",
+          "description": "Tank full (or false tank-full)"
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "hmd-001-hr01",
+          "description": "Replaced frost sensor after H3 and iced coil; collection resumed",
+          "confirmed_failure_mode_id": "hmd-001-fm01",
+          "resolution_date": "2026-05-12",
+          "technician_notes": "Baseline PIM resolution for hmd-001. Part hmd-001-p01"
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "hmd-001-s01",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.82
+        },
+        {
+          "symptom_id": "hmd-001-s01",
+          "failure_mode_id": "hmd-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "hmd-001-s02",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.95
+        },
+        {
+          "symptom_id": "hmd-001-s03",
+          "failure_mode_id": "hmd-001-fm02",
+          "confidence": 0.93
+        },
+        {
+          "symptom_id": "hmd-001-s04",
+          "failure_mode_id": "hmd-001-fm03",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "hmd-001-s05",
+          "failure_mode_id": "hmd-001-fm04",
+          "confidence": 0.8
+        },
+        {
+          "symptom_id": "hmd-001-s05",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.62
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "hmd-001-fm01",
+          "part_id": "hmd-001-p01"
+        },
+        {
+          "failure_mode_id": "hmd-001-fm02",
+          "part_id": "hmd-001-p02"
+        },
+        {
+          "failure_mode_id": "hmd-001-fm03",
+          "part_id": "hmd-001-p03"
+        },
+        {
+          "failure_mode_id": "hmd-001-fm04",
+          "part_id": "hmd-001-p04"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "hmd-001-fm01",
+          "component_id": "hmd-001-c01"
+        },
+        {
+          "failure_mode_id": "hmd-001-fm02",
+          "component_id": "hmd-001-c02"
+        },
+        {
+          "failure_mode_id": "hmd-001-fm03",
+          "component_id": "hmd-001-c01"
+        },
+        {
+          "failure_mode_id": "hmd-001-fm04",
+          "component_id": "hmd-001-c03"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "hmd-001-c01",
+          "part_id": "hmd-001-p01"
+        },
+        {
+          "component_id": "hmd-001-c01",
+          "part_id": "hmd-001-p03"
+        },
+        {
+          "component_id": "hmd-001-c02",
+          "part_id": "hmd-001-p02"
+        },
+        {
+          "component_id": "hmd-001-c03",
+          "part_id": "hmd-001-p04"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "hmd-001-ec-h3",
+          "failure_mode_id": "hmd-001-fm01"
+        },
+        {
+          "error_code_id": "hmd-001-ec-tf",
+          "failure_mode_id": "hmd-001-fm02"
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "hmd-001-d01",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.55
+        },
+        {
+          "step_id": "hmd-001-d02",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.94
+        },
+        {
+          "step_id": "hmd-001-d03",
+          "failure_mode_id": "hmd-001-fm02",
+          "confidence": 0.93
+        },
+        {
+          "step_id": "hmd-001-d04",
+          "failure_mode_id": "hmd-001-fm04",
+          "confidence": 0.91
+        },
+        {
+          "step_id": "hmd-001-d05",
+          "failure_mode_id": "hmd-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-DZ-HMD30-2025",
+          "part_id": "hmd-001-p01"
+        },
+        {
+          "sku_id": "SKU-DZ-HMD30-2025",
+          "part_id": "hmd-001-p02"
+        },
+        {
+          "sku_id": "SKU-DZ-HMD30-2025",
+          "part_id": "hmd-001-p03"
+        },
+        {
+          "sku_id": "SKU-DZ-HMD30-2025",
+          "part_id": "hmd-001-p04"
+        }
+      ],
+      "oem_sources": [
+        {
+          "source_system": "PIM",
+          "document_uri": "manuals/hmd-001/catalog.pdf",
+          "note": "Authoritative SKU/model/BOM for DryZone HMD30 multi-source pack"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "esp-001",
+        "name": "BrewBar Espresso Machine 15bar",
+        "category": "Kitchen",
+        "brand": "BrewBar",
+        "model_year": 2026,
+        "bulletin_revision": "A"
+      },
+      "model": {
+        "model_id": "MDL-BB-ESP15",
+        "model_number": "BB-ESP15",
+        "name": "BrewBar ESP15 Pro",
+        "platform": "ESP-15"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "model_id": "MDL-BB-ESP15",
+          "model_number": "BB-ESP15",
+          "revision": "2026A",
+          "model_year": 2026,
+          "region": "NA",
+          "name": "BrewBar ESP15 2026 NA"
+        }
+      ],
+      "symptoms": [
+        {
+          "symptom_id": "esp-001-s01",
+          "description": "Machine will not heat or brew cycle never starts",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "esp-001-s02",
+          "description": "Error code E05 boiler temperature sensor",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "esp-001-s03",
+          "description": "Weak crema / low pressure during extraction",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "esp-001-s04",
+          "description": "Water leaks from group head gasket",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "esp-001-s05",
+          "description": "Pump runs continuously but no water to brew head",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "esp-001-fm01",
+          "name": "Boiler NTC Sensor Open / Out of Range",
+          "description": "Boiler temperature sensor failed; control blocks heat and shows E05.",
+          "estimated_repair_time_minutes": 35,
+          "safety_notes": "Unplug and cool boiler fully before opening chassis. Risk of scalding."
+        },
+        {
+          "failure_mode_id": "esp-001-fm02",
+          "name": "Brew Pump Failure / Cavitation",
+          "description": "Vibration pump weak or air-locked; extraction pressure insufficient.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Depressurize boiler and empty water circuit before pump swap."
+        },
+        {
+          "failure_mode_id": "esp-001-fm03",
+          "name": "Group Head Gasket Wear",
+          "description": "Silicone gasket hardened/torn; water bypasses portafilter seal.",
+          "estimated_repair_time_minutes": 20,
+          "safety_notes": "Remove portafilter; avoid metal scrapers on group flange."
+        },
+        {
+          "failure_mode_id": "esp-001-fm04",
+          "name": "Inlet Solenoid Stuck Closed",
+          "description": "Fill solenoid does not open; pump runs dry and boiler level drops.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Isolate water supply; residual pressure may spray."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "esp-001-d01",
+          "description": "Confirm tank filled, water softener cartridge seated, and machine powered with ready light logic.",
+          "order": 1,
+          "expected_outcome": "Tank full; power OK; no dry-run interlock"
+        },
+        {
+          "step_id": "esp-001-d02",
+          "description": "Read error code; measure boiler NTC resistance vs service chart at ambient (E05 path).",
+          "order": 2,
+          "expected_outcome": "NTC within chart ohms; E05 clears after sensor replacement if open"
+        },
+        {
+          "step_id": "esp-001-d03",
+          "description": "Run water prime; listen for pump tone; check brew pressure gauge reaches 9 bar with blind basket.",
+          "order": 3,
+          "expected_outcome": "Steady pump tone; \u22658 bar on blind basket"
+        },
+        {
+          "step_id": "esp-001-d04",
+          "description": "Inspect group gasket for cracks/flattening; reseat portafilter and check for side spray.",
+          "order": 4,
+          "expected_outcome": "Gasket pliable and flush; no side leak at brew"
+        },
+        {
+          "step_id": "esp-001-d05",
+          "description": "Check inlet solenoid click with multimeter continuity during fill request.",
+          "order": 5,
+          "expected_outcome": "Solenoid clicks/opens; tank level rises or line fills"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "esp-001-p01",
+          "part_number": "BB-NTC-ESP15",
+          "name": "Boiler NTC temperature sensor",
+          "estimated_cost_usd": 16.5
+        },
+        {
+          "part_id": "esp-001-p02",
+          "part_number": "BB-PUMP-ULKA-15",
+          "name": "Vibration brew pump assembly",
+          "estimated_cost_usd": 42.0
+        },
+        {
+          "part_id": "esp-001-p03",
+          "part_number": "BB-GSKT-58",
+          "name": "Group head gasket 58mm",
+          "estimated_cost_usd": 8.5
+        },
+        {
+          "part_id": "esp-001-p04",
+          "part_number": "BB-SOL-INL",
+          "name": "Inlet fill solenoid valve",
+          "estimated_cost_usd": 28.0
+        }
+      ],
+      "components": [
+        {
+          "component_id": "esp-001-c01",
+          "name": "Boiler / Thermals",
+          "subsystem": "Heating"
+        },
+        {
+          "component_id": "esp-001-c02",
+          "name": "Hydraulic / Pump",
+          "subsystem": "Water Circuit"
+        },
+        {
+          "component_id": "esp-001-c03",
+          "name": "Group Head",
+          "subsystem": "Brew Path"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "esp-001-ec-e05",
+          "code": "E05",
+          "description": "Boiler temperature sensor fault"
+        },
+        {
+          "error_code_id": "esp-001-ec-e12",
+          "code": "E12",
+          "description": "Low water / fill timeout"
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "esp-001-hr01",
+          "description": "Replaced boiler NTC after E05; heat and brew restored",
+          "confirmed_failure_mode_id": "esp-001-fm01",
+          "resolution_date": "2026-06-18",
+          "technician_notes": "Baseline PIM resolution for esp-001. Part esp-001-p01"
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "esp-001-s01",
+          "failure_mode_id": "esp-001-fm01",
+          "confidence": 0.78
+        },
+        {
+          "symptom_id": "esp-001-s01",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.52
+        },
+        {
+          "symptom_id": "esp-001-s02",
+          "failure_mode_id": "esp-001-fm01",
+          "confidence": 0.96
+        },
+        {
+          "symptom_id": "esp-001-s03",
+          "failure_mode_id": "esp-001-fm02",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "esp-001-s04",
+          "failure_mode_id": "esp-001-fm03",
+          "confidence": 0.93
+        },
+        {
+          "symptom_id": "esp-001-s05",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.9
+        },
+        {
+          "symptom_id": "esp-001-s05",
+          "failure_mode_id": "esp-001-fm02",
+          "confidence": 0.55
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "esp-001-fm01",
+          "part_id": "esp-001-p01"
+        },
+        {
+          "failure_mode_id": "esp-001-fm02",
+          "part_id": "esp-001-p02"
+        },
+        {
+          "failure_mode_id": "esp-001-fm03",
+          "part_id": "esp-001-p03"
+        },
+        {
+          "failure_mode_id": "esp-001-fm04",
+          "part_id": "esp-001-p04"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "esp-001-fm01",
+          "component_id": "esp-001-c01"
+        },
+        {
+          "failure_mode_id": "esp-001-fm02",
+          "component_id": "esp-001-c02"
+        },
+        {
+          "failure_mode_id": "esp-001-fm03",
+          "component_id": "esp-001-c03"
+        },
+        {
+          "failure_mode_id": "esp-001-fm04",
+          "component_id": "esp-001-c02"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "esp-001-c01",
+          "part_id": "esp-001-p01"
+        },
+        {
+          "component_id": "esp-001-c02",
+          "part_id": "esp-001-p02"
+        },
+        {
+          "component_id": "esp-001-c02",
+          "part_id": "esp-001-p04"
+        },
+        {
+          "component_id": "esp-001-c03",
+          "part_id": "esp-001-p03"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "esp-001-ec-e05",
+          "failure_mode_id": "esp-001-fm01"
+        },
+        {
+          "error_code_id": "esp-001-ec-e12",
+          "failure_mode_id": "esp-001-fm04"
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "esp-001-d01",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.5
+        },
+        {
+          "step_id": "esp-001-d02",
+          "failure_mode_id": "esp-001-fm01",
+          "confidence": 0.95
+        },
+        {
+          "step_id": "esp-001-d03",
+          "failure_mode_id": "esp-001-fm02",
+          "confidence": 0.92
+        },
+        {
+          "step_id": "esp-001-d04",
+          "failure_mode_id": "esp-001-fm03",
+          "confidence": 0.94
+        },
+        {
+          "step_id": "esp-001-d05",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.91
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p01"
+        },
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p02"
+        },
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p03"
+        },
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p04"
+        }
+      ],
+      "oem_sources": [
+        {
+          "source_system": "PIM",
+          "document_uri": "manuals/esp-001/catalog.pdf",
+          "note": "Authoritative SKU/model/BOM for BrewBar ESP15 multi-source NEW pack"
+        }
+      ]
     }
   ]
 }

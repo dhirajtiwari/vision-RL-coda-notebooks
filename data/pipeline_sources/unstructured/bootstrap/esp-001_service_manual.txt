@@ -1,0 +1,23 @@
+Service manual excerpt — BrewBar Espresso Machine 15bar (esp-001)
+
+Product: BrewBar Espresso Machine 15bar
+Model: BB-ESP15 (MDL-BB-ESP15)
+SKU: SKU-BB-ESP15-2026
+
+Symptom: machine will not heat or brew cycle never starts; error code E05.
+Action: measure boiler NTC resistance vs chart; replace sensor if open/out of range.
+Part: BB-NTC-ESP15 boiler temperature sensor.
+
+Symptom: weak crema / low pressure during extraction.
+Action: prime circuit; check pump tone; blind basket should reach ~9 bar.
+Part: BB-PUMP-ULKA-15 vibration brew pump.
+
+Symptom: water leaks from group head gasket.
+Action: inspect gasket for flatten/tear; replace 58mm group gasket.
+Part: BB-GSKT-58.
+
+Symptom: pump runs continuously but no water to brew head (E12 fill timeout).
+Action: verify inlet solenoid click/continuity during fill request.
+Part: BB-SOL-INL inlet fill solenoid.
+
+Diagnostic order: tank/power → NTC (E05) → pump pressure → group gasket → inlet solenoid (E12).

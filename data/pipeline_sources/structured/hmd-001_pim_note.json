@@ -1,0 +1,13 @@
+{
+  "source": "PIM_NOTE",
+  "change_type": "new_product",
+  "product_id": "hmd-001",
+  "name": "DryZone Compact Dehumidifier 30pt",
+  "brand": "DryZone",
+  "category": "Climate",
+  "model_id": "MDL-DZ-HMD30",
+  "model_number": "DZ-HMD30",
+  "sku_id": "SKU-DZ-HMD30-2025",
+  "note": "NEW multi-source product: SKU/model authoritative in PIM; diagnostics in service manual (unstructured); resolutions in FSM + semi-structured WOs; asset in CRM; warranty claim in Claims.",
+  "generated_at": "2026-07-11T13:34:36+00:00"
+}

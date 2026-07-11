@@ -600,11 +600,14 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [x] Docs 17 landscape + pipeline + topology diagrams + code wiring
 - [x] Docs 18 full codebase encyclopedia
 - [x] Docs 19 indexes & constraints WWWH
+- [x] Docs 20 Enterprise KG ingestion architecture
+- [x] Docs 21 KG ingestion step-by-step runbook
+- [x] Docs **22 TBox/ABox multi-source onboard mechanism** (sources → ABox; no per-product TBox)
 - [x] C4 workspace + diagrams
 - [x] Graphviz 01–41 (+ renders tracked for safekeeping)
 - [x] Multi-volume PDFs 00–05 (theory, code, RDF, pipelines)
 - [x] Full-project encyclopedia PDF
-- [x] Interview mastery guide (MD + PDF) with persona Q&A
+- [x] Interview mastery guide (MD + PDF) with persona Q&A — updated multi-source / TBox-ABox
 - [x] LLMOps handbook 00–21 + playbook + ADRs
 - [x] Governance, model card, runbooks, security docs
 
@@ -786,6 +789,7 @@ Use this as the **true backlog** if continuing this product:
 | `docs/15`–`17` | Ontology, runtime, landscape |
 | `docs/20-Enterprise-KG-Ingestion-Pipeline-Architecture.md` | Multi-source KG control plane architecture |
 | `docs/21-KG-Ingestion-Step-by-Step-Runbook.md` | How to run bootstrap / incremental / promote |
+| `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md` | **TBox vs ABox**, multi-source NEW packs, no per-product schema |
 | `docs/todo-kg-ingestion-pipelines.md` | KG pipeline checklist detail |
 | `docs/multi-volume/*` | Theory + annotated code + RDF PDFs |
 | `docs/ontology/*` | Generated Turtle / OWL artifacts |
@@ -1077,6 +1081,73 @@ Chronological capability delivered **today** (Admin onboard through diagnosis ac
 11. **CONFIRMS repair + FM-targeted steps** — diagnosis + Explore Exact Path + RDF confirms edges
 12. **Pushed branch** — `feature/llmops-for-remote-diagnostics` (`0fce795`, `4e572df`)
 
+### 22.28 Multi-source NEW packs + ontology discipline + Admin idle reset `[x]`
+
+**Date:** 2026-07-11 (continued session)
+
+#### A. Multi-source NEW product packs (ABox sources — not TBox)
+
+| Product | Name | Role |
+|---------|------|------|
+| **`hmd-001`** | DryZone Compact Dehumidifier 30pt | Full multi-source NEW; promoted + diagnose verified |
+| **`esp-001`** | BrewBar Espresso Machine 15bar | Multi-source NEW; operator-promoted; chat verified (“machine is not heating”) |
+
+**Source layout (both packs):**
+
+- Enterprise: `pim_catalog.json`, `fsm_work_orders.json`, `claims_history.json`, `crm_assets.json`
+- Pipeline structured / semi-structured / unstructured bootstrap+incremental
+- Manifests: `HMD_001_MULTI_SOURCE_MANIFEST.json`, `ESP_001_MULTI_SOURCE_MANIFEST.json`
+
+**Ontology rule (critical):**
+
+- Dropping source files does **not** invent OWL schema.
+- **TBox** = shared domain classes in `rdf_ontology_export` + `docs/ontology/*`.
+- **ABox** = OntologyBuilder builds instances **in the pipeline** from sources → catalog → validate → promote.
+- `scan_tbox_extension_candidates` detects unknown *keys/types*; does **not** auto-extend TBox.
+- Authoritative doc: **`docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`**
+
+#### B. Engineering fixes for multi-source fidelity
+
+| Gap | Fix |
+|-----|-----|
+| Rich PIM keys lost after Pydantic dump | OntologyBuilder re-attaches model/SKU/components/error_codes/CONFIRMS (`_RICH_KEYS`) |
+| `ParameterMissing: model_number` on promote | `populate_graph` defaults model_number from name / SKU / model_id |
+| CRM assets / claims ignored on selection materialize | Merge CRM+Claims into catalog; selection upsert keeps assets/claims for selected products |
+| Fetch re-flagged promoted OEM as UPDATE | Fleet preview: catalog+PIM merge (catalog wins); no bulletin-only UPDATE |
+| Toast ≠ plan headline | Toast uses `plan.headline`; stale selection cleared when batch done |
+| Drop IN SYNC disabled after Confirm | Button stays enabled; scopes entity-delta product list |
+| Idle fleet still shows finished wizard | `POST /admin/pipeline/session/reset-for-next-cycle` + UI “Reset wizard for next plan” / auto-reset after production promote when 0 NEW/UPDATE |
+
+#### C. Diagnosis learning (esp-001)
+
+| Observation | Learning |
+|-------------|----------|
+| Phrase “machine is not heating” → 67% text match | **Expected** lexical partial match to “will not heat or brew…” |
+| Top FM Boiler NTC 75% + step d02 + NTC part + claims/HR | **Correct** — symptom s01 in KG; multi-source ABox live |
+| Do not confuse low-ish text % with “not in graph” | Posterior / graph link / STRONG label matter more |
+| Entry steps | CONFIRMS(top FM) only; d01 may not show if it targets another FM |
+
+#### D. Current application state (as of this entry)
+
+| Area | State |
+|------|--------|
+| Fleet vs production | Core ABox largely **in sync** after hmd/esp + 9-pack/bulletin promotes (re-Fetch for live counts) |
+| Dual Neo4j | Staging `:7688` + production `:7687` operational |
+| Chat | Production graph; asset-first CRM (e.g. AST-ESP001-2200, AST-HMD001-4100) |
+| Admin | Selection-scoped materialize/promote; entity delta; audit; idle session reset |
+| TBox | Unchanged by NEW packs; shared warranty-diagnosis schema |
+| Demo honesty | Fixtures = connector stand-ins; not live SAP; keywords optional for free-text product hit |
+
+### 22.29 Operator pitfalls learned this session (append to §23) `[x]`
+
+- [x] **Sources ≠ ontology build** — sources feed ABox; TBox is shared and governance-gated
+- [x] **Hand-shaped multi-source packs** are valid *demo* inputs; real enterprise uses connectors; still validate as ABox under TBox
+- [x] **FailureMode Pydantic fields** required (`estimated_repair_time_minutes`, `safety_notes`) or Fetch/ETL crashes
+- [x] **Diagnostic steps** use `description` / `expected_outcome` not `instruction` / `expected_result`
+- [x] **Fleet UPDATE vs entity-delta IN SYNC** — different comparisons; Drop IN SYNC keeps batch honest
+- [x] **Materialize OK false with idle fleet** after complete batch is gate state — reset session for next plan
+- [x] **67% text match can still be STRONG diagnosis** if Bayesian + INDICATES align
+
 ### 5.10 Guided onboard operator model (glossary) `[x]`
 
 - [x] **Pending UPDATE** = product exists in production, catalog still has more **core ABox** → promote still needed for that product
@@ -1148,8 +1219,13 @@ Chronological capability delivered **today** (Admin onboard through diagnosis ac
 | Session journey lost on API restart | Durable `admin_audit.jsonl` + pipeline_runs — not memory alone |
 | Dual promote buttons | One control-plane promote with `target_env` |
 | Completing wizard still shows active actions | Disable primary actions after success; “Change selection” / “Start next batch” explicit |
+| **Finished batch + all in sync still “locked green”** | Session **reset-for-next-cycle**; auto after production promote when fleet idle |
+| **Drop IN SYNC gray after Confirm** | Keep prune enabled; pass entity-delta product ids |
+| **Toast “10 UPDATE” vs UI “0 UPDATE”** | Single source of truth = plan.headline; prune stale selection of already-synced ids |
+| **Author new OWL per SKU when adding sources** | Only ABox pack; TBox shared; unknown keys → tbox_extension review |
+| **Treat 60–70% text match as failure** | Match strength ≠ missing KG; check posterior + matched symptom id |
 
-### 23.6 Operator test matrix (bulletin push)
+### 23.6 Operator test matrix (bulletin push + multi-source NEW)
 
 | Intent | Example product | Phrase | Expect |
 |--------|-----------------|--------|--------|
@@ -1157,6 +1233,40 @@ Chronological capability delivered **today** (Admin onboard through diagnosis ac
 | Bulletin ABox | `oem-sam-rf28` | “Samsung fridge 22E after ice room fan bulletin kit” | fm04 polarity; d05; IF-CONN-RF28-B |
 | Prior bulletin dry | `dry-001` | “E66 after cold garage install” | Ambient Below Spec; baffle kit |
 | Prior bulletin DW | `dw-001` | “beeps won’t start dry cycle after latch kit” | Latch switch drift |
+| Multi-source NEW hmd | `hmd-001` / AST-HMD001-4100 | “tank never fills” / “H3 frost” | Frost FM + CONFIRMS steps + HRs |
+| Multi-source NEW espresso | `esp-001` / AST-ESP001-2200 | “machine is not heating” | s01 match; Boiler NTC top; d02; NTC part; claims |
+
+---
+
+## 25. Current state snapshot (post multi-source + idle reset)
+
+> **Use this section as the “where are we now?” brief.** Re-run Fetch for live fleet counts.
+
+### 25.1 Product / graph
+
+- [x] Dual Neo4j (staging + production) with selection-scoped promote
+- [x] Multi-source NEW packs: **hmd-001**, **esp-001** (+ earlier 9-pack / OEM / bulletins)
+- [x] OntologyBuilder preserves rich ABox (model/SKU/CONFIRMS/components/error_codes)
+- [x] CRM asset + Claims merge on materialize/promote path
+- [x] Espresso diagnose verified on production for customer-language no-heat
+
+### 25.2 Admin control plane
+
+- [x] 1–8 wizard, ingest plan, audit, entity delta, Neo4j verify
+- [x] Drop IN SYNC, lock-selection prune, session **reset-for-next-cycle**
+- [x] Fleet vs batch / toast alignment
+
+### 25.3 Documentation
+
+- [x] `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md` — mechanism + next phases A–E
+- [x] Interview guide + doc 15/21 pointers updated for TBox/ABox multi-source truth
+
+### 25.4 Honest gaps / next (see docs/22 §9)
+
+- [ ] Phase B: reduce PRODUCT_KEYWORDS dependence; source-pack contract only
+- [ ] Phase C: connector/mock HTTP as primary extract vs static JSON edits
+- [ ] Phase D: formal TBox ADR when unknown keys appear
+- [ ] Phase E: CI tests for pack-vs-TBox + tbox_extension detection
 
 ---
 
@@ -1181,4 +1291,4 @@ Use this list when stakeholders ask “why this design?” — **cite only what 
 
 **Legend recap:** `[x]` done in this repo · `[~]` partial/demo · `[ ]` gap / future
 
-*Last expanded: **2026-07-11 daybook** — selection-scoped onboard, audit, entity delta, fleet/batch UX, CONFIRMS repair, FM-targeted diagnostic steps, Explore path accuracy, pitfalls §23, sources §24. Process: update this file every feature session. Never remove partitioning or dual-Neo4j promote discipline.*
+*Last expanded: **2026-07-11 continued** — multi-source **hmd-001** / **esp-001**, OntologyBuilder rich ABox + CRM/Claims merge, fleet/selection UX, Drop IN SYNC, session reset-for-next-cycle, docs/22 TBox·ABox mechanism, interview/doc refresh, pitfalls §22.28–22.29 + §25 state. Process: update this file every feature session. Never remove partitioning or dual-Neo4j promote discipline. **Never invent per-product TBox when adding source packs.***

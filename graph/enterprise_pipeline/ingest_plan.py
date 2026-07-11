@@ -230,6 +230,32 @@ def build_ingest_plan(
     all_new_ids = [str(p.get("product_id")) for p in new_list if p.get("product_id")]
     all_upd_ids = [str(p.get("product_id")) for p in upd_list if p.get("product_id")]
     actionable_ids = all_new_ids + all_upd_ids
+    actionable_set = set(actionable_ids)
+
+    # Stale session guard: selection may still hold products that are already in sync
+    # (prior batch completed) while the fleet still has other NEW/UPDATE work.
+    # Treat only actionable IDs as valid selection; otherwise the plan idles with
+    # "next=None" while toast/summary still show pending UPDATEs — UI desync.
+    sel_ids = [str(s) for s in sel_ids if s]
+    sel_actionable = [s for s in sel_ids if s in actionable_set]
+    stale_selection = bool(sel_ids) and bool(actionable_ids) and not sel_actionable
+    if stale_selection:
+        sel_ids = []
+        # Prior batch gates do not apply to the new fleet delta
+        materialize_done = False
+        smoke_ok = False
+        human_reviewed = False
+        promote_done = False
+    elif actionable_ids:
+        # Keep only still-actionable picks (drop in-sync leftovers from multi-select)
+        if sel_ids and sel_actionable != sel_ids:
+            sel_ids = sel_actionable
+            # Partial stale multi-select: force re-validation for remaining scope
+            if not sel_ids:
+                materialize_done = False
+                smoke_ok = False
+                human_reviewed = False
+                promote_done = False
 
     fp = compute_sources_fingerprint()
     sources_changed = bool(
@@ -558,15 +584,21 @@ def build_ingest_plan(
         gates["block_reason"] = "ABox validation must pass for selection before materialize"
         gates["allow_materialize"] = False
 
+    unchanged_count = int(summary.get("unchanged_count") or 0)
     headline_parts = []
     if sources_changed:
         headline_parts.append("sources changed on disk")
     if has_new:
         headline_parts.append(f"{len(all_new_ids)} NEW")
     if has_upd:
-        headline_parts.append(f"{len(all_upd_ids)} UPDATE")
+        headline_parts.append(f"{len(all_upd_ids)} pending UPDATE")
+    if not has_new and not has_upd and fetch_done:
+        headline_parts.append(f"{unchanged_count} already in sync")
     if high_tbox:
         headline_parts.append(f"{len(high_tbox)} TBox-extension candidate(s)")
+    # One-shot note only when we just cleared a finished batch; not a permanent fleet status.
+    if stale_selection:
+        headline_parts.append("previous batch done — select next product(s)")
     if next_action:
         headline_parts.append(f"next: {next_action['title']}")
 
@@ -583,6 +615,8 @@ def build_ingest_plan(
             "actionable_product_ids": actionable_ids,
             "new_product_ids": all_new_ids,
             "updated_product_ids": all_upd_ids,
+            "stale_selection_cleared": stale_selection,
+            "unchanged_count": unchanged_count,
         },
         "policy": {
             "change_classes": ["new_product", "product_update", "tbox_extension", "sources_changed"],

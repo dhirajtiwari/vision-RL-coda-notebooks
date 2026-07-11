@@ -1,0 +1,5 @@
+product_id,part_id,part_number,name,cost,source
+hmd-001,hmd-001-p01,DZ-H3-SENS-30,Frost / coil temperature sensor,18.5,semi_structured
+hmd-001,hmd-001-p02,DZ-FLOAT-30,Tank float switch assembly,14.0,semi_structured
+hmd-001,hmd-001-p03,DZ-ISO-PAD-30,Compressor isolation pad kit,22.0,semi_structured
+hmd-001,hmd-001-p04,DZ-RH-SENS-30,Humidity sensor module,27.5,semi_structured

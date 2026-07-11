@@ -1,0 +1,5 @@
+product_id,part_id,part_number,name,cost,source
+esp-001,esp-001-p01,BB-NTC-ESP15,Boiler NTC temperature sensor,16.5,semi_structured
+esp-001,esp-001-p02,BB-PUMP-ULKA-15,Vibration brew pump assembly,42.0,semi_structured
+esp-001,esp-001-p03,BB-GSKT-58,Group head gasket 58mm,8.5,semi_structured
+esp-001,esp-001-p04,BB-SOL-INL,Inlet fill solenoid valve,28.0,semi_structured

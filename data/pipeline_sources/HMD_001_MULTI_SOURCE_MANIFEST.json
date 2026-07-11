@@ -1,0 +1,108 @@
+{
+  "title": "hmd-001 multi-source NEW product pack (DryZone dehumidifier)",
+  "change_type": "new_product",
+  "product_ids": [
+    "hmd-001"
+  ],
+  "generated_at": "2026-07-11T13:34:36+00:00",
+  "source_map": {
+    "PIM": {
+      "path": "data/enterprise_sources/pim_catalog.json",
+      "contributes": [
+        "product",
+        "model",
+        "skus",
+        "symptoms",
+        "failure_modes",
+        "diagnostic_steps",
+        "parts",
+        "components",
+        "error_codes",
+        "CONFIRMS links",
+        "baseline historical_resolution"
+      ]
+    },
+    "structured": {
+      "paths": [
+        "data/pipeline_sources/structured/hmd-001_pim_note.json",
+        "data/pipeline_sources/structured/hmd-001_new_product_pack.json"
+      ],
+      "contributes": [
+        "change_type new_product",
+        "sku/model pointers",
+        "primary symptom/error focus"
+      ]
+    },
+    "semi_structured": {
+      "paths": [
+        "data/pipeline_sources/semi_structured/bootstrap/hmd-001_parts.csv",
+        "data/pipeline_sources/semi_structured/bootstrap/hmd-001_work_orders.jsonl",
+        "data/pipeline_sources/semi_structured/incremental/hmd-001_work_orders_delta.jsonl"
+      ],
+      "contributes": [
+        "parts catalog rows",
+        "work_order historical resolutions"
+      ]
+    },
+    "unstructured": {
+      "paths": [
+        "data/pipeline_sources/unstructured/bootstrap/hmd-001_service_manual.txt",
+        "data/pipeline_sources/unstructured/bootstrap/hmd-001_customer_ticket.md",
+        "data/pipeline_sources/unstructured/incremental/hmd-001_tech_resolution_2026q3.md"
+      ],
+      "contributes": [
+        "diagnostic narrative",
+        "customer language",
+        "tech resolution narrative"
+      ]
+    },
+    "FSM": {
+      "path": "data/enterprise_sources/fsm_work_orders.json",
+      "contributes": [
+        "closed_work_orders \u2192 historical_resolutions (WO-FSM-HMD-9200/01/02)"
+      ]
+    },
+    "Claims": {
+      "path": "data/enterprise_sources/claims_history.json",
+      "contributes": [
+        "closed_claims CLM-2026-HMD-01",
+        "warranty policy ref"
+      ]
+    },
+    "CRM": {
+      "path": "data/enterprise_sources/crm_assets.json",
+      "contributes": [
+        "registered_asset AST-HMD001-4100 for CUST-10120 (Maria Lopez)"
+      ]
+    }
+  },
+  "test_plan": {
+    "customer": "CUST-10120",
+    "customer_name": "Maria Lopez",
+    "asset_id": "AST-HMD001-4100",
+    "sku_id": "SKU-DZ-HMD30-2025",
+    "model_number": "DZ-HMD30",
+    "phrases": [
+      "Dehumidifier runs but water tank never fills",
+      "Error code H3 frost sensor",
+      "tank full when tank is empty",
+      "room humidity stays high after continuous run"
+    ],
+    "expected_top_fms": [
+      "Evaporator Coil Frost / Defrost Sensor Failure",
+      "Tank Full Float Switch Stuck",
+      "Humidity Sensor Drift / Control Calibration"
+    ]
+  },
+  "admin_wizard": [
+    "1 Sources \u2014 scan inventory for hmd-001 files across structured/semi/unstructured + enterprise connectors",
+    "2 Fetch \u2014 dry-run ETL; expect NEW product hmd-001 (if not yet in production graph)",
+    "3 Select \u2014 check hmd-001 only",
+    "4 Validate ABox",
+    "5 Materialize selection",
+    "6 Smoke",
+    "7 Approve",
+    "8 Promote staging then production",
+    "9 Customer chat \u2014 Maria Lopez / AST-HMD001-4100 with test phrases"
+  ]
+}

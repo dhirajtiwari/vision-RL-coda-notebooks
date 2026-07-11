@@ -197,12 +197,34 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
 
             model = product_data.get("model")
             if model:
+                # Multi-source packs may supply model_id + name/platform without
+                # model_number (SKU carries the commercial model number). Default
+                # so Cypher MERGE never fails with ParameterMissing.
+                model_number = (
+                    model.get("model_number")
+                    or model.get("name")
+                    or next(
+                        (
+                            s.get("model_number")
+                            for s in product_data.get("skus", [])
+                            if isinstance(s, dict) and s.get("model_number")
+                        ),
+                        None,
+                    )
+                    or model.get("model_id")
+                    or ""
+                )
+                model_name = model.get("name") or model_number or model.get("model_id") or ""
                 session.run(
                     """
                     MERGE (m:Model {model_id: $model_id})
                     SET m.model_number = $model_number, m.name = $name
                     """,
-                    model,
+                    {
+                        "model_id": model["model_id"],
+                        "model_number": model_number,
+                        "name": model_name,
+                    },
                 )
                 session.run(
                     """

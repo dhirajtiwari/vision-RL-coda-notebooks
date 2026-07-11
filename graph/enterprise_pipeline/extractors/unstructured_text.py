@@ -56,6 +56,10 @@ def extract_from_text(text: str, *, doc_id: str = "", product_hint: str = "") ->
             product_id = "mw-001"
         elif "ice maker" in lower or "icemaker" in lower or "ice machine" in lower:
             product_id = "ice-001"
+        elif "dehumidifier" in lower or "dryzone" in lower or "hmd-001" in lower:
+            product_id = "hmd-001"
+        elif "espresso" in lower or "brewbar" in lower or "esp-001" in lower or "bb-esp15" in lower:
+            product_id = "esp-001"
         else:
             product_id = ""
 
@@ -81,12 +85,24 @@ def ingest_unstructured_dir(root: Path) -> dict[str, Any]:
         product_hint = ""
         # filename convention: wm-001_drain_manual.txt
         stem = path.stem
+        # Filename convention: {product_id}_service_manual.txt / ticket.md
         if (
             stem.startswith("wm-")
             or stem.startswith("dw-")
             or stem.startswith("mw-")
             or stem.startswith("ice-")
             or stem.startswith("oem-")
+            or stem.startswith("hmd-")
+            or stem.startswith("esp-")
+            or stem.startswith("vac-")
+            or stem.startswith("ac-")
+            or stem.startswith("dry-")
+            or stem.startswith("ref-")
+            or stem.startswith("fan-")
+            or stem.startswith("pur-")
+            or stem.startswith("hob-")
+            or stem.startswith("oven-")
+            or stem.startswith("grill-")
         ):
             product_hint = stem.split("_")[0]
         extracted = extract_from_text(text, doc_id=path.name, product_hint=product_hint)

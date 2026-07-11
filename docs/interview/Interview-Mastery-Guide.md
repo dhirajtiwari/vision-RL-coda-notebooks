@@ -43,10 +43,10 @@ ETL · Neo4j · LangGraph · LLMOps · Redis · Runtime scale<br/><br/>
 # 1. The 90-second elevator pitch (memorize this)
 
 > We built an **enterprise remote-diagnostics system** for warranty support.
-> A customer or agent describes a problem (“washer won’t drain, E21”).
+> A customer or agent describes a problem (“washer won’t drain, E21” / “espresso machine not heating”).
 > We resolve the **product/asset**, walk a **Neo4j knowledge graph** of symptoms → failure modes → parts, score candidates with **FMEA + Bayes**, return ranked diagnosis, troubleshooting steps, and predicted parts, then optionally open a **claim** or **escalate**.
-> Knowledge is **not invented by an LLM at runtime** — it is **authored as blueprints**, **ETL’d** from PIM/FSM/Claims, **validated**, and **MERGEd into Neo4j**.
-> LLM (if enabled) only helps wording; **evidence is graph-native and deterministic**.
+> Knowledge is **not invented by an LLM at runtime** — it is **extracted multi-source** (PIM/FSM/Claims/CRM + structured/semi/unstructured), **mapped to a shared domain TBox**, **validated as ABox**, and **MERGEd into Neo4j**.
+> A **new product is new instances (ABox)**, not a new OWL language per SKU. LLM (if enabled) only helps wording; **evidence is graph-native and deterministic**.
 
 ### One sentence for non-technical interviewers
 
@@ -54,7 +54,7 @@ ETL · Neo4j · LangGraph · LLMOps · Redis · Runtime scale<br/><br/>
 
 ### One sentence for technical interviewers
 
-“Deterministic GraphRAG over a warranty ontology in Neo4j, with FMEA/Bayesian ranking, enterprise ETL, and LLMOps-ready API.”
+“Deterministic GraphRAG over a warranty ontology in Neo4j (shared TBox, multi-source ABox ETL), FMEA/Bayesian ranking, dual staging/production promote, and LLMOps-ready API.”
 
 ---
 
@@ -100,6 +100,45 @@ Asset / Serial
 4. Shows steps, parts, confidence, provenance
 5. Optional: submit claim with graph evidence
 
+## 2.4 TBox vs ABox (interview trap — get this right)
+
+| Term | Plain English | Our app |
+|------|---------------|---------|
+| **TBox** | The *rule book*: what kinds of things exist | Shared classes: Product, Symptom, FailureMode, Part, … (`rdf_ontology_export`, `docs/ontology/`) |
+| **ABox** | The *facts*: this product’s symptoms and links | Catalog + Neo4j instances for `wm-001`, `esp-001`, … |
+| **New product onboard** | Add facts under the rule book | Multi-source pack → OntologyBuilder → validate → promote |
+| **TBox extension** | New *kind* of entity | Rare; `scan_tbox_extension_candidates` — **not** auto from a pack |
+
+**Soundbite:** “We do **not** generate a new ontology when we add an espresso machine. We generate **instances** of Symptom and FailureMode in the **pipeline** from sources, then MERGE them into Neo4j.”
+
+**Doc:** `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`
+
+## 2.5 Multi-source NEW product (Admin story)
+
+```text
+Sources (PIM + FSM + Claims + CRM + structured/semi/unstructured)
+  → Fetch (dry-run fleet NEW/UPDATE/in-sync)
+  → Select product(s) only
+  → Validate ABox against TBox shapes
+  → Materialize selection → Smoke → Approve
+  → Promote staging :7688 → production :7687
+  → Diagnosis Chat on CRM asset (production graph only)
+```
+
+**Demo packs:** `hmd-001` (dehumidifier), `esp-001` (espresso). Manifests under `data/pipeline_sources/*_MULTI_SOURCE_MANIFEST.json`.
+
+**Gotcha:** Text match 60–70% can still be a **STRONG** diagnosis if Bayesian posterior + INDICATES align (e.g. “machine is not heating” → espresso no-heat symptom).
+
+## 2.6 Dual Neo4j + fleet vs batch
+
+| Concept | Meaning |
+|---------|---------|
+| Staging bolt `:7688` | Safe MERGE preview |
+| Production bolt `:7687` | Diagnosis Chat + Explorer truth |
+| Pending UPDATE (fleet) | Any product still richer in catalog than production |
+| This batch / selection | Only locked product_ids for materialize/promote |
+| Reset for next plan | After all in sync + promote — clear session gates (not the graph) |
+
 ---
 
 # 3. End-to-end architecture (as built)
@@ -138,7 +177,8 @@ Asset / Serial
 | Next.js UI | 3000 | Agent experience |
 | FastAPI | 8080 | Diagnose, graph, claims, admin pipelines |
 | Mock enterprise | 8090 | Simulated PIM/CRM/FSM/Claims |
-| Neo4j | 7687 Bolt | Knowledge graph |
+| Neo4j **production** | 7687 Bolt | Diagnosis Chat + Explorer truth |
+| Neo4j **staging** | 7688 Bolt | Promote-first MERGE target |
 | Redis (optional) | 6379 | Shared multi-replica state |
 
 ## 3.4 ETL → graph → fast traversal (diagram 41)

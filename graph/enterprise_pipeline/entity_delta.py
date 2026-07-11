@@ -642,11 +642,25 @@ def build_ontology_rdf_highlight(product_id: str, delta: dict[str, Any]) -> dict
     }
 
 
+def _is_selection_actionable(delta: dict[str, Any]) -> bool:
+    """True when materialize/promote still has work (not core-in-sync on production)."""
+    kind = delta.get("change_kind")
+    if kind in ("new_product", "product_update", "missing_catalog"):
+        return True
+    if kind == "in_sync":
+        return False
+    # Fallback: fully loaded production + no core adds → not actionable
+    prod = (delta.get("neo4j") or {}).get("production") or {}
+    core_added = int((delta.get("totals") or {}).get("core_added") or 0)
+    # Fallback: fully loaded production + no core adds → not actionable
+    return not (prod.get("fully_loaded") and core_added <= 0)
+
+
 def build_selection_entity_deltas(
     product_ids: list[str],
     *,
     compare_env: str = "production",
-    limit: int = 12,
+    limit: int = 40,
     include_rdf: bool = True,
 ) -> dict[str, Any]:
     ids = [str(p) for p in product_ids if p][:limit]
@@ -663,10 +677,41 @@ def build_selection_entity_deltas(
                     "ontology_hits": [],
                     "turtle_new_only": f"# RDF highlight failed: {exc}\n",
                 }
+    # Stable UI order: work first (pending / missing / new), then in-sync
+    _kind_rank = {
+        "new_product": 0,
+        "product_update": 1,
+        "missing_catalog": 2,
+        "in_sync": 3,
+    }
+    deltas.sort(
+        key=lambda d: (
+            _kind_rank.get(str(d.get("change_kind") or ""), 9),
+            str(d.get("product_id") or ""),
+        )
+    )
     total_added = sum(int((d.get("totals") or {}).get("core_added") or 0) for d in deltas)
+    in_sync_ids = [
+        str(d.get("product_id"))
+        for d in deltas
+        if d.get("change_kind") == "in_sync"
+        or (
+            ((d.get("neo4j") or {}).get("production") or {}).get("fully_loaded")
+            and int((d.get("totals") or {}).get("core_added") or 0) <= 0
+            and d.get("change_kind") not in ("new_product", "product_update", "missing_catalog")
+        )
+    ]
+    actionable_ids = [str(d.get("product_id")) for d in deltas if _is_selection_actionable(d) and d.get("product_id")]
+    missing_cat_ids = [str(d.get("product_id")) for d in deltas if d.get("change_kind") == "missing_catalog"]
+    pending_ids = [
+        str(d.get("product_id"))
+        for d in deltas
+        if d.get("change_kind") in ("product_update", "new_product") and d.get("product_id")
+    ]
     all_in_sync = all(d.get("change_kind") == "in_sync" for d in deltas) if deltas else True
     prod_ok = all((d.get("neo4j") or {}).get("production", {}).get("fully_loaded") for d in deltas) if deltas else False
     stg_ok = all((d.get("neo4j") or {}).get("staging", {}).get("fully_loaded") for d in deltas) if deltas else False
+    n_sync, n_act = len(in_sync_ids), len(actionable_ids)
     return {
         "compare_env": compare_env,
         "product_ids": ids,
@@ -677,14 +722,19 @@ def build_selection_entity_deltas(
             "all_in_sync_with_compare_env": all_in_sync,
             "all_fully_loaded_production": prod_ok,
             "all_fully_loaded_staging": stg_ok,
+            "in_sync_count": n_sync,
+            "in_sync_product_ids": in_sync_ids,
+            "actionable_count": n_act,
+            "actionable_product_ids": actionable_ids,
+            "pending_update_count": len(pending_ids),
+            "pending_update_product_ids": pending_ids,
+            "missing_catalog_count": len(missing_cat_ids),
+            "missing_catalog_product_ids": missing_cat_ids,
             "headline": (
-                f"{len(deltas)} product(s) · {total_added} new core ABox entit(ies) vs {compare_env}"
-                if total_added
-                else (
-                    f"{len(deltas)} product(s) core ABox in sync with {compare_env}"
-                    if deltas
-                    else "No products in selection"
-                )
+                f"{len(deltas)} selected · {n_act} need work · {n_sync} already IN SYNC"
+                + (f" · {total_added} new core ABox entit(ies) vs {compare_env}" if total_added else "")
+                if deltas
+                else "No products in selection"
             ),
         },
     }

@@ -781,7 +781,12 @@ export default function WarrantyGraphModern() {
    * Refresh plan = recompute recommended actions from current catalog vs production Neo4j
    * + session gates (selection, smoke, approve, materialize). Does NOT fetch sources or write Neo4j.
    */
-  const refreshIngestPlan = async (opts?: { quiet?: boolean; withStatus?: boolean }) => {
+  const refreshIngestPlan = async (opts?: {
+    quiet?: boolean;
+    withStatus?: boolean;
+    /** Prevent recursion when called from resetWizardForNextCycle */
+    skipIdleReset?: boolean;
+  }) => {
     // quiet default true for internal calls; user click passes quiet: false
     const quiet = opts?.quiet ?? true;
     const withStatus = Boolean(opts?.withStatus);
@@ -801,24 +806,55 @@ export default function WarrantyGraphModern() {
 
       const plan = res?.ingest_plan || {};
       const diff = (res?.change_preview || previewRes?.change_preview)?.diff_vs_production || {};
-      const summary = diff.summary || {};
-      const n = Number(summary.new_count || 0);
-      const u = Number(summary.updated_count || 0);
-      const un = Number(summary.unchanged_count || 0);
-      const next = plan.next_action?.title || res?.next_action?.title || 'No next action (batch complete or idle)';
-      const msg = plan.headline
-        ? `${plan.headline} · Next: ${next}`
-        : `${n} NEW · ${u} pending UPDATE · ${un} in sync · Next: ${next}`;
+      const summary = diff.summary || plan.detected?.summary || {};
+      // Single source of truth: prefer plan.detected (same as on-screen tiles)
+      const n = Number(plan.detected?.new_product?.count ?? summary.new_count ?? 0);
+      const u = Number(plan.detected?.product_update?.count ?? summary.updated_count ?? 0);
+      const un = Number(
+        plan.scope?.unchanged_count ?? summary.unchanged_count ?? 0
+      );
+      const nextAction = plan.next_action || res?.next_action || null;
+      const nextTitle = nextAction?.title || null;
+      // Toast must match on-screen plan.headline (was building a different string)
+      const headline =
+        plan.headline ||
+        `${n} NEW · ${u} pending UPDATE · ${un} already in sync`;
+      const msg = nextTitle ? `${headline}` : `${headline} · No next action (batch complete or idle)`;
 
       if (withStatus) {
         const scope =
           lockedSelectionIds.length > 0
             ? lockedSelectionIds
-            : (res?.change_preview || previewRes?.change_preview)?.selected_product_ids || [];
+            : plan.scope?.selected_product_ids ||
+              (res?.change_preview || previewRes?.change_preview)?.selected_product_ids ||
+              [];
         if (scope.length) {
           await refreshEntityDelta(scope);
           await refreshNeo4jVerify(scope);
         }
+      }
+
+      // Fleet fully idle after a finished batch → unlock wizard for next cycle
+      const batchFinished = Boolean(
+        wizardStepDone[8] || promoteResult?.ok || readyForCustomerTest
+      );
+      if (!opts?.skipIdleReset && n === 0 && u === 0 && batchFinished) {
+        await resetWizardForNextCycle({
+          quiet: true,
+          reason: 'Fleet fully in sync — session reset for next plan.',
+        });
+        if (!quiet) {
+          toast.success('Plan refreshed', {
+            description: `${un} already in sync · Wizard ready for next plan (no pending work)`,
+          });
+          recordAdminAction('plan', true, 'Plan refreshed — ready for next cycle', msg, {
+            new_count: n,
+            updated_count: u,
+            unchanged_count: un,
+            idle_reset: true,
+          });
+        }
+        return plan;
       }
 
       if (!quiet) {
@@ -826,11 +862,12 @@ export default function WarrantyGraphModern() {
           new_count: n,
           updated_count: u,
           unchanged_count: un,
-          next_action: plan.next_action?.action_id || res?.next_action?.action_id,
+          next_action: nextAction?.action_id,
           gates: plan.gates || res?.gates,
+          headline,
         });
         toast.success('Plan refreshed', {
-          description: `${u} pending UPDATE · ${un} in sync · ${next}`,
+          description: msg,
         });
       }
       return plan;
@@ -856,6 +893,62 @@ export default function WarrantyGraphModern() {
     }
   };
 
+  /**
+   * After a finished promote (or when fleet is fully in sync), clear selection +
+   * wizard locks so Admin is ready for a brand-new plan cycle. Does not touch Neo4j.
+   */
+  const resetWizardForNextCycle = async (opts?: {
+    quiet?: boolean;
+    clearFetch?: boolean;
+    reason?: string;
+  }) => {
+    const quiet = Boolean(opts?.quiet);
+    try {
+      const res = await adminFetch('/admin/pipeline/session/reset-for-next-cycle', {
+        method: 'POST',
+        body: JSON.stringify({
+          keep_journey: true,
+          clear_fetch: Boolean(opts?.clearFetch),
+        }),
+      });
+      applyChangePreviewPayload(res);
+      setLockedSelectionIds([]);
+      setWizardStepDone({});
+      setAdminWizardStep(1);
+      setEntityDelta(null);
+      setNeo4jVerify(null);
+      setPromoteResult(null);
+      setOntologyValidation(null);
+      setLastKgRun(null);
+      // refresh gates from server (smoke/approve cleared)
+      await refreshAdminStatus();
+      await refreshIngestPlan({ quiet: true, skipIdleReset: true });
+      const idle = Boolean(res?.idle);
+      const fs = res?.fleet_summary || {};
+      const msg =
+        res?.message ||
+        opts?.reason ||
+        (idle
+          ? 'Fleet fully in sync — wizard reset. Ready when new sources arrive.'
+          : 'Wizard reset — select the next NEW/UPDATE batch.');
+      if (!quiet) {
+        recordAdminAction('session', true, 'Ready for next plan', msg, {
+          idle,
+          fleet_summary: fs,
+        });
+        toast.success(idle ? 'Ready for next plan' : 'Wizard reset', {
+          description: msg,
+        });
+      }
+      return res;
+    } catch (e: any) {
+      if (!quiet) {
+        toast.error('Reset failed', { description: e?.message });
+      }
+      return null;
+    }
+  };
+
   /** Select/deselect products in the change-set (does not auto-run pipelines). */
   const handleProductSelection = async (body: Record<string, unknown>) => {
     try {
@@ -864,10 +957,22 @@ export default function WarrantyGraphModern() {
         body: JSON.stringify(body),
       });
       applyChangePreviewPayload(res);
-      if (res?.selection_summary) {
+      if (Array.isArray(res?.locked_selection_ids)) {
+        setLockedSelectionIds(res.locked_selection_ids);
+      } else if (Array.isArray(res?.selected_product_ids)) {
+        // Keep locked scope aligned when pruning selection
+        if (body.drop_in_sync || body.keep_actionable_only) {
+          setLockedSelectionIds(res.selected_product_ids);
+        }
+      }
+      if (res?.selection_summary || res?.message) {
+        const dropped = (res.dropped_in_sync || []).length;
         toast.success(
-          res.message ||
-            `Selected ${res.selection_summary.selected_total ?? 0} product(s) for KG`
+          dropped
+            ? `Dropped ${dropped} IN SYNC · ${(res.selected_product_ids || []).length} remain`
+            : res.message ||
+                `Selected ${res.selection_summary?.selected_total ?? 0} product(s) for KG`,
+          dropped ? { description: res.message } : undefined
         );
       }
       return res;
@@ -875,6 +980,41 @@ export default function WarrantyGraphModern() {
       toast.error('Selection failed', { description: e?.message });
       return null;
     }
+  };
+
+  /** Drop products that entity-delta marks IN SYNC — works even after step 3 is locked. */
+  const handleDropInSyncFromSelection = async () => {
+    const fromDelta = (entityDelta?.products || [])
+      .map((p: any) => p?.product_id)
+      .filter(Boolean) as string[];
+    const fromSummary = (entityDelta?.summary?.in_sync_product_ids || []) as string[];
+    const scope = Array.from(
+      new Set([
+        ...fromDelta,
+        ...fromSummary,
+        ...lockedSelectionIds,
+        ...selectedFromPreview,
+        ...activeSelectionIds,
+      ])
+    );
+    if (!scope.length) {
+      toast.error('Nothing to prune', { description: 'No products in selection or entity delta.' });
+      return null;
+    }
+    const res = await handleProductSelection({
+      drop_in_sync: true,
+      product_ids: scope,
+      entity_delta_product_ids: fromDelta,
+    });
+    if (res) {
+      const kept = (res.selected_product_ids || res.locked_selection_ids || []) as string[];
+      setLockedSelectionIds(kept);
+      // Always recompute entity delta for the pruned scope (clears stale 20-product panel)
+      await refreshEntityDelta(kept);
+      await refreshNeo4jVerify(kept);
+      await refreshIngestPlan({ quiet: true });
+    }
+    return res;
   };
 
   const refreshAdminStatus = async () => {
@@ -1308,8 +1448,8 @@ export default function WarrantyGraphModern() {
         });
         setWizardStepDone((prev) => ({ ...prev, 8: true }));
         // Refresh all fleet + selection displays so counts/badges match Neo4j
-        await refreshChangePreview(true);
-        await refreshIngestPlan();
+        const previewAfter = await refreshChangePreview(true);
+        await refreshIngestPlan({ quiet: true });
         await refreshEntityDelta(scopeIds);
         await refreshNeo4jVerify(scopeIds);
         await refreshAdminStatus();
@@ -1317,6 +1457,20 @@ export default function WarrantyGraphModern() {
         if (target === 'production') {
           qc.invalidateQueries({ queryKey: ['products'] });
           qc.invalidateQueries({ queryKey: ['crm-assets', selectedCustomerId] });
+          // If the whole fleet is now in sync, reset wizard for a clean next cycle
+          const sum =
+            previewAfter?.change_preview?.diff_vs_production?.summary ||
+            previewAfter?.diff_vs_production?.summary ||
+            {};
+          const n = Number(sum.new_count || 0);
+          const u = Number(sum.updated_count || 0);
+          if (n === 0 && u === 0) {
+            await resetWizardForNextCycle({
+              quiet: false,
+              reason:
+                'Production promote complete and fleet fully in sync — wizard reset for the next plan.',
+            });
+          }
         }
       } else {
         toast.error('Promote failed', { description: err0 || res.status });
@@ -3903,12 +4057,26 @@ export default function WarrantyGraphModern() {
                       <div className="text-[11px] text-white/50 mt-0.5">{nextPlanAction.reason}</div>
                     </div>
                   ) : (
-                    <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-sm text-emerald-100/90">
+                    <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-3 py-2 text-sm text-emerald-100/90 space-y-2">
                       <span className="font-medium">No next action for this session</span>
-                      <div className="text-[11px] text-white/50 mt-0.5">
-                        Recommended steps are all done (or idle). Fleet may still show pending UPDATEs for other products —
-                        use <b>Start next product batch</b> / select more UPDATEs, or open Diagnosis Chat to test.
+                      <div className="text-[11px] text-white/50">
+                        {Number(diffSummary.new_count || 0) === 0 && Number(diffSummary.updated_count || 0) === 0
+                          ? 'Fleet is fully in sync with production. Reset the wizard for a clean next cycle, or open Diagnosis Chat to test.'
+                          : 'Recommended steps are all done (or idle). Fleet may still show pending UPDATEs — select more products or start the next batch.'}
                       </div>
+                      {Number(diffSummary.new_count || 0) === 0 && Number(diffSummary.updated_count || 0) === 0 && (
+                        <button
+                          type="button"
+                          className="btn btn-primary text-[11px] py-0.5"
+                          onClick={() =>
+                            resetWizardForNextCycle({
+                              reason: 'Fleet idle — wizard reset for next plan.',
+                            })
+                          }
+                        >
+                          Reset wizard for next plan
+                        </button>
+                      )}
                     </div>
                   )}
                   {(ingestPlan?.recommended_actions || []).length > 0 && (
@@ -4158,6 +4326,26 @@ export default function WarrantyGraphModern() {
                       (other products not in this batch). After a successful production promote, selected products should show{' '}
                       <b className="text-emerald-300">IN SYNC</b> here.
                     </p>
+                    {Number(entityDelta?.summary?.in_sync_count || 0) > 0 && (
+                      <div className="flex flex-wrap items-center gap-2 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2">
+                        <div className="text-[11px] text-emerald-100/90 flex-1 min-w-[12rem]">
+                          <b>{entityDelta.summary.in_sync_count}</b> selected product(s) already{' '}
+                          <b>IN SYNC</b> on production
+                          {Number(entityDelta?.summary?.actionable_count || 0) > 0
+                            ? ` · ${entityDelta.summary.actionable_count} still need work`
+                            : ' · nothing left to promote in this batch'}
+                        </div>
+                        <button
+                          type="button"
+                          className="btn btn-primary text-[11px] py-0.5"
+                          disabled={entityDeltaBusy}
+                          title="Remove products already IN SYNC on production from this batch (works after Confirm selection)"
+                          onClick={() => handleDropInSyncFromSelection()}
+                        >
+                          Drop IN SYNC from selection
+                        </button>
+                      </div>
+                    )}
 
                     {(entityDelta?.products || []).map((p: any) => {
                       const matrix = p.count_matrix || {};
@@ -4180,11 +4368,18 @@ export default function WarrantyGraphModern() {
                                 p.change_kind === 'in_sync' ||
                                 (p.neo4j?.production?.fully_loaded && !(p.totals?.core_added > 0));
                               const isNew = p.change_kind === 'new_product';
+                              const missingCat = p.change_kind === 'missing_catalog';
                               return (
                             <span className={`badge text-[10px] ${
                               inSync || isNew ? 'badge-ok' : 'badge-warn'
                             }`}>
-                              {inSync ? 'IN SYNC' : isNew ? 'NEW PRODUCT' : 'PENDING UPDATE'}
+                              {inSync
+                                ? 'IN SYNC'
+                                : isNew
+                                  ? 'NEW PRODUCT'
+                                  : missingCat
+                                    ? 'NEEDS MATERIALIZE'
+                                    : 'PENDING UPDATE'}
                             </span>
                               );
                             })()}
@@ -4193,6 +4388,20 @@ export default function WarrantyGraphModern() {
                             )}
                           </div>
                           <div className="text-xs text-white/70">{p.headline}</div>
+                          {(p.change_kind === 'in_sync' ||
+                            (p.neo4j?.production?.fully_loaded && !(p.totals?.core_added > 0))) && (
+                            <div className="text-[11px] text-emerald-200/70">
+                              Core ABox already on production — uncheck this product unless you
+                              intentionally want a no-op promote. Plan header “Pending UPDATE” is the
+                              fleet list; this panel is catalog ↔ Neo4j for your selection only.
+                            </div>
+                          )}
+                          {p.change_kind === 'missing_catalog' && (
+                            <div className="text-[11px] text-amber-200/80">
+                              Product is not in enterprise catalog yet — run Materialize (step 5)
+                              after Validate so entity counts appear here.
+                            </div>
+                          )}
 
                           {/* Count matrix */}
                           <div className="overflow-x-auto">
@@ -4657,6 +4866,20 @@ export default function WarrantyGraphModern() {
                         <button type="button" className="btn btn-secondary text-[11px] py-0.5" disabled={stepActionLocked(3)} onClick={() => handleProductSelection({ select_all_new: true })}>
                           Select all NEW
                         </button>
+                        <button
+                          type="button"
+                          className="btn btn-secondary text-[11px] py-0.5"
+                          disabled={
+                            entityDeltaBusy ||
+                            (selectedFromPreview.length === 0 &&
+                              lockedSelectionIds.length === 0 &&
+                              !(entityDelta?.products || []).length)
+                          }
+                          title="Uncheck products already fully loaded on production (catalog vs Neo4j IN SYNC). Stays enabled after Confirm selection."
+                          onClick={() => handleDropInSyncFromSelection()}
+                        >
+                          Drop IN SYNC from selection
+                        </button>
                       </div>
                       <div className="flex flex-wrap items-center gap-2">
                         <button
@@ -4667,29 +4890,38 @@ export default function WarrantyGraphModern() {
                             const ids =
                               selectedFromPreview.length > 0 ? selectedFromPreview : lockedSelectionIds;
                             if (!ids.length) return;
-                            setLockedSelectionIds(ids);
                             try {
                               const res = await adminFetch('/admin/pipeline/plan/lock-selection', {
                                 method: 'POST',
-                                body: JSON.stringify({ product_ids: ids }),
+                                body: JSON.stringify({ product_ids: ids, prune_in_sync: true }),
                               });
                               applyChangePreviewPayload(res);
+                              const kept = res.locked_selection_ids || ids;
+                              setLockedSelectionIds(kept);
                               recordAdminAction(
                                 'select',
                                 true,
                                 'Selection locked',
-                                res.message || `${ids.length} product(s): ${ids.join(', ')}`,
-                                { product_ids: ids, next: res.ingest_plan?.next_action?.action_id }
+                                res.message || `${kept.length} product(s): ${kept.join(', ')}`,
+                                {
+                                  product_ids: kept,
+                                  dropped_in_sync: res.dropped_in_sync,
+                                  next: res.ingest_plan?.next_action?.action_id,
+                                }
                               );
+                              if ((res.dropped_in_sync || []).length) {
+                                toast.success('Selection pruned', {
+                                  description: res.message,
+                                });
+                              }
+                              await refreshEntityDelta(kept);
+                              await refreshNeo4jVerify(kept);
+                              markDone(3);
                             } catch (e: any) {
-                              recordAdminAction('select', true, 'Selection locked (local)', ids.join(', '), { product_ids: ids });
-                              await handleProductSelection({
-                                selections: Object.fromEntries(ids.map((id) => [id, true])),
-                              });
+                              const detail = e?.message || 'Lock selection failed';
+                              recordAdminAction('select', false, 'Selection lock failed', detail);
+                              toast.error('Could not lock selection', { description: detail });
                             }
-                            await refreshEntityDelta(ids);
-                            await refreshNeo4jVerify(ids);
-                            markDone(3);
                           }}
                         >
                           {stepActionLocked(3)
@@ -4993,13 +5225,27 @@ export default function WarrantyGraphModern() {
                   );
                 })()}
 
-                {(stepDone[8] || onboardingComplete) && (
+                {(stepDone[8] || onboardingComplete || (Number(diffSummary.new_count || 0) === 0 && Number(diffSummary.updated_count || 0) === 0 && readyForCustomerTest)) && (
                   <div className="card p-4 border border-emerald-500/40 bg-emerald-500/5">
-                    <div className="font-semibold text-emerald-300">Onboarding complete for selection</div>
+                    <div className="font-semibold text-emerald-300">
+                      {Number(diffSummary.new_count || 0) === 0 && Number(diffSummary.updated_count || 0) === 0
+                        ? 'Fleet fully in sync — ready for next plan'
+                        : 'Onboarding complete for selection'}
+                    </div>
                     <p className="text-xs text-white/55 mt-1">
-                      Promote finished for <span className="font-mono text-cyan-300">{selIds.join(', ')}</span>.
-                      Step action buttons stay disabled so you don’t re-run by accident.
-                      Run <b>Fetch</b> to pick the next pending UPDATE batch, or open Diagnosis Chat to test.
+                      {Number(diffSummary.new_count || 0) === 0 && Number(diffSummary.updated_count || 0) === 0 ? (
+                        <>
+                          All catalog products match production Neo4j. This batch is done.
+                          Reset the wizard for a clean next cycle (new sources → Fetch → Select…),
+                          or open Diagnosis Chat to test what you just promoted.
+                        </>
+                      ) : (
+                        <>
+                          Promote finished for <span className="font-mono text-cyan-300">{selIds.join(', ')}</span>.
+                          Step action buttons stay disabled so you don’t re-run by accident.
+                          Start the next batch when fleet still has NEW/UPDATE work, or open Diagnosis Chat to test.
+                        </>
+                      )}
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
                       <button type="button" className="btn btn-primary text-xs" onClick={() => { setRole('customer'); setActiveView('chat'); qc.invalidateQueries({ queryKey: ['crm-assets', selectedCustomerId] }); }}>
@@ -5008,19 +5254,15 @@ export default function WarrantyGraphModern() {
                       <button
                         type="button"
                         className="btn btn-secondary text-xs"
-                        onClick={() => {
-                          setAdminWizardStep(2);
-                          setWizardStepDone((prev) => {
-                            const n: Record<number, boolean> = { ...prev };
-                            // keep 1–2; clear rest so a new change-set can run after Fetch
-                            for (const k of [3, 4, 5, 6, 7, 8]) delete n[k];
-                            return n;
-                          });
-                          setLockedSelectionIds([]);
-                          setPromoteResult(null);
-                        }}
+                        onClick={() =>
+                          resetWizardForNextCycle({
+                            reason: 'Operator started next product batch — wizard reset.',
+                          })
+                        }
                       >
-                        Start next product batch
+                        {Number(diffSummary.new_count || 0) === 0 && Number(diffSummary.updated_count || 0) === 0
+                          ? 'Reset wizard for next plan'
+                          : 'Start next product batch'}
                       </button>
                     </div>
                   </div>

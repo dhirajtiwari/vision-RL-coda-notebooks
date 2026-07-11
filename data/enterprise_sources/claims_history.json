@@ -148,6 +148,32 @@
       "closed_date": "2026-07-08",
       "agent_notes": "Warranty claim closed using OEM bulletin TB-LG-WM4000-2026-07.",
       "change_type": "product_update"
+    },
+    {
+      "claim_id": "CLM-2026-HMD-01",
+      "asset_id": "AST-HMD001-4100",
+      "product_id": "hmd-001",
+      "customer_id": "CUST-10120",
+      "symptom_id": "hmd-001-s02",
+      "confirmed_failure_mode_id": "hmd-001-fm01",
+      "used_part_id": "hmd-001-p01",
+      "resolution_summary": "Approved frost sensor replacement under warranty after H3.",
+      "closed_date": "2026-05-14",
+      "agent_notes": "Photo of iced coil provided. Sensor test failed. Source: Claims.",
+      "change_type": "new_product"
+    },
+    {
+      "claim_id": "CLM-2026-ESP-01",
+      "asset_id": "AST-ESP001-2200",
+      "product_id": "esp-001",
+      "customer_id": "CUST-10120",
+      "symptom_id": "esp-001-s02",
+      "confirmed_failure_mode_id": "esp-001-fm01",
+      "used_part_id": "esp-001-p01",
+      "resolution_summary": "Approved boiler NTC under warranty after E05 photo and ohms test.",
+      "closed_date": "2026-06-20",
+      "agent_notes": "Customer video showed E05 at power-on. Source: Claims.",
+      "change_type": "new_product"
     }
   ]
 }

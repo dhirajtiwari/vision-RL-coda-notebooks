@@ -363,6 +363,84 @@
       "closed_date": "2026-07-05",
       "bulletin_id": "TB-PR-HP-2026-07",
       "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-FSM-HMD-9200",
+      "product_id": "hmd-001",
+      "asset_id": "AST-HMD001-4100",
+      "customer_id": "CUST-10120",
+      "symptom_id": "hmd-001-s02",
+      "confirmed_failure_mode_id": "hmd-001-fm01",
+      "used_part_id": "hmd-001-p01",
+      "resolution_summary": "Replaced frost sensor after H3 and iced coil; tank fills normally",
+      "closed_date": "2026-05-12",
+      "technician_notes": "Sensor open-circuit. Verified against service chart. Source: FSM field close.",
+      "change_type": "new_product"
+    },
+    {
+      "work_order_id": "WO-FSM-HMD-9201",
+      "product_id": "hmd-001",
+      "asset_id": "AST-HMD001-4100",
+      "customer_id": "CUST-10120",
+      "symptom_id": "hmd-001-s03",
+      "confirmed_failure_mode_id": "hmd-001-fm02",
+      "used_part_id": "hmd-001-p02",
+      "resolution_summary": "Replaced tank float switch assembly; false TF cleared",
+      "closed_date": "2026-06-03",
+      "technician_notes": "Float hinge debris. Cleaned tank rails. Source: FSM field close.",
+      "change_type": "new_product"
+    },
+    {
+      "work_order_id": "WO-FSM-HMD-9202",
+      "product_id": "hmd-001",
+      "asset_id": "AST-HMD001-4100",
+      "customer_id": "CUST-10120",
+      "symptom_id": "hmd-001-s05",
+      "confirmed_failure_mode_id": "hmd-001-fm04",
+      "used_part_id": "hmd-001-p04",
+      "resolution_summary": "Replaced humidity sensor module; display RH matched reference within 3%",
+      "closed_date": "2026-07-01",
+      "technician_notes": "Drifted RH sensor. Source: FSM field close for multi-source pack.",
+      "change_type": "new_product"
+    },
+    {
+      "work_order_id": "WO-FSM-ESP-9400",
+      "product_id": "esp-001",
+      "asset_id": "AST-ESP001-2200",
+      "customer_id": "CUST-10120",
+      "symptom_id": "esp-001-s02",
+      "confirmed_failure_mode_id": "esp-001-fm01",
+      "used_part_id": "esp-001-p01",
+      "resolution_summary": "Replaced boiler NTC after E05; heat restored and first shot extracted",
+      "closed_date": "2026-06-18",
+      "technician_notes": "Open sensor. Verified against ohms chart. Source: FSM.",
+      "change_type": "new_product"
+    },
+    {
+      "work_order_id": "WO-FSM-ESP-9401",
+      "product_id": "esp-001",
+      "asset_id": "AST-ESP001-2200",
+      "customer_id": "CUST-10120",
+      "symptom_id": "esp-001-s04",
+      "confirmed_failure_mode_id": "esp-001-fm03",
+      "used_part_id": "esp-001-p03",
+      "resolution_summary": "Replaced group gasket; side spray stopped",
+      "closed_date": "2026-07-02",
+      "technician_notes": "Gasket flattened. Source: FSM.",
+      "change_type": "new_product"
+    },
+    {
+      "work_order_id": "WO-FSM-ESP-9402",
+      "product_id": "esp-001",
+      "asset_id": "AST-ESP001-2200",
+      "customer_id": "CUST-10120",
+      "symptom_id": "esp-001-s03",
+      "confirmed_failure_mode_id": "esp-001-fm02",
+      "used_part_id": "esp-001-p02",
+      "resolution_summary": "Replaced vibration pump; blind basket holds 9 bar",
+      "closed_date": "2026-07-09",
+      "technician_notes": "Weak pump tone. Source: FSM multi-source pack.",
+      "change_type": "new_product"
     }
   ]
 }

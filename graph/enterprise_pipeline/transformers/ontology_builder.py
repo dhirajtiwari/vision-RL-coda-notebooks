@@ -43,7 +43,8 @@ class OntologyBuilder:
         claims: ConnectorResult,
         crm: ConnectorResult | None = None,
     ) -> KnowledgeGraphData:
-        del crm
+        # CRM is applied in build_catalog_payload (Asset ABox); product core uses PIM/FSM/Claims.
+        _ = crm
         products = [self._transform_product(p, fsm.records, claims.records) for p in pim.records]
         return KnowledgeGraphData(products=products)
 
@@ -81,11 +82,109 @@ class OntologyBuilder:
 
         from graph.warranty_catalog_extensions import build_enterprise_catalog_payload
 
-        products = [p.model_dump() for p in graph_data.products]
+        # Core Pydantic dump (symptoms/FMs/steps/parts/HR/links) then re-attach rich
+        # enterprise ABox fields from PIM that ProductKnowledge does not model yet
+        # (model/SKU/BOM components/error codes/CONFIRMS links). Without this, multi-source
+        # NEW products lose diagnose targeting + Explore path CONFIRMS after materialize.
+        _RICH_KEYS = (
+            "model",
+            "skus",
+            "components",
+            "error_codes",
+            "component_part_links",
+            "failure_mode_component_links",
+            "error_code_failure_links",
+            "diagnostic_step_failure_links",
+            "diagnostic_tree_links",
+            "sku_part_links",
+            "oem_sources",
+        )
+        pim_by_id: dict[str, dict[str, Any]] = {}
+        for rec in pim.records or []:
+            if not isinstance(rec, dict):
+                continue
+            inner = rec.get("product") if isinstance(rec.get("product"), dict) else rec
+            pid = (inner or {}).get("product_id")
+            if pid:
+                pim_by_id[str(pid)] = rec
+
+        products: list[dict[str, Any]] = []
+        for item in graph_data.products:
+            dumped = item.model_dump()
+            pid = item.product.product_id
+            src = pim_by_id.get(str(pid)) or {}
+            for key in _RICH_KEYS:
+                if key in src and src[key] not in (None, [], {}):
+                    dumped[key] = src[key]
+            products.append(dumped)
+
         payload = build_enterprise_catalog_payload(products)
+        # Multi-source: merge CRM registered assets + Claims closed claims into catalog
+        # ABox so promote creates Asset INSTANCE_OF / Claim FOR_ASSET edges (not only
+        # the static ENTERPRISE_ASSETS/CLAIMS seed rows).
+        payload["assets"] = self._merge_assets(payload.get("assets") or [], crm)
+        payload["claims"] = self._merge_claims(payload.get("claims") or [], claims)
         payload["etl_batch_id"] = self.etl_batch_id
         payload["provenance"] = provenance
         return payload
+
+    @staticmethod
+    def _merge_assets(
+        seed: list[dict[str, Any]],
+        crm: ConnectorResult | None,
+    ) -> list[dict[str, Any]]:
+        by_id: dict[str, dict[str, Any]] = {}
+        for a in seed:
+            if isinstance(a, dict) and a.get("asset_id"):
+                by_id[str(a["asset_id"])] = dict(a)
+        for rec in (crm.records if crm else None) or []:
+            if not isinstance(rec, dict):
+                continue
+            aid = rec.get("asset_id")
+            if not aid or not rec.get("product_id"):
+                continue
+            by_id[str(aid)] = {
+                "asset_id": str(aid),
+                "customer_id": rec.get("customer_id") or "",
+                "product_id": str(rec["product_id"]),
+                "sku_id": rec.get("sku_id") or "",
+                "model_number": rec.get("model_number") or "",
+                "serial_number": rec.get("serial_number") or "",
+                "purchase_date": rec.get("purchase_date") or "",
+                "warranty_status": rec.get("warranty_status") or "",
+                "warranty_expiry": rec.get("warranty_expiry") or "",
+                "policy_id": rec.get("policy_id") or "WP-STANDARD-24M",
+            }
+        return list(by_id.values())
+
+    @staticmethod
+    def _merge_claims(
+        seed: list[dict[str, Any]],
+        claims: ConnectorResult | None,
+    ) -> list[dict[str, Any]]:
+        by_id: dict[str, dict[str, Any]] = {}
+        for c in seed:
+            if isinstance(c, dict) and c.get("claim_id"):
+                by_id[str(c["claim_id"])] = dict(c)
+        for rec in (claims.records if claims else None) or []:
+            if not isinstance(rec, dict):
+                continue
+            cid = rec.get("claim_id")
+            if not cid or not rec.get("asset_id"):
+                continue
+            by_id[str(cid)] = {
+                "claim_id": str(cid),
+                "asset_id": str(rec["asset_id"]),
+                "product_id": rec.get("product_id") or "",
+                "symptom_id": rec.get("symptom_id") or "",
+                "confirmed_failure_mode_id": rec.get("confirmed_failure_mode_id") or "",
+                "used_part_id": rec.get("used_part_id") or "",
+                "resolution_summary": (
+                    rec.get("resolution_summary") or rec.get("summary") or rec.get("description") or ""
+                ),
+                "closed_date": rec.get("closed_date") or rec.get("resolution_date") or "",
+            }
+        return list(by_id.values())
 
     def _prov(self, system: str, record_id: str, doc_uri: str, entity_label: str) -> dict[str, Any]:
         defaults = self._manifest.get("entity_defaults", {}).get(entity_label, {})

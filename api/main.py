@@ -550,11 +550,9 @@ def _refresh_change_preview(**kwargs) -> dict:
     """Rebuild change preview, applying persisted product selection."""
     from graph.enterprise_pipeline.change_preview import build_change_preview
 
-    preview = build_change_preview(
-        selection=ADMIN_REVIEW_STATE.get("product_selection") or {},
-        include_pim_sources=True,
-        **kwargs,
-    )
+    kwargs.setdefault("include_pim_sources", True)
+    kwargs.setdefault("selection", ADMIN_REVIEW_STATE.get("product_selection") or {})
+    preview = build_change_preview(**kwargs)
     ADMIN_REVIEW_STATE["change_preview"] = preview
     # Keep selection map in sync with latest apply defaults
     if preview.get("product_selection"):
@@ -584,6 +582,30 @@ def _rebuild_ingest_plan() -> dict:
         fetch_done=bool(ADMIN_REVIEW_STATE.get("last_fetch_at") or ADMIN_REVIEW_STATE.get("last_report")),
         tbox_review_acknowledged=bool(ADMIN_REVIEW_STATE.get("tbox_review_acknowledged")),
     )
+    # Persist stale-selection cleanup so the next Refresh Plan does not keep
+    # repeating "prior selection fully promoted" forever in the toast.
+    scope = plan.get("scope") or {}
+    if scope.get("stale_selection_cleared"):
+        actionable = set(scope.get("actionable_product_ids") or [])
+        sel_map = dict(ADMIN_REVIEW_STATE.get("product_selection") or {})
+        for pid in list(sel_map.keys()):
+            if pid not in actionable:
+                sel_map[pid] = False
+        ADMIN_REVIEW_STATE["product_selection"] = sel_map
+        ADMIN_REVIEW_STATE["locked_selection_ids"] = []
+        # Prior batch complete — open the door for a new batch of fleet UPDATEs
+        ADMIN_REVIEW_STATE["materialize_done"] = False
+        ADMIN_REVIEW_STATE["last_smoke_ok"] = False
+        ADMIN_REVIEW_STATE["reviewed"] = False
+        ADMIN_REVIEW_STATE["ready_for_customer_test"] = False
+        if preview and isinstance(preview, dict):
+            preview = dict(preview)
+            preview["selected_product_ids"] = []
+            ADMIN_REVIEW_STATE["change_preview"] = preview
+    elif scope.get("selected_product_ids") is not None:
+        # Keep locked ids aligned with plan's still-actionable selection
+        ADMIN_REVIEW_STATE["locked_selection_ids"] = list(scope.get("selected_product_ids") or [])
+
     # Update fingerprint baseline after plan (so next call can detect disk changes)
     fp = (plan.get("detected") or {}).get("sources_fingerprint") or {}
     if fp.get("fingerprint") and ADMIN_REVIEW_STATE.get("last_fetch_at"):
@@ -659,9 +681,15 @@ def admin_dry_run_etl() -> dict:
 
     report = run_knowledge_etl(load_neo4j=False, dry_run=True)
     summaries = list(getattr(report, "product_summaries", None) or [])
+    # Fleet NEW/UPDATE must match what promote can still do: catalog (+ PIM-only
+    # not yet materialised). Do NOT pass raw ETL product_summaries as the sole
+    # incoming set — those are full PIM shells and re-flag already-promoted OEM
+    # products as UPDATE for soft fields (bulletin_id / error_code count noise),
+    # which then appear as "IN SYNC" in entity-delta (catalog vs Neo4j).
     preview = _refresh_change_preview(
-        incoming_products=summaries or None,
+        incoming_products=None,
         source_label="dry_run_etl_fetch",
+        include_pim_sources=True,
     )
     ADMIN_REVIEW_STATE["last_report"] = {
         "batch_id": report.batch_id,
@@ -803,6 +831,83 @@ def admin_get_ingest_plan(refresh: bool = True) -> dict:
     }
 
 
+@app.post("/admin/pipeline/session/reset-for-next-cycle", dependencies=[Depends(require_admin)])
+def admin_reset_session_for_next_cycle(payload: dict | None = None) -> dict:
+    """Clear finished-batch session state so Admin is ready for a new plan.
+
+    Call when fleet is fully in sync after promote, or when the operator clicks
+    "Start next product batch" / "Reset for next plan". Does **not** write Neo4j
+    or delete catalog data — only in-memory Admin wizard gates + selection.
+    """
+    payload = payload or {}
+    keep_journey = bool(payload.get("keep_journey", True))
+    prior_scope = list(ADMIN_REVIEW_STATE.get("locked_selection_ids") or [])
+    prior_ready = bool(ADMIN_REVIEW_STATE.get("ready_for_customer_test"))
+
+    ADMIN_REVIEW_STATE["product_selection"] = {}
+    ADMIN_REVIEW_STATE["locked_selection_ids"] = []
+    ADMIN_REVIEW_STATE["materialize_done"] = False
+    ADMIN_REVIEW_STATE["last_smoke_ok"] = False
+    ADMIN_REVIEW_STATE["reviewed"] = False
+    ADMIN_REVIEW_STATE["ready_for_customer_test"] = False
+    ADMIN_REVIEW_STATE["ontology_validation"] = None
+    ADMIN_REVIEW_STATE["tbox_review_acknowledged"] = False
+    # Force a fresh Fetch recommendation only if operator asks; default keeps
+    # last_fetch so idle fleet stays "no pending work" without nagging re-fetch.
+    if payload.get("clear_fetch"):
+        ADMIN_REVIEW_STATE["last_fetch_at"] = None
+        ADMIN_REVIEW_STATE["last_report"] = None
+        ADMIN_REVIEW_STATE["last_sources_fingerprint"] = None
+
+    preview = _refresh_change_preview(selection={})
+    plan = _rebuild_ingest_plan()
+    diff = (preview.get("diff_vs_production") or {}).get("summary") or {}
+    n = int(diff.get("new_count") or 0)
+    u = int(diff.get("updated_count") or 0)
+    un = int(diff.get("unchanged_count") or 0)
+    idle = n == 0 and u == 0
+
+    msg = f"Wizard reset for next cycle. Fleet: {n} NEW · {u} pending UPDATE · {un} already in sync." + (
+        " Nothing pending — add/change sources, then Fetch, when you have new work."
+        if idle
+        else " Select NEW/UPDATE products to start the next batch."
+    )
+    _admin_journey(
+        "session",
+        "reset_for_next_cycle",
+        msg,
+        {
+            "prior_scope": prior_scope[:20],
+            "prior_ready_for_customer_test": prior_ready,
+            "new_count": n,
+            "updated_count": u,
+            "unchanged_count": un,
+            "idle": idle,
+        },
+    )
+    if not keep_journey:
+        ADMIN_REVIEW_STATE["journey"] = list(ADMIN_REVIEW_STATE.get("journey") or [])[-5:]
+
+    return {
+        "status": "ok",
+        "message": msg,
+        "idle": idle,
+        "fleet_summary": {"new_count": n, "updated_count": u, "unchanged_count": un},
+        "change_preview": preview,
+        "ingest_plan": plan,
+        "product_selection": {},
+        "selected_product_ids": [],
+        "locked_selection_ids": [],
+        "journey": ADMIN_REVIEW_STATE.get("journey") or [],
+        "review_state": {
+            "reviewed": False,
+            "last_smoke_ok": False,
+            "materialize_done": False,
+            "ready_for_customer_test": False,
+        },
+    }
+
+
 @app.post("/admin/pipeline/plan/acknowledge-tbox", dependencies=[Depends(require_admin)])
 def admin_acknowledge_tbox_review(payload: dict | None = None) -> dict:
     """Operator acknowledges TBox-extension candidates so ABox onboard can continue."""
@@ -824,16 +929,40 @@ def admin_acknowledge_tbox_review(payload: dict | None = None) -> dict:
 
 @app.post("/admin/pipeline/plan/lock-selection", dependencies=[Depends(require_admin)])
 def admin_lock_selection(payload: dict) -> dict:
-    """Lock product scope for subsequent materialize/promote (server-side)."""
+    """Lock product scope for subsequent materialize/promote (server-side).
+
+    By default drops products already IN SYNC on production (no core ABox work)
+    so Confirm selection does not mix finished OEM packs into a promote batch.
+    Pass ``prune_in_sync: false`` to keep the raw checkbox list.
+    """
     ids = payload.get("product_ids") or []
     if not isinstance(ids, list) or not ids:
         raise HTTPException(400, "product_ids[] required")
     ids = [str(x) for x in ids if x]
+    prune = payload.get("prune_in_sync", True)
+    dropped: list[str] = []
+    if prune and ids:
+        from graph.enterprise_pipeline.entity_delta import build_selection_entity_deltas
+
+        bundle = build_selection_entity_deltas(ids, compare_env="production", include_rdf=False)
+        actionable = list((bundle.get("summary") or {}).get("actionable_product_ids") or [])
+        actionable_set = set(actionable)
+        dropped = [p for p in ids if p not in actionable_set]
+        # Prefer actionable order from entity-delta; keep original order for remainder
+        if actionable:
+            ids = actionable
+        elif dropped:
+            # Entire selection was in-sync — fail closed with clear message
+            raise HTTPException(
+                400,
+                "All selected products are already IN SYNC on production — nothing to materialize. "
+                "Clear selection or pick Pending UPDATE / NEW products only.",
+            )
     ADMIN_REVIEW_STATE["locked_selection_ids"] = ids
     # Sync selection map
     sel = dict(ADMIN_REVIEW_STATE.get("product_selection") or {})
     for k in list(sel.keys()):
-        sel[k] = k in ids
+        sel[k] = k in set(ids)
     for pid in ids:
         sel[pid] = True
     ADMIN_REVIEW_STATE["product_selection"] = sel
@@ -842,18 +971,30 @@ def admin_lock_selection(payload: dict) -> dict:
 
         ADMIN_REVIEW_STATE["change_preview"] = apply_product_selection(ADMIN_REVIEW_STATE["change_preview"], sel)
     plan = _rebuild_ingest_plan()
+    msg = f"Selection locked: {', '.join(ids[:12])}" + ("…" if len(ids) > 12 else "")
+    if dropped:
+        msg = (
+            f"Locked {len(ids)} product(s) needing work; dropped {len(dropped)} already IN SYNC "
+            f"({', '.join(dropped[:6])}{'…' if len(dropped) > 6 else ''})"
+        )
     _admin_journey(
         "select",
         "lock_selection",
-        f"Locked {len(ids)} product(s) for KG scope",
-        {"product_ids": ids, "next_action": (plan.get("next_action") or {}).get("action_id")},
+        msg,
+        {
+            "product_ids": ids,
+            "dropped_in_sync": dropped,
+            "next_action": (plan.get("next_action") or {}).get("action_id"),
+        },
     )
     return {
         "status": "ok",
         "locked_selection_ids": ids,
+        "dropped_in_sync": dropped,
         "ingest_plan": plan,
         "change_preview": ADMIN_REVIEW_STATE.get("change_preview"),
-        "message": f"Selection locked: {', '.join(ids[:12])}",
+        "product_selection": sel,
+        "message": msg,
     }
 
 
@@ -901,22 +1042,70 @@ def admin_set_product_selection(payload: dict) -> dict:
         for pid in upd_ids:
             sel[str(pid)] = flag
 
+    dropped_in_sync: list[str] = []
+    if payload.get("drop_in_sync") or payload.get("keep_actionable_only"):
+        # Uncheck products whose catalog↔production entity delta is already IN SYNC
+        # (or fully loaded with no core adds). Keeps NEW / true UPDATE / needs materialize.
+        from graph.enterprise_pipeline.entity_delta import build_selection_entity_deltas
+
+        # Scope (priority): explicit product_ids → locked scope → currently checked map → preview
+        explicit = payload.get("product_ids")
+        if isinstance(explicit, list) and explicit:
+            currently_on = [str(x) for x in explicit if x]
+        else:
+            locked = [str(x) for x in (ADMIN_REVIEW_STATE.get("locked_selection_ids") or []) if x]
+            checked = [str(k) for k, v in sel.items() if v]
+            preview_sel = [str(x) for x in ((preview or {}).get("selected_product_ids") or []) if x]
+            # Prefer the widest non-empty set so a stale 20-product entity-delta
+            # panel can still be pruned even if checkboxes were already narrowed.
+            currently_on = locked or checked or preview_sel
+            if checked and locked and set(checked) != set(locked):
+                currently_on = list(dict.fromkeys([*locked, *checked]))
+            if isinstance(payload.get("entity_delta_product_ids"), list):
+                # UI can pass the product ids currently shown in the delta panel
+                currently_on = list(
+                    dict.fromkeys(currently_on + [str(x) for x in payload["entity_delta_product_ids"] if x])
+                )
+
+        if currently_on:
+            # Ensure all candidates are present in the selection map before pruning
+            for pid in currently_on:
+                sel.setdefault(str(pid), True)
+            bundle = build_selection_entity_deltas(currently_on, compare_env="production", include_rdf=False)
+            actionable = set((bundle.get("summary") or {}).get("actionable_product_ids") or [])
+            for pid in currently_on:
+                if pid not in actionable:
+                    dropped_in_sync.append(pid)
+                    sel[str(pid)] = False
+                else:
+                    sel[str(pid)] = True
+
     ADMIN_REVIEW_STATE["product_selection"] = sel
     preview = apply_product_selection(preview, sel)
     ADMIN_REVIEW_STATE["change_preview"] = preview
-    # Keep locked ids in sync when operator checks boxes
-    ADMIN_REVIEW_STATE["locked_selection_ids"] = list(preview.get("selected_product_ids") or [])
+    # Keep locked ids in sync when operator checks boxes / drops in-sync
+    kept_ids = list(preview.get("selected_product_ids") or [])
+    ADMIN_REVIEW_STATE["locked_selection_ids"] = kept_ids
     plan = _rebuild_ingest_plan()
     sel_summary = (preview.get("diff_vs_production") or {}).get("selection_summary") or {}
+    msg = "Only selected products will be included on promote (when a selection is set)."
+    if dropped_in_sync:
+        msg = (
+            f"Dropped {len(dropped_in_sync)} already IN SYNC product(s) from selection "
+            f"({', '.join(dropped_in_sync[:8])}{'…' if len(dropped_in_sync) > 8 else ''}). "
+            f"{len(kept_ids)} remain for KG work."
+        )
     _admin_journey(
         "select",
-        "product_selection",
+        "product_selection" if not dropped_in_sync else "drop_in_sync",
         f"Selection updated: {sel_summary.get('selected_total', 0)} product(s) marked for KG "
-        f"({sel_summary.get('selected_new_count', 0)} new, {sel_summary.get('selected_updated_count', 0)} updates)",
+        f"({sel_summary.get('selected_new_count', 0)} new, {sel_summary.get('selected_updated_count', 0)} updates)"
+        + (f"; dropped {len(dropped_in_sync)} in-sync" if dropped_in_sync else ""),
         {
             "selected_product_ids": sel_summary.get("selected_product_ids") or [],
             "selected_new_count": sel_summary.get("selected_new_count"),
             "selected_updated_count": sel_summary.get("selected_updated_count"),
+            "dropped_in_sync": dropped_in_sync,
             "next_action": (plan.get("next_action") or {}).get("action_id"),
         },
     )
@@ -924,11 +1113,15 @@ def admin_set_product_selection(payload: dict) -> dict:
         "status": "ok",
         "product_selection": sel,
         "change_preview": preview,
-        "selected_product_ids": preview.get("selected_product_ids") or [],
+        "selected_product_ids": kept_ids
+        if (payload.get("drop_in_sync") or payload.get("keep_actionable_only"))
+        else (preview.get("selected_product_ids") or []),
+        "locked_selection_ids": list(ADMIN_REVIEW_STATE.get("locked_selection_ids") or []),
         "selection_summary": sel_summary,
+        "dropped_in_sync": dropped_in_sync,
         "ingest_plan": plan,
         "journey": ADMIN_REVIEW_STATE.get("journey") or [],
-        "message": "Only selected products will be included on promote (when a selection is set).",
+        "message": msg,
     }
 
 

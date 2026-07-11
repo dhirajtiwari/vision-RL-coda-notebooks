@@ -196,6 +196,30 @@
       "purchase_date": "2026-03-01",
       "warranty_status": "active",
       "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-HMD001-4100",
+      "customer_id": "CUST-10120",
+      "product_id": "hmd-001",
+      "sku_id": "SKU-DZ-HMD30-2025",
+      "model_number": "DZ-HMD30",
+      "serial_number": "DZ-HMD30-2025-41001",
+      "purchase_date": "2025-11-18",
+      "warranty_status": "active",
+      "warranty_expiry": "2027-11-18",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-ESP001-2200",
+      "customer_id": "CUST-10120",
+      "product_id": "esp-001",
+      "sku_id": "SKU-BB-ESP15-2026",
+      "model_number": "BB-ESP15",
+      "serial_number": "BB-ESP15-2026-22001",
+      "purchase_date": "2026-03-12",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-12",
+      "policy_id": "WP-STANDARD-24M"
     }
   ]
 }

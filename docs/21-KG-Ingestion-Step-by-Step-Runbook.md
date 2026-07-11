@@ -1,8 +1,14 @@
 # Knowledge Graph Ingestion — Step-by-Step Runbook
 
 **How to make multi-source Neo4j pipelines work in this application**
-Architecture theory: [`20-Enterprise-KG-Ingestion-Pipeline-Architecture.md`](20-Enterprise-KG-Ingestion-Pipeline-Architecture.md)
-Checklist: [`todo-kg-ingestion-pipelines.md`](todo-kg-ingestion-pipelines.md)
+
+| Doc | Role |
+|-----|------|
+| [`20-Enterprise-KG-Ingestion-Pipeline-Architecture.md`](20-Enterprise-KG-Ingestion-Pipeline-Architecture.md) | Architecture theory |
+| [`22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](22-TBox-ABox-Multi-Source-Onboard-Mechanism.md) | **TBox vs ABox**, what sources build, no per-product schema |
+| [`todo-kg-ingestion-pipelines.md`](todo-kg-ingestion-pipelines.md) | Checklist |
+
+**Critical:** Source packs feed **ABox**. Domain **TBox** is shared and not regenerated per product. OntologyBuilder + validate + promote run **in the pipeline** after Fetch/Select.
 
 ---
 

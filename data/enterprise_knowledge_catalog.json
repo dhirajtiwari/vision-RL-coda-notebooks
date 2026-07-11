@@ -3721,6 +3721,3728 @@
       "oem_sources": [
         "https://www.geappliances.com/ge/service-and-support.htm"
       ]
+    },
+    {
+      "product": {
+        "product_id": "hmd-001",
+        "name": "DryZone Compact Dehumidifier 30pt",
+        "category": "Climate",
+        "brand": "DryZone",
+        "model_year": 2025
+      },
+      "symptoms": [
+        {
+          "symptom_id": "hmd-001-s01",
+          "description": "Dehumidifier runs but water tank never fills",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "hmd-001-s02",
+          "description": "Error code H3 frost sensor",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "hmd-001-s03",
+          "description": "Tank full indicator on with empty tank",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "hmd-001-s04",
+          "description": "Loud rattling during compressor pull-down",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "hmd-001-s05",
+          "description": "Room humidity stays high after continuous run",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "hmd-001-fm01",
+          "name": "Evaporator Coil Frost / Defrost Sensor Failure",
+          "description": "Frost sensor open/out of range; coil ices and collection stops.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Unplug unit before accessing evaporator. Coil fins are sharp; use gloves."
+        },
+        {
+          "failure_mode_id": "hmd-001-fm02",
+          "name": "Tank Full Float Switch Stuck",
+          "description": "Float hinge debris or stuck switch forces false tank-full shutdown.",
+          "estimated_repair_time_minutes": 25,
+          "safety_notes": "Empty and dry tank before servicing float hinge."
+        },
+        {
+          "failure_mode_id": "hmd-001-fm03",
+          "name": "Compressor Mount / Isolation Pad Wear",
+          "description": "Worn isolation pads transmit vibration and rattling on start.",
+          "estimated_repair_time_minutes": 50,
+          "safety_notes": "Support compressor when replacing pads; do not stress refrigerant lines."
+        },
+        {
+          "failure_mode_id": "hmd-001-fm04",
+          "name": "Humidity Sensor Drift / Control Calibration",
+          "description": "RH sensor offset causes early cut-out while room remains humid.",
+          "estimated_repair_time_minutes": 30,
+          "safety_notes": "ESD care when handling control board harness connectors."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "hmd-001-d01",
+          "description": "Confirm ambient above 41\u00b0F / 5\u00b0C and air filter is clean.",
+          "order": 1,
+          "expected_outcome": "Ambient OK; filter free of heavy dust"
+        },
+        {
+          "step_id": "hmd-001-d02",
+          "description": "Inspect evaporator for ice; test frost sensor resistance vs chart (H3).",
+          "order": 2,
+          "expected_outcome": "Sensor within chart range; coil free of ice after defrost"
+        },
+        {
+          "step_id": "hmd-001-d03",
+          "description": "Remove tank; manually actuate float switch and watch tank-full LED.",
+          "order": 3,
+          "expected_outcome": "LED follows float position; no false TF with empty tank"
+        },
+        {
+          "step_id": "hmd-001-d04",
+          "description": "Compare display RH to calibrated hygrometer; check sensor harness.",
+          "order": 4,
+          "expected_outcome": "Display RH within \u00b15% of reference hygrometer"
+        },
+        {
+          "step_id": "hmd-001-d05",
+          "description": "Inspect compressor isolation pads for crush/tear; reseat mounts.",
+          "order": 5,
+          "expected_outcome": "Pads intact; rattling reduced on pull-down"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "hmd-001-p01",
+          "name": "Frost / coil temperature sensor",
+          "part_number": "DZ-H3-SENS-30",
+          "estimated_cost_usd": 18.5
+        },
+        {
+          "part_id": "hmd-001-p02",
+          "name": "Tank float switch assembly",
+          "part_number": "DZ-FLOAT-30",
+          "estimated_cost_usd": 14.0
+        },
+        {
+          "part_id": "hmd-001-p03",
+          "name": "Compressor isolation pad kit",
+          "part_number": "DZ-ISO-PAD-30",
+          "estimated_cost_usd": 22.0
+        },
+        {
+          "part_id": "hmd-001-p04",
+          "name": "Humidity sensor module",
+          "part_number": "DZ-RH-SENS-30",
+          "estimated_cost_usd": 27.5
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "hmd-001-hr01",
+          "description": "Replaced frost sensor after H3 and iced coil; collection resumed",
+          "confirmed_failure_mode_id": "hmd-001-fm01",
+          "resolution_date": "2026-05-12",
+          "technician_notes": "Baseline PIM resolution for hmd-001. Part hmd-001-p01"
+        },
+        {
+          "resolution_id": "WO-FSM-HMD-9200",
+          "description": "Replaced frost sensor after H3 and iced coil; tank fills normally",
+          "confirmed_failure_mode_id": "hmd-001-fm01",
+          "resolution_date": "2026-05-12",
+          "technician_notes": "Sensor open-circuit. Verified against service chart. Source: FSM field close."
+        },
+        {
+          "resolution_id": "WO-FSM-HMD-9201",
+          "description": "Replaced tank float switch assembly; false TF cleared",
+          "confirmed_failure_mode_id": "hmd-001-fm02",
+          "resolution_date": "2026-06-03",
+          "technician_notes": "Float hinge debris. Cleaned tank rails. Source: FSM field close."
+        },
+        {
+          "resolution_id": "WO-FSM-HMD-9202",
+          "description": "Replaced humidity sensor module; display RH matched reference within 3%",
+          "confirmed_failure_mode_id": "hmd-001-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Drifted RH sensor. Source: FSM field close for multi-source pack."
+        },
+        {
+          "resolution_id": "CLM-2026-HMD-01",
+          "description": "Approved frost sensor replacement under warranty after H3.",
+          "confirmed_failure_mode_id": "hmd-001-fm01",
+          "resolution_date": "2026-05-14",
+          "technician_notes": "Photo of iced coil provided. Sensor test failed. Source: Claims."
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "hmd-001-s01",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.82
+        },
+        {
+          "symptom_id": "hmd-001-s01",
+          "failure_mode_id": "hmd-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "hmd-001-s02",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.99
+        },
+        {
+          "symptom_id": "hmd-001-s03",
+          "failure_mode_id": "hmd-001-fm02",
+          "confidence": 0.95
+        },
+        {
+          "symptom_id": "hmd-001-s04",
+          "failure_mode_id": "hmd-001-fm03",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "hmd-001-s05",
+          "failure_mode_id": "hmd-001-fm01",
+          "confidence": 0.62
+        },
+        {
+          "symptom_id": "hmd-001-s05",
+          "failure_mode_id": "hmd-001-fm04",
+          "confidence": 0.82
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "hmd-001-fm01",
+          "part_id": "hmd-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "hmd-001-fm02",
+          "part_id": "hmd-001-p02",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "hmd-001-fm03",
+          "part_id": "hmd-001-p03",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "hmd-001-fm04",
+          "part_id": "hmd-001-p04",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "ice-001",
+        "name": "FrostBite Compact Ice Maker 12kg",
+        "category": "Kitchen",
+        "brand": "FrostBite",
+        "model_year": 2025
+      },
+      "symptoms": [
+        {
+          "symptom_id": "ice-s01",
+          "description": "Ice maker not producing ice",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "ice-s02",
+          "description": "Error code E07 on ice maker display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "ice-s03",
+          "description": "Ice bin never fills / harvest cycle incomplete",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "ice-s04",
+          "description": "Only small cloudy ice cubes produced",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "ice-s05",
+          "description": "Ice maker harvests empty trays after water filter change",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "ice-fm01",
+          "name": "Water Inlet Valve Failure",
+          "description": "Inlet valve stuck closed; no water reaches the ice mold.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Shut off water supply before valve replacement."
+        },
+        {
+          "failure_mode_id": "ice-fm02",
+          "name": "Frozen Fill Tube",
+          "description": "Fill tube iced over, blocking water fill into mold.",
+          "estimated_repair_time_minutes": 30,
+          "safety_notes": "Allow thaw; do not force metal objects into tube."
+        },
+        {
+          "failure_mode_id": "ice-fm03",
+          "name": "Bin Full Sensor Fault",
+          "description": "Sensor incorrectly reports bin full; harvest never starts.",
+          "estimated_repair_time_minutes": 35,
+          "safety_notes": "Disconnect power before sensor service."
+        },
+        {
+          "failure_mode_id": "ice-fm04",
+          "name": "Post-Filter Airlock / Inlet Restriction (Bulletin)",
+          "description": "OEM bulletin: airlock after filter swap prevents fill; purge procedure required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "ice-d01",
+          "description": "Verify water supply and listen for inlet valve click during fill.",
+          "order": 1,
+          "expected_outcome": "No click / no water into mold"
+        },
+        {
+          "step_id": "ice-d02",
+          "description": "Inspect fill tube for ice blockage.",
+          "order": 2,
+          "expected_outcome": "Tube blocked with ice"
+        },
+        {
+          "step_id": "ice-d03",
+          "description": "Check bin full sensor continuity and alignment.",
+          "order": 3,
+          "expected_outcome": "Open circuit or misaligned paddle"
+        },
+        {
+          "step_id": "ice-d04",
+          "description": "Run forced harvest cycle and observe mold fill level.",
+          "order": 4,
+          "expected_outcome": "Mold remains dry or only partially fills"
+        },
+        {
+          "step_id": "ice-d05",
+          "description": "Run bulletin purge cycle 3x after filter install; verify mold fill",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "ice-p01",
+          "name": "Water Inlet Valve",
+          "part_number": "FB-WIV-12",
+          "estimated_cost_usd": 34.0
+        },
+        {
+          "part_id": "ice-p02",
+          "name": "Fill Tube Assembly",
+          "part_number": "FB-FT-12",
+          "estimated_cost_usd": 18.5
+        },
+        {
+          "part_id": "ice-p03",
+          "name": "Bin Full Sensor",
+          "part_number": "FB-BFS-12",
+          "estimated_cost_usd": 22.0
+        },
+        {
+          "part_id": "ice-p04",
+          "name": "Inlet purge adapter",
+          "part_number": "FB-PURGE-12",
+          "estimated_cost_usd": 9.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "ice-r01",
+          "description": "Replaced inlet valve; ice production restored within 6 hours.",
+          "confirmed_failure_mode_id": "ice-fm01",
+          "resolution_date": "2026-04-02",
+          "technician_notes": "Hard water scale on valve seat."
+        },
+        {
+          "resolution_id": "ice-001-hr-bull-2026q3",
+          "description": "Purged line per FrostBite bulletin; harvest filled normally",
+          "confirmed_failure_mode_id": "ice-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-FB-ICE-2026-07."
+        },
+        {
+          "resolution_id": "WO-ICE-9001",
+          "description": "Replaced water inlet valve",
+          "confirmed_failure_mode_id": "ice-fm01",
+          "resolution_date": "2026-04-02",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-ICE001-7003",
+          "description": "Purged line per FrostBite bulletin; harvest filled normally",
+          "confirmed_failure_mode_id": "ice-fm04",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "CLM-BULL-2026-04-ice-001",
+          "description": "Purged line per FrostBite bulletin; harvest filled normally",
+          "confirmed_failure_mode_id": "ice-fm04",
+          "resolution_date": "2026-07-08",
+          "technician_notes": "Warranty claim closed using OEM bulletin TB-FB-ICE-2026-07."
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "ice-s01",
+          "failure_mode_id": "ice-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "ice-s01",
+          "failure_mode_id": "ice-fm02",
+          "confidence": 0.75
+        },
+        {
+          "symptom_id": "ice-s02",
+          "failure_mode_id": "ice-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "ice-s02",
+          "failure_mode_id": "ice-fm02",
+          "confidence": 0.7
+        },
+        {
+          "symptom_id": "ice-s03",
+          "failure_mode_id": "ice-fm03",
+          "confidence": 0.91
+        },
+        {
+          "symptom_id": "ice-s04",
+          "failure_mode_id": "ice-fm02",
+          "confidence": 0.65
+        },
+        {
+          "symptom_id": "ice-s05",
+          "failure_mode_id": "ice-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "ice-s05",
+          "failure_mode_id": "ice-fm04",
+          "confidence": 0.95
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "ice-fm01",
+          "part_id": "ice-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ice-fm02",
+          "part_id": "ice-p02",
+          "quantity": 1,
+          "probability": 0.85,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ice-fm03",
+          "part_id": "ice-p03",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ice-fm04",
+          "part_id": "ice-p04",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-ice12",
+        "name": "FrostBite Compact 12kg",
+        "model_number": "FB-ICE12"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-ICE12-2025",
+          "name": "FrostBite Ice Maker 12kg 2025",
+          "revision": "B",
+          "model_year": 2025,
+          "bulletin_id": "TB-FB-ICE-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "ice-c01",
+          "name": "Water Fill System",
+          "subsystem": "Plumbing"
+        },
+        {
+          "component_id": "ice-c02",
+          "name": "Harvest Control",
+          "subsystem": "Sensing"
+        },
+        {
+          "component_id": "ice-c03",
+          "name": "Ice Mold Assembly",
+          "subsystem": "Freezing"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "ice-e07",
+          "code": "E07",
+          "description": "Water fill fault / low water to mold"
+        },
+        {
+          "error_code_id": "ice-e07b",
+          "code": "E07",
+          "description": "E07 per TB-FB-ICE-2026-07",
+          "source_bulletin": "TB-FB-ICE-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "ice-c01",
+          "part_id": "ice-p01"
+        },
+        {
+          "component_id": "ice-c01",
+          "part_id": "ice-p02"
+        },
+        {
+          "component_id": "ice-c02",
+          "part_id": "ice-p03"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "ice-fm01",
+          "component_id": "ice-c01"
+        },
+        {
+          "failure_mode_id": "ice-fm02",
+          "component_id": "ice-c01"
+        },
+        {
+          "failure_mode_id": "ice-fm03",
+          "component_id": "ice-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "ice-e07",
+          "failure_mode_id": "ice-fm01",
+          "confidence": 0.86
+        },
+        {
+          "error_code_id": "ice-e07",
+          "failure_mode_id": "ice-fm02",
+          "confidence": 0.72
+        },
+        {
+          "error_code_id": "ice-e07b",
+          "failure_mode_id": "ice-fm04",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "ice-d01",
+          "failure_mode_id": "ice-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ice-d02",
+          "failure_mode_id": "ice-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ice-d03",
+          "failure_mode_id": "ice-fm03",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ice-d05",
+          "failure_mode_id": "ice-fm04",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-ICE12-2025",
+          "part_id": "ice-p01"
+        },
+        {
+          "sku_id": "SKU-ICE12-2025",
+          "part_id": "ice-p02"
+        },
+        {
+          "sku_id": "SKU-ICE12-2025",
+          "part_id": "ice-p03"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "vac-001",
+        "name": "RoboClean Stick Vacuum Pro",
+        "category": "Floorcare",
+        "brand": "RoboClean",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "vac-001-s01",
+          "description": "Loss of suction / brush roll stops",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "vac-001-s02",
+          "description": "Error code E12 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "vac-001-s03",
+          "description": "Intermittent operation on RoboClean Stick Vacuum Pro",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "vac-001-s04",
+          "description": "Vacuum loses suction after brush-roll firmware update",
+          "severity": "medium"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "vac-001-fm01",
+          "name": "Brush Roll Motor Overload",
+          "description": "Primary field failure for RoboClean Stick Vacuum Pro: Brush Roll Motor Overload.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "vac-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "vac-001-fm03",
+          "name": "Brush-Roll Stall Detection Too Sensitive (Bulletin)",
+          "description": "Firmware bulletin: stall threshold too low on carpets; patch + brush clean procedure.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "vac-001-d01",
+          "description": "Confirm error E12 and recreate symptom: Loss of suction / brush roll stops.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "vac-001-d02",
+          "description": "Inspect Agitator Drive and measure related part Brush Roll Motor Assembly.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "vac-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "vac-001-d04",
+          "description": "Apply FW patch and run bulletin brush clean cycle",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "vac-001-p01",
+          "name": "Brush Roll Motor Assembly",
+          "part_number": "RC-BRM-90",
+          "estimated_cost_usd": 48.0
+        },
+        {
+          "part_id": "vac-001-p02",
+          "name": "Main Control Board",
+          "part_number": "RC-BRM-90-PCB",
+          "estimated_cost_usd": 76.8
+        },
+        {
+          "part_id": "vac-001-p03",
+          "name": "Brush-roll firmware dongle",
+          "part_number": "RC-FW-DGL",
+          "estimated_cost_usd": 0.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "vac-001-hr01",
+          "description": "Replaced Brush Roll Motor Assembly after E12 / Loss of suction / brush roll stops",
+          "confirmed_failure_mode_id": "vac-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for vac-001. Part vac-001-p01"
+        },
+        {
+          "resolution_id": "vac-001-hr-bull-2026q3",
+          "description": "FW patch + clean; suction restored",
+          "confirmed_failure_mode_id": "vac-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-RC-VAC-2026-07."
+        },
+        {
+          "resolution_id": "WO-VAC001-9100",
+          "description": "Replaced Brush Roll Motor Assembly",
+          "confirmed_failure_mode_id": "vac-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-VAC001-7014",
+          "description": "FW patch + clean; suction restored",
+          "confirmed_failure_mode_id": "vac-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "CLM-2026-N01-vac-001",
+          "description": "Brush Roll Motor Assembly replaced under warranty.",
+          "confirmed_failure_mode_id": "vac-001-fm01",
+          "resolution_date": "2026-06-22",
+          "technician_notes": "New product pack claim for vac-001."
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "vac-001-s01",
+          "failure_mode_id": "vac-001-fm01",
+          "confidence": 0.94
+        },
+        {
+          "symptom_id": "vac-001-s01",
+          "failure_mode_id": "vac-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "vac-001-s02",
+          "failure_mode_id": "vac-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "vac-001-s02",
+          "failure_mode_id": "vac-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "vac-001-s03",
+          "failure_mode_id": "vac-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "vac-001-s04",
+          "failure_mode_id": "vac-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "vac-001-s04",
+          "failure_mode_id": "vac-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "vac-001-fm01",
+          "part_id": "vac-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "vac-001-fm02",
+          "part_id": "vac-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "vac-001-fm03",
+          "part_id": "vac-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-vac001",
+        "name": "RoboClean Stick Vacuum Pro",
+        "model_number": "RC-SV90"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-RC-SV90-2026",
+          "name": "RoboClean Stick Vacuum Pro 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-RC-VAC-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "vac-001-c01",
+          "name": "Agitator Drive",
+          "subsystem": "Cleaning head"
+        },
+        {
+          "component_id": "vac-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "vac-001-e01",
+          "code": "E12",
+          "description": "Brush roll jam / high load"
+        },
+        {
+          "error_code_id": "vac-001-e12b",
+          "code": "E12",
+          "description": "E12 per TB-RC-VAC-2026-07",
+          "source_bulletin": "TB-RC-VAC-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "vac-001-c01",
+          "part_id": "vac-001-p01"
+        },
+        {
+          "component_id": "vac-001-c02",
+          "part_id": "vac-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "vac-001-fm01",
+          "component_id": "vac-001-c01"
+        },
+        {
+          "failure_mode_id": "vac-001-fm02",
+          "component_id": "vac-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "vac-001-e01",
+          "failure_mode_id": "vac-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "vac-001-e01",
+          "failure_mode_id": "vac-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "vac-001-e12b",
+          "failure_mode_id": "vac-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "vac-001-d01",
+          "failure_mode_id": "vac-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "vac-001-d02",
+          "failure_mode_id": "vac-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "vac-001-d03",
+          "failure_mode_id": "vac-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "vac-001-d04",
+          "failure_mode_id": "vac-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-RC-SV90-2026",
+          "part_id": "vac-001-p01"
+        },
+        {
+          "sku_id": "SKU-RC-SV90-2026",
+          "part_id": "vac-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "ac-001",
+        "name": "CoolAir Portable AC 12k BTU",
+        "category": "HVAC",
+        "brand": "CoolAir",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "ac-001-s01",
+          "description": "Unit cools weakly and shuts off",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "ac-001-s02",
+          "description": "Error code E41 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "ac-001-s03",
+          "description": "Intermittent operation on CoolAir Portable AC 12k BTU",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "ac-001-s04",
+          "description": "Portable AC E41 after mid-season filter wash",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "ac-001-fm01",
+          "name": "Condenser Fan Failure",
+          "description": "Primary field failure for CoolAir Portable AC 12k BTU: Condenser Fan Failure.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "ac-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "ac-001-fm03",
+          "name": "Wet Filter Restriction / High Pressure (Bulletin)",
+          "description": "CoolAir bulletin: reinstalling damp filter trips high-pressure E41.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "ac-001-d01",
+          "description": "Confirm error E41 and recreate symptom: Unit cools weakly and shuts off.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "ac-001-d02",
+          "description": "Inspect Condenser Airflow and measure related part Condenser Fan Motor.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "ac-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "ac-001-d04",
+          "description": "Dry filter 24h; verify condenser airflow before reset",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "ac-001-p01",
+          "name": "Condenser Fan Motor",
+          "part_number": "CA-CFM-12",
+          "estimated_cost_usd": 62.0
+        },
+        {
+          "part_id": "ac-001-p02",
+          "name": "Main Control Board",
+          "part_number": "CA-CFM-12-PCB",
+          "estimated_cost_usd": 99.2
+        },
+        {
+          "part_id": "ac-001-p03",
+          "name": "Filter dry rack note",
+          "part_number": "CA-FILT-NOTE",
+          "estimated_cost_usd": 0.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "ac-001-hr01",
+          "description": "Replaced Condenser Fan Motor after E41 / Unit cools weakly and shuts off",
+          "confirmed_failure_mode_id": "ac-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for ac-001. Part ac-001-p01"
+        },
+        {
+          "resolution_id": "ac-001-hr-bull-2026q3",
+          "description": "Dried filter; E41 cleared",
+          "confirmed_failure_mode_id": "ac-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-CA-PAC-2026-07."
+        },
+        {
+          "resolution_id": "WO-AC001-9101",
+          "description": "Replaced Condenser Fan Motor",
+          "confirmed_failure_mode_id": "ac-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-AC001-7015",
+          "description": "Dried filter; E41 cleared",
+          "confirmed_failure_mode_id": "ac-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "CLM-2026-N02-ac-001",
+          "description": "Condenser Fan Motor replaced under warranty.",
+          "confirmed_failure_mode_id": "ac-001-fm01",
+          "resolution_date": "2026-06-22",
+          "technician_notes": "New product pack claim for ac-001."
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "ac-001-s01",
+          "failure_mode_id": "ac-001-fm01",
+          "confidence": 0.94
+        },
+        {
+          "symptom_id": "ac-001-s01",
+          "failure_mode_id": "ac-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "ac-001-s02",
+          "failure_mode_id": "ac-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "ac-001-s02",
+          "failure_mode_id": "ac-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "ac-001-s03",
+          "failure_mode_id": "ac-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "ac-001-s04",
+          "failure_mode_id": "ac-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "ac-001-s04",
+          "failure_mode_id": "ac-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "ac-001-fm01",
+          "part_id": "ac-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ac-001-fm02",
+          "part_id": "ac-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ac-001-fm03",
+          "part_id": "ac-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-ac001",
+        "name": "CoolAir Portable AC 12k BTU",
+        "model_number": "CA-PAC12"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-CA-PAC12-2026",
+          "name": "CoolAir Portable AC 12k BTU 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-CA-PAC-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "ac-001-c01",
+          "name": "Condenser Airflow",
+          "subsystem": "Cooling"
+        },
+        {
+          "component_id": "ac-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "ac-001-e01",
+          "code": "E41",
+          "description": "Compressor high pressure"
+        },
+        {
+          "error_code_id": "ac-001-e41b",
+          "code": "E41",
+          "description": "E41 per TB-CA-PAC-2026-07",
+          "source_bulletin": "TB-CA-PAC-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "ac-001-c01",
+          "part_id": "ac-001-p01"
+        },
+        {
+          "component_id": "ac-001-c02",
+          "part_id": "ac-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "ac-001-fm01",
+          "component_id": "ac-001-c01"
+        },
+        {
+          "failure_mode_id": "ac-001-fm02",
+          "component_id": "ac-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "ac-001-e01",
+          "failure_mode_id": "ac-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "ac-001-e01",
+          "failure_mode_id": "ac-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "ac-001-e41b",
+          "failure_mode_id": "ac-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "ac-001-d01",
+          "failure_mode_id": "ac-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ac-001-d02",
+          "failure_mode_id": "ac-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ac-001-d03",
+          "failure_mode_id": "ac-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ac-001-d04",
+          "failure_mode_id": "ac-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-CA-PAC12-2026",
+          "part_id": "ac-001-p01"
+        },
+        {
+          "sku_id": "SKU-CA-PAC12-2026",
+          "part_id": "ac-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oven-001",
+        "name": "BakePro Wall Oven 30in",
+        "category": "Kitchen",
+        "brand": "BakePro",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "oven-001-s01",
+          "description": "Oven will not preheat / F3 on display",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "oven-001-s02",
+          "description": "Error code F3 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "oven-001-s03",
+          "description": "Intermittent operation on BakePro Wall Oven 30in",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "oven-001-s04",
+          "description": "Wall oven F3 after self-clean cycle on new sensor kit",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "oven-001-fm01",
+          "name": "Temperature Sensor Open Circuit",
+          "description": "Primary field failure for BakePro Wall Oven 30in: Temperature Sensor Open Circuit.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "oven-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "oven-001-fm03",
+          "name": "Sensor Connector Oxidation (Bulletin)",
+          "description": "BakePro: self-clean heat oxidizes sensor plug; dielectric grease required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "oven-001-d01",
+          "description": "Confirm error F3 and recreate symptom: Oven will not preheat / F3 on display.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "oven-001-d02",
+          "description": "Inspect Thermal Sensing and measure related part Oven Temperature Sensor.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "oven-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "oven-001-d04",
+          "description": "Clean pins and apply grease per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "oven-001-p01",
+          "name": "Oven Temperature Sensor",
+          "part_number": "BP-OTS-30",
+          "estimated_cost_usd": 28.5
+        },
+        {
+          "part_id": "oven-001-p02",
+          "name": "Main Control Board",
+          "part_number": "BP-OTS-30-PCB",
+          "estimated_cost_usd": 45.6
+        },
+        {
+          "part_id": "oven-001-p03",
+          "name": "Sensor connector grease kit",
+          "part_number": "BP-GRS-KIT",
+          "estimated_cost_usd": 4.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "oven-001-hr01",
+          "description": "Replaced Oven Temperature Sensor after F3 / Oven will not preheat / F3 on display",
+          "confirmed_failure_mode_id": "oven-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for oven-001. Part oven-001-p01"
+        },
+        {
+          "resolution_id": "oven-001-hr-bull-2026q3",
+          "description": "Greased connector; F3 gone",
+          "confirmed_failure_mode_id": "oven-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-BP-WO-2026-07."
+        },
+        {
+          "resolution_id": "WO-OVEN001-9102",
+          "description": "Replaced Oven Temperature Sensor",
+          "confirmed_failure_mode_id": "oven-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-OVEN001-7016",
+          "description": "Greased connector; F3 gone",
+          "confirmed_failure_mode_id": "oven-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "CLM-2026-N03-oven-001",
+          "description": "Oven Temperature Sensor replaced under warranty.",
+          "confirmed_failure_mode_id": "oven-001-fm01",
+          "resolution_date": "2026-06-22",
+          "technician_notes": "New product pack claim for oven-001."
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "oven-001-s01",
+          "failure_mode_id": "oven-001-fm01",
+          "confidence": 0.94
+        },
+        {
+          "symptom_id": "oven-001-s01",
+          "failure_mode_id": "oven-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "oven-001-s02",
+          "failure_mode_id": "oven-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "oven-001-s02",
+          "failure_mode_id": "oven-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "oven-001-s03",
+          "failure_mode_id": "oven-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "oven-001-s04",
+          "failure_mode_id": "oven-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "oven-001-s04",
+          "failure_mode_id": "oven-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "oven-001-fm01",
+          "part_id": "oven-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "oven-001-fm02",
+          "part_id": "oven-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "oven-001-fm03",
+          "part_id": "oven-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-oven001",
+        "name": "BakePro Wall Oven 30in",
+        "model_number": "BP-WO30"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-BP-WO30-2026",
+          "name": "BakePro Wall Oven 30in 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-BP-WO-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "oven-001-c01",
+          "name": "Thermal Sensing",
+          "subsystem": "Controls"
+        },
+        {
+          "component_id": "oven-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "oven-001-e01",
+          "code": "F3",
+          "description": "Oven sensor open"
+        },
+        {
+          "error_code_id": "oven-001-ef3b",
+          "code": "F3",
+          "description": "F3 per TB-BP-WO-2026-07",
+          "source_bulletin": "TB-BP-WO-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "oven-001-c01",
+          "part_id": "oven-001-p01"
+        },
+        {
+          "component_id": "oven-001-c02",
+          "part_id": "oven-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "oven-001-fm01",
+          "component_id": "oven-001-c01"
+        },
+        {
+          "failure_mode_id": "oven-001-fm02",
+          "component_id": "oven-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "oven-001-e01",
+          "failure_mode_id": "oven-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "oven-001-e01",
+          "failure_mode_id": "oven-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "oven-001-ef3b",
+          "failure_mode_id": "oven-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "oven-001-d01",
+          "failure_mode_id": "oven-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "oven-001-d02",
+          "failure_mode_id": "oven-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "oven-001-d03",
+          "failure_mode_id": "oven-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "oven-001-d04",
+          "failure_mode_id": "oven-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-BP-WO30-2026",
+          "part_id": "oven-001-p01"
+        },
+        {
+          "sku_id": "SKU-BP-WO30-2026",
+          "part_id": "oven-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "dry-001",
+        "name": "AirFlow Heat Pump Dryer 8kg",
+        "category": "Laundry",
+        "brand": "AirFlow",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "dry-001-s01",
+          "description": "Clothes remain damp after full cycle",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "dry-001-s02",
+          "description": "Error code E66 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "dry-001-s03",
+          "description": "Intermittent operation on AirFlow Heat Pump Dryer 8kg",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "dry-001-s04",
+          "description": "Heat pump dryer E66 after cold garage install",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "dry-001-fm01",
+          "name": "Heat Pump Compressor Fault",
+          "description": "Primary field failure for AirFlow Heat Pump Dryer 8kg: Heat Pump Compressor Fault.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "dry-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "dry-001-fm03",
+          "name": "Ambient Below Spec (Bulletin)",
+          "description": "AirFlow bulletin: ambient <45\u00b0F trips E66; relocation or kit required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "dry-001-d01",
+          "description": "Confirm error E66 and recreate symptom: Clothes remain damp after full cycle.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "dry-001-d02",
+          "description": "Inspect Heat Pump Loop and measure related part Heat Pump Compressor Module.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "dry-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "dry-001-d04",
+          "description": "Verify ambient and install baffle kit if required",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "dry-001-p01",
+          "name": "Heat Pump Compressor Module",
+          "part_number": "AF-HPC-8",
+          "estimated_cost_usd": 210.0
+        },
+        {
+          "part_id": "dry-001-p02",
+          "name": "Main Control Board",
+          "part_number": "AF-HPC-8-PCB",
+          "estimated_cost_usd": 336.0
+        },
+        {
+          "part_id": "dry-001-p03",
+          "name": "Ambient kit baffle",
+          "part_number": "AF-AMB-KIT",
+          "estimated_cost_usd": 55.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "dry-001-hr01",
+          "description": "Replaced Heat Pump Compressor Module after E66 / Clothes remain damp after full cycle",
+          "confirmed_failure_mode_id": "dry-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for dry-001. Part dry-001-p01"
+        },
+        {
+          "resolution_id": "dry-001-hr-bull-2026q3",
+          "description": "Baffle kit + warmer location; E66 resolved",
+          "confirmed_failure_mode_id": "dry-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-AF-HP-2026-07."
+        },
+        {
+          "resolution_id": "WO-DRY001-9103",
+          "description": "Replaced Heat Pump Compressor Module",
+          "confirmed_failure_mode_id": "dry-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-DRY001-7017",
+          "description": "Baffle kit + warmer location; E66 resolved",
+          "confirmed_failure_mode_id": "dry-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "dry-001-s01",
+          "failure_mode_id": "dry-001-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "dry-001-s01",
+          "failure_mode_id": "dry-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "dry-001-s02",
+          "failure_mode_id": "dry-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "dry-001-s02",
+          "failure_mode_id": "dry-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "dry-001-s03",
+          "failure_mode_id": "dry-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "dry-001-s04",
+          "failure_mode_id": "dry-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "dry-001-s04",
+          "failure_mode_id": "dry-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "dry-001-fm01",
+          "part_id": "dry-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "dry-001-fm02",
+          "part_id": "dry-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "dry-001-fm03",
+          "part_id": "dry-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-dry001",
+        "name": "AirFlow Heat Pump Dryer 8kg",
+        "model_number": "AF-HP8"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-AF-HP8-2026",
+          "name": "AirFlow Heat Pump Dryer 8kg 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-AF-HP-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "dry-001-c01",
+          "name": "Heat Pump Loop",
+          "subsystem": "Drying"
+        },
+        {
+          "component_id": "dry-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "dry-001-e01",
+          "code": "E66",
+          "description": "Heat pump pressure fault"
+        },
+        {
+          "error_code_id": "dry-001-e66b",
+          "code": "E66",
+          "description": "E66 per TB-AF-HP-2026-07",
+          "source_bulletin": "TB-AF-HP-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "dry-001-c01",
+          "part_id": "dry-001-p01"
+        },
+        {
+          "component_id": "dry-001-c02",
+          "part_id": "dry-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "dry-001-fm01",
+          "component_id": "dry-001-c01"
+        },
+        {
+          "failure_mode_id": "dry-001-fm02",
+          "component_id": "dry-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "dry-001-e01",
+          "failure_mode_id": "dry-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "dry-001-e01",
+          "failure_mode_id": "dry-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "dry-001-e66b",
+          "failure_mode_id": "dry-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "dry-001-d01",
+          "failure_mode_id": "dry-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "dry-001-d02",
+          "failure_mode_id": "dry-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "dry-001-d03",
+          "failure_mode_id": "dry-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "dry-001-d04",
+          "failure_mode_id": "dry-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-AF-HP8-2026",
+          "part_id": "dry-001-p01"
+        },
+        {
+          "sku_id": "SKU-AF-HP8-2026",
+          "part_id": "dry-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "ref-001",
+        "name": "ChillVault Compact Fridge 180L",
+        "category": "Kitchen",
+        "brand": "ChillVault",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "ref-001-s01",
+          "description": "Fridge warm; freezer iced over",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "ref-001-s02",
+          "description": "Error code E22 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "ref-001-s03",
+          "description": "Intermittent operation on ChillVault Compact Fridge 180L",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "ref-001-s04",
+          "description": "Fridge warm with heavy frost after door gasket revision",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "ref-001-fm01",
+          "name": "Defrost Heater Failure",
+          "description": "Primary field failure for ChillVault Compact Fridge 180L: Defrost Heater Failure.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "ref-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "ref-001-fm03",
+          "name": "Gasket Revision Seal Gap (Bulletin)",
+          "description": "ChillVault: rev B gasket can gap at hinge; warm cabinet + frost.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "ref-001-d01",
+          "description": "Confirm error E22 and recreate symptom: Fridge warm; freezer iced over.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "ref-001-d02",
+          "description": "Inspect Defrost System and measure related part Defrost Heater Element.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "ref-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "ref-001-d04",
+          "description": "Measure gap and install shim kit per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "ref-001-p01",
+          "name": "Defrost Heater Element",
+          "part_number": "CV-DH-180",
+          "estimated_cost_usd": 36.0
+        },
+        {
+          "part_id": "ref-001-p02",
+          "name": "Main Control Board",
+          "part_number": "CV-DH-180-PCB",
+          "estimated_cost_usd": 57.6
+        },
+        {
+          "part_id": "ref-001-p03",
+          "name": "Gasket hinge shim kit",
+          "part_number": "CV-GSK-SHIM",
+          "estimated_cost_usd": 9.5
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "ref-001-hr01",
+          "description": "Replaced Defrost Heater Element after E22 / Fridge warm; freezer iced over",
+          "confirmed_failure_mode_id": "ref-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for ref-001. Part ref-001-p01"
+        },
+        {
+          "resolution_id": "ref-001-hr-bull-2026q3",
+          "description": "Shim kit installed; temps normal",
+          "confirmed_failure_mode_id": "ref-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-CV-RF-2026-07."
+        },
+        {
+          "resolution_id": "WO-REF001-9104",
+          "description": "Replaced Defrost Heater Element",
+          "confirmed_failure_mode_id": "ref-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-REF001-7018",
+          "description": "Shim kit installed; temps normal",
+          "confirmed_failure_mode_id": "ref-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "ref-001-s01",
+          "failure_mode_id": "ref-001-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "ref-001-s01",
+          "failure_mode_id": "ref-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "ref-001-s02",
+          "failure_mode_id": "ref-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "ref-001-s02",
+          "failure_mode_id": "ref-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "ref-001-s03",
+          "failure_mode_id": "ref-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "ref-001-s04",
+          "failure_mode_id": "ref-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "ref-001-s04",
+          "failure_mode_id": "ref-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "ref-001-fm01",
+          "part_id": "ref-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ref-001-fm02",
+          "part_id": "ref-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "ref-001-fm03",
+          "part_id": "ref-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-ref001",
+        "name": "ChillVault Compact Fridge 180L",
+        "model_number": "CV-RF180"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-CV-RF180-2026",
+          "name": "ChillVault Compact Fridge 180L 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-CV-RF-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "ref-001-c01",
+          "name": "Defrost System",
+          "subsystem": "Cooling"
+        },
+        {
+          "component_id": "ref-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "ref-001-e01",
+          "code": "E22",
+          "description": "Defrost timeout"
+        },
+        {
+          "error_code_id": "ref-001-e22b",
+          "code": "E22",
+          "description": "E22 per TB-CV-RF-2026-07",
+          "source_bulletin": "TB-CV-RF-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "ref-001-c01",
+          "part_id": "ref-001-p01"
+        },
+        {
+          "component_id": "ref-001-c02",
+          "part_id": "ref-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "ref-001-fm01",
+          "component_id": "ref-001-c01"
+        },
+        {
+          "failure_mode_id": "ref-001-fm02",
+          "component_id": "ref-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "ref-001-e01",
+          "failure_mode_id": "ref-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "ref-001-e01",
+          "failure_mode_id": "ref-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "ref-001-e22b",
+          "failure_mode_id": "ref-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "ref-001-d01",
+          "failure_mode_id": "ref-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ref-001-d02",
+          "failure_mode_id": "ref-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ref-001-d03",
+          "failure_mode_id": "ref-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "ref-001-d04",
+          "failure_mode_id": "ref-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-CV-RF180-2026",
+          "part_id": "ref-001-p01"
+        },
+        {
+          "sku_id": "SKU-CV-RF180-2026",
+          "part_id": "ref-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "grill-001",
+        "name": "FlameMaster Outdoor Grill XL",
+        "category": "Outdoor",
+        "brand": "FlameMaster",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "grill-001-s01",
+          "description": "Burners will not light",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "grill-001-s02",
+          "description": "Error code G05 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "grill-001-s03",
+          "description": "Intermittent operation on FlameMaster Outdoor Grill XL",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "grill-001-s04",
+          "description": "Grill burners light then drop flame after igniter kit",
+          "severity": "medium"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "grill-001-fm01",
+          "name": "Electronic Igniter Failure",
+          "description": "Primary field failure for FlameMaster Outdoor Grill XL: Electronic Igniter Failure.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "grill-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "grill-001-fm03",
+          "name": "Regulator Setpoint Drift (Bulletin)",
+          "description": "FlameMaster: new igniter kit requires regulator setpoint check.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "grill-001-d01",
+          "description": "Confirm error G05 and recreate symptom: Burners will not light.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "grill-001-d02",
+          "description": "Inspect Ignition System and measure related part Igniter Electrode Kit.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "grill-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "grill-001-d04",
+          "description": "Set regulator WC per bulletin table; retest flame",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "grill-001-p01",
+          "name": "Igniter Electrode Kit",
+          "part_number": "FM-IGN-XL",
+          "estimated_cost_usd": 24.0
+        },
+        {
+          "part_id": "grill-001-p02",
+          "name": "Main Control Board",
+          "part_number": "FM-IGN-XL-PCB",
+          "estimated_cost_usd": 38.4
+        },
+        {
+          "part_id": "grill-001-p03",
+          "name": "Regulator setpoint tool note",
+          "part_number": "FM-REG-NOTE",
+          "estimated_cost_usd": 0.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "grill-001-hr01",
+          "description": "Replaced Igniter Electrode Kit after G05 / Burners will not light",
+          "confirmed_failure_mode_id": "grill-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for grill-001. Part grill-001-p01"
+        },
+        {
+          "resolution_id": "grill-001-hr-bull-2026q3",
+          "description": "Regulator adjusted; stable flame",
+          "confirmed_failure_mode_id": "grill-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-FM-GR-2026-07."
+        },
+        {
+          "resolution_id": "WO-GRILL001-9105",
+          "description": "Replaced Igniter Electrode Kit",
+          "confirmed_failure_mode_id": "grill-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-GRILL001-7019",
+          "description": "Regulator adjusted; stable flame",
+          "confirmed_failure_mode_id": "grill-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "grill-001-s01",
+          "failure_mode_id": "grill-001-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "grill-001-s01",
+          "failure_mode_id": "grill-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "grill-001-s02",
+          "failure_mode_id": "grill-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "grill-001-s02",
+          "failure_mode_id": "grill-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "grill-001-s03",
+          "failure_mode_id": "grill-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "grill-001-s04",
+          "failure_mode_id": "grill-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "grill-001-s04",
+          "failure_mode_id": "grill-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "grill-001-fm01",
+          "part_id": "grill-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "grill-001-fm02",
+          "part_id": "grill-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "grill-001-fm03",
+          "part_id": "grill-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-grill001",
+        "name": "FlameMaster Outdoor Grill XL",
+        "model_number": "FM-GRXL"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-FM-GRXL-2026",
+          "name": "FlameMaster Outdoor Grill XL 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-FM-GR-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "grill-001-c01",
+          "name": "Ignition System",
+          "subsystem": "Gas"
+        },
+        {
+          "component_id": "grill-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "grill-001-e01",
+          "code": "G05",
+          "description": "Igniter no spark"
+        },
+        {
+          "error_code_id": "grill-001-eg05b",
+          "code": "G05",
+          "description": "G05 per TB-FM-GR-2026-07",
+          "source_bulletin": "TB-FM-GR-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "grill-001-c01",
+          "part_id": "grill-001-p01"
+        },
+        {
+          "component_id": "grill-001-c02",
+          "part_id": "grill-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "grill-001-fm01",
+          "component_id": "grill-001-c01"
+        },
+        {
+          "failure_mode_id": "grill-001-fm02",
+          "component_id": "grill-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "grill-001-e01",
+          "failure_mode_id": "grill-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "grill-001-e01",
+          "failure_mode_id": "grill-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "grill-001-eg05b",
+          "failure_mode_id": "grill-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "grill-001-d01",
+          "failure_mode_id": "grill-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "grill-001-d02",
+          "failure_mode_id": "grill-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "grill-001-d03",
+          "failure_mode_id": "grill-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "grill-001-d04",
+          "failure_mode_id": "grill-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-FM-GRXL-2026",
+          "part_id": "grill-001-p01"
+        },
+        {
+          "sku_id": "SKU-FM-GRXL-2026",
+          "part_id": "grill-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "hob-001",
+        "name": "SparkLine Induction Hob 4-Zone",
+        "category": "Kitchen",
+        "brand": "SparkLine",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "hob-001-s01",
+          "description": "Zone flashes and will not heat pan",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "hob-001-s02",
+          "description": "Error code E9 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "hob-001-s03",
+          "description": "Intermittent operation on SparkLine Induction Hob 4-Zone",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "hob-001-s04",
+          "description": "Induction zone E9 with certified cookware after board swap",
+          "severity": "medium"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "hob-001-fm01",
+          "name": "Induction Coil Driver Fault",
+          "description": "Primary field failure for SparkLine Induction Hob 4-Zone: Induction Coil Driver Fault.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "hob-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "hob-001-fm03",
+          "name": "Coil Sense Gain After Board Swap (Bulletin)",
+          "description": "SparkLine: board swap needs coil gain calibration for pan detect.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "hob-001-d01",
+          "description": "Confirm error E9 and recreate symptom: Zone flashes and will not heat pan.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "hob-001-d02",
+          "description": "Inspect Power Stage and measure related part Induction Coil Board.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "hob-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "hob-001-d04",
+          "description": "Run coil gain calibration sequence per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "hob-001-p01",
+          "name": "Induction Coil Board",
+          "part_number": "SL-ICB-4",
+          "estimated_cost_usd": 95.0
+        },
+        {
+          "part_id": "hob-001-p02",
+          "name": "Main Control Board",
+          "part_number": "SL-ICB-4-PCB",
+          "estimated_cost_usd": 152.0
+        },
+        {
+          "part_id": "hob-001-p03",
+          "name": "Calibration procedure",
+          "part_number": "SL-CAL-PROC",
+          "estimated_cost_usd": 0.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "hob-001-hr01",
+          "description": "Replaced Induction Coil Board after E9 / Zone flashes and will not heat pan",
+          "confirmed_failure_mode_id": "hob-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for hob-001. Part hob-001-p01"
+        },
+        {
+          "resolution_id": "hob-001-hr-bull-2026q3",
+          "description": "Calibrated; pan detect OK",
+          "confirmed_failure_mode_id": "hob-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-SL-IH-2026-07."
+        },
+        {
+          "resolution_id": "WO-HOB001-9106",
+          "description": "Replaced Induction Coil Board",
+          "confirmed_failure_mode_id": "hob-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-HOB001-7020",
+          "description": "Calibrated; pan detect OK",
+          "confirmed_failure_mode_id": "hob-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "hob-001-s01",
+          "failure_mode_id": "hob-001-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "hob-001-s01",
+          "failure_mode_id": "hob-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "hob-001-s02",
+          "failure_mode_id": "hob-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "hob-001-s02",
+          "failure_mode_id": "hob-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "hob-001-s03",
+          "failure_mode_id": "hob-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "hob-001-s04",
+          "failure_mode_id": "hob-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "hob-001-s04",
+          "failure_mode_id": "hob-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "hob-001-fm01",
+          "part_id": "hob-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "hob-001-fm02",
+          "part_id": "hob-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "hob-001-fm03",
+          "part_id": "hob-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-hob001",
+        "name": "SparkLine Induction Hob 4-Zone",
+        "model_number": "SL-IH4"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-SL-IH4-2026",
+          "name": "SparkLine Induction Hob 4-Zone 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-SL-IH-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "hob-001-c01",
+          "name": "Power Stage",
+          "subsystem": "Induction"
+        },
+        {
+          "component_id": "hob-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "hob-001-e01",
+          "code": "E9",
+          "description": "Pan detection fault"
+        },
+        {
+          "error_code_id": "hob-001-ee9b",
+          "code": "E9",
+          "description": "E9 per TB-SL-IH-2026-07",
+          "source_bulletin": "TB-SL-IH-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "hob-001-c01",
+          "part_id": "hob-001-p01"
+        },
+        {
+          "component_id": "hob-001-c02",
+          "part_id": "hob-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "hob-001-fm01",
+          "component_id": "hob-001-c01"
+        },
+        {
+          "failure_mode_id": "hob-001-fm02",
+          "component_id": "hob-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "hob-001-e01",
+          "failure_mode_id": "hob-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "hob-001-e01",
+          "failure_mode_id": "hob-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "hob-001-ee9b",
+          "failure_mode_id": "hob-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "hob-001-d01",
+          "failure_mode_id": "hob-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "hob-001-d02",
+          "failure_mode_id": "hob-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "hob-001-d03",
+          "failure_mode_id": "hob-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "hob-001-d04",
+          "failure_mode_id": "hob-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-SL-IH4-2026",
+          "part_id": "hob-001-p01"
+        },
+        {
+          "sku_id": "SKU-SL-IH4-2026",
+          "part_id": "hob-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "fan-001",
+        "name": "BreezeTower Bladeless Fan",
+        "category": "Air",
+        "brand": "BreezeTower",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "fan-001-s01",
+          "description": "Fan oscillates but airflow is weak",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "fan-001-s02",
+          "description": "Error code E03 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "fan-001-s03",
+          "description": "Intermittent operation on BreezeTower Bladeless Fan",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "fan-001-s04",
+          "description": "Bladeless fan E03 oscillation only after summer dust event",
+          "severity": "low"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "fan-001-fm01",
+          "name": "Impeller Bearing Wear",
+          "description": "Primary field failure for BreezeTower Bladeless Fan: Impeller Bearing Wear.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "fan-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "fan-001-fm03",
+          "name": "Inlet Mesh Clog (Bulletin)",
+          "description": "BreezeTower care bulletin: fine dust clogs inlet mesh tripping E03.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "fan-001-d01",
+          "description": "Confirm error E03 and recreate symptom: Fan oscillates but airflow is weak.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "fan-001-d02",
+          "description": "Inspect Air Multiplier and measure related part Main Impeller Bearing.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "fan-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "fan-001-d04",
+          "description": "Remove and wash inlet mesh; reset E03",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "fan-001-p01",
+          "name": "Main Impeller Bearing",
+          "part_number": "BT-IB-60",
+          "estimated_cost_usd": 19.0
+        },
+        {
+          "part_id": "fan-001-p02",
+          "name": "Main Control Board",
+          "part_number": "BT-IB-60-PCB",
+          "estimated_cost_usd": 30.4
+        },
+        {
+          "part_id": "fan-001-p03",
+          "name": "Inlet mesh filter",
+          "part_number": "BT-MESH-60",
+          "estimated_cost_usd": 12.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "fan-001-hr01",
+          "description": "Replaced Main Impeller Bearing after E03 / Fan oscillates but airflow is weak",
+          "confirmed_failure_mode_id": "fan-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for fan-001. Part fan-001-p01"
+        },
+        {
+          "resolution_id": "fan-001-hr-bull-2026q3",
+          "description": "Mesh cleaned; full airflow restored",
+          "confirmed_failure_mode_id": "fan-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-BT-BL-2026-07."
+        },
+        {
+          "resolution_id": "WO-FAN001-9107",
+          "description": "Replaced Main Impeller Bearing",
+          "confirmed_failure_mode_id": "fan-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-FAN001-7021",
+          "description": "Mesh cleaned; full airflow restored",
+          "confirmed_failure_mode_id": "fan-001-fm03",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "fan-001-s01",
+          "failure_mode_id": "fan-001-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "fan-001-s01",
+          "failure_mode_id": "fan-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "fan-001-s02",
+          "failure_mode_id": "fan-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "fan-001-s02",
+          "failure_mode_id": "fan-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "fan-001-s03",
+          "failure_mode_id": "fan-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "fan-001-s04",
+          "failure_mode_id": "fan-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "fan-001-s04",
+          "failure_mode_id": "fan-001-fm03",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "fan-001-fm01",
+          "part_id": "fan-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "fan-001-fm02",
+          "part_id": "fan-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "fan-001-fm03",
+          "part_id": "fan-001-p03",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-fan001",
+        "name": "BreezeTower Bladeless Fan",
+        "model_number": "BT-BL60"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-BT-BL60-2026",
+          "name": "BreezeTower Bladeless Fan 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-BT-BL-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "fan-001-c01",
+          "name": "Air Multiplier",
+          "subsystem": "Drive"
+        },
+        {
+          "component_id": "fan-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "fan-001-e01",
+          "code": "E03",
+          "description": "Motor stall"
+        },
+        {
+          "error_code_id": "fan-001-ee03b",
+          "code": "E03",
+          "description": "E03 per TB-BT-BL-2026-07",
+          "source_bulletin": "TB-BT-BL-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "fan-001-c01",
+          "part_id": "fan-001-p01"
+        },
+        {
+          "component_id": "fan-001-c02",
+          "part_id": "fan-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "fan-001-fm01",
+          "component_id": "fan-001-c01"
+        },
+        {
+          "failure_mode_id": "fan-001-fm02",
+          "component_id": "fan-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "fan-001-e01",
+          "failure_mode_id": "fan-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "fan-001-e01",
+          "failure_mode_id": "fan-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "fan-001-ee03b",
+          "failure_mode_id": "fan-001-fm03",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "fan-001-d01",
+          "failure_mode_id": "fan-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "fan-001-d02",
+          "failure_mode_id": "fan-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "fan-001-d03",
+          "failure_mode_id": "fan-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "fan-001-d04",
+          "failure_mode_id": "fan-001-fm03",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-BT-BL60-2026",
+          "part_id": "fan-001-p01"
+        },
+        {
+          "sku_id": "SKU-BT-BL60-2026",
+          "part_id": "fan-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "pur-001",
+        "name": "PureRoom HEPA Air Purifier",
+        "category": "Air",
+        "brand": "PureRoom",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "pur-001-s01",
+          "description": "Air quality light stuck red after filter change",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "pur-001-s02",
+          "description": "Error code F02 on display",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "pur-001-s03",
+          "description": "Intermittent operation on PureRoom HEPA Air Purifier",
+          "severity": "low"
+        },
+        {
+          "symptom_id": "pur-001-s04",
+          "description": "Purifier will not start / unit will not turn on or power up",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "pur-001-s05",
+          "description": "No fan airflow after power on; purifier dead or silent",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "pur-001-s06",
+          "description": "Purifier F02 immediately after genuine filter install",
+          "severity": "medium"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "pur-001-fm01",
+          "name": "Filter Sensor Misread",
+          "description": "Primary field failure for PureRoom HEPA Air Purifier: Filter Sensor Misread.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Disconnect power before service."
+        },
+        {
+          "failure_mode_id": "pur-001-fm02",
+          "name": "Control Board Communication Fault",
+          "description": "Secondary board/comms fault that can mimic primary symptoms.",
+          "estimated_repair_time_minutes": 55,
+          "safety_notes": "ESD precautions when handling PCB."
+        },
+        {
+          "failure_mode_id": "pur-001-fm03",
+          "name": "Power Supply / Main Board Failure",
+          "description": "Unit fails to start due to PSU or main control board fault.",
+          "estimated_repair_time_minutes": 50,
+          "safety_notes": "Unplug before service. Capacitors may hold charge."
+        },
+        {
+          "failure_mode_id": "pur-001-fm04",
+          "name": "Filter RFID Orientation (Bulletin)",
+          "description": "PureRoom: filter RFID must face sensor; reverse install causes F02.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "pur-001-d01",
+          "description": "Confirm error F02 and recreate symptom: Air quality light stuck red after filter change.",
+          "order": 1,
+          "expected_outcome": "Code present / symptom reproducible"
+        },
+        {
+          "step_id": "pur-001-d02",
+          "description": "Inspect Filter Bay and measure related part Filter Presence Sensor.",
+          "order": 2,
+          "expected_outcome": "Fault isolated to primary assembly"
+        },
+        {
+          "step_id": "pur-001-d03",
+          "description": "Run self-test / forced cycle and capture sensor readings.",
+          "order": 3,
+          "expected_outcome": "Self-test fails or out-of-range value"
+        },
+        {
+          "step_id": "pur-001-d04",
+          "description": "Verify inlet power, fuse, and control board startup LEDs when unit will not start.",
+          "order": 4,
+          "expected_outcome": "No power LED / board dead"
+        },
+        {
+          "step_id": "pur-001-d05",
+          "description": "Reseat filter with RFID toward sensor; clear F02",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "pur-001-p01",
+          "name": "Filter Presence Sensor",
+          "part_number": "PR-FPS-400",
+          "estimated_cost_usd": 15.5
+        },
+        {
+          "part_id": "pur-001-p02",
+          "name": "Main Control Board",
+          "part_number": "PR-FPS-400-PCB",
+          "estimated_cost_usd": 24.8
+        },
+        {
+          "part_id": "pur-001-p03",
+          "name": "Power Supply Board",
+          "part_number": "PR-PSU-400",
+          "estimated_cost_usd": 42.0
+        },
+        {
+          "part_id": "pur-001-p04",
+          "name": "Filter orientation label",
+          "part_number": "PR-RFID-LBL",
+          "estimated_cost_usd": 0.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "pur-001-hr01",
+          "description": "Replaced Filter Presence Sensor after F02 / Air quality light stuck red after filter change",
+          "confirmed_failure_mode_id": "pur-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Test pack resolution for pur-001. Part pur-001-p01"
+        },
+        {
+          "resolution_id": "pur-001-hr-bull-2026q3",
+          "description": "Filter reoriented; F02 cleared",
+          "confirmed_failure_mode_id": "pur-001-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-PR-HP-2026-07."
+        },
+        {
+          "resolution_id": "WO-PUR001-9108",
+          "description": "Replaced Filter Presence Sensor",
+          "confirmed_failure_mode_id": "pur-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": ""
+        },
+        {
+          "resolution_id": "WO-BULL-PUR001-7022",
+          "description": "Filter reoriented; F02 cleared",
+          "confirmed_failure_mode_id": "pur-001-fm04",
+          "resolution_date": "2026-07-05",
+          "technician_notes": ""
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "pur-001-s01",
+          "failure_mode_id": "pur-001-fm01",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "pur-001-s01",
+          "failure_mode_id": "pur-001-fm02",
+          "confidence": 0.45
+        },
+        {
+          "symptom_id": "pur-001-s02",
+          "failure_mode_id": "pur-001-fm01",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "pur-001-s02",
+          "failure_mode_id": "pur-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "pur-001-s03",
+          "failure_mode_id": "pur-001-fm02",
+          "confidence": 0.6
+        },
+        {
+          "symptom_id": "pur-001-s04",
+          "failure_mode_id": "pur-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "pur-001-s04",
+          "failure_mode_id": "pur-001-fm03",
+          "confidence": 0.92
+        },
+        {
+          "symptom_id": "pur-001-s05",
+          "failure_mode_id": "pur-001-fm01",
+          "confidence": 0.35
+        },
+        {
+          "symptom_id": "pur-001-s05",
+          "failure_mode_id": "pur-001-fm03",
+          "confidence": 0.88
+        },
+        {
+          "symptom_id": "pur-001-s06",
+          "failure_mode_id": "pur-001-fm01",
+          "confidence": 0.4
+        },
+        {
+          "symptom_id": "pur-001-s06",
+          "failure_mode_id": "pur-001-fm04",
+          "confidence": 0.93
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "pur-001-fm01",
+          "part_id": "pur-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "pur-001-fm02",
+          "part_id": "pur-001-p02",
+          "quantity": 1,
+          "probability": 0.8,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "pur-001-fm03",
+          "part_id": "pur-001-p03",
+          "quantity": 1,
+          "probability": 0.85,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "pur-001-fm04",
+          "part_id": "pur-001-p04",
+          "quantity": 1,
+          "probability": 0.88,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "mdl-pur001",
+        "name": "PureRoom HEPA Air Purifier",
+        "model_number": "PR-HP400"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-PR-HP400-2026",
+          "name": "PureRoom HEPA Air Purifier 2026",
+          "revision": "B",
+          "model_year": 2026,
+          "bulletin_id": "TB-PR-HP-2026-07"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "pur-001-c01",
+          "name": "Filter Bay",
+          "subsystem": "Sensing"
+        },
+        {
+          "component_id": "pur-001-c02",
+          "name": "Electronic Control",
+          "subsystem": "Controls"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "pur-001-e01",
+          "code": "F02",
+          "description": "Filter life sensor"
+        },
+        {
+          "error_code_id": "pur-001-ef02b",
+          "code": "F02",
+          "description": "F02 per TB-PR-HP-2026-07",
+          "source_bulletin": "TB-PR-HP-2026-07"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "pur-001-c01",
+          "part_id": "pur-001-p01"
+        },
+        {
+          "component_id": "pur-001-c02",
+          "part_id": "pur-001-p02"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "pur-001-fm01",
+          "component_id": "pur-001-c01"
+        },
+        {
+          "failure_mode_id": "pur-001-fm02",
+          "component_id": "pur-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "pur-001-e01",
+          "failure_mode_id": "pur-001-fm01",
+          "confidence": 0.85
+        },
+        {
+          "error_code_id": "pur-001-e01",
+          "failure_mode_id": "pur-001-fm02",
+          "confidence": 0.5
+        },
+        {
+          "error_code_id": "pur-001-ef02b",
+          "failure_mode_id": "pur-001-fm04",
+          "confidence": 0.9
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "pur-001-d01",
+          "failure_mode_id": "pur-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "pur-001-d02",
+          "failure_mode_id": "pur-001-fm01",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "pur-001-d03",
+          "failure_mode_id": "pur-001-fm02",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "pur-001-d04",
+          "failure_mode_id": "pur-001-fm03",
+          "link_type": "CONFIRMS"
+        },
+        {
+          "step_id": "pur-001-d05",
+          "failure_mode_id": "pur-001-fm04",
+          "link_type": "CONFIRMS"
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-PR-HP400-2026",
+          "part_id": "pur-001-p01"
+        },
+        {
+          "sku_id": "SKU-PR-HP400-2026",
+          "part_id": "pur-001-p02"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "esp-001",
+        "name": "BrewBar Espresso Machine 15bar",
+        "category": "Kitchen",
+        "brand": "BrewBar",
+        "model_year": 2026
+      },
+      "symptoms": [
+        {
+          "symptom_id": "esp-001-s01",
+          "description": "Machine will not heat or brew cycle never starts",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "esp-001-s02",
+          "description": "Error code E05 boiler temperature sensor",
+          "severity": "high"
+        },
+        {
+          "symptom_id": "esp-001-s03",
+          "description": "Weak crema / low pressure during extraction",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "esp-001-s04",
+          "description": "Water leaks from group head gasket",
+          "severity": "medium"
+        },
+        {
+          "symptom_id": "esp-001-s05",
+          "description": "Pump runs continuously but no water to brew head",
+          "severity": "high"
+        }
+      ],
+      "failure_modes": [
+        {
+          "failure_mode_id": "esp-001-fm01",
+          "name": "Boiler NTC Sensor Open / Out of Range",
+          "description": "Boiler temperature sensor failed; control blocks heat and shows E05.",
+          "estimated_repair_time_minutes": 35,
+          "safety_notes": "Unplug and cool boiler fully before opening chassis. Risk of scalding."
+        },
+        {
+          "failure_mode_id": "esp-001-fm02",
+          "name": "Brew Pump Failure / Cavitation",
+          "description": "Vibration pump weak or air-locked; extraction pressure insufficient.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Depressurize boiler and empty water circuit before pump swap."
+        },
+        {
+          "failure_mode_id": "esp-001-fm03",
+          "name": "Group Head Gasket Wear",
+          "description": "Silicone gasket hardened/torn; water bypasses portafilter seal.",
+          "estimated_repair_time_minutes": 20,
+          "safety_notes": "Remove portafilter; avoid metal scrapers on group flange."
+        },
+        {
+          "failure_mode_id": "esp-001-fm04",
+          "name": "Inlet Solenoid Stuck Closed",
+          "description": "Fill solenoid does not open; pump runs dry and boiler level drops.",
+          "estimated_repair_time_minutes": 45,
+          "safety_notes": "Isolate water supply; residual pressure may spray."
+        }
+      ],
+      "diagnostic_steps": [
+        {
+          "step_id": "esp-001-d01",
+          "description": "Confirm tank filled, water softener cartridge seated, and machine powered with ready light logic.",
+          "order": 1,
+          "expected_outcome": "Tank full; power OK; no dry-run interlock"
+        },
+        {
+          "step_id": "esp-001-d02",
+          "description": "Read error code; measure boiler NTC resistance vs service chart at ambient (E05 path).",
+          "order": 2,
+          "expected_outcome": "NTC within chart ohms; E05 clears after sensor replacement if open"
+        },
+        {
+          "step_id": "esp-001-d03",
+          "description": "Run water prime; listen for pump tone; check brew pressure gauge reaches 9 bar with blind basket.",
+          "order": 3,
+          "expected_outcome": "Steady pump tone; \u22658 bar on blind basket"
+        },
+        {
+          "step_id": "esp-001-d04",
+          "description": "Inspect group gasket for cracks/flattening; reseat portafilter and check for side spray.",
+          "order": 4,
+          "expected_outcome": "Gasket pliable and flush; no side leak at brew"
+        },
+        {
+          "step_id": "esp-001-d05",
+          "description": "Check inlet solenoid click with multimeter continuity during fill request.",
+          "order": 5,
+          "expected_outcome": "Solenoid clicks/opens; tank level rises or line fills"
+        }
+      ],
+      "parts": [
+        {
+          "part_id": "esp-001-p01",
+          "name": "Boiler NTC temperature sensor",
+          "part_number": "BB-NTC-ESP15",
+          "estimated_cost_usd": 16.5
+        },
+        {
+          "part_id": "esp-001-p02",
+          "name": "Vibration brew pump assembly",
+          "part_number": "BB-PUMP-ULKA-15",
+          "estimated_cost_usd": 42.0
+        },
+        {
+          "part_id": "esp-001-p03",
+          "name": "Group head gasket 58mm",
+          "part_number": "BB-GSKT-58",
+          "estimated_cost_usd": 8.5
+        },
+        {
+          "part_id": "esp-001-p04",
+          "name": "Inlet fill solenoid valve",
+          "part_number": "BB-SOL-INL",
+          "estimated_cost_usd": 28.0
+        }
+      ],
+      "historical_resolutions": [
+        {
+          "resolution_id": "esp-001-hr01",
+          "description": "Replaced boiler NTC after E05; heat and brew restored",
+          "confirmed_failure_mode_id": "esp-001-fm01",
+          "resolution_date": "2026-06-18",
+          "technician_notes": "Baseline PIM resolution for esp-001. Part esp-001-p01"
+        },
+        {
+          "resolution_id": "WO-FSM-ESP-9400",
+          "description": "Replaced boiler NTC after E05; heat restored and first shot extracted",
+          "confirmed_failure_mode_id": "esp-001-fm01",
+          "resolution_date": "2026-06-18",
+          "technician_notes": "Open sensor. Verified against ohms chart. Source: FSM."
+        },
+        {
+          "resolution_id": "WO-FSM-ESP-9401",
+          "description": "Replaced group gasket; side spray stopped",
+          "confirmed_failure_mode_id": "esp-001-fm03",
+          "resolution_date": "2026-07-02",
+          "technician_notes": "Gasket flattened. Source: FSM."
+        },
+        {
+          "resolution_id": "WO-FSM-ESP-9402",
+          "description": "Replaced vibration pump; blind basket holds 9 bar",
+          "confirmed_failure_mode_id": "esp-001-fm02",
+          "resolution_date": "2026-07-09",
+          "technician_notes": "Weak pump tone. Source: FSM multi-source pack."
+        },
+        {
+          "resolution_id": "CLM-2026-ESP-01",
+          "description": "Approved boiler NTC under warranty after E05 photo and ohms test.",
+          "confirmed_failure_mode_id": "esp-001-fm01",
+          "resolution_date": "2026-06-20",
+          "technician_notes": "Customer video showed E05 at power-on. Source: Claims."
+        }
+      ],
+      "symptom_failure_links": [
+        {
+          "symptom_id": "esp-001-s01",
+          "failure_mode_id": "esp-001-fm01",
+          "confidence": 0.78
+        },
+        {
+          "symptom_id": "esp-001-s01",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.52
+        },
+        {
+          "symptom_id": "esp-001-s02",
+          "failure_mode_id": "esp-001-fm01",
+          "confidence": 0.99
+        },
+        {
+          "symptom_id": "esp-001-s03",
+          "failure_mode_id": "esp-001-fm02",
+          "confidence": 0.9
+        },
+        {
+          "symptom_id": "esp-001-s04",
+          "failure_mode_id": "esp-001-fm03",
+          "confidence": 0.95
+        },
+        {
+          "symptom_id": "esp-001-s05",
+          "failure_mode_id": "esp-001-fm02",
+          "confidence": 0.55
+        },
+        {
+          "symptom_id": "esp-001-s05",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.9
+        }
+      ],
+      "failure_mode_part_links": [
+        {
+          "failure_mode_id": "esp-001-fm01",
+          "part_id": "esp-001-p01",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "esp-001-fm02",
+          "part_id": "esp-001-p02",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "esp-001-fm03",
+          "part_id": "esp-001-p03",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        },
+        {
+          "failure_mode_id": "esp-001-fm04",
+          "part_id": "esp-001-p04",
+          "quantity": 1,
+          "probability": 0.9,
+          "is_primary": true
+        }
+      ],
+      "model": {
+        "model_id": "MDL-BB-ESP15",
+        "model_number": "BB-ESP15",
+        "name": "BrewBar ESP15 Pro",
+        "platform": "ESP-15"
+      },
+      "skus": [
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "model_id": "MDL-BB-ESP15",
+          "model_number": "BB-ESP15",
+          "revision": "2026A",
+          "model_year": 2026,
+          "region": "NA",
+          "name": "BrewBar ESP15 2026 NA"
+        }
+      ],
+      "components": [
+        {
+          "component_id": "esp-001-c01",
+          "name": "Boiler / Thermals",
+          "subsystem": "Heating"
+        },
+        {
+          "component_id": "esp-001-c02",
+          "name": "Hydraulic / Pump",
+          "subsystem": "Water Circuit"
+        },
+        {
+          "component_id": "esp-001-c03",
+          "name": "Group Head",
+          "subsystem": "Brew Path"
+        }
+      ],
+      "error_codes": [
+        {
+          "error_code_id": "esp-001-ec-e05",
+          "code": "E05",
+          "description": "Boiler temperature sensor fault"
+        },
+        {
+          "error_code_id": "esp-001-ec-e12",
+          "code": "E12",
+          "description": "Low water / fill timeout"
+        }
+      ],
+      "component_part_links": [
+        {
+          "component_id": "esp-001-c01",
+          "part_id": "esp-001-p01"
+        },
+        {
+          "component_id": "esp-001-c02",
+          "part_id": "esp-001-p02"
+        },
+        {
+          "component_id": "esp-001-c02",
+          "part_id": "esp-001-p04"
+        },
+        {
+          "component_id": "esp-001-c03",
+          "part_id": "esp-001-p03"
+        }
+      ],
+      "failure_mode_component_links": [
+        {
+          "failure_mode_id": "esp-001-fm01",
+          "component_id": "esp-001-c01"
+        },
+        {
+          "failure_mode_id": "esp-001-fm02",
+          "component_id": "esp-001-c02"
+        },
+        {
+          "failure_mode_id": "esp-001-fm03",
+          "component_id": "esp-001-c03"
+        },
+        {
+          "failure_mode_id": "esp-001-fm04",
+          "component_id": "esp-001-c02"
+        }
+      ],
+      "error_code_failure_links": [
+        {
+          "error_code_id": "esp-001-ec-e05",
+          "failure_mode_id": "esp-001-fm01"
+        },
+        {
+          "error_code_id": "esp-001-ec-e12",
+          "failure_mode_id": "esp-001-fm04"
+        }
+      ],
+      "diagnostic_step_failure_links": [
+        {
+          "step_id": "esp-001-d01",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.5
+        },
+        {
+          "step_id": "esp-001-d02",
+          "failure_mode_id": "esp-001-fm01",
+          "confidence": 0.95
+        },
+        {
+          "step_id": "esp-001-d03",
+          "failure_mode_id": "esp-001-fm02",
+          "confidence": 0.92
+        },
+        {
+          "step_id": "esp-001-d04",
+          "failure_mode_id": "esp-001-fm03",
+          "confidence": 0.94
+        },
+        {
+          "step_id": "esp-001-d05",
+          "failure_mode_id": "esp-001-fm04",
+          "confidence": 0.91
+        }
+      ],
+      "sku_part_links": [
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p01"
+        },
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p02"
+        },
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p03"
+        },
+        {
+          "sku_id": "SKU-BB-ESP15-2026",
+          "part_id": "esp-001-p04"
+        }
+      ],
+      "oem_sources": [
+        {
+          "source_system": "PIM",
+          "document_uri": "manuals/esp-001/catalog.pdf",
+          "note": "Authoritative SKU/model/BOM for BrewBar ESP15 multi-source NEW pack"
+        }
+      ]
     }
   ],
   "assets": [
@@ -3819,6 +7541,150 @@
       "warranty_status": "active",
       "warranty_expiry": "2027-11-20",
       "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-HMD001-4100",
+      "customer_id": "CUST-10120",
+      "product_id": "hmd-001",
+      "sku_id": "SKU-DZ-HMD30-2025",
+      "model_number": "DZ-HMD30",
+      "serial_number": "DZ-HMD30-2025-41001",
+      "purchase_date": "2025-11-18",
+      "warranty_status": "active",
+      "warranty_expiry": "2027-11-18",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-ICE-2201",
+      "customer_id": "CUST-10042",
+      "product_id": "ice-001",
+      "sku_id": "SKU-ICE12-2025",
+      "model_number": "FB-ICE12",
+      "serial_number": "FB-ICE12-2025-02201",
+      "purchase_date": "2025-11-12",
+      "warranty_status": "active",
+      "warranty_expiry": "2027-11-12",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-VAC001-3000",
+      "customer_id": "CUST-10042",
+      "product_id": "vac-001",
+      "sku_id": "SKU-RC-SV90-2026",
+      "model_number": "RC-SV90",
+      "serial_number": "RC-SV90-2026-3000",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-AC001-3001",
+      "customer_id": "CUST-10042",
+      "product_id": "ac-001",
+      "sku_id": "SKU-CA-PAC12-2026",
+      "model_number": "CA-PAC12",
+      "serial_number": "CA-PAC12-2026-3001",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-OVEN001-3002",
+      "customer_id": "CUST-10042",
+      "product_id": "oven-001",
+      "sku_id": "SKU-BP-WO30-2026",
+      "model_number": "BP-WO30",
+      "serial_number": "BP-WO30-2026-3002",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-DRY001-3003",
+      "customer_id": "CUST-10042",
+      "product_id": "dry-001",
+      "sku_id": "SKU-AF-HP8-2026",
+      "model_number": "AF-HP8",
+      "serial_number": "AF-HP8-2026-3003",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-REF001-3004",
+      "customer_id": "CUST-10042",
+      "product_id": "ref-001",
+      "sku_id": "SKU-CV-RF180-2026",
+      "model_number": "CV-RF180",
+      "serial_number": "CV-RF180-2026-3004",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-GRILL001-3005",
+      "customer_id": "CUST-10042",
+      "product_id": "grill-001",
+      "sku_id": "SKU-FM-GRXL-2026",
+      "model_number": "FM-GRXL",
+      "serial_number": "FM-GRXL-2026-3005",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-HOB001-3006",
+      "customer_id": "CUST-10042",
+      "product_id": "hob-001",
+      "sku_id": "SKU-SL-IH4-2026",
+      "model_number": "SL-IH4",
+      "serial_number": "SL-IH4-2026-3006",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-FAN001-3007",
+      "customer_id": "CUST-10042",
+      "product_id": "fan-001",
+      "sku_id": "SKU-BT-BL60-2026",
+      "model_number": "BT-BL60",
+      "serial_number": "BT-BL60-2026-3007",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-PUR001-3008",
+      "customer_id": "CUST-10042",
+      "product_id": "pur-001",
+      "sku_id": "SKU-PR-HP400-2026",
+      "model_number": "PR-HP400",
+      "serial_number": "PR-HP400-2026-3008",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01",
+      "policy_id": "WP-STANDARD-24M"
+    },
+    {
+      "asset_id": "AST-ESP001-2200",
+      "customer_id": "CUST-10120",
+      "product_id": "esp-001",
+      "sku_id": "SKU-BB-ESP15-2026",
+      "model_number": "BB-ESP15",
+      "serial_number": "BB-ESP15-2026-22001",
+      "purchase_date": "2026-03-12",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-12",
+      "policy_id": "WP-STANDARD-24M"
     }
   ],
   "warranty_policies": [
@@ -3861,6 +7727,66 @@
       "used_part_id": "oem-sam-wf45-p01",
       "resolution_summary": "Pump filter cleaned; drain pump replaced under warranty.",
       "closed_date": "2026-01-15"
+    },
+    {
+      "claim_id": "CLM-2026-HMD-01",
+      "asset_id": "AST-HMD001-4100",
+      "product_id": "hmd-001",
+      "symptom_id": "hmd-001-s02",
+      "confirmed_failure_mode_id": "hmd-001-fm01",
+      "used_part_id": "hmd-001-p01",
+      "resolution_summary": "Approved frost sensor replacement under warranty after H3.",
+      "closed_date": "2026-05-14"
+    },
+    {
+      "claim_id": "CLM-2026-N01-vac-001",
+      "asset_id": "AST-VAC001-3000",
+      "product_id": "vac-001",
+      "symptom_id": "vac-001-s01",
+      "confirmed_failure_mode_id": "vac-001-fm01",
+      "used_part_id": "vac-001-p01",
+      "resolution_summary": "Brush Roll Motor Assembly replaced under warranty.",
+      "closed_date": "2026-06-22"
+    },
+    {
+      "claim_id": "CLM-2026-N02-ac-001",
+      "asset_id": "AST-AC001-3001",
+      "product_id": "ac-001",
+      "symptom_id": "ac-001-s01",
+      "confirmed_failure_mode_id": "ac-001-fm01",
+      "used_part_id": "ac-001-p01",
+      "resolution_summary": "Condenser Fan Motor replaced under warranty.",
+      "closed_date": "2026-06-22"
+    },
+    {
+      "claim_id": "CLM-2026-N03-oven-001",
+      "asset_id": "AST-OVEN001-3002",
+      "product_id": "oven-001",
+      "symptom_id": "oven-001-s01",
+      "confirmed_failure_mode_id": "oven-001-fm01",
+      "used_part_id": "oven-001-p01",
+      "resolution_summary": "Oven Temperature Sensor replaced under warranty.",
+      "closed_date": "2026-06-22"
+    },
+    {
+      "claim_id": "CLM-BULL-2026-04-ice-001",
+      "asset_id": "AST-BULL-ICE001",
+      "product_id": "ice-001",
+      "symptom_id": "ice-s05",
+      "confirmed_failure_mode_id": "ice-fm04",
+      "used_part_id": "ice-p04",
+      "resolution_summary": "Purged line per FrostBite bulletin; harvest filled normally",
+      "closed_date": "2026-07-08"
+    },
+    {
+      "claim_id": "CLM-2026-ESP-01",
+      "asset_id": "AST-ESP001-2200",
+      "product_id": "esp-001",
+      "symptom_id": "esp-001-s02",
+      "confirmed_failure_mode_id": "esp-001-fm01",
+      "used_part_id": "esp-001-p01",
+      "resolution_summary": "Approved boiler NTC under warranty after E05 photo and ohms test.",
+      "closed_date": "2026-06-20"
     }
   ],
   "catalog_metadata": {
@@ -3868,5 +7794,37 @@
     "product_count": 13,
     "oem_product_count": 10,
     "data_policy": "Public OEM support documentation only; verify before production use."
+  },
+  "etl_batch_id": "ETL-20260711-57d2a28c",
+  "selection_filter": {
+    "requested": [
+      "esp-001"
+    ],
+    "applied": [
+      "esp-001"
+    ],
+    "note": "Only selected product ABox bundles were upserted into the catalog"
+  },
+  "pipeline_ingest": {
+    "quality": {
+      "input_work_orders": 24,
+      "input_parts": 33,
+      "input_documents": 23,
+      "accepted_work_orders": 15,
+      "accepted_parts": 25,
+      "provisional_symptoms": 33,
+      "rejected": 17,
+      "rejection_reasons": {
+        "duplicate": 17
+      },
+      "pass_rate": 0.702
+    },
+    "provisional_symptom_count": 33,
+    "semi_work_orders": 15,
+    "mode": "on_demand",
+    "run_id": "run-20260711T141333Z-d128512c",
+    "product_ids_filter": [
+      "esp-001"
+    ]
   }
 }

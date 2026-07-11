@@ -94,12 +94,58 @@ def _merge_selected_products(
     out = dict(existing)
     out["products"] = list(by_id.values())
     out["etl_batch_id"] = built_catalog.get("etl_batch_id") or existing.get("etl_batch_id")
+    # Also upsert multi-source Asset / Claim ABox rows for the selected products
+    # (CRM registered assets, closed claims). Without this, selection-scoped
+    # materialize keeps stale seed assets only and never promotes new product assets.
+    out["assets"] = _upsert_by_key(
+        existing.get("assets") or [],
+        built_catalog.get("assets") or [],
+        id_key="asset_id",
+        product_allow=allow,
+    )
+    out["claims"] = _upsert_by_key(
+        existing.get("claims") or [],
+        built_catalog.get("claims") or [],
+        id_key="claim_id",
+        product_allow=allow,
+    )
+    if built_catalog.get("warranty_policies"):
+        # Prefer built policies when present (union by policy_id)
+        out["warranty_policies"] = _upsert_by_key(
+            existing.get("warranty_policies") or [],
+            built_catalog.get("warranty_policies") or [],
+            id_key="policy_id",
+            product_allow=None,
+        )
     out["selection_filter"] = {
         "requested": sorted(allow),
         "applied": applied,
         "note": "Only selected product ABox bundles were upserted into the catalog",
     }
     return out, applied
+
+
+def _upsert_by_key(
+    existing_rows: list,
+    built_rows: list,
+    *,
+    id_key: str,
+    product_allow: set[str] | None,
+) -> list[dict]:
+    """Union existing + built rows by id_key; when product_allow is set, only
+    replace/add built rows whose product_id is in the selection (or has no product_id)."""
+    by_id: dict[str, dict] = {}
+    for row in existing_rows:
+        if isinstance(row, dict) and row.get(id_key):
+            by_id[str(row[id_key])] = dict(row)
+    for row in built_rows:
+        if not isinstance(row, dict) or not row.get(id_key):
+            continue
+        pid = row.get("product_id")
+        if product_allow is not None and pid and str(pid) not in product_allow:
+            continue
+        by_id[str(row[id_key])] = dict(row)
+    return list(by_id.values())
 
 
 def run_knowledge_etl(

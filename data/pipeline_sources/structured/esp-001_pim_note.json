@@ -1,0 +1,13 @@
+{
+  "source": "PIM_NOTE",
+  "change_type": "new_product",
+  "product_id": "esp-001",
+  "name": "BrewBar Espresso Machine 15bar",
+  "brand": "BrewBar",
+  "category": "Kitchen",
+  "model_id": "MDL-BB-ESP15",
+  "model_number": "BB-ESP15",
+  "sku_id": "SKU-BB-ESP15-2026",
+  "note": "NEW multi-source product: SKU/model in PIM; diagnostics in service manual (unstructured); resolutions in FSM + semi WOs; asset in CRM; warranty claim in Claims.",
+  "generated_at": "2026-07-11T14:07:52+00:00"
+}

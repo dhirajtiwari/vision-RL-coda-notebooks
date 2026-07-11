@@ -10,10 +10,13 @@
 
 | Question | Answer |
 |----------|--------|
-| **How is the ontology built?** | **Blueprints + connectors → `OntologyBuilder` → catalog JSON → `populate_graph` → Neo4j** |
-| **Is “topology” a separate unfinished capability?** | **No.** For this application, product-structure / equipment-hierarchy concerns are already modeled inside the ontology (Component, BOM edges, Model/SKU). Infrastructure “topology” (K8s, connectors) is ops documentation, not a second knowledge model. |
-| **Do we need a parallel Topology subsystem?** | **No** — building one would duplicate work and drift from the graph used by diagnosis. |
+| **How is the ontology built?** | **Shared TBox (domain classes in code + `docs/ontology/`) is fixed governance.** **ABox instances** are built by **connectors → `OntologyBuilder` → catalog JSON → validate → `populate_graph` → Neo4j**. |
+| **Does adding source artifacts create a new TBox?** | **No.** Multi-source packs (e.g. `esp-001`, `hmd-001`) are **ABox inputs**. Pipeline builds instances under existing classes. Unknown *entity types* → `scan_tbox_extension_candidates` (review only). |
+| **Is “topology” a separate unfinished capability?** | **No.** Product-structure / equipment-hierarchy is inside the ontology (Component, BOM edges, Model/SKU). Infrastructure “topology” is ops documentation only. |
+| **Do we need a parallel Topology subsystem?** | **No** — would duplicate work and drift from the graph used by diagnosis. |
 | **How do we get formal RDF/OWL?** | Export TBox + ABox via `python -m graph.rdf_ontology_export` (Turtle or RDF/XML). |
+
+**Authoritative multi-source + TBox/ABox operator doc:** [`22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](22-TBox-ABox-Multi-Source-Onboard-Mechanism.md).
 
 ---
 

@@ -16,7 +16,7 @@ Enterprise knowledge graphs are not “import a CSV into Neo4j once.” Industry
 | **Source systems** | ERP/PIM, CRM, FSM, claims, lakes, document stores, tickets |
 | **Ingestion** | Extract (batch, CDC, API, file drop) |
 | **Preprocessing / staging** | Clean, type, dedupe, PII, quality scores |
-| **Semantic mapping** | Map fields → ontology concepts (“semantic lift”) |
+| **Semantic mapping** | Map fields → **existing TBox** concepts (“semantic lift” into ABox — not inventing a new ontology per product). See [`22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](22-TBox-ABox-Multi-Source-Onboard-Mechanism.md). |
 | **Entity resolution** | Golden records across sources |
 | **Graph materialization** | MERGE into Neo4j with constraints |
 | **Validation & promote** | Smoke / quality gates → staging → production |

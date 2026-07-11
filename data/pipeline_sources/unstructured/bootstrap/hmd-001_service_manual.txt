@@ -1,0 +1,23 @@
+Service manual excerpt — DryZone Compact Dehumidifier 30pt (hmd-001)
+
+Product: DryZone Compact Dehumidifier 30pt
+Model: DZ-HMD30 (MDL-DZ-HMD30)
+SKU: SKU-DZ-HMD30-2025
+
+Symptom: unit runs but the water tank never fills, or error code H3 appears.
+Action: inspect the evaporator coil for ice and test the frost sensor resistance against the service chart.
+Part: DZ-H3-SENS-30 frost / coil temperature sensor.
+
+Symptom: tank full indicator on with empty tank (error code TF).
+Action: remove tank; actuate float switch manually; replace float assembly if LED does not track.
+Part: DZ-FLOAT-30 tank float switch assembly.
+
+Symptom: room humidity stays high after continuous operation.
+Action: compare display RH to a calibrated hygrometer; check humidity sensor harness and module.
+Part: DZ-RH-SENS-30 humidity sensor module.
+
+Symptom: loud rattling during compressor pull-down.
+Action: inspect compressor isolation pads for crush or tear; reseat mounts.
+Part: DZ-ISO-PAD-30 compressor isolation pad kit.
+
+Diagnostic order: filter/ambient → frost sensor (H3) → float switch (TF) → RH sensor → isolation pads.

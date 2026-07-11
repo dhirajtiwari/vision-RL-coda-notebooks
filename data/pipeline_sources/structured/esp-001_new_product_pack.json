@@ -1,0 +1,14 @@
+{
+  "source": "STRUCTURED_NEW_PRODUCT",
+  "change_type": "new_product",
+  "product_id": "esp-001",
+  "bundle_ref": "enterprise_sources/pim_catalog.json",
+  "model_id": "MDL-BB-ESP15",
+  "sku_id": "SKU-BB-ESP15-2026",
+  "primary_symptom": "Machine will not heat or brew cycle never starts",
+  "primary_error_code": "E05",
+  "secondary_error_code": "E12",
+  "test_asset_id": "AST-ESP001-2200",
+  "test_customer_id": "CUST-10120",
+  "generated_at": "2026-07-11T14:07:52+00:00"
+}
