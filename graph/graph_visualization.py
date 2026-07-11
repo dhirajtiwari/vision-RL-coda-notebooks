@@ -476,7 +476,7 @@ def build_diagnosis_cypher_plan(
             "name": "resolve_product",
             "purpose": "Bind diagnosis scope to product node",
             "cypher": (
-                "MATCH (p:Product {product_id: $product_id})\n" "RETURN p.product_id AS product_id, p.name AS name"
+                "MATCH (p:Product {product_id: $product_id})\nRETURN p.product_id AS product_id, p.name AS name"
             ),
             "params": {"product_id": product_id},
         }
@@ -502,13 +502,9 @@ def build_diagnosis_cypher_plan(
         fm_cypher += "WHERE fm.failure_mode_id = $failure_mode_id\n"
         fm_params["failure_mode_id"] = failure_mode_id
     elif symptom_ids:
-        fm_cypher += (
-            "WHERE EXISTS {\n" "  MATCH (s:Symptom)-[:INDICATES]->(fm)\n" "  WHERE s.symptom_id IN $symptom_ids\n" "}\n"
-        )
+        fm_cypher += "WHERE EXISTS {\n  MATCH (s:Symptom)-[:INDICATES]->(fm)\n  WHERE s.symptom_id IN $symptom_ids\n}\n"
         fm_params["symptom_ids"] = symptom_ids
-    fm_cypher += (
-        "RETURN fm.failure_mode_id AS failure_mode_id, fm.name AS name,\n" "       fm.description AS description"
-    )
+    fm_cypher += "RETURN fm.failure_mode_id AS failure_mode_id, fm.name AS name,\n       fm.description AS description"
     steps.append(
         {
             "step": 3,

@@ -844,7 +844,7 @@ def vol03(story, st):
     story.append(
         why_box(
             "Why pure functions?",
-            "No I/O inside reliability.py → unit tests prove determinism without Neo4j " "(tests/test_reliability.py).",
+            "No I/O inside reliability.py → unit tests prove determinism without Neo4j (tests/test_reliability.py).",
             st,
             GREEN,
         )

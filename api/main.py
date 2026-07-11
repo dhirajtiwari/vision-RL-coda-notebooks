@@ -1267,7 +1267,7 @@ def admin_review() -> dict:
         "smoke_passed": smoke_ok,
         "reviewed": ADMIN_REVIEW_STATE.get("reviewed", False),
         "recommendation": (
-            "Review new/updated products below, then Approve before Promote. " "Models enterprise change control."
+            "Review new/updated products below, then Approve before Promote. Models enterprise change control."
         ),
         "can_promote": smoke_ok and ADMIN_REVIEW_STATE.get("reviewed", False),
         "journey": ADMIN_REVIEW_STATE.get("journey") or [],

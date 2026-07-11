@@ -219,8 +219,8 @@ def instance_ttl_for_product(product_data: dict[str, Any]) -> list[str]:
         mid = model["model_id"]
         m_iri = f"wd:model_{_local(mid)}"
         lines.append(f"{m_iri} a wd:Model ;")
-        lines.append(f'  rdfs:label {_literal_ttl(model.get("name", mid))} ;')
-        lines.append(f'  rdfs:comment {_literal_ttl(model.get("model_number", ""))} .')
+        lines.append(f"  rdfs:label {_literal_ttl(model.get('name', mid))} ;")
+        lines.append(f"  rdfs:comment {_literal_ttl(model.get('model_number', ''))} .")
         lines.append(f"{p_iri} wd:hasModel {m_iri} .")
         lines.append("")
 
@@ -249,8 +249,8 @@ def instance_ttl_for_product(product_data: dict[str, Any]) -> list[str]:
         f_iri = f"wd:fm_{_local(fid)}"
         lines.append(f"{f_iri} a wd:FailureMode ;")
         lines.append(f"  wd:failureModeId {_literal_ttl(fid)} ;")
-        lines.append(f'  rdfs:label {_literal_ttl(fm.get("name", fid))} ;')
-        lines.append(f'  rdfs:comment {_literal_ttl(fm.get("description", ""))} .')
+        lines.append(f"  rdfs:label {_literal_ttl(fm.get('name', fid))} ;")
+        lines.append(f"  rdfs:comment {_literal_ttl(fm.get('description', ''))} .")
         lines.append(f"{p_iri} wd:canHave {f_iri} .")
         lines.append("")
 
@@ -272,7 +272,7 @@ def instance_ttl_for_product(product_data: dict[str, Any]) -> list[str]:
         st_iri = f"wd:step_{_local(stid)}"
         lines.append(f"{st_iri} a wd:DiagnosticStep ;")
         lines.append(f"  rdfs:label {_literal_ttl(stid)} ;")
-        lines.append(f'  rdfs:comment {_literal_ttl(step.get("description", ""))} .')
+        lines.append(f"  rdfs:comment {_literal_ttl(step.get('description', ''))} .")
         lines.append(f"{p_iri} wd:hasDiagnosticStep {st_iri} .")
         lines.append("")
 
@@ -287,7 +287,7 @@ def instance_ttl_for_product(product_data: dict[str, Any]) -> list[str]:
         cid = comp["component_id"]
         c_iri = f"wd:component_{_local(cid)}"
         lines.append(f"{c_iri} a wd:Component ;")
-        lines.append(f'  rdfs:label {_literal_ttl(comp.get("name", cid))} ;')
+        lines.append(f"  rdfs:label {_literal_ttl(comp.get('name', cid))} ;")
         lines.append(f"  wd:subsystem {_literal_ttl(comp.get('subsystem', ''))} .")
         lines.append("")
 
@@ -295,7 +295,7 @@ def instance_ttl_for_product(product_data: dict[str, Any]) -> list[str]:
         ptid = part["part_id"]
         pt_iri = f"wd:part_{_local(ptid)}"
         lines.append(f"{pt_iri} a wd:Part ;")
-        lines.append(f'  rdfs:label {_literal_ttl(part.get("name", ptid))} ;')
+        lines.append(f"  rdfs:label {_literal_ttl(part.get('name', ptid))} ;")
         lines.append(f"  wd:partNumber {_literal_ttl(part.get('part_number', ''))} ;")
         cost = part.get("estimated_cost_usd", 0)
         lines.append(f"  wd:estimatedCostUsd {_literal_ttl(cost, 'xsd:decimal')} .")
@@ -303,33 +303,30 @@ def instance_ttl_for_product(product_data: dict[str, Any]) -> list[str]:
 
     for link in product_data.get("failure_mode_component_links", []):
         lines.append(
-            f"wd:fm_{_local(link['failure_mode_id'])} wd:impactsComponent "
-            f"wd:component_{_local(link['component_id'])} ."
+            f"wd:fm_{_local(link['failure_mode_id'])} wd:impactsComponent wd:component_{_local(link['component_id'])} ."
         )
 
     for link in product_data.get("component_part_links", []):
-        lines.append(
-            f"wd:component_{_local(link['component_id'])} wd:realizedBy " f"wd:part_{_local(link['part_id'])} ."
-        )
+        lines.append(f"wd:component_{_local(link['component_id'])} wd:realizedBy wd:part_{_local(link['part_id'])} .")
 
     for link in product_data.get("failure_mode_part_links", []):
-        lines.append(f"wd:fm_{_local(link['failure_mode_id'])} wd:requiresPart " f"wd:part_{_local(link['part_id'])} .")
+        lines.append(f"wd:fm_{_local(link['failure_mode_id'])} wd:requiresPart wd:part_{_local(link['part_id'])} .")
 
     for link in product_data.get("sku_part_links", []):
-        lines.append(f"wd:sku_{_local(link['sku_id'])} wd:compatibleWith " f"wd:part_{_local(link['part_id'])} .")
+        lines.append(f"wd:sku_{_local(link['sku_id'])} wd:compatibleWith wd:part_{_local(link['part_id'])} .")
 
     for ec in product_data.get("error_codes", []):
         eid = ec["error_code_id"]
         e_iri = f"wd:ec_{_local(eid)}"
         lines.append(f"{e_iri} a wd:ErrorCode ;")
-        lines.append(f'  rdfs:label {_literal_ttl(ec.get("code", eid))} ;')
-        lines.append(f'  rdfs:comment {_literal_ttl(ec.get("description", ""))} .')
+        lines.append(f"  rdfs:label {_literal_ttl(ec.get('code', eid))} ;")
+        lines.append(f"  rdfs:comment {_literal_ttl(ec.get('description', ''))} .")
         lines.append(f"{p_iri} wd:hasErrorCode {e_iri} .")
         lines.append("")
 
     for link in product_data.get("error_code_failure_links", []):
         lines.append(
-            f"wd:ec_{_local(link['error_code_id'])} wd:errorCodeIndicates " f"wd:fm_{_local(link['failure_mode_id'])} ."
+            f"wd:ec_{_local(link['error_code_id'])} wd:errorCodeIndicates wd:fm_{_local(link['failure_mode_id'])} ."
         )
 
     return lines
@@ -360,7 +357,7 @@ def catalog_to_turtle(
         aid = asset["asset_id"]
         a_iri = f"wd:asset_{_local(aid)}"
         parts.append(f"{a_iri} a wd:Asset ;")
-        parts.append(f'  rdfs:label {_literal_ttl(asset.get("serial_number", aid))} .')
+        parts.append(f"  rdfs:label {_literal_ttl(asset.get('serial_number', aid))} .")
         parts.append(f"{a_iri} wd:instanceOf wd:product_{_local(asset['product_id'])} .")
         if asset.get("sku_id"):
             parts.append(f"{a_iri} wd:boundToSku wd:sku_{_local(asset['sku_id'])} .")
@@ -371,18 +368,16 @@ def catalog_to_turtle(
     for pol in catalog.get("warranty_policies", []):
         pid = pol["policy_id"]
         parts.append(f"wd:policy_{_local(pid)} a wd:WarrantyPolicy ;")
-        parts.append(f'  rdfs:label {_literal_ttl(pol.get("description", pid))} .')
+        parts.append(f"  rdfs:label {_literal_ttl(pol.get('description', pid))} .")
         parts.append("")
 
     for claim in catalog.get("claims", []):
         cid = claim["claim_id"]
         parts.append(f"wd:claim_{_local(cid)} a wd:Claim ;")
         parts.append(f"  rdfs:label {_literal_ttl(cid)} ;")
-        parts.append(f'  rdfs:comment {_literal_ttl(claim.get("resolution_summary", ""))} .')
+        parts.append(f"  rdfs:comment {_literal_ttl(claim.get('resolution_summary', ''))} .")
         if claim.get("confirmed_failure_mode_id"):
-            parts.append(
-                f"wd:claim_{_local(cid)} wd:confirmed " f"wd:fm_{_local(claim['confirmed_failure_mode_id'])} ."
-            )
+            parts.append(f"wd:claim_{_local(cid)} wd:confirmed wd:fm_{_local(claim['confirmed_failure_mode_id'])} .")
         if claim.get("used_part_id"):
             parts.append(f"wd:claim_{_local(cid)} wd:usedPart wd:part_{_local(claim['used_part_id'])} .")
         parts.append("")
@@ -561,12 +556,12 @@ def entity_instance_ttl(
                     continue
                 a_iri = f"wd:asset_{_local(aid)}"
                 body_parts.append(f"{a_iri} a wd:Asset ;")
-                body_parts.append(f'  rdfs:label {_literal_ttl(asset.get("serial_number", aid))} .')
+                body_parts.append(f"  rdfs:label {_literal_ttl(asset.get('serial_number', aid))} .")
                 body_parts.append(f"{a_iri} wd:instanceOf wd:product_{_local(asset['product_id'])} .")
         for pol in catalog.get("warranty_policies", []):
             if pol.get("policy_id") == entity_id:
                 body_parts.append(f"wd:policy_{_local(entity_id)} a wd:WarrantyPolicy ;")
-                body_parts.append(f'  rdfs:label {_literal_ttl(pol.get("description", entity_id))} .')
+                body_parts.append(f"  rdfs:label {_literal_ttl(pol.get('description', entity_id))} .")
         if body_parts:
             parts.append("\n".join(body_parts))
         else:
