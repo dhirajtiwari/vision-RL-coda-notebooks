@@ -16,6 +16,8 @@ This guide explains how product ontology and the knowledge graph are created, ho
 
 **Multi-volume (theory + code + RDF + WWWH):** [`docs/multi-volume/`](multi-volume/).
 
+**KG multi-source ingestion:** architecture [`20-…`](20-Enterprise-KG-Ingestion-Pipeline-Architecture.md) · **step-by-step** [`21-…`](21-KG-Ingestion-Step-by-Step-Runbook.md) · **todo** [`todo-kg-ingestion-pipelines.md`](todo-kg-ingestion-pipelines.md).
+
 ## Do we need Entity-Relationship Diagrams (ERDs)?
 
 **Yes — for the blueprinting approach they are essential.**

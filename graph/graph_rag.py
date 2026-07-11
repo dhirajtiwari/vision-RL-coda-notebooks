@@ -56,6 +56,11 @@ class DiagnosisResult:
     # separately from the full "relevant context" subgraph.
     traversed_symptom_ids: list[str] = field(default_factory=list)
     traversed_fm_id: str = ""
+    # Hard fail-closed when product / asset / message context is inconsistent.
+    # When True, ranked_failure_modes is empty and no graph diagnosis is claimed.
+    context_blocked: bool = False
+    context_block_code: str = ""  # e.g. soft_appliance_mismatch | product_asset_conflict
+    resolution_meta: dict[str, Any] = field(default_factory=dict)
 
 
 SYNONYMS = {
@@ -127,6 +132,9 @@ def _text_similarity(a: str, b: str) -> float:
         ({"spin"}, {"spin"}),
         ({"water", "remain"}, {"water", "remain", "drum"}),
         ({"drum"}, {"drum"}),
+        ({"start", "starting", "power"}, {"start", "power", "turn"}),
+        ({"ice"}, {"ice"}),
+        ({"drain"}, {"drain"}),
     )
     for a_themes, b_themes in theme_pairs:
         if (a_tokens & a_themes) and (b_tokens & b_themes):
@@ -190,97 +198,307 @@ def list_products() -> list[dict[str, Any]]:
 
 
 PRODUCT_KEYWORDS: dict[str, list[str]] = {
-    "wm-001": ["washing", "washer", "laundry", "spin", "drum", "aquahome"],
-    "dw-001": ["dishwasher", "dish", "dishes", "rinse", "cleanwave"],
+    "wm-001": ["washing machine", "washing", "washer", "laundry", "spin", "drum", "aquahome"],
+    "dw-001": ["dishwasher", "dishes", "rinse", "cleanwave"],
     "mw-001": ["microwave", "convection", "magnetron", "arcing", "spark", "heatpro"],
-    "oem-sam-wf45": ["samsung", "wf45", "wf45t6000", "4e", "5e", "ue"],
-    "oem-lg-ldf5545": ["lg", "ldf5545", "ldf5545st"],
+    "ice-001": ["ice maker", "icemaker", "ice machine", "frostbite", "cubes", "bin full"],
+    # 2026 multi-source onboard pack
+    "vac-001": ["vacuum", "stick vacuum", "brush roll", "roboclean", "suction"],
+    "ac-001": ["portable ac", "air conditioner", "coolair", "btu", "condenser"],
+    "oven-001": ["wall oven", "bakepro", "preheat", "oven sensor"],
+    "dry-001": ["heat pump dryer", "airflow dryer", "dryer damp", "clothes remain damp"],
+    "ref-001": ["compact fridge", "chillvault", "refrigerator warm", "defrost"],
+    "grill-001": ["outdoor grill", "flamemaster", "burner", "igniter", "grill"],
+    "hob-001": ["induction hob", "sparkline", "induction", "cooktop zone"],
+    "fan-001": ["bladeless fan", "breezetower", "oscillat", "airflow fan"],
+    "pur-001": [
+        "purifier",
+        "air purifier",
+        "hepa",
+        "pure room",
+        "pureroom",
+        "air quality light",
+        "filter change",
+    ],
+    "oem-sam-wf45": ["samsung", "wf45", "wf45t6000"],
+    "oem-lg-ldf5545": ["lg dishwasher", "ldf5545", "ldf5545st"],
     "oem-whi-wtw5000": ["whirlpool", "wtw5000", "f9 e1", "f9e1"],
-    "oem-bos-shpm88": ["bosch", "shpm88", "e24", "e01"],
-    "oem-ge-jvm3160": ["ge", "jvm3160", "over-the-range", "otr microwave"],
-    "oem-sam-rf28": ["samsung", "rf28", "rf28r7351", "refrigerator", "22e", "33e", "not cooling"],
-    "oem-lg-dle3400": ["lg", "dle3400", "dryer", "d80", "d90", "d95", "vent"],
-    "oem-whi-wfg505": ["whirlpool", "wfg505", "range", "oven", "f9e0", "f9 e0", "igniter"],
-    "oem-sam-dw80": ["samsung", "dw80", "dw80b7070", "lc", "oc", "dishwasher"],
-    "oem-lg-wm4000": ["lg", "wm4000", "wm4000hwa", "oe", "de"],
+    "oem-bos-shpm88": ["bosch", "shpm88"],
+    "oem-ge-jvm3160": ["ge microwave", "jvm3160", "over-the-range", "otr microwave"],
+    "oem-sam-rf28": ["samsung refrigerator", "rf28", "rf28r7351", "not cooling"],
+    "oem-lg-dle3400": ["lg dryer", "dle3400", "vent"],
+    "oem-whi-wfg505": ["whirlpool range", "wfg505", "igniter", "f9 e0", "f9e0"],
+    "oem-sam-dw80": ["samsung dishwasher", "dw80", "dw80b7070"],
+    # Avoid bare "oe"/"de" — they match inside "does"/"device" as substrings
+    "oem-lg-wm4000": ["lg washer", "wm4000", "wm4000hwa", " front load washer"],
 }
 
 
+def _keyword_hit(message: str, term: str) -> bool:
+    """
+    Match product keywords without false positives from short substrings.
+
+    - Multi-word / long terms: substring OK (e.g. "air purifier")
+    - Short codes (≤3 chars): whole-word / token boundary only
+    """
+    term = (term or "").lower().strip()
+    if not term or not message:
+        return False
+    msg = message.lower()
+    if len(term) <= 3:
+        # Word boundary so "oe" does not match "does"
+        return re.search(rf"(?<![a-z0-9]){re.escape(term)}(?![a-z0-9])", msg) is not None
+    return term in msg
+
+
 def score_products_from_message(user_message: str) -> dict[str, int]:
-    message = user_message.lower()
-    return {product_id: sum(1 for term in terms if term in message) for product_id, terms in PRODUCT_KEYWORDS.items()}
+    message = (user_message or "").lower()
+    scores = {
+        product_id: sum(1 for term in terms if _keyword_hit(message, term))
+        for product_id, terms in PRODUCT_KEYWORDS.items()
+    }
+    # Boost from live product name/brand tokens (covers newly onboarded products)
+    try:
+        for p in list_products():
+            pid = p.get("product_id")
+            if not pid:
+                continue
+            boost = 0
+            for field in ("name", "brand", "category"):
+                val = (p.get(field) or "").lower()
+                if not val:
+                    continue
+                # Significant tokens from product title
+                for tok in re.findall(r"[a-z0-9]{4,}", val):
+                    if tok in message:
+                        boost += 1
+            if boost:
+                scores[pid] = scores.get(pid, 0) + boost
+    except Exception:
+        pass
+    return scores
 
 
 def detect_product(user_message: str) -> dict[str, Any] | None:
     scores = score_products_from_message(user_message)
+    if not scores:
+        return None
     best_id = max(scores, key=scores.get)
-    if scores[best_id] <= 0:
+    if scores[best_id] < settings.product_message_signal_min_hits:
         return None
     products = {p["product_id"]: p for p in list_products()}
     return products.get(best_id)
+
+
+def message_product_signal(user_message: str) -> tuple[str | None, dict[str, int]]:
+    """Return best product_id implied by message keywords (or None) and full scores."""
+    scores = score_products_from_message(user_message)
+    if not scores:
+        return None, scores
+    best_id = max(scores, key=scores.get)
+    if scores[best_id] < settings.product_message_signal_min_hits:
+        return None, scores
+    return best_id, scores
+
+
+def _blocked_resolution(
+    code: str,
+    detail: str,
+    *,
+    product: dict[str, Any] | None = None,
+    asset_ctx: dict[str, Any] | None = None,
+    effective_asset_id: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None, list[str], str, dict[str, Any]]:
+    """Resolution tuple: product, asset_ctx, asset_id, warnings, block_code, meta."""
+    meta = dict(extra or {})
+    meta["soft"] = code.startswith("soft_")
+    return product, asset_ctx, effective_asset_id, [detail], code, meta
+
+
+def _message_implies_other_product(
+    bound_id: str,
+    msg_product_id: str | None,
+    scores: dict[str, int],
+) -> bool:
+    """
+    Soft mismatch only when message clearly points at a *different* product.
+
+    Requires a decisive gap so weak/false hits (historical short codes) cannot
+    override a bound asset when the utterance is about that asset (e.g. purifier).
+    """
+    if not msg_product_id or msg_product_id == bound_id:
+        return False
+    bound_hits = int(scores.get(bound_id, 0) or 0)
+    msg_hits = int(scores.get(msg_product_id, 0) or 0)
+    min_hits = max(1, int(settings.product_message_signal_min_hits))
+    if msg_hits < min_hits:
+        return False
+    # Bound product also mentioned → trust the asset (user is on the right unit)
+    if bound_hits >= min_hits and bound_hits >= msg_hits:
+        return False
+    # Need a clear lead for the *other* product (not a 1-hit false positive)
+    if msg_hits <= bound_hits:
+        return False
+    if msg_hits == 1 and bound_hits == 0:
+        # Single weak hit is not enough to challenge a bound appliance
+        return False
+    return msg_hits >= bound_hits + 1 and msg_hits >= 2
+
+
+def _asset_ctx_from_crm(crm: dict[str, Any] | None, products: dict[str, dict]) -> dict[str, Any] | None:
+    """Build asset context from CRM when Neo4j INSTANCE_OF is missing (demo realism)."""
+    if not crm or not crm.get("enriched") or not crm.get("asset_id"):
+        return None
+    pid = crm.get("product_id")
+    return {
+        "asset_id": crm.get("asset_id"),
+        "product_id": pid,
+        "product_name": (products.get(pid) or {}).get("name", pid),
+        "serial_number": crm.get("serial_number") or "",
+        "model_number": crm.get("model_number") or "",
+        "sku_id": crm.get("sku_id") or "",
+        "customer_id": crm.get("customer_id") or "",
+        "source": "CRM",
+    }
 
 
 def resolve_product_for_diagnosis(
     user_message: str,
     product_id: str | None = None,
     asset_id: str | None = None,
-) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None, list[str]]:
+    crm_product_id: str | None = None,
+    *,
+    force_keep_context: bool = False,
+    crm_context: dict[str, Any] | None = None,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None, str | None, list[str], str, dict[str, Any]]:
     """
-    Resolve product and asset binding with message-vs-CRM conflict handling.
+    Asset-first product resolution for production-shaped diagnosis.
 
-    Message-detected product wins over CRM asset product when they disagree.
+    **Identified session (asset / CRM bound):**
+      - Product comes from the registered asset — never from free-text override.
+      - Client ``product_id`` that disagrees with asset is an API invariant failure.
+      - Text that strongly names another appliance family → soft prompt
+        (``soft_appliance_mismatch``) unless ``force_keep_context``.
+
+    **Anonymous session (no asset):**
+      - Product from explicit pick, else message detection.
+      - Same soft mismatch if pick and text disagree.
+
+    Returns:
+        (product, asset_ctx, effective_asset_id, warnings, block_code, meta)
     """
     warnings: list[str] = []
-    detected = detect_product(user_message)
-    asset_ctx = resolve_asset_context(asset_id) if asset_id else None
-    asset_product_id = asset_ctx.get("product_id") if asset_ctx else None
-    effective_asset_id = asset_id
-
+    meta: dict[str, Any] = {"session": "anonymous", "force_keep_context": force_keep_context}
+    msg_product_id, scores = message_product_signal(user_message)
     products = {p["product_id"]: p for p in list_products()}
+    detected = products.get(msg_product_id) if msg_product_id else None
 
-    if detected and asset_product_id and detected["product_id"] != asset_product_id:
-        asset_name = asset_ctx.get("product_name", asset_product_id) if asset_ctx else asset_product_id
-        warnings.append(
-            f"Your message indicates **{detected['name']}**, but the selected CRM asset "
-            f"is registered to **{asset_name}**. Diagnosis uses the message-based product; "
-            "asset binding was skipped to avoid a wrong-appliance answer."
-        )
-        effective_asset_id = None
-        asset_ctx = None
-        return detected, asset_ctx, effective_asset_id, warnings
+    # Prefer graph asset context; fall back to CRM enrichment (realistic path).
+    asset_ctx = resolve_asset_context(asset_id) if asset_id else None
+    if not asset_ctx and crm_context:
+        asset_ctx = _asset_ctx_from_crm(crm_context, products)
+    # If CRM has richer product_id, use CRM as source of truth for bound product
+    crm_pid = crm_product_id or (crm_context or {}).get("product_id")
+    if asset_ctx and crm_pid and not asset_ctx.get("product_id"):
+        asset_ctx["product_id"] = crm_pid
+    if asset_ctx and crm_context:
+        for k in ("sku_id", "model_number", "serial_number", "customer_id"):
+            if crm_context.get(k) and not asset_ctx.get(k):
+                asset_ctx[k] = crm_context[k]
 
-    if detected and product_id and detected["product_id"] != product_id:
-        bound = products.get(product_id)
-        bound_name = bound["name"] if bound else product_id
-        warnings.append(
-            f"Your message indicates **{detected['name']}**, overriding the bound product **{bound_name}**."
-        )
-        effective_asset_id = None if asset_product_id and asset_product_id != detected["product_id"] else asset_id
-        if effective_asset_id is None:
-            asset_ctx = None
-        return detected, asset_ctx, effective_asset_id, warnings
-
-    if product_id and product_id in products:
-        product = products[product_id]
-        if asset_ctx and asset_product_id and asset_product_id != product_id:
-            warnings.append(
-                f"CRM asset product **{asset_ctx.get('product_name', asset_product_id)}** "
-                f"does not match selected product **{product['name']}**. Asset binding skipped."
+    asset_product_id = asset_ctx.get("product_id") if asset_ctx else (crm_pid if asset_id else None)
+    if not asset_product_id and crm_pid and asset_id:
+        asset_product_id = crm_pid
+        if not asset_ctx:
+            asset_ctx = _asset_ctx_from_crm(
+                crm_context or {"enriched": True, "asset_id": asset_id, "product_id": crm_pid}, products
             )
-            effective_asset_id = None
-            asset_ctx = None
-        return product, asset_ctx, effective_asset_id, warnings
 
-    if asset_ctx and asset_product_id and asset_product_id in products:
-        return products[asset_product_id], asset_ctx, effective_asset_id, warnings
+    effective_asset_id = asset_id if asset_ctx or asset_id else None
+    client_product = product_id if product_id and product_id in products else None
+
+    # ─── IDENTIFIED: asset-bound session ───────────────────────────────────
+    if asset_product_id and asset_product_id in products:
+        meta["session"] = "identified"
+        bound = products[asset_product_id]
+        # API invariant: client must not send a conflicting product_id
+        if client_product and client_product != asset_product_id:
+            detail = (
+                f"API invariant: product_id `{client_product}` does not match registered asset product "
+                f"**{bound['name']}** (`{asset_product_id}`). Bind product from the asset; do not override."
+            )
+            return _blocked_resolution(
+                "product_asset_conflict",
+                detail,
+                product=bound,
+                asset_ctx=asset_ctx,
+                effective_asset_id=None,
+            )
+
+        if _message_implies_other_product(asset_product_id, msg_product_id, scores) and not force_keep_context:
+            det_name = (products.get(msg_product_id) or {}).get("name", msg_product_id)
+            detail = (
+                f"Your description sounds like **{det_name}**, but the selected appliance is "
+                f"**{bound['name']}**. Switch to the correct registered appliance, or keep this one "
+                f"if you are sure the note is about this unit."
+            )
+            return _blocked_resolution(
+                "soft_appliance_mismatch",
+                detail,
+                product=bound,
+                asset_ctx=asset_ctx,
+                effective_asset_id=effective_asset_id,
+                extra={
+                    "bound_product_id": asset_product_id,
+                    "message_product_id": msg_product_id,
+                    "suggested_product_id": msg_product_id,
+                    "can_force_keep": True,
+                },
+            )
+
+        if force_keep_context and _message_implies_other_product(asset_product_id, msg_product_id, scores):
+            det_name = (products.get(msg_product_id) or {}).get("name", msg_product_id)
+            warnings.append(
+                f"Proceeding on registered appliance **{bound['name']}** despite description "
+                f"mentioning **{det_name}** (operator confirmed)."
+            )
+        return bound, asset_ctx, effective_asset_id, warnings, "", meta
+
+    # ─── ANONYMOUS: no registered asset ────────────────────────────────────
+    meta["session"] = "anonymous"
+    if client_product:
+        bound = products[client_product]
+        if _message_implies_other_product(client_product, msg_product_id, scores) and not force_keep_context:
+            det_name = (products.get(msg_product_id) or {}).get("name", msg_product_id)
+            detail = (
+                f"Your description sounds like **{det_name}**, but you selected **{bound['name']}**. "
+                "Change the appliance type or confirm to continue."
+            )
+            return _blocked_resolution(
+                "soft_appliance_mismatch",
+                detail,
+                product=bound,
+                extra={
+                    "bound_product_id": client_product,
+                    "message_product_id": msg_product_id,
+                    "suggested_product_id": msg_product_id,
+                    "can_force_keep": True,
+                },
+            )
+        return bound, None, None, warnings, "", meta
 
     if detected:
-        return detected, asset_ctx, effective_asset_id, warnings
+        return detected, None, None, warnings, "", meta
 
-    return None, asset_ctx, effective_asset_id, warnings
+    return None, None, None, warnings, "", meta
 
 
 def match_symptoms(product_id: str, user_message: str) -> list[dict[str, Any]]:
+    from graph.symptom_retrieval import normalize_query_text
+
+    # Phrase rewrites so "not starting" aligns with catalog "will not start / power up"
+    query = normalize_query_text(user_message)
     driver = get_driver()
     with driver.session() as session:
         symptoms = session.run(
@@ -300,10 +518,10 @@ def match_symptoms(product_id: str, user_message: str) -> list[dict[str, Any]]:
     corpus = [s["description"] for s in symptom_list]
     scored: list[tuple[dict[str, Any], float]] = []
     for symptom in symptom_list:
-        lexical = _text_similarity(user_message, symptom["description"])
+        lexical = _text_similarity(query, symptom["description"])
         if settings.use_hybrid_symptom_matching:
             score = hybrid_symptom_score(
-                user_message,
+                query,
                 symptom["description"],
                 lexical_score=lexical,
                 corpus=corpus,
@@ -313,28 +531,30 @@ def match_symptoms(product_id: str, user_message: str) -> list[dict[str, Any]]:
         scored.append((symptom, score))
 
     min_score = settings.symptom_match_min_score
-    secondary_score = max(min_score - 0.05, 0.22)
+    rel_floor = float(getattr(settings, "symptom_secondary_relative_floor", 0.75))
     matched: list[dict[str, Any]] = []
-    seen_ids: set[str] = set()
 
+    # Sort by score; admit only scores clearing the absolute bar.
+    scored.sort(key=lambda x: x[1], reverse=True)
+    top_score = scored[0][1] if scored else 0.0
     for symptom, score in scored:
-        if score >= min_score:
-            enriched = enrich_entity_props("Symptom", symptom["symptom_id"], symptom)
-            matched.append({**enriched, "match_score": round(score, 2)})
-            seen_ids.add(symptom["symptom_id"])
+        if score < min_score:
+            continue
+        # Secondary admissions must stay close to the best match — no floor noise.
+        if matched and score < top_score * rel_floor:
+            continue
+        enriched = enrich_entity_props("Symptom", symptom["symptom_id"], symptom)
+        matched.append(
+            {
+                **enriched,
+                "match_score": round(score, 2),
+                "evidence_role": "observed",
+            }
+        )
+        if len(matched) >= 4:
+            break
 
-    if len(matched) < 2:
-        for symptom, score in sorted(scored, key=lambda x: x[1], reverse=True):
-            if symptom["symptom_id"] in seen_ids or score < secondary_score:
-                continue
-            enriched = enrich_entity_props("Symptom", symptom["symptom_id"], symptom)
-            matched.append({**enriched, "match_score": round(score, 2)})
-            seen_ids.add(symptom["symptom_id"])
-            if len(matched) >= 2:
-                break
-
-    matched.sort(key=lambda x: x["match_score"], reverse=True)
-    return matched[:4]
+    return matched
 
 
 def _composite_confidence(
@@ -490,10 +710,24 @@ def rank_failure_modes(product_id: str, symptom_ids: list[str]) -> list[dict[str
         ranked = []
         for record in result:
             row = dict(record)
+            # Drop null indication stubs from OPTIONAL MATCH
+            inds = [
+                ind
+                for ind in (row.get("indications") or [])
+                if ind and ind.get("symptom_id") and ind.get("confidence") is not None
+            ]
+            row["indications"] = inds
+            row["link_count"] = len(inds)
+            row["total_confidence"] = sum(float(i["confidence"]) for i in inds)
             row["aggregate_confidence"] = round(row["total_confidence"] / max(len(symptom_ids), 1), 2)
             ranked.append(row)
 
-    return _apply_fmea_and_posteriors(ranked, symptom_ids)
+    # Evidence-only candidates: never give prior mass to FMs with zero INDICATES
+    # edges from the *observed* symptoms (prevents impeller-at-10% on wet/cold).
+    evidenced = [row for row in ranked if int(row.get("link_count") or 0) > 0]
+    if not evidenced:
+        return []
+    return _apply_fmea_and_posteriors(evidenced, symptom_ids)
 
 
 def resolve_asset_context(asset_id: str) -> dict[str, Any] | None:
@@ -688,12 +922,46 @@ def diagnose(
     user_message: str,
     product_id: str | None = None,
     asset_id: str | None = None,
+    crm_product_id: str | None = None,
+    *,
+    force_keep_context: bool = False,
+    crm_context: dict[str, Any] | None = None,
 ) -> DiagnosisResult:
-    product, asset_ctx, effective_asset_id, warnings = resolve_product_for_diagnosis(
+    product, asset_ctx, effective_asset_id, warnings, block_code, res_meta = resolve_product_for_diagnosis(
         user_message,
         product_id=product_id,
         asset_id=asset_id,
+        crm_product_id=crm_product_id,
+        force_keep_context=force_keep_context,
+        crm_context=crm_context,
     )
+
+    if block_code:
+        soft = block_code.startswith("soft_")
+        bound_name = (product or {}).get("name") or product_id or "selected appliance"
+        return DiagnosisResult(
+            product_id=(product or {}).get("product_id") or product_id or "",
+            product_name=bound_name if isinstance(bound_name, str) else "Unknown",
+            should_escalate=not soft,
+            escalation_reason=(
+                "Confirm appliance or switch registered asset before diagnosing."
+                if soft
+                else "Context conflict — diagnosis withheld (API / binding invariant)."
+            ),
+            evidence=["No graph diagnosis executed (context_blocked)"],
+            warnings=warnings,
+            context_blocked=True,
+            context_block_code=block_code,
+            recommendation_strength="Insufficient data",
+            confidence=0.0,
+            graph_confidence=0.0,
+            language_confidence=0.0,
+            asset_id=(asset_ctx or {}).get("asset_id", "") if asset_ctx else "",
+            model_number=(asset_ctx or {}).get("model_number", "") if asset_ctx else "",
+            sku_id=(asset_ctx or {}).get("sku_id", "") if asset_ctx else "",
+            serial_number=(asset_ctx or {}).get("serial_number", "") if asset_ctx else "",
+            resolution_meta=res_meta,
+        )
 
     if not product:
         return DiagnosisResult(
@@ -703,6 +971,9 @@ def diagnose(
             escalation_reason="Could not identify appliance type from message.",
             evidence=["No product keyword match"],
             warnings=warnings,
+            context_blocked=True,
+            context_block_code="product_unresolved",
+            recommendation_strength="Insufficient data",
         )
 
     pid = product["product_id"]
@@ -711,17 +982,9 @@ def diagnose(
     error_code_ids = [e["error_code_id"] for e in matched_error_codes]
 
     matched_symptoms = match_symptoms(pid, user_message)
-    # Only symptoms that clear the match threshold count as *observed* evidence
-    # for the Bayesian posterior; weaker secondary matches are still displayed
-    # for context but must not fabricate a competing failure mode. Fall back to
-    # the single best match if nothing clears the bar.
-    strong_symptom_ids = [
-        s["symptom_id"]
-        for s in matched_symptoms
-        if float(s.get("match_score", 0.0)) >= settings.symptom_match_min_score
-    ]
-    symptom_ids = strong_symptom_ids or [s["symptom_id"] for s in matched_symptoms[:1]]
-    ranked = rank_failure_modes_with_error_codes(pid, symptom_ids, error_code_ids)
+    # Only observed symptoms (above threshold) enter Bayesian evidence.
+    symptom_ids = [s["symptom_id"] for s in matched_symptoms]
+    ranked = rank_failure_modes_with_error_codes(pid, symptom_ids, error_code_ids) if symptom_ids else []
 
     top = ranked[0] if ranked else None
     confidence, graph_confidence, language_confidence, rec_strength, dom_ratio = _composite_confidence(
@@ -847,6 +1110,9 @@ def diagnose(
         matched_error_codes=matched_error_codes,
         impacted_components=impacted_components,
         predicted_parts=predicted_parts,
+        context_blocked=False,
+        context_block_code="",
+        resolution_meta=res_meta,
         claim_precedents=claim_precedents,
         diagnostic_tree=diagnostic_tree,
         warnings=warnings,
@@ -854,6 +1120,38 @@ def diagnose(
 
 
 def format_diagnosis_response(result: DiagnosisResult) -> str:
+    if result.context_blocked:
+        soft = result.context_block_code.startswith("soft_")
+        if soft:
+            lines = [
+                "**Confirm appliance**",
+                "",
+                "Your note may describe a different appliance than the one selected on this account.",
+                "",
+            ]
+            if result.warnings:
+                lines.extend([f"- {w}" for w in result.warnings])
+            lines.extend(
+                [
+                    "",
+                    "**What to do:**",
+                    "1. Switch to the correct registered appliance for this customer, or",
+                    "2. Confirm “Keep this appliance” if the selected unit is correct.",
+                    "",
+                    "Diagnosis did not run yet — product scope stays bound to the registered asset.",
+                ]
+            )
+            return "\n".join(lines)
+        lines = [
+            "**Diagnosis withheld — binding conflict**",
+            "",
+            "The request mixed inconsistent product and asset identifiers (API invariant).",
+            "",
+        ]
+        if result.warnings:
+            lines.extend([f"- {w}" for w in result.warnings])
+        return "\n".join(lines)
+
     if not result.product_id:
         return (
             "I couldn't identify which appliance you're asking about. "

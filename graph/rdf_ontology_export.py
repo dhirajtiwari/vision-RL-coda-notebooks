@@ -394,6 +394,295 @@ def schema_only_turtle() -> str:
     return turtle_prefixes() + "\n".join(schema_triples_ttl()) + "\n"
 
 
+# Neo4j label → OWL class local name (identity for UI / export)
+NEO4J_LABEL_TO_OWL: dict[str, str] = {
+    "Product": "Product",
+    "Model": "Model",
+    "SKU": "SKU",
+    "Asset": "Asset",
+    "Symptom": "Symptom",
+    "ErrorCode": "ErrorCode",
+    "FailureMode": "FailureMode",
+    "DiagnosticStep": "DiagnosticStep",
+    "Component": "Component",
+    "Part": "Part",
+    "Claim": "Claim",
+    "HistoricalResolution": "HistoricalResolution",
+    "Resolution": "HistoricalResolution",
+    "WarrantyPolicy": "WarrantyPolicy",
+}
+
+# How instance IRIs are built for each class
+_INSTANCE_IRI_PREFIX: dict[str, str] = {
+    "Product": "product_",
+    "Model": "model_",
+    "SKU": "sku_",
+    "Asset": "asset_",
+    "Symptom": "symptom_",
+    "ErrorCode": "ec_",
+    "FailureMode": "fm_",
+    "DiagnosticStep": "step_",
+    "Component": "component_",
+    "Part": "part_",
+    "Claim": "claim_",
+    "HistoricalResolution": "resolution_",
+    "WarrantyPolicy": "policy_",
+}
+
+
+def owl_class_for_neo4j_label(label: str) -> str | None:
+    return NEO4J_LABEL_TO_OWL.get(label) or NEO4J_LABEL_TO_OWL.get(label.replace(" ", ""))
+
+
+def instance_iri_local(owl_class: str, entity_id: str) -> str:
+    prefix = _INSTANCE_IRI_PREFIX.get(owl_class, f"{owl_class.lower()}_")
+    return f"{prefix}{_local(entity_id)}"
+
+
+def class_definition_ttl(owl_class: str) -> str:
+    """
+    W3C OWL TBox fragment for one class: owl:Class + related object/datatype properties
+    (domain or range mentions this class).
+    """
+    lines: list[str] = [turtle_prefixes().rstrip(), ""]
+    comment = next((c for n, c in CLASSES if n == owl_class), None)
+    if not comment:
+        return turtle_prefixes() + f"# Unknown OWL class: {owl_class}\n"
+
+    lines.append(f"wd:{owl_class} a owl:Class ;")
+    lines.append(f'  rdfs:label "{owl_class}" ;')
+    lines.append(f'  rdfs:comment "{_ttl_escape(comment)}" .')
+    lines.append("")
+    lines.append(f"# Object properties with domain or range = {owl_class}")
+    for local, domain, rng, prop_comment, neo4j in OBJECT_PROPERTIES:
+        if domain != owl_class and rng != owl_class:
+            continue
+        lines.append(f"wd:{local} a owl:ObjectProperty ;")
+        lines.append(f"  rdfs:domain wd:{domain} ;")
+        lines.append(f"  rdfs:range wd:{rng} ;")
+        lines.append(f'  rdfs:label "{local}" ;')
+        lines.append(f'  rdfs:comment "{_ttl_escape(prop_comment)} Neo4j type: {neo4j}." .')
+        lines.append("")
+    lines.append(f"# Datatype properties with domain = {owl_class}")
+    for local, domain, rng, prop_comment in DATATYPE_PROPERTIES:
+        if domain != owl_class:
+            continue
+        lines.append(f"wd:{local} a owl:DatatypeProperty ;")
+        lines.append(f"  rdfs:domain wd:{domain} ;")
+        lines.append(f"  rdfs:range {_xsd_type_uri(rng).replace(XSD, 'xsd:')} ;")
+        lines.append(f'  rdfs:label "{local}" ;')
+        lines.append(f'  rdfs:comment "{_ttl_escape(prop_comment)}" .')
+        lines.append("")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _filter_ttl_for_entity(ttl_body: str, iri_local: str) -> str:
+    """Keep Turtle lines that mention this instance (wd:product_… / etc.)."""
+    token = f"wd:{iri_local}"
+    keep: list[str] = []
+    buf: list[str] = []
+    for line in ttl_body.splitlines():
+        if line.startswith("#"):
+            if buf and any(token in x for x in buf):
+                keep.extend(buf)
+                keep.append("")
+            buf = []
+            continue
+        if not line.strip():
+            if buf and any(token in x for x in buf):
+                keep.extend(buf)
+                keep.append("")
+            buf = []
+            continue
+        buf.append(line)
+        # flush statement ending with .
+        if line.rstrip().endswith("."):
+            if any(token in x for x in buf):
+                keep.extend(buf)
+                keep.append("")
+            buf = []
+    if buf and any(token in x for x in buf):
+        keep.extend(buf)
+    return "\n".join(keep).rstrip() + ("\n" if keep else "")
+
+
+def entity_instance_ttl(
+    *,
+    neo4j_label: str,
+    entity_id: str,
+    product_id: str | None = None,
+    catalog: dict[str, Any] | None = None,
+) -> str:
+    """
+    RDF ABox fragment for one individual: type assertion + properties + incident edges
+    from the product catalog (and global assets/claims when relevant).
+    """
+    owl_class = owl_class_for_neo4j_label(neo4j_label)
+    if not owl_class:
+        return f"# No OWL mapping for Neo4j label {neo4j_label!r}\n"
+    iri_local = instance_iri_local(owl_class, entity_id)
+    catalog = catalog or load_catalog()
+    parts: list[str] = [turtle_prefixes().rstrip(), ""]
+
+    # Product-scoped entities: emit filtered product ABox
+    product_ids: list[str] = []
+    if product_id:
+        product_ids = [product_id]
+    else:
+        # discover which products mention this entity
+        for product_data in catalog.get("products", []):
+            pid = product_data.get("product", {}).get("product_id")
+            blob = json.dumps(product_data)
+            if entity_id in blob and pid:
+                product_ids.append(pid)
+        if not product_ids and owl_class == "Product":
+            product_ids = [entity_id]
+
+    if product_ids:
+        for pid in product_ids[:3]:
+            for product_data in catalog.get("products", []):
+                if product_data.get("product", {}).get("product_id") != pid:
+                    continue
+                body = "\n".join(instance_ttl_for_product(product_data))
+                frag = _filter_ttl_for_entity(body, iri_local)
+                if frag.strip():
+                    parts.append(f"# --- From product {pid} ---")
+                    parts.append(frag)
+                break
+    else:
+        # Global catalog sections
+        body_parts: list[str] = []
+        for asset in catalog.get("assets", []):
+            if asset.get("asset_id") == entity_id or owl_class == "Asset":
+                aid = asset["asset_id"]
+                if aid != entity_id and owl_class == "Asset":
+                    continue
+                if asset.get("asset_id") != entity_id:
+                    continue
+                a_iri = f"wd:asset_{_local(aid)}"
+                body_parts.append(f"{a_iri} a wd:Asset ;")
+                body_parts.append(f'  rdfs:label {_literal_ttl(asset.get("serial_number", aid))} .')
+                body_parts.append(f"{a_iri} wd:instanceOf wd:product_{_local(asset['product_id'])} .")
+        for pol in catalog.get("warranty_policies", []):
+            if pol.get("policy_id") == entity_id:
+                body_parts.append(f"wd:policy_{_local(entity_id)} a wd:WarrantyPolicy ;")
+                body_parts.append(f'  rdfs:label {_literal_ttl(pol.get("description", entity_id))} .')
+        if body_parts:
+            parts.append("\n".join(body_parts))
+        else:
+            # Minimal type assertion if catalog has no detail
+            parts.append(f"wd:{iri_local} a wd:{owl_class} ;")
+            parts.append(f"  rdfs:label {_literal_ttl(entity_id)} ;")
+            parts.append('  rdfs:comment "Individual present in Neo4j; limited catalog detail for RDF export." .')
+
+    text = "\n".join(parts).rstrip() + "\n"
+    if f"wd:{iri_local}" not in text and "a wd:" in text:
+        return text
+    if f"wd:{iri_local}" not in text:
+        return (
+            turtle_prefixes()
+            + f"wd:{iri_local} a wd:{owl_class} ;\n"
+            + f"  rdfs:label {_literal_ttl(entity_id)} ;\n"
+            + f'  rdfs:comment "Mapped from Neo4j {neo4j_label}:{entity_id}." .\n'
+        )
+    return text
+
+
+def describe_entity_rdf(
+    *,
+    neo4j_label: str,
+    entity_id: str,
+    product_id: str | None = None,
+) -> dict[str, Any]:
+    """
+    API payload: complete OWL class definition + RDF instance triples for UI inspector.
+    Aligns W3C RDF 1.1 / RDFS / OWL 2 purposes with Neo4j KG identity.
+    """
+    owl_class = owl_class_for_neo4j_label(neo4j_label)
+    if not owl_class:
+        return {
+            "ok": False,
+            "error": f"No OWL class mapping for Neo4j label {neo4j_label!r}",
+            "neo4j_label": neo4j_label,
+            "entity_id": entity_id,
+        }
+    iri_local = instance_iri_local(owl_class, entity_id)
+    iri = _iri(iri_local)
+    class_iri = _iri(owl_class)
+    class_comment = next((c for n, c in CLASSES if n == owl_class), "")
+    related_props = [
+        {
+            "name": local,
+            "domain": domain,
+            "range": rng,
+            "neo4j": neo4j,
+            "comment": comment,
+        }
+        for local, domain, rng, comment, neo4j in OBJECT_PROPERTIES
+        if domain == owl_class or rng == owl_class
+    ]
+    return {
+        "ok": True,
+        "standards": {
+            "rdf": "https://www.w3.org/TR/rdf11-concepts/",
+            "rdfs": "https://www.w3.org/TR/rdf-schema/",
+            "owl2": "https://www.w3.org/TR/owl2-overview/",
+            "xsd": "https://www.w3.org/TR/xmlschema11-2/",
+            "prov": "https://www.w3.org/TR/prov-o/",
+        },
+        "purposes": {
+            "owl_tbox": "Formal vocabulary: classes and properties (what kinds of things exist).",
+            "rdf_abox": "Ground facts as triples about this individual (what is true of this entity).",
+            "knowledge_graph": "Runtime Neo4j property graph used for GraphRAG diagnosis and Explorer.",
+        },
+        "neo4j": {
+            "label": neo4j_label,
+            "entity_id": entity_id,
+            "node_key": f"{neo4j_label}:{entity_id}",
+        },
+        "owl": {
+            "class": owl_class,
+            "class_iri": class_iri,
+            "comment": class_comment,
+            "related_properties": related_props,
+        },
+        "rdf": {
+            "instance_iri": iri,
+            "instance_curie": f"wd:{iri_local}",
+            "namespace": WD,
+        },
+        "turtle": {
+            "class_definition": class_definition_ttl(owl_class),
+            "instance_definition": entity_instance_ttl(
+                neo4j_label=neo4j_label,
+                entity_id=entity_id,
+                product_id=product_id,
+            ),
+            "combined": (
+                class_definition_ttl(owl_class)
+                + "\n# --- RDF ABox (this individual + incident edges) ---\n\n"
+                + "\n".join(
+                    line
+                    for line in entity_instance_ttl(
+                        neo4j_label=neo4j_label,
+                        entity_id=entity_id,
+                        product_id=product_id,
+                    ).splitlines()
+                    if not line.startswith("@prefix")
+                )
+                + "\n"
+            ),
+        },
+        "product_id": product_id,
+    }
+
+
+def product_full_turtle(product_id: str, *, include_schema: bool = True) -> str:
+    """Full diagram for one product: optional TBox + complete product ABox."""
+    catalog = load_catalog()
+    return catalog_to_turtle(catalog, include_schema=include_schema, product_ids=[product_id])
+
+
 # ---------------------------------------------------------------------------
 # RDF/XML (schema + minimal example individual)
 # ---------------------------------------------------------------------------

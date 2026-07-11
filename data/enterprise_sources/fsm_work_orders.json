@@ -20,6 +20,349 @@
       "resolution_summary": "Drive belt replaced; spin cycle restored.",
       "closed_date": "2025-11-14",
       "technician_notes": "Belt heat-cracked. Standard warranty repair."
+    },
+    {
+      "work_order_id": "WO-ICE-9001",
+      "product_id": "ice-001",
+      "asset_id": "AST-ICE-2201",
+      "symptom_id": "ice-s01",
+      "confirmed_failure_mode_id": "ice-fm01",
+      "resolution_summary": "Replaced water inlet valve",
+      "closed_date": "2026-04-02"
+    },
+    {
+      "work_order_id": "WO-VAC001-9100",
+      "product_id": "vac-001",
+      "asset_id": "AST-VAC001-3000",
+      "symptom_id": "vac-001-s01",
+      "confirmed_failure_mode_id": "vac-001-fm01",
+      "resolution_summary": "Replaced Brush Roll Motor Assembly",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-AC001-9101",
+      "product_id": "ac-001",
+      "asset_id": "AST-AC001-3001",
+      "symptom_id": "ac-001-s01",
+      "confirmed_failure_mode_id": "ac-001-fm01",
+      "resolution_summary": "Replaced Condenser Fan Motor",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-OVEN001-9102",
+      "product_id": "oven-001",
+      "asset_id": "AST-OVEN001-3002",
+      "symptom_id": "oven-001-s01",
+      "confirmed_failure_mode_id": "oven-001-fm01",
+      "resolution_summary": "Replaced Oven Temperature Sensor",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-DRY001-9103",
+      "product_id": "dry-001",
+      "asset_id": "AST-DRY001-3003",
+      "symptom_id": "dry-001-s01",
+      "confirmed_failure_mode_id": "dry-001-fm01",
+      "resolution_summary": "Replaced Heat Pump Compressor Module",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-REF001-9104",
+      "product_id": "ref-001",
+      "asset_id": "AST-REF001-3004",
+      "symptom_id": "ref-001-s01",
+      "confirmed_failure_mode_id": "ref-001-fm01",
+      "resolution_summary": "Replaced Defrost Heater Element",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-GRILL001-9105",
+      "product_id": "grill-001",
+      "asset_id": "AST-GRILL001-3005",
+      "symptom_id": "grill-001-s01",
+      "confirmed_failure_mode_id": "grill-001-fm01",
+      "resolution_summary": "Replaced Igniter Electrode Kit",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-HOB001-9106",
+      "product_id": "hob-001",
+      "asset_id": "AST-HOB001-3006",
+      "symptom_id": "hob-001-s01",
+      "confirmed_failure_mode_id": "hob-001-fm01",
+      "resolution_summary": "Replaced Induction Coil Board",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-FAN001-9107",
+      "product_id": "fan-001",
+      "asset_id": "AST-FAN001-3007",
+      "symptom_id": "fan-001-s01",
+      "confirmed_failure_mode_id": "fan-001-fm01",
+      "resolution_summary": "Replaced Main Impeller Bearing",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-PUR001-9108",
+      "product_id": "pur-001",
+      "asset_id": "AST-PUR001-3008",
+      "symptom_id": "pur-001-s01",
+      "confirmed_failure_mode_id": "pur-001-fm01",
+      "resolution_summary": "Replaced Filter Presence Sensor",
+      "closed_date": "2026-06-20"
+    },
+    {
+      "work_order_id": "WO-BULL-WM001-7000",
+      "product_id": "wm-001",
+      "asset_id": "AST-BULL-WM001",
+      "symptom_id": "wm-s05",
+      "confirmed_failure_mode_id": "wm-fm04",
+      "resolution_summary": "Cleared impeller debris and reseated pump per bulletin; E21 cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-AH-WM-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-DW001-7001",
+      "product_id": "dw-001",
+      "asset_id": "AST-BULL-DW001",
+      "symptom_id": "dw-s05",
+      "confirmed_failure_mode_id": "dw-fm04",
+      "resolution_summary": "Replaced latch switch per CleanWave bulletin; dry cycle restored",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-CW-DW-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-MW001-7002",
+      "product_id": "mw-001",
+      "asset_id": "AST-BULL-MW001",
+      "symptom_id": "mw-s05",
+      "confirmed_failure_mode_id": "mw-fm04",
+      "resolution_summary": "Installed bulletin coupler kit; turntable continuous",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-HP-MW-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-ICE001-7003",
+      "product_id": "ice-001",
+      "asset_id": "AST-BULL-ICE001",
+      "symptom_id": "ice-s05",
+      "confirmed_failure_mode_id": "ice-fm04",
+      "resolution_summary": "Purged line per FrostBite bulletin; harvest filled normally",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-FB-ICE-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMSAMWF45-7004",
+      "product_id": "oem-sam-wf45",
+      "asset_id": "AST-BULL-OEMSAMWF45",
+      "symptom_id": "oem-sam-wf45-s05",
+      "confirmed_failure_mode_id": "oem-sam-wf45-fm04",
+      "resolution_summary": "Harness reroute per Samsung TB; 4E resolved on spin",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-SAM-WF45-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMLGWM4000-7005",
+      "product_id": "oem-lg-wm4000",
+      "asset_id": "AST-BULL-OEMLGWM4000",
+      "symptom_id": "oem-lg-wm4000-s05",
+      "confirmed_failure_mode_id": "oem-lg-wm4000-fm04",
+      "resolution_summary": "Reoriented hose/clip; OE cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-LG-WM4000-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMLGLDF5545-7006",
+      "product_id": "oem-lg-ldf5545",
+      "asset_id": "AST-BULL-OEMLGLDF5545",
+      "symptom_id": "oem-lg-ldf5545-s05",
+      "confirmed_failure_mode_id": "oem-lg-ldf5545-fm04",
+      "resolution_summary": "Replaced NTC per humidity bulletin; HE gone",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-LG-LDF-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMSAMDW80-7007",
+      "product_id": "oem-sam-dw80",
+      "asset_id": "AST-BULL-OEMSAMDW80",
+      "symptom_id": "oem-sam-dw80-s05",
+      "confirmed_failure_mode_id": "oem-sam-dw80-fm04",
+      "resolution_summary": "Foam seal kit installed; LC cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-SAM-DW80-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMWHIWTW5000-7008",
+      "product_id": "oem-whi-wtw5000",
+      "asset_id": "AST-BULL-OEMWHIWTW5000",
+      "symptom_id": "oem-whi-wtw5000-s05",
+      "confirmed_failure_mode_id": "oem-whi-wtw5000-fm04",
+      "resolution_summary": "Re-indexed actuator; F9 E1 resolved",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-WHI-WTW-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMLGDLE3400-7009",
+      "product_id": "oem-lg-dle3400",
+      "asset_id": "AST-BULL-OEMLGDLE3400",
+      "symptom_id": "oem-lg-dle3400-s05",
+      "confirmed_failure_mode_id": "oem-lg-dle3400-fm04",
+      "resolution_summary": "Seal kit installed; dry times normal",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-LG-DLE-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMSAMRF28-7010",
+      "product_id": "oem-sam-rf28",
+      "asset_id": "AST-BULL-OEMSAMRF28",
+      "symptom_id": "oem-sam-rf28-s05",
+      "confirmed_failure_mode_id": "oem-sam-rf28-fm04",
+      "resolution_summary": "Corrected polarity; 22E cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-SAM-RF28-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMWHIWFG505-7011",
+      "product_id": "oem-whi-wfg505",
+      "asset_id": "AST-BULL-OEMWHIWFG505",
+      "symptom_id": "oem-whi-wfg505-s05",
+      "confirmed_failure_mode_id": "oem-whi-wfg505-fm04",
+      "resolution_summary": "Jumpers set; bake ignition stable",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-WHI-WFG-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMBOSSHPM88-7012",
+      "product_id": "oem-bos-shpm88",
+      "asset_id": "AST-BULL-OEMBOSSHPM88",
+      "symptom_id": "oem-bos-shpm88-s05",
+      "confirmed_failure_mode_id": "oem-bos-shpm88-fm04",
+      "resolution_summary": "High loop restored; E24 cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-BOS-SHP-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OEMGEJVM3160-7013",
+      "product_id": "oem-ge-jvm3160",
+      "asset_id": "AST-BULL-OEMGEJVM3160",
+      "symptom_id": "oem-ge-jvm3160-s05",
+      "confirmed_failure_mode_id": "oem-ge-jvm3160-fm04",
+      "resolution_summary": "Installed matched diode; hum eliminated",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-GE-JVM-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-VAC001-7014",
+      "product_id": "vac-001",
+      "asset_id": "AST-BULL-VAC001",
+      "symptom_id": "vac-001-s04",
+      "confirmed_failure_mode_id": "vac-001-fm03",
+      "resolution_summary": "FW patch + clean; suction restored",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-RC-VAC-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-AC001-7015",
+      "product_id": "ac-001",
+      "asset_id": "AST-BULL-AC001",
+      "symptom_id": "ac-001-s04",
+      "confirmed_failure_mode_id": "ac-001-fm03",
+      "resolution_summary": "Dried filter; E41 cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-CA-PAC-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-OVEN001-7016",
+      "product_id": "oven-001",
+      "asset_id": "AST-BULL-OVEN001",
+      "symptom_id": "oven-001-s04",
+      "confirmed_failure_mode_id": "oven-001-fm03",
+      "resolution_summary": "Greased connector; F3 gone",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-BP-WO-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-DRY001-7017",
+      "product_id": "dry-001",
+      "asset_id": "AST-BULL-DRY001",
+      "symptom_id": "dry-001-s04",
+      "confirmed_failure_mode_id": "dry-001-fm03",
+      "resolution_summary": "Baffle kit + warmer location; E66 resolved",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-AF-HP-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-REF001-7018",
+      "product_id": "ref-001",
+      "asset_id": "AST-BULL-REF001",
+      "symptom_id": "ref-001-s04",
+      "confirmed_failure_mode_id": "ref-001-fm03",
+      "resolution_summary": "Shim kit installed; temps normal",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-CV-RF-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-GRILL001-7019",
+      "product_id": "grill-001",
+      "asset_id": "AST-BULL-GRILL001",
+      "symptom_id": "grill-001-s04",
+      "confirmed_failure_mode_id": "grill-001-fm03",
+      "resolution_summary": "Regulator adjusted; stable flame",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-FM-GR-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-HOB001-7020",
+      "product_id": "hob-001",
+      "asset_id": "AST-BULL-HOB001",
+      "symptom_id": "hob-001-s04",
+      "confirmed_failure_mode_id": "hob-001-fm03",
+      "resolution_summary": "Calibrated; pan detect OK",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-SL-IH-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-FAN001-7021",
+      "product_id": "fan-001",
+      "asset_id": "AST-BULL-FAN001",
+      "symptom_id": "fan-001-s04",
+      "confirmed_failure_mode_id": "fan-001-fm03",
+      "resolution_summary": "Mesh cleaned; full airflow restored",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-BT-BL-2026-07",
+      "change_type": "product_update"
+    },
+    {
+      "work_order_id": "WO-BULL-PUR001-7022",
+      "product_id": "pur-001",
+      "asset_id": "AST-BULL-PUR001",
+      "symptom_id": "pur-001-s06",
+      "confirmed_failure_mode_id": "pur-001-fm04",
+      "resolution_summary": "Filter reoriented; F02 cleared",
+      "closed_date": "2026-07-05",
+      "bulletin_id": "TB-PR-HP-2026-07",
+      "change_type": "product_update"
     }
   ]
 }

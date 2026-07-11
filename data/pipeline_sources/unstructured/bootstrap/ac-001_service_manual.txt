@@ -1,0 +1,8 @@
+Service manual excerpt — CoolAir Portable AC 12k BTU (ac-001)
+
+Model CA-PAC12 · Brand CoolAir · MY2026
+
+If the unit shows error E41 (Compressor high pressure), inspect the Condenser Airflow.
+Primary field failure: Condenser Fan Failure. Replace Condenser Fan Motor (CA-CFM-12) when confirmed.
+Customer may report: Unit cools weakly and shuts off.
+Always disconnect power before opening the chassis.

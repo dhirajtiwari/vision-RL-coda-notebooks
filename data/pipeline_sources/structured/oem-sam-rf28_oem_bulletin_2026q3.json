@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "oem-sam-rf28",
+  "bulletin_id": "TB-SAM-RF28-2026-07",
+  "primary_symptom": "Samsung fridge 22E after ice room fan bulletin kit",
+  "primary_error_code": "22E",
+  "note": "UPDATE artifact \u2014 Ice Room Fan Connector Polarization (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

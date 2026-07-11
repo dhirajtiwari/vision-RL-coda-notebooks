@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-FB-ICE-2026-07
+Product: ice-001 · Brand: FrostBite · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Ice maker harvests empty trays after water filter change
+Root cause (bulletin): Post-Filter Airlock / Inlet Restriction (Bulletin)
+OEM bulletin: airlock after filter swap prevents fill; purge procedure required.
+
+Diagnostic: Run bulletin purge cycle 3x after filter install; verify mold fill
+Parts: Inlet purge adapter (FB-PURGE-12)
+Error code focus: E07
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

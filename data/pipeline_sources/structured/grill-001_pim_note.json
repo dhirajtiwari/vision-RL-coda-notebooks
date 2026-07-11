@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "grill-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 FlameMaster Outdoor Grill XL",
+  "change_type": "new_product",
+  "primary_symptom": "Burners will not light",
+  "primary_error_code": "G05",
+  "brand": "FlameMaster",
+  "model_number": "FM-GRXL"
+}

@@ -146,6 +146,30 @@ class OntologyBuilder:
             for k, v in sorted(confidence_map.items())
         ]
 
+    @staticmethod
+    def _normalize_resolution_item(item: dict[str, Any], product_id: str) -> dict[str, Any] | None:
+        """Map alternate source keys onto HistoricalResolution fields (tolerant ETL)."""
+        if not isinstance(item, dict):
+            return None
+        rid = item.get("resolution_id") or item.get("work_order_id") or item.get("claim_id")
+        if not rid:
+            return None
+        fm = item.get("confirmed_failure_mode_id") or item.get("failure_mode_id") or item.get("fm_id")
+        if not fm:
+            return None
+        return {
+            "resolution_id": str(rid),
+            "description": (
+                item.get("description")
+                or item.get("summary")
+                or item.get("resolution_summary")
+                or f"Field resolution for {product_id}"
+            ),
+            "confirmed_failure_mode_id": str(fm),
+            "resolution_date": (item.get("resolution_date") or item.get("closed_date") or "2026-01-01"),
+            "technician_notes": (item.get("technician_notes") or item.get("agent_notes") or item.get("notes") or ""),
+        }
+
     def _merge_resolutions(
         self,
         pim_resolutions: list[dict[str, Any]],
@@ -156,7 +180,14 @@ class OntologyBuilder:
         seen: set[str] = set()
         merged: list[HistoricalResolution] = []
         for item in pim_resolutions:
-            res = HistoricalResolution(**item)
+            normalized = self._normalize_resolution_item(item, product_id)
+            if not normalized:
+                continue
+            try:
+                res = HistoricalResolution(**normalized)
+            except Exception:
+                # Skip malformed rows rather than failing the whole product pack
+                continue
             merged.append(res)
             seen.add(res.resolution_id)
         for record in fsm_records:
@@ -165,11 +196,14 @@ class OntologyBuilder:
             rid = record.get("work_order_id") or record.get("resolution_id")
             if not rid or rid in seen:
                 continue
+            fm = record.get("confirmed_failure_mode_id") or record.get("failure_mode_id")
+            if not fm:
+                continue
             merged.append(
                 HistoricalResolution(
                     resolution_id=str(rid),
                     description=record.get("resolution_summary", "Field repair completed."),
-                    confirmed_failure_mode_id=record["confirmed_failure_mode_id"],
+                    confirmed_failure_mode_id=str(fm),
                     resolution_date=record.get("closed_date", "2026-01-01"),
                     technician_notes=record.get("technician_notes", ""),
                 )
@@ -181,11 +215,14 @@ class OntologyBuilder:
             rid = record.get("claim_id")
             if not rid or rid in seen:
                 continue
+            fm = record.get("confirmed_failure_mode_id") or record.get("failure_mode_id")
+            if not fm:
+                continue
             merged.append(
                 HistoricalResolution(
                     resolution_id=str(rid),
                     description=record.get("resolution_summary", "Claim resolved."),
-                    confirmed_failure_mode_id=record["confirmed_failure_mode_id"],
+                    confirmed_failure_mode_id=str(fm),
                     resolution_date=record.get("closed_date", "2026-01-01"),
                     technician_notes=record.get("agent_notes", ""),
                 )

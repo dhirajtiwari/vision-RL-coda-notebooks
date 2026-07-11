@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-AH-WM-2026-07
+Product: wm-001 · Brand: AquaHome · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Washer stops mid-cycle with error E21 after firmware update
+Root cause (bulletin): Drain Pump Impeller Debris (Bulletin)
+Field bulletin: residual debris after E21 firmware change causes intermittent pump stall.
+
+Diagnostic: Inspect impeller for debris per OEM bulletin TB-AH-WM-2026-07
+Parts: Drain pump impeller kit (DP-IMP-8K-B)
+Error code focus: E21
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

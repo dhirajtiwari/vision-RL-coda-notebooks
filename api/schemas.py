@@ -16,9 +16,19 @@ class ClaimStatus(StrEnum):
 
 class DiagnoseRequest(BaseModel):
     message: str = Field(min_length=1, max_length=2000)
-    product_id: str | None = Field(default=None, max_length=64)
+    product_id: str | None = Field(
+        default=None,
+        max_length=64,
+        description="Anonymous session only. Ignored when asset_id binds product from CRM.",
+    )
     customer_id: str | None = Field(default=None, max_length=64)
-    asset_id: str | None = Field(default=None, max_length=64)  # binds model/SKU/BOM for parts prediction
+    asset_id: str | None = Field(
+        default=None,
+        max_length=64,
+        description="Registered asset — product + warranty derived from CRM (asset-first).",
+    )
+    # Operator confirmed soft appliance mismatch — keep bound asset product
+    force_keep_context: bool = False
 
 
 class DiagnoseResponse(BaseModel):
@@ -37,3 +47,7 @@ class GraphSubgraphResponse(BaseModel):
     edges: list[dict[str, Any]]
     node_count: int
     edge_count: int
+    # Diagnosis-path explainability (optional; filled by diagnosis-subgraph)
+    cypher_queries: list[dict[str, Any]] | None = None
+    traversal: list[dict[str, Any]] | None = None
+    params: dict[str, Any] | None = None

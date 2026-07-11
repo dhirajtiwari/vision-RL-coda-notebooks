@@ -1,0 +1,68 @@
+# Core infra: production Neo4j :7687, staging Neo4j :7688, Redis :6379
+#   docker compose -f docker/docker-compose.infra.yaml up -d
+#   export REDIS_URL=redis://localhost:6379/0
+#   export NEO4J_URI=bolt://localhost:7687
+#   export NEO4J_STAGING_URI=bolt://localhost:7688
+services:
+  neo4j:
+    image: neo4j:5-community
+    container_name: warrantygraph-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_server_memory_heap_initial__size: 512m
+      NEO4J_server_memory_heap_max__size: 1G
+      NEO4J_server_memory_pagecache_size: 512m
+    volumes:
+      - warrantygraph_neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 40s
+
+  neo4j-staging:
+    image: neo4j:5-community
+    container_name: warrantygraph-neo4j-staging
+    ports:
+      - "7475:7474"
+      - "7688:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    volumes:
+      - warrantygraph_neo4j_staging_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p password 'RETURN 1' || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: warrantygraph-redis
+    ports:
+      - "6379:6379"
+    command:
+      [
+        "redis-server",
+        "--save", "",
+        "--appendonly", "no",
+        "--maxmemory", "512mb",
+        "--maxmemory-policy", "allkeys-lru",
+      ]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  warrantygraph_neo4j_data:
+  warrantygraph_neo4j_staging_data:

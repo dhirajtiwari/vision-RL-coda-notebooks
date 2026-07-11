@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "ref-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 ChillVault Compact Fridge 180L",
+  "change_type": "new_product",
+  "primary_symptom": "Fridge warm; freezer iced over",
+  "primary_error_code": "E22",
+  "brand": "ChillVault",
+  "model_number": "CV-RF180"
+}

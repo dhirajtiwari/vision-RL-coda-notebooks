@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "wm-001",
+  "bulletin_id": "TB-AH-WM-2026-07",
+  "primary_symptom": "Washer stops mid-cycle with error E21 after firmware update",
+  "primary_error_code": "E21",
+  "note": "UPDATE artifact \u2014 Drain Pump Impeller Debris (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

@@ -1,0 +1,8 @@
+Service manual excerpt — PureRoom HEPA Air Purifier (pur-001)
+
+Model PR-HP400 · Brand PureRoom · MY2026
+
+If the unit shows error F02 (Filter life sensor), inspect the Filter Bay.
+Primary field failure: Filter Sensor Misread. Replace Filter Presence Sensor (PR-FPS-400) when confirmed.
+Customer may report: Air quality light stuck red after filter change.
+Always disconnect power before opening the chassis.

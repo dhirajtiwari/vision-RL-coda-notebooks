@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-LG-WM4000-2026-07
+Product: oem-lg-wm4000 · Brand: LG · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: LG washer OE error on drain after pump replacement with revised pump
+Root cause (bulletin): Revised Drain Pump Air Gap (Bulletin)
+LG bulletin: revised pump needs air-gap hose orientation to avoid OE.
+
+Diagnostic: Orient discharge hose and clip per LG bulletin photo
+Parts: Drain hose air-gap clip (AG-CLIP-WM4K)
+Error code focus: OE
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

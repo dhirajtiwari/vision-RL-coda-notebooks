@@ -37,19 +37,53 @@ sleep 2
 echo ""
 
 # ────────────────────────────────────────────────────────────────────────────
-# 2. CHECK NEO4J STATUS
+# 2. START INFRA (Neo4j + Redis via Docker when available)
 # ────────────────────────────────────────────────────────────────────────────
-echo "🗄️  Checking Neo4j database..."
+echo "🗄️  Starting infra (Neo4j + Redis)..."
 
-NEO4J_HOST="localhost"
-NEO4J_PORT="7687"
-
-if nc -z "$NEO4J_HOST" "$NEO4J_PORT" 2>/dev/null; then
-    echo "  ✓ Neo4j is running on bolt://$NEO4J_HOST:$NEO4J_PORT"
+if docker info >/dev/null 2>&1; then
+  # Production Neo4j :7687 (prefer existing neo4j-demo)
+  if docker ps -a --format '{{.Names}}' | grep -qx neo4j-demo; then
+    docker start neo4j-demo >/dev/null 2>&1 || true
+    echo "  ✓ neo4j-demo (production :7687)"
+  else
+    docker compose -f "$SCRIPT_DIR/docker/docker-compose.infra.yaml" up -d neo4j >/dev/null 2>&1 || true
+    echo "  ✓ compose neo4j production"
+  fi
+  # Staging Neo4j :7688
+  docker compose -f "$SCRIPT_DIR/docker/docker-compose.infra.yaml" up -d neo4j-staging >/dev/null 2>&1 || true
+  echo "  ✓ neo4j staging :7688"
+  if ! nc -z localhost 6379 2>/dev/null; then
+    docker compose -f "$SCRIPT_DIR/docker/docker-compose.infra.yaml" up -d redis >/dev/null 2>&1 || true
+    echo "  ✓ redis started"
+  else
+    echo "  ✓ redis already listening on :6379"
+  fi
 else
-    echo "  ⚠ Neo4j not responding on bolt://$NEO4J_HOST:$NEO4J_PORT"
-    echo "  Ensure Neo4j Docker is running: docker run -d -p 7687:7687 neo4j"
-    echo ""
+  echo "  ⚠ Docker daemon not running — start Docker Desktop, then re-run."
+  echo "    open -a Docker"
+fi
+
+export REDIS_URL="${REDIS_URL:-redis://localhost:6379/0}"
+export NEO4J_URI="${NEO4J_URI:-bolt://localhost:7687}"
+export NEO4J_STAGING_URI="${NEO4J_STAGING_URI:-bolt://localhost:7688}"
+export NEO4J_PASSWORD="${NEO4J_PASSWORD:-password}"
+
+# Wait for production Bolt
+for i in 1 2 3 4 5 6 7 8 9 10; do
+  nc -z localhost 7687 2>/dev/null && break
+  sleep 2
+done
+
+if nc -z localhost 7687 2>/dev/null; then
+    echo "  ✓ Neo4j production bolt://localhost:7687"
+else
+    echo "  ⚠ Neo4j production down — /diagnose will fail"
+fi
+if nc -z localhost 7688 2>/dev/null; then
+    echo "  ✓ Neo4j staging bolt://localhost:7688"
+else
+    echo "  ⚠ Neo4j staging down — promote target=staging will fail"
 fi
 echo ""
 
@@ -63,11 +97,17 @@ if [ -f "$VENV_PATH/bin/activate" ]; then
     source "$VENV_PATH/bin/activate"
 fi
 
-# Start FastAPI in background
+# Start FastAPI in background (Redis-backed rate limit/cache when REDIS_URL set)
 cd "$SCRIPT_DIR"
-nohup uvicorn api.main:app --host 0.0.0.0 --port 8080 --log-level warning > /tmp/fastapi.log 2>&1 &
+export PYTHONPATH="${PYTHONPATH:-$SCRIPT_DIR}"
+nohup env REDIS_URL="${REDIS_URL:-redis://localhost:6379/0}" \
+  NEO4J_URI="${NEO4J_URI:-bolt://localhost:7687}" \
+  NEO4J_STAGING_URI="${NEO4J_STAGING_URI:-bolt://localhost:7688}" \
+  NEO4J_PASSWORD="${NEO4J_PASSWORD:-password}" \
+  PYTHONPATH="$SCRIPT_DIR" \
+  uvicorn api.main:app --host 0.0.0.0 --port 8080 --log-level warning > /tmp/fastapi.log 2>&1 &
 FASTAPI_PID=$!
-echo "  ✓ FastAPI started (PID: $FASTAPI_PID)"
+echo "  ✓ FastAPI started (PID: $FASTAPI_PID) REDIS_URL=$REDIS_URL"
 
 sleep 2
 

@@ -1,0 +1,19 @@
+product_id,part_id,part_number,name,cost
+vac-001,vac-001-p01,RC-BRM-90,Brush Roll Motor Assembly,48.0
+vac-001,vac-001-p02,RC-BRM-90-PCB,Main control board,76.8
+ac-001,ac-001-p01,CA-CFM-12,Condenser Fan Motor,62.0
+ac-001,ac-001-p02,CA-CFM-12-PCB,Main control board,99.2
+oven-001,oven-001-p01,BP-OTS-30,Oven Temperature Sensor,28.5
+oven-001,oven-001-p02,BP-OTS-30-PCB,Main control board,45.6
+dry-001,dry-001-p01,AF-HPC-8,Heat Pump Compressor Module,210.0
+dry-001,dry-001-p02,AF-HPC-8-PCB,Main control board,336.0
+ref-001,ref-001-p01,CV-DH-180,Defrost Heater Element,36.0
+ref-001,ref-001-p02,CV-DH-180-PCB,Main control board,57.6
+grill-001,grill-001-p01,FM-IGN-XL,Igniter Electrode Kit,24.0
+grill-001,grill-001-p02,FM-IGN-XL-PCB,Main control board,38.4
+hob-001,hob-001-p01,SL-ICB-4,Induction Coil Board,95.0
+hob-001,hob-001-p02,SL-ICB-4-PCB,Main control board,152.0
+fan-001,fan-001-p01,BT-IB-60,Main Impeller Bearing,19.0
+fan-001,fan-001-p02,BT-IB-60-PCB,Main control board,30.4
+pur-001,pur-001-p01,PR-FPS-400,Filter Presence Sensor,15.5
+pur-001,pur-001-p02,PR-FPS-400-PCB,Main control board,24.8

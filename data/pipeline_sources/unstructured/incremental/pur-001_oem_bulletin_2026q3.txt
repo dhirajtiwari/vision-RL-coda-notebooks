@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-PR-HP-2026-07
+Product: pur-001 · Brand: PureRoom · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Purifier F02 immediately after genuine filter install
+Root cause (bulletin): Filter RFID Orientation (Bulletin)
+PureRoom: filter RFID must face sensor; reverse install causes F02.
+
+Diagnostic: Reseat filter with RFID toward sensor; clear F02
+Parts: Filter orientation label (PR-RFID-LBL)
+Error code focus: F02
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

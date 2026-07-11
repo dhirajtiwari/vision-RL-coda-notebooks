@@ -1,0 +1,943 @@
+{
+  "work_orders": [
+    {
+      "record_type": "work_order_delta",
+      "product_id": "vac-001",
+      "symptom_id": "vac-001-s01",
+      "confirmed_failure_mode_id": "vac-001-fm01",
+      "resolution_summary": "Replaced Brush Roll Motor Assembly",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "vac-001",
+        "symptom_id": "vac-001-s01",
+        "failure_mode_id": "vac-001-fm01",
+        "resolution": "Replaced Brush Roll Motor Assembly",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ac-001",
+      "symptom_id": "ac-001-s01",
+      "confirmed_failure_mode_id": "ac-001-fm01",
+      "resolution_summary": "Replaced Condenser Fan Motor",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ac-001",
+        "symptom_id": "ac-001-s01",
+        "failure_mode_id": "ac-001-fm01",
+        "resolution": "Replaced Condenser Fan Motor",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "oven-001",
+      "symptom_id": "oven-001-s01",
+      "confirmed_failure_mode_id": "oven-001-fm01",
+      "resolution_summary": "Replaced Oven Temperature Sensor",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "oven-001",
+        "symptom_id": "oven-001-s01",
+        "failure_mode_id": "oven-001-fm01",
+        "resolution": "Replaced Oven Temperature Sensor",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "dry-001",
+      "symptom_id": "dry-001-s01",
+      "confirmed_failure_mode_id": "dry-001-fm01",
+      "resolution_summary": "Replaced Heat Pump Compressor Module",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dry-001",
+        "symptom_id": "dry-001-s01",
+        "failure_mode_id": "dry-001-fm01",
+        "resolution": "Replaced Heat Pump Compressor Module",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ref-001",
+      "symptom_id": "ref-001-s01",
+      "confirmed_failure_mode_id": "ref-001-fm01",
+      "resolution_summary": "Replaced Defrost Heater Element",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ref-001",
+        "symptom_id": "ref-001-s01",
+        "failure_mode_id": "ref-001-fm01",
+        "resolution": "Replaced Defrost Heater Element",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "grill-001",
+      "symptom_id": "grill-001-s01",
+      "confirmed_failure_mode_id": "grill-001-fm01",
+      "resolution_summary": "Replaced Igniter Electrode Kit",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "grill-001",
+        "symptom_id": "grill-001-s01",
+        "failure_mode_id": "grill-001-fm01",
+        "resolution": "Replaced Igniter Electrode Kit",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "hob-001",
+      "symptom_id": "hob-001-s01",
+      "confirmed_failure_mode_id": "hob-001-fm01",
+      "resolution_summary": "Replaced Induction Coil Board",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "hob-001",
+        "symptom_id": "hob-001-s01",
+        "failure_mode_id": "hob-001-fm01",
+        "resolution": "Replaced Induction Coil Board",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "fan-001",
+      "symptom_id": "fan-001-s01",
+      "confirmed_failure_mode_id": "fan-001-fm01",
+      "resolution_summary": "Replaced Main Impeller Bearing",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "fan-001",
+        "symptom_id": "fan-001-s01",
+        "failure_mode_id": "fan-001-fm01",
+        "resolution": "Replaced Main Impeller Bearing",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "pur-001",
+      "symptom_id": "pur-001-s01",
+      "confirmed_failure_mode_id": "pur-001-fm01",
+      "resolution_summary": "Replaced Filter Presence Sensor",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "pur-001",
+        "symptom_id": "pur-001-s01",
+        "failure_mode_id": "pur-001-fm01",
+        "resolution": "Replaced Filter Presence Sensor",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "wm-001",
+      "symptom_id": "wm-s03",
+      "confirmed_failure_mode_id": "wm-fm02",
+      "resolution_summary": "Replaced drain pump",
+      "closed_date": "2026-03-01",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "symptom_id": "wm-s03",
+        "failure_mode_id": "wm-fm02",
+        "resolution": "Replaced drain pump",
+        "closed_date": "2026-03-01"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "wm-001",
+      "symptom_id": "wm-s01",
+      "confirmed_failure_mode_id": "wm-fm01",
+      "resolution_summary": "Bearing kit install",
+      "closed_date": "2026-03-05",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "symptom_id": "wm-s01",
+        "failure_mode_id": "wm-fm01",
+        "resolution": "Bearing kit install",
+        "closed_date": "2026-03-05"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "dw-001",
+      "symptom_id": "dw-s01",
+      "confirmed_failure_mode_id": "dw-fm01",
+      "resolution_summary": "Heating element",
+      "closed_date": "2026-03-08",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dw-001",
+        "symptom_id": "dw-s01",
+        "failure_mode_id": "dw-fm01",
+        "resolution": "Heating element",
+        "closed_date": "2026-03-08"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "mw-001",
+      "symptom_id": "mw-s02",
+      "confirmed_failure_mode_id": "mw-fm02",
+      "resolution_summary": "Waveguide cover",
+      "closed_date": "2026-03-10",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "mw-001",
+        "symptom_id": "mw-s02",
+        "failure_mode_id": "mw-fm02",
+        "resolution": "Waveguide cover",
+        "closed_date": "2026-03-10"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ice-001",
+      "symptom_id": "ice-s01",
+      "confirmed_failure_mode_id": "ice-fm01",
+      "resolution_summary": "Replaced water inlet valve",
+      "closed_date": "2026-04-02",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "symptom_id": "ice-s01",
+        "failure_mode_id": "ice-fm01",
+        "resolution": "Replaced water inlet valve",
+        "closed_date": "2026-04-02"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ice-001",
+      "symptom_id": "ice-s02",
+      "confirmed_failure_mode_id": "ice-fm02",
+      "resolution_summary": "Cleared frozen fill tube; insulated line",
+      "closed_date": "2026-04-10",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "symptom_id": "ice-s02",
+        "failure_mode_id": "ice-fm02",
+        "resolution": "Cleared frozen fill tube; insulated line",
+        "closed_date": "2026-04-10"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "vac-001",
+      "symptom_id": "vac-001-s01",
+      "confirmed_failure_mode_id": "vac-001-fm01",
+      "resolution_summary": "Replaced Brush Roll Motor Assembly",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "vac-001",
+        "symptom_id": "vac-001-s01",
+        "failure_mode_id": "vac-001-fm01",
+        "resolution": "Replaced Brush Roll Motor Assembly",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ac-001",
+      "symptom_id": "ac-001-s01",
+      "confirmed_failure_mode_id": "ac-001-fm01",
+      "resolution_summary": "Replaced Condenser Fan Motor",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ac-001",
+        "symptom_id": "ac-001-s01",
+        "failure_mode_id": "ac-001-fm01",
+        "resolution": "Replaced Condenser Fan Motor",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "oven-001",
+      "symptom_id": "oven-001-s01",
+      "confirmed_failure_mode_id": "oven-001-fm01",
+      "resolution_summary": "Replaced Oven Temperature Sensor",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "oven-001",
+        "symptom_id": "oven-001-s01",
+        "failure_mode_id": "oven-001-fm01",
+        "resolution": "Replaced Oven Temperature Sensor",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "dry-001",
+      "symptom_id": "dry-001-s01",
+      "confirmed_failure_mode_id": "dry-001-fm01",
+      "resolution_summary": "Replaced Heat Pump Compressor Module",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dry-001",
+        "symptom_id": "dry-001-s01",
+        "failure_mode_id": "dry-001-fm01",
+        "resolution": "Replaced Heat Pump Compressor Module",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ref-001",
+      "symptom_id": "ref-001-s01",
+      "confirmed_failure_mode_id": "ref-001-fm01",
+      "resolution_summary": "Replaced Defrost Heater Element",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ref-001",
+        "symptom_id": "ref-001-s01",
+        "failure_mode_id": "ref-001-fm01",
+        "resolution": "Replaced Defrost Heater Element",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "grill-001",
+      "symptom_id": "grill-001-s01",
+      "confirmed_failure_mode_id": "grill-001-fm01",
+      "resolution_summary": "Replaced Igniter Electrode Kit",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "grill-001",
+        "symptom_id": "grill-001-s01",
+        "failure_mode_id": "grill-001-fm01",
+        "resolution": "Replaced Igniter Electrode Kit",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "hob-001",
+      "symptom_id": "hob-001-s01",
+      "confirmed_failure_mode_id": "hob-001-fm01",
+      "resolution_summary": "Replaced Induction Coil Board",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "hob-001",
+        "symptom_id": "hob-001-s01",
+        "failure_mode_id": "hob-001-fm01",
+        "resolution": "Replaced Induction Coil Board",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "fan-001",
+      "symptom_id": "fan-001-s01",
+      "confirmed_failure_mode_id": "fan-001-fm01",
+      "resolution_summary": "Replaced Main Impeller Bearing",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "fan-001",
+        "symptom_id": "fan-001-s01",
+        "failure_mode_id": "fan-001-fm01",
+        "resolution": "Replaced Main Impeller Bearing",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "pur-001",
+      "symptom_id": "pur-001-s01",
+      "confirmed_failure_mode_id": "pur-001-fm01",
+      "resolution_summary": "Replaced Filter Presence Sensor",
+      "closed_date": "2026-06-15",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "pur-001",
+        "symptom_id": "pur-001-s01",
+        "failure_mode_id": "pur-001-fm01",
+        "resolution": "Replaced Filter Presence Sensor",
+        "closed_date": "2026-06-15",
+        "change_type": "new_product"
+      }
+    }
+  ],
+  "parts": [
+    {
+      "record_type": "part_delta",
+      "product_id": "vac-001",
+      "part_id": "vac-001-p01",
+      "part_number": "RC-BRM-90",
+      "name": "Brush Roll Motor Assembly",
+      "estimated_cost_usd": 48.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "vac-001",
+        "part_id": "vac-001-p01",
+        "part_number": "RC-BRM-90",
+        "name": "Brush Roll Motor Assembly",
+        "cost": "48.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "vac-001",
+      "part_id": "vac-001-p02",
+      "part_number": "RC-BRM-90-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 76.8,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "vac-001",
+        "part_id": "vac-001-p02",
+        "part_number": "RC-BRM-90-PCB",
+        "name": "Main control board",
+        "cost": "76.8"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ac-001",
+      "part_id": "ac-001-p01",
+      "part_number": "CA-CFM-12",
+      "name": "Condenser Fan Motor",
+      "estimated_cost_usd": 62.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ac-001",
+        "part_id": "ac-001-p01",
+        "part_number": "CA-CFM-12",
+        "name": "Condenser Fan Motor",
+        "cost": "62.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ac-001",
+      "part_id": "ac-001-p02",
+      "part_number": "CA-CFM-12-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 99.2,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ac-001",
+        "part_id": "ac-001-p02",
+        "part_number": "CA-CFM-12-PCB",
+        "name": "Main control board",
+        "cost": "99.2"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "oven-001",
+      "part_id": "oven-001-p01",
+      "part_number": "BP-OTS-30",
+      "name": "Oven Temperature Sensor",
+      "estimated_cost_usd": 28.5,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "oven-001",
+        "part_id": "oven-001-p01",
+        "part_number": "BP-OTS-30",
+        "name": "Oven Temperature Sensor",
+        "cost": "28.5"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "oven-001",
+      "part_id": "oven-001-p02",
+      "part_number": "BP-OTS-30-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 45.6,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "oven-001",
+        "part_id": "oven-001-p02",
+        "part_number": "BP-OTS-30-PCB",
+        "name": "Main control board",
+        "cost": "45.6"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "dry-001",
+      "part_id": "dry-001-p01",
+      "part_number": "AF-HPC-8",
+      "name": "Heat Pump Compressor Module",
+      "estimated_cost_usd": 210.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dry-001",
+        "part_id": "dry-001-p01",
+        "part_number": "AF-HPC-8",
+        "name": "Heat Pump Compressor Module",
+        "cost": "210.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "dry-001",
+      "part_id": "dry-001-p02",
+      "part_number": "AF-HPC-8-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 336.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dry-001",
+        "part_id": "dry-001-p02",
+        "part_number": "AF-HPC-8-PCB",
+        "name": "Main control board",
+        "cost": "336.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ref-001",
+      "part_id": "ref-001-p01",
+      "part_number": "CV-DH-180",
+      "name": "Defrost Heater Element",
+      "estimated_cost_usd": 36.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ref-001",
+        "part_id": "ref-001-p01",
+        "part_number": "CV-DH-180",
+        "name": "Defrost Heater Element",
+        "cost": "36.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ref-001",
+      "part_id": "ref-001-p02",
+      "part_number": "CV-DH-180-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 57.6,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ref-001",
+        "part_id": "ref-001-p02",
+        "part_number": "CV-DH-180-PCB",
+        "name": "Main control board",
+        "cost": "57.6"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "grill-001",
+      "part_id": "grill-001-p01",
+      "part_number": "FM-IGN-XL",
+      "name": "Igniter Electrode Kit",
+      "estimated_cost_usd": 24.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "grill-001",
+        "part_id": "grill-001-p01",
+        "part_number": "FM-IGN-XL",
+        "name": "Igniter Electrode Kit",
+        "cost": "24.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "grill-001",
+      "part_id": "grill-001-p02",
+      "part_number": "FM-IGN-XL-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 38.4,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "grill-001",
+        "part_id": "grill-001-p02",
+        "part_number": "FM-IGN-XL-PCB",
+        "name": "Main control board",
+        "cost": "38.4"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "hob-001",
+      "part_id": "hob-001-p01",
+      "part_number": "SL-ICB-4",
+      "name": "Induction Coil Board",
+      "estimated_cost_usd": 95.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "hob-001",
+        "part_id": "hob-001-p01",
+        "part_number": "SL-ICB-4",
+        "name": "Induction Coil Board",
+        "cost": "95.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "hob-001",
+      "part_id": "hob-001-p02",
+      "part_number": "SL-ICB-4-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 152.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "hob-001",
+        "part_id": "hob-001-p02",
+        "part_number": "SL-ICB-4-PCB",
+        "name": "Main control board",
+        "cost": "152.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "fan-001",
+      "part_id": "fan-001-p01",
+      "part_number": "BT-IB-60",
+      "name": "Main Impeller Bearing",
+      "estimated_cost_usd": 19.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "fan-001",
+        "part_id": "fan-001-p01",
+        "part_number": "BT-IB-60",
+        "name": "Main Impeller Bearing",
+        "cost": "19.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "fan-001",
+      "part_id": "fan-001-p02",
+      "part_number": "BT-IB-60-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 30.4,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "fan-001",
+        "part_id": "fan-001-p02",
+        "part_number": "BT-IB-60-PCB",
+        "name": "Main control board",
+        "cost": "30.4"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "pur-001",
+      "part_id": "pur-001-p01",
+      "part_number": "PR-FPS-400",
+      "name": "Filter Presence Sensor",
+      "estimated_cost_usd": 15.5,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "pur-001",
+        "part_id": "pur-001-p01",
+        "part_number": "PR-FPS-400",
+        "name": "Filter Presence Sensor",
+        "cost": "15.5"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "pur-001",
+      "part_id": "pur-001-p02",
+      "part_number": "PR-FPS-400-PCB",
+      "name": "Main control board",
+      "estimated_cost_usd": 24.8,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "pur-001",
+        "part_id": "pur-001-p02",
+        "part_number": "PR-FPS-400-PCB",
+        "name": "Main control board",
+        "cost": "24.8"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "wm-001",
+      "part_id": "wm-p02",
+      "part_number": "DP-8K-01",
+      "name": "Drain pump",
+      "estimated_cost_usd": 89.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "part_id": "wm-p02",
+        "part_number": "DP-8K-01",
+        "name": "Drain pump",
+        "cost": "89.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "wm-001",
+      "part_id": "wm-p01",
+      "part_number": "BRG-8K-01",
+      "name": "Drum bearing kit",
+      "estimated_cost_usd": 120.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "part_id": "wm-p01",
+        "part_number": "BRG-8K-01",
+        "name": "Drum bearing kit",
+        "cost": "120.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "dw-001",
+      "part_id": "dw-p01",
+      "part_number": "HE-12-01",
+      "name": "Heating element",
+      "estimated_cost_usd": 75.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dw-001",
+        "part_id": "dw-p01",
+        "part_number": "HE-12-01",
+        "name": "Heating element",
+        "cost": "75.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "mw-001",
+      "part_id": "mw-p02",
+      "part_number": "WG-25-01",
+      "name": "Waveguide cover",
+      "estimated_cost_usd": 22.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "mw-001",
+        "part_id": "mw-p02",
+        "part_number": "WG-25-01",
+        "name": "Waveguide cover",
+        "cost": "22.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ice-001",
+      "part_id": "ice-p01",
+      "part_number": "FB-WIV-12",
+      "name": "Water inlet valve",
+      "estimated_cost_usd": 34.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "part_id": "ice-p01",
+        "part_number": "FB-WIV-12",
+        "name": "Water inlet valve",
+        "cost": "34.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ice-001",
+      "part_id": "ice-p02",
+      "part_number": "FB-FT-12",
+      "name": "Fill tube assembly",
+      "estimated_cost_usd": 18.5,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "part_id": "ice-p02",
+        "part_number": "FB-FT-12",
+        "name": "Fill tube assembly",
+        "cost": "18.5"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ice-001",
+      "part_id": "ice-p03",
+      "part_number": "FB-BFS-12",
+      "name": "Bin full sensor",
+      "estimated_cost_usd": 22.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "part_id": "ice-p03",
+        "part_number": "FB-BFS-12",
+        "name": "Bin full sensor",
+        "cost": "22.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "vac-001",
+      "part_id": "vac-001-p01",
+      "part_number": "RC-BRM-90",
+      "name": "Brush Roll Motor Assembly",
+      "estimated_cost_usd": 48.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "vac-001",
+        "part_id": "vac-001-p01",
+        "part_number": "RC-BRM-90",
+        "name": "Brush Roll Motor Assembly",
+        "cost": "48.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "oven-001",
+      "part_id": "oven-001-p01",
+      "part_number": "BP-OTS-30",
+      "name": "Oven Temperature Sensor",
+      "estimated_cost_usd": 28.5,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "oven-001",
+        "part_id": "oven-001-p01",
+        "part_number": "BP-OTS-30",
+        "name": "Oven Temperature Sensor",
+        "cost": "28.5"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "dry-001",
+      "part_id": "dry-001-p01",
+      "part_number": "AF-HPC-8",
+      "name": "Heat Pump Compressor Module",
+      "estimated_cost_usd": 210.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dry-001",
+        "part_id": "dry-001-p01",
+        "part_number": "AF-HPC-8",
+        "name": "Heat Pump Compressor Module",
+        "cost": "210.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ref-001",
+      "part_id": "ref-001-p01",
+      "part_number": "CV-DH-180",
+      "name": "Defrost Heater Element",
+      "estimated_cost_usd": 36.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ref-001",
+        "part_id": "ref-001-p01",
+        "part_number": "CV-DH-180",
+        "name": "Defrost Heater Element",
+        "cost": "36.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "grill-001",
+      "part_id": "grill-001-p01",
+      "part_number": "FM-IGN-XL",
+      "name": "Igniter Electrode Kit",
+      "estimated_cost_usd": 24.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "grill-001",
+        "part_id": "grill-001-p01",
+        "part_number": "FM-IGN-XL",
+        "name": "Igniter Electrode Kit",
+        "cost": "24.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "hob-001",
+      "part_id": "hob-001-p01",
+      "part_number": "SL-ICB-4",
+      "name": "Induction Coil Board",
+      "estimated_cost_usd": 95.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "hob-001",
+        "part_id": "hob-001-p01",
+        "part_number": "SL-ICB-4",
+        "name": "Induction Coil Board",
+        "cost": "95.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "fan-001",
+      "part_id": "fan-001-p01",
+      "part_number": "BT-IB-60",
+      "name": "Main Impeller Bearing",
+      "estimated_cost_usd": 19.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "fan-001",
+        "part_id": "fan-001-p01",
+        "part_number": "BT-IB-60",
+        "name": "Main Impeller Bearing",
+        "cost": "19.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "pur-001",
+      "part_id": "pur-001-p01",
+      "part_number": "PR-FPS-400",
+      "name": "Filter Presence Sensor",
+      "estimated_cost_usd": 15.5,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "pur-001",
+        "part_id": "pur-001-p01",
+        "part_number": "PR-FPS-400",
+        "name": "Filter Presence Sensor",
+        "cost": "15.5"
+      }
+    }
+  ],
+  "artifacts": [
+    "/Users/dhiraj/diagnosis-chatbot-demo/diagnostic-chatbot/data/pipeline_sources/semi_structured/bootstrap/new_products_9_parts.csv",
+    "/Users/dhiraj/diagnosis-chatbot-demo/diagnostic-chatbot/data/pipeline_sources/semi_structured/bootstrap/new_products_9_work_orders.jsonl",
+    "/Users/dhiraj/diagnosis-chatbot-demo/diagnostic-chatbot/data/pipeline_sources/semi_structured/bootstrap/parts_delta.csv",
+    "/Users/dhiraj/diagnosis-chatbot-demo/diagnostic-chatbot/data/pipeline_sources/semi_structured/bootstrap/work_orders.jsonl"
+  ],
+  "record_count": 57
+}

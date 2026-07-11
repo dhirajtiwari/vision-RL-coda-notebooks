@@ -1,0 +1,8 @@
+Service manual excerpt — FlameMaster Outdoor Grill XL (grill-001)
+
+Model FM-GRXL · Brand FlameMaster · MY2026
+
+If the unit shows error G05 (Igniter no spark), inspect the Ignition System.
+Primary field failure: Electronic Igniter Failure. Replace Igniter Electrode Kit (FM-IGN-XL) when confirmed.
+Customer may report: Burners will not light.
+Always disconnect power before opening the chassis.

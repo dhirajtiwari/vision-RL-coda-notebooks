@@ -3,6 +3,7 @@ export interface DiagnoseRequest {
   product_id?: string | null;
   customer_id?: string | null;
   asset_id?: string | null;
+  force_keep_context?: boolean;
 }
 
 export interface Diagnosis {
@@ -31,6 +32,16 @@ export interface Diagnosis {
     safety_notes?: string;
     indications?: Array<{ symptom_id: string; confidence: number }>;
   }>;
+  /** Targeted troubleshooting steps from Neo4j HAS_DIAGNOSTIC_STEP / CONFIRMS */
+  diagnostic_steps?: Array<{
+    step_id: string;
+    description: string;
+    step_order?: number;
+    expected_outcome?: string;
+    source_system?: string;
+    source_document_uri?: string;
+  }>;
+  historical_resolutions?: Array<any>;
   predicted_parts?: Array<any>;
   confidence?: number;
   graph_confidence?: number;
@@ -43,6 +54,18 @@ export interface Diagnosis {
   graph_subgraph?: any;
   provenance_trail?: Array<any>;
   evidence?: string[];
+  warnings?: string[];
+  context_blocked?: boolean;
+  context_block_code?: string;
+  resolution_meta?: {
+    soft?: boolean;
+    session?: string;
+    suggested_product_id?: string;
+    message_product_id?: string;
+    bound_product_id?: string;
+    can_force_keep?: boolean;
+    [key: string]: any;
+  };
 }
 
 export interface DiagnoseResponse {

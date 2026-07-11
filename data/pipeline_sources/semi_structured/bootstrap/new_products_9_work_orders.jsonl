@@ -1,0 +1,9 @@
+{"product_id": "vac-001", "symptom_id": "vac-001-s01", "failure_mode_id": "vac-001-fm01", "resolution": "Replaced Brush Roll Motor Assembly", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "ac-001", "symptom_id": "ac-001-s01", "failure_mode_id": "ac-001-fm01", "resolution": "Replaced Condenser Fan Motor", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "oven-001", "symptom_id": "oven-001-s01", "failure_mode_id": "oven-001-fm01", "resolution": "Replaced Oven Temperature Sensor", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "dry-001", "symptom_id": "dry-001-s01", "failure_mode_id": "dry-001-fm01", "resolution": "Replaced Heat Pump Compressor Module", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "ref-001", "symptom_id": "ref-001-s01", "failure_mode_id": "ref-001-fm01", "resolution": "Replaced Defrost Heater Element", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "grill-001", "symptom_id": "grill-001-s01", "failure_mode_id": "grill-001-fm01", "resolution": "Replaced Igniter Electrode Kit", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "hob-001", "symptom_id": "hob-001-s01", "failure_mode_id": "hob-001-fm01", "resolution": "Replaced Induction Coil Board", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "fan-001", "symptom_id": "fan-001-s01", "failure_mode_id": "fan-001-fm01", "resolution": "Replaced Main Impeller Bearing", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "pur-001", "symptom_id": "pur-001-s01", "failure_mode_id": "pur-001-fm01", "resolution": "Replaced Filter Presence Sensor", "closed_date": "2026-06-15", "change_type": "new_product"}

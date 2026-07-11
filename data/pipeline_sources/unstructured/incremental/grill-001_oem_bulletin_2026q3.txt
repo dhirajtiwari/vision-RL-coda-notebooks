@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-FM-GR-2026-07
+Product: grill-001 · Brand: FlameMaster · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Grill burners light then drop flame after igniter kit
+Root cause (bulletin): Regulator Setpoint Drift (Bulletin)
+FlameMaster: new igniter kit requires regulator setpoint check.
+
+Diagnostic: Set regulator WC per bulletin table; retest flame
+Parts: Regulator setpoint tool note (FM-REG-NOTE)
+Error code focus: G05
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

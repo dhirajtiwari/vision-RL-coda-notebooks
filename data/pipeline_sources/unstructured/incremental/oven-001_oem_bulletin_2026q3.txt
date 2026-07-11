@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-BP-WO-2026-07
+Product: oven-001 · Brand: BakePro · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Wall oven F3 after self-clean cycle on new sensor kit
+Root cause (bulletin): Sensor Connector Oxidation (Bulletin)
+BakePro: self-clean heat oxidizes sensor plug; dielectric grease required.
+
+Diagnostic: Clean pins and apply grease per bulletin
+Parts: Sensor connector grease kit (BP-GRS-KIT)
+Error code focus: F3
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

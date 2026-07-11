@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "oem-lg-ldf5545",
+  "bulletin_id": "TB-LG-LDF-2026-07",
+  "primary_symptom": "LG dishwasher HE error after summer humidity spike",
+  "primary_error_code": "HE",
+  "note": "UPDATE artifact \u2014 Humidity-Induced Heater NTC Drift (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

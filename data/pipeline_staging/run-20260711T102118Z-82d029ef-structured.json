@@ -1,0 +1,30 @@
+{
+  "product_count": 14,
+  "sources": {
+    "PIM": {
+      "ok": true,
+      "record_count": 14,
+      "mode": "fixture_fallback",
+      "errors": []
+    },
+    "FSM": {
+      "ok": true,
+      "record_count": 3,
+      "mode": "fixture_fallback",
+      "errors": []
+    },
+    "Claims": {
+      "ok": true,
+      "record_count": 2,
+      "mode": "fixture_fallback",
+      "errors": []
+    },
+    "CRM": {
+      "ok": true,
+      "record_count": 6,
+      "mode": "fixture_fallback",
+      "errors": []
+    }
+  },
+  "batch_id": "ETL-20260711-5ea90bb2"
+}

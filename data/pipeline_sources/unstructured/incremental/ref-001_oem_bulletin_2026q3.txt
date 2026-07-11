@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-CV-RF-2026-07
+Product: ref-001 · Brand: ChillVault · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Fridge warm with heavy frost after door gasket revision
+Root cause (bulletin): Gasket Revision Seal Gap (Bulletin)
+ChillVault: rev B gasket can gap at hinge; warm cabinet + frost.
+
+Diagnostic: Measure gap and install shim kit per bulletin
+Parts: Gasket hinge shim kit (CV-GSK-SHIM)
+Error code focus: E22
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

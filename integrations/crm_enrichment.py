@@ -11,6 +11,43 @@ from graph.enterprise_pipeline.http_client import get_json
 CRM_FIXTURE = settings.enterprise_sources_dir / "crm_assets.json"
 
 
+def _load_fixture() -> dict[str, Any]:
+    if not CRM_FIXTURE.exists():
+        return {"customers": [], "registered_assets": []}
+    return json.loads(CRM_FIXTURE.read_text(encoding="utf-8"))
+
+
+def list_crm_customers() -> list[dict[str, Any]]:
+    """List customers for asset-first UX (fixture or empty if CRM live-only)."""
+    data = _load_fixture()
+    return list(data.get("customers") or [])
+
+
+def list_customer_assets(customer_id: str) -> dict[str, Any]:
+    """Customer + all registered assets (asset-first selection)."""
+    data = _load_fixture()
+    customer = next((c for c in data.get("customers", []) if c.get("customer_id") == customer_id), None)
+    assets = [a for a in data.get("registered_assets", []) if a.get("customer_id") == customer_id]
+    return {
+        "customer": customer,
+        "registered_assets": assets,
+        "source_system": data.get("source_system", "CRM"),
+        "source_mode": "fixture",
+    }
+
+
+def get_crm_asset(asset_id: str) -> dict[str, Any] | None:
+    data = _load_fixture()
+    asset = next((a for a in data.get("registered_assets", []) if a.get("asset_id") == asset_id), None)
+    if not asset:
+        return None
+    customer = next(
+        (c for c in data.get("customers", []) if c.get("customer_id") == asset.get("customer_id")),
+        None,
+    )
+    return {"asset": asset, "customer": customer, "source_mode": "fixture"}
+
+
 def _fixture_enrich(customer_id: str | None, asset_id: str | None) -> dict[str, Any] | None:
     if not CRM_FIXTURE.exists():
         return None
@@ -69,6 +106,8 @@ def _build_enrichment(
         "customer_name": owner_name,
         "asset_id": asset.get("asset_id"),
         "product_id": asset.get("product_id"),
+        "sku_id": asset.get("sku_id"),
+        "model_number": asset.get("model_number"),
         "serial_number": asset.get("serial_number"),
         "warranty_status": asset.get("warranty_status"),
         "warranty_expiry": asset.get("warranty_expiry"),

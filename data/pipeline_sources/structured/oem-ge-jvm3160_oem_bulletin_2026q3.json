@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "oem-ge-jvm3160",
+  "bulletin_id": "TB-GE-JVM-2026-07",
+  "primary_symptom": "OTR microwave loud hum on high after magnetron service kit",
+  "primary_error_code": null,
+  "note": "UPDATE artifact \u2014 HV Diode Matching (Bulletin Kit)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

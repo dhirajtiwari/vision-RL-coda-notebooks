@@ -1,0 +1,6 @@
+Service manual excerpt — FrostBite Compact Ice Maker 12kg (ice-001)
+
+If the unit will not make ice and the status LED flashes E07, check the water inlet valve and fill tube.
+A common failure is a stuck water inlet valve or frozen fill tube.
+Customer may report no ice production after 24 hours or only small/cloudy cubes.
+Also inspect the bin full sensor if harvest cycle never completes.

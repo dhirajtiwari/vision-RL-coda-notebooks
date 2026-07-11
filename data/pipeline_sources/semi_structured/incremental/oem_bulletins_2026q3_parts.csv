@@ -1,0 +1,24 @@
+product_id,part_id,part_number,name,cost,bulletin_id,change_type
+wm-001,wm-p04,DP-IMP-8K-B,Drain pump impeller kit,45.0,TB-AH-WM-2026-07,product_update
+dw-001,dw-p04,DL-MS-12-B,Door latch microswitch,28.0,TB-CW-DW-2026-07,product_update
+mw-001,mw-p04,TT-CPL-25-B,Turntable coupler,12.5,TB-HP-MW-2026-07,product_update
+ice-001,ice-p04,FB-PURGE-12,Inlet purge adapter,9.0,TB-FB-ICE-2026-07,product_update
+oem-sam-wf45,oem-sam-wf45-p04,DC93-HS-WF45-B,Hall sensor harness kit,38.0,TB-SAM-WF45-2026-07,product_update
+oem-lg-wm4000,oem-lg-wm4000-p04,AG-CLIP-WM4K,Drain hose air-gap clip,6.5,TB-LG-WM4000-2026-07,product_update
+oem-lg-ldf5545,oem-lg-ldf5545-p04,NTC-LDF-B,Heater NTC sensor,22.0,TB-LG-LDF-2026-07,product_update
+oem-sam-dw80,oem-sam-dw80-p04,FS-DW80-B,Base foam seal kit,15.0,TB-SAM-DW80-2026-07,product_update
+oem-whi-wtw5000,oem-whi-wtw5000-p04,CA-SHIM-WTW,Clutch actuator index shim,8.0,TB-WHI-WTW-2026-07,product_update
+oem-lg-dle3400,oem-lg-dle3400-p04,LH-SEAL-DLE,Lint housing seal kit,18.0,TB-LG-DLE-2026-07,product_update
+oem-sam-rf28,oem-sam-rf28-p04,IF-CONN-RF28-B,Polarized fan connector,11.0,TB-SAM-RF28-2026-07,product_update
+oem-whi-wfg505,oem-whi-wfg505-p04,IGN-JMP-WFG,Igniter calibration jumper,5.0,TB-WHI-WFG-2026-07,product_update
+oem-bos-shpm88,oem-bos-shpm88-p04,HL-BRK-BOS,Drain high-loop bracket,7.5,TB-BOS-SHP-2026-07,product_update
+oem-ge-jvm3160,oem-ge-jvm3160-p04,HVD-JVM-B,Matched HV diode,14.0,TB-GE-JVM-2026-07,product_update
+vac-001,vac-001-p03,RC-FW-DGL,Brush-roll firmware dongle,0.0,TB-RC-VAC-2026-07,product_update
+ac-001,ac-001-p03,CA-FILT-NOTE,Filter dry rack note,0.0,TB-CA-PAC-2026-07,product_update
+oven-001,oven-001-p03,BP-GRS-KIT,Sensor connector grease kit,4.0,TB-BP-WO-2026-07,product_update
+dry-001,dry-001-p03,AF-AMB-KIT,Ambient kit baffle,55.0,TB-AF-HP-2026-07,product_update
+ref-001,ref-001-p03,CV-GSK-SHIM,Gasket hinge shim kit,9.5,TB-CV-RF-2026-07,product_update
+grill-001,grill-001-p03,FM-REG-NOTE,Regulator setpoint tool note,0.0,TB-FM-GR-2026-07,product_update
+hob-001,hob-001-p03,SL-CAL-PROC,Calibration procedure,0.0,TB-SL-IH-2026-07,product_update
+fan-001,fan-001-p03,BT-MESH-60,Inlet mesh filter,12.0,TB-BT-BL-2026-07,product_update
+pur-001,pur-001-p04,PR-RFID-LBL,Filter orientation label,0.0,TB-PR-HP-2026-07,product_update

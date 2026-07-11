@@ -24,8 +24,18 @@ def tool_diagnose(
     message: str,
     product_id: str | None = None,
     asset_id: str | None = None,
+    crm_product_id: str | None = None,
+    force_keep_context: bool = False,
+    crm_context: dict | None = None,
 ) -> dict:
-    result = diagnose(message, product_id=product_id, asset_id=asset_id)
+    result = diagnose(
+        message,
+        product_id=product_id,
+        asset_id=asset_id,
+        crm_product_id=crm_product_id,
+        force_keep_context=force_keep_context,
+        crm_context=crm_context,
+    )
     payload = {
         "product_id": result.product_id,
         "product_name": result.product_name,
@@ -57,9 +67,13 @@ def tool_diagnose(
         "evidence": result.evidence,
         "provenance_trail": result.provenance_trail,
         "warnings": result.warnings,
+        "context_blocked": result.context_blocked,
+        "context_block_code": result.context_block_code,
+        "resolution_meta": result.resolution_meta,
         "formatted_response": format_diagnosis_response(result),
     }
-    if result.product_id:
+    # Never attach a misleading subgraph when diagnosis was blocked for context.
+    if result.product_id and not result.context_blocked:
         payload["graph_subgraph"] = diagnosis_subgraph_from_result(payload)
         payload["knowledge_profile"] = get_product_knowledge_profile(result.product_id)
     return payload

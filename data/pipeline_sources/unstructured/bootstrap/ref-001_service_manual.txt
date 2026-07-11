@@ -1,0 +1,8 @@
+Service manual excerpt — ChillVault Compact Fridge 180L (ref-001)
+
+Model CV-RF180 · Brand ChillVault · MY2026
+
+If the unit shows error E22 (Defrost timeout), inspect the Defrost System.
+Primary field failure: Defrost Heater Failure. Replace Defrost Heater Element (CV-DH-180) when confirmed.
+Customer may report: Fridge warm; freezer iced over.
+Always disconnect power before opening the chassis.

@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-SL-IH-2026-07
+Product: hob-001 · Brand: SparkLine · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Induction zone E9 with certified cookware after board swap
+Root cause (bulletin): Coil Sense Gain After Board Swap (Bulletin)
+SparkLine: board swap needs coil gain calibration for pan detect.
+
+Diagnostic: Run coil gain calibration sequence per bulletin
+Parts: Calibration procedure (SL-CAL-PROC)
+Error code focus: E9
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

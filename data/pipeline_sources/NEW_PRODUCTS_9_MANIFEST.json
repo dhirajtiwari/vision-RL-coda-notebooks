@@ -1,0 +1,85 @@
+{
+  "title": "9 NEW products multi-source test pack",
+  "change_type": "new_product",
+  "product_ids": [
+    "vac-001",
+    "ac-001",
+    "oven-001",
+    "dry-001",
+    "ref-001",
+    "grill-001",
+    "hob-001",
+    "fan-001",
+    "pur-001"
+  ],
+  "products": [
+    {
+      "product_id": "vac-001",
+      "name": "RoboClean Stick Vacuum Pro",
+      "brand": "RoboClean",
+      "error": "E12"
+    },
+    {
+      "product_id": "ac-001",
+      "name": "CoolAir Portable AC 12k BTU",
+      "brand": "CoolAir",
+      "error": "E41"
+    },
+    {
+      "product_id": "oven-001",
+      "name": "BakePro Wall Oven 30in",
+      "brand": "BakePro",
+      "error": "F3"
+    },
+    {
+      "product_id": "dry-001",
+      "name": "AirFlow Heat Pump Dryer 8kg",
+      "brand": "AirFlow",
+      "error": "E66"
+    },
+    {
+      "product_id": "ref-001",
+      "name": "ChillVault Compact Fridge 180L",
+      "brand": "ChillVault",
+      "error": "E22"
+    },
+    {
+      "product_id": "grill-001",
+      "name": "FlameMaster Outdoor Grill XL",
+      "brand": "FlameMaster",
+      "error": "G05"
+    },
+    {
+      "product_id": "hob-001",
+      "name": "SparkLine Induction Hob 4-Zone",
+      "brand": "SparkLine",
+      "error": "E9"
+    },
+    {
+      "product_id": "fan-001",
+      "name": "BreezeTower Bladeless Fan",
+      "brand": "BreezeTower",
+      "error": "E03"
+    },
+    {
+      "product_id": "pur-001",
+      "name": "PureRoom HEPA Air Purifier",
+      "brand": "PureRoom",
+      "error": "F02"
+    }
+  ],
+  "artifacts": {
+    "structured_pim": "data/enterprise_sources/pim_catalog.json (appended)",
+    "structured_pack": "data/pipeline_sources/structured/new_products_9_pack.json",
+    "structured_notes": "data/pipeline_sources/structured/{pid}_pim_note.json",
+    "semi_parts": "data/pipeline_sources/semi_structured/bootstrap/new_products_9_parts.csv",
+    "semi_work_orders": "data/pipeline_sources/semi_structured/bootstrap/new_products_9_work_orders.jsonl",
+    "semi_delta": "data/pipeline_sources/semi_structured/incremental/new_products_9_work_orders_delta.jsonl",
+    "unstructured_manuals": "data/pipeline_sources/unstructured/bootstrap/{pid}_service_manual.txt",
+    "unstructured_tickets": "data/pipeline_sources/unstructured/bootstrap/{pid}_customer_ticket.md",
+    "crm_assets": "data/enterprise_sources/crm_assets.json",
+    "fsm_work_orders": "data/enterprise_sources/fsm_work_orders.json",
+    "claims": "data/enterprise_sources/claims_history.json (3 samples)"
+  },
+  "note": "Artifacts only \u2014 do not auto-run pipelines. Admin must select products from change-set before promote."
+}

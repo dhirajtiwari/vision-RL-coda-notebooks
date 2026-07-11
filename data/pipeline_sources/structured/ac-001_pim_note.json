@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "ac-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 CoolAir Portable AC 12k BTU",
+  "change_type": "new_product",
+  "primary_symptom": "Unit cools weakly and shuts off",
+  "primary_error_code": "E41",
+  "brand": "CoolAir",
+  "model_number": "CA-PAC12"
+}

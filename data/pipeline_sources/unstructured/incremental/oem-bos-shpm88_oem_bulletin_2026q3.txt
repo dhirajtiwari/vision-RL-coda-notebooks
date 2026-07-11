@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-BOS-SHP-2026-07
+Product: oem-bos-shpm88 · Brand: Bosch · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Bosch dishwasher E24 with slow drain after garbage disposal install
+Root cause (bulletin): Disposal Air Gap / High Loop Missing (Bulletin)
+Bosch installation bulletin: missing high loop after disposal work causes E24.
+
+Diagnostic: Install high loop and confirm air gap per bulletin
+Parts: Drain high-loop bracket (HL-BRK-BOS)
+Error code focus: E24
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

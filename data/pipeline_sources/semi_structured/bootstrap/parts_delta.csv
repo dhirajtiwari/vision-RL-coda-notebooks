@@ -1,0 +1,16 @@
+product_id,part_id,part_number,name,cost
+wm-001,wm-p02,DP-8K-01,Drain pump,89.0
+wm-001,wm-p01,BRG-8K-01,Drum bearing kit,120.0
+dw-001,dw-p01,HE-12-01,Heating element,75.0
+mw-001,mw-p02,WG-25-01,Waveguide cover,22.0
+ice-001,ice-p01,FB-WIV-12,Water inlet valve,34.0
+ice-001,ice-p02,FB-FT-12,Fill tube assembly,18.5
+ice-001,ice-p03,FB-BFS-12,Bin full sensor,22.0
+vac-001,vac-001-p01,RC-BRM-90,Brush Roll Motor Assembly,48.0
+oven-001,oven-001-p01,BP-OTS-30,Oven Temperature Sensor,28.5
+dry-001,dry-001-p01,AF-HPC-8,Heat Pump Compressor Module,210.0
+ref-001,ref-001-p01,CV-DH-180,Defrost Heater Element,36.0
+grill-001,grill-001-p01,FM-IGN-XL,Igniter Electrode Kit,24.0
+hob-001,hob-001-p01,SL-ICB-4,Induction Coil Board,95.0
+fan-001,fan-001-p01,BT-IB-60,Main Impeller Bearing,19.0
+pur-001,pur-001-p01,PR-FPS-400,Filter Presence Sensor,15.5

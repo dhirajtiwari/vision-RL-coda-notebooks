@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-LG-LDF-2026-07
+Product: oem-lg-ldf5545 · Brand: LG · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: LG dishwasher HE error after summer humidity spike
+Root cause (bulletin): Humidity-Induced Heater NTC Drift (Bulletin)
+LG service bulletin: NTC tolerance drift in humid climates trips HE.
+
+Diagnostic: Measure NTC vs bulletin chart; replace if out of band
+Parts: Heater NTC sensor (NTC-LDF-B)
+Error code focus: HE
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

@@ -1,0 +1,3 @@
+{"product_id": "vac-001", "symptom_id": "vac-001-s01", "failure_mode_id": "vac-001-fm01", "resolution": "Replaced Brush Roll Motor Assembly", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "ac-001", "symptom_id": "ac-001-s01", "failure_mode_id": "ac-001-fm01", "resolution": "Replaced Condenser Fan Motor", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "oven-001", "symptom_id": "oven-001-s01", "failure_mode_id": "oven-001-fm01", "resolution": "Replaced Oven Temperature Sensor", "closed_date": "2026-06-15", "change_type": "new_product"}

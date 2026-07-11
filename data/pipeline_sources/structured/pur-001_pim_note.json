@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "pur-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 PureRoom HEPA Air Purifier",
+  "change_type": "new_product",
+  "primary_symptom": "Air quality light stuck red after filter change",
+  "primary_error_code": "F02",
+  "brand": "PureRoom",
+  "model_number": "PR-HP400"
+}

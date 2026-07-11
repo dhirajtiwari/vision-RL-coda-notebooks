@@ -1,0 +1,8 @@
+Service manual excerpt — BreezeTower Bladeless Fan (fan-001)
+
+Model BT-BL60 · Brand BreezeTower · MY2026
+
+If the unit shows error E03 (Motor stall), inspect the Air Multiplier.
+Primary field failure: Impeller Bearing Wear. Replace Main Impeller Bearing (BT-IB-60) when confirmed.
+Customer may report: Fan oscillates but airflow is weak.
+Always disconnect power before opening the chassis.

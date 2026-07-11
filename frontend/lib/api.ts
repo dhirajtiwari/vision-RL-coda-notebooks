@@ -45,9 +45,35 @@ export const api = {
 
   getDiagnosisSubgraph: (productId: string, symptomIds: string[] = [], fmId?: string) => {
     const sym = symptomIds.join(",");
-    const q = fmId ? `&failure_mode_id=${fmId}` : "";
-    return fetchJson<any>(`/graph/diagnosis-subgraph?product_id=${productId}&symptom_ids=${sym}${q}`);
+    const q = fmId ? `&failure_mode_id=${encodeURIComponent(fmId)}` : "";
+    return fetchJson<any>(
+      `/graph/diagnosis-subgraph?product_id=${encodeURIComponent(productId)}&symptom_ids=${encodeURIComponent(sym)}${q}`,
+    );
+  },
+
+  /** W3C OWL TBox (schema-only Turtle) */
+  getRdfSchema: () => fetchJson<any>("/graph/rdf/schema"),
+
+  /** Full product diagram as Turtle (TBox optional + ABox) */
+  getRdfProduct: (productId: string, includeSchema = true) =>
+    fetchJson<any>(
+      `/graph/rdf/product/${encodeURIComponent(productId)}?include_schema=${includeSchema}`,
+    ),
+
+  /** OWL class + RDF instance for one Neo4j node (Explorer click) */
+  getRdfEntity: (label: string, entityId: string, productId?: string) => {
+    const q = new URLSearchParams({ label, entity_id: entityId });
+    if (productId) q.set("product_id", productId);
+    return fetchJson<any>(`/graph/rdf/entity?${q}`);
   },
 
   listProducts: () => fetchJson<any>("/products"),
+
+  /** Asset-first CRM session */
+  listCustomers: () => fetchJson<{ customers: any[] }>("/crm/customers"),
+  listCustomerAssets: (customerId: string) =>
+    fetchJson<{ customer: any; registered_assets: any[]; source_system?: string }>(
+      `/crm/customers/${encodeURIComponent(customerId)}/assets`,
+    ),
+  getCrmAsset: (assetId: string) => fetchJson<any>(`/crm/assets/${encodeURIComponent(assetId)}`),
 };

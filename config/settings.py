@@ -15,10 +15,12 @@ class Settings(BaseSettings):
 
     project_root: Path = PROJECT_ROOT
 
-    neo4j_uri: str = "bolt://localhost:7687"
+    neo4j_uri: str = "bolt://localhost:7687"  # production diagnose path
     neo4j_user: str = "neo4j"
     neo4j_password: str = "password"
-    neo4j_staging_uri: str = "bolt://localhost:7687"
+    # Staging graph (promote-first target). Default separate port 7688.
+    neo4j_staging_uri: str = "bolt://localhost:7688"
+    neo4j_staging_password: str | None = None  # falls back to neo4j_password
     neo4j_database: str = "neo4j"
     # Bolt driver pool (enterprise connection pooling). Neo4j Python driver default is 100.
     neo4j_max_connection_pool_size: int = 50
@@ -28,6 +30,10 @@ class Settings(BaseSettings):
     cache_ttl_ontology_seconds: float = 300.0
     cache_ttl_subgraph_seconds: float = 60.0
     cache_maxsize_subgraph: int = 128
+    # Diagnose read-path cache (keyed by message+product+asset+catalog version)
+    enable_diagnose_cache: bool = True
+    cache_ttl_diagnose_seconds: float = 90.0
+    cache_maxsize_diagnose: int = 512
     etl_connector_max_workers: int = 4
     etl_product_batch_size: int = 0  # 0 = no product chunking (single transform batch)
     default_tenant_id: str = "default"
@@ -66,11 +72,21 @@ class Settings(BaseSettings):
     admin_api_token: str = ""
 
     escalation_confidence_threshold: float = 0.65
-    symptom_match_min_score: float = 0.30
+    # Minimum text→catalog symptom score to admit as *observed* evidence.
+    # Do not lower this for demos — weak secondaries invent competing FMs.
+    symptom_match_min_score: float = 0.35
+    # Secondary symptoms must be at least this fraction of the top match score
+    # (in addition to clearing symptom_match_min_score). Prevents floor noise.
+    symptom_secondary_relative_floor: float = 0.75
     # Minimum gap between the top two failure-mode posteriors for a "clear
     # leader". Below this the diagnosis is treated as ambiguous (competing
     # failure modes) and routed for human confirmation.
     diagnosis_ambiguity_margin: float = 0.15
+    # Production accuracy: never silently diagnose when selected product / CRM
+    # asset / free-text appliance signals disagree. Fail closed instead.
+    strict_context_consistency: bool = True
+    # Keyword hits required in the message to assert a product family signal.
+    product_message_signal_min_hits: int = 1
     demo_mode: bool = True
     allow_fixture_fallback: bool = True
     use_hybrid_symptom_matching: bool = True

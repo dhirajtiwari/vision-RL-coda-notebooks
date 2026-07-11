@@ -1,0 +1,15 @@
+{"product_id":"wm-001","symptom_id":"wm-s03","failure_mode_id":"wm-fm02","resolution":"Replaced drain pump","closed_date":"2026-03-01"}
+{"product_id":"wm-001","symptom_id":"wm-s01","failure_mode_id":"wm-fm01","resolution":"Bearing kit install","closed_date":"2026-03-05"}
+{"product_id":"dw-001","symptom_id":"dw-s01","failure_mode_id":"dw-fm01","resolution":"Heating element","closed_date":"2026-03-08"}
+{"product_id":"mw-001","symptom_id":"mw-s02","failure_mode_id":"mw-fm02","resolution":"Waveguide cover","closed_date":"2026-03-10"}
+{"product_id": "ice-001", "symptom_id": "ice-s01", "failure_mode_id": "ice-fm01", "resolution": "Replaced water inlet valve", "closed_date": "2026-04-02"}
+{"product_id": "ice-001", "symptom_id": "ice-s02", "failure_mode_id": "ice-fm02", "resolution": "Cleared frozen fill tube; insulated line", "closed_date": "2026-04-10"}
+{"product_id": "vac-001", "symptom_id": "vac-001-s01", "failure_mode_id": "vac-001-fm01", "resolution": "Replaced Brush Roll Motor Assembly", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "ac-001", "symptom_id": "ac-001-s01", "failure_mode_id": "ac-001-fm01", "resolution": "Replaced Condenser Fan Motor", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "oven-001", "symptom_id": "oven-001-s01", "failure_mode_id": "oven-001-fm01", "resolution": "Replaced Oven Temperature Sensor", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "dry-001", "symptom_id": "dry-001-s01", "failure_mode_id": "dry-001-fm01", "resolution": "Replaced Heat Pump Compressor Module", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "ref-001", "symptom_id": "ref-001-s01", "failure_mode_id": "ref-001-fm01", "resolution": "Replaced Defrost Heater Element", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "grill-001", "symptom_id": "grill-001-s01", "failure_mode_id": "grill-001-fm01", "resolution": "Replaced Igniter Electrode Kit", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "hob-001", "symptom_id": "hob-001-s01", "failure_mode_id": "hob-001-fm01", "resolution": "Replaced Induction Coil Board", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "fan-001", "symptom_id": "fan-001-s01", "failure_mode_id": "fan-001-fm01", "resolution": "Replaced Main Impeller Bearing", "closed_date": "2026-06-15", "change_type": "new_product"}
+{"product_id": "pur-001", "symptom_id": "pur-001-s01", "failure_mode_id": "pur-001-fm01", "resolution": "Replaced Filter Presence Sensor", "closed_date": "2026-06-15", "change_type": "new_product"}

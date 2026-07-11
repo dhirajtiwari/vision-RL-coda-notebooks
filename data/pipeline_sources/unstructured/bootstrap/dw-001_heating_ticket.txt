@@ -1,0 +1,3 @@
+Ticket #T-9001 Dishwasher dw-001
+Customer says dishes are cold and unit is not heating. No error code on display.
+Technician notes: heating circuit fault suspected.

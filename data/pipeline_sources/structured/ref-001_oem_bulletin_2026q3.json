@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "ref-001",
+  "bulletin_id": "TB-CV-RF-2026-07",
+  "primary_symptom": "Fridge warm with heavy frost after door gasket revision",
+  "primary_error_code": "E22",
+  "note": "UPDATE artifact \u2014 Gasket Revision Seal Gap (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

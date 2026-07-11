@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "fan-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 BreezeTower Bladeless Fan",
+  "change_type": "new_product",
+  "primary_symptom": "Fan oscillates but airflow is weak",
+  "primary_error_code": "E03",
+  "brand": "BreezeTower",
+  "model_number": "BT-BL60"
+}

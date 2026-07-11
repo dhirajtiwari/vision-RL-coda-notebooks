@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "fan-001",
+  "bulletin_id": "TB-BT-BL-2026-07",
+  "primary_symptom": "Bladeless fan E03 oscillation only after summer dust event",
+  "primary_error_code": "E03",
+  "note": "UPDATE artifact \u2014 Inlet Mesh Clog (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

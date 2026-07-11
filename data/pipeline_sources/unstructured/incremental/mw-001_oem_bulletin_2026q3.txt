@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-HP-MW-2026-07
+Product: mw-001 · Brand: HeatPro · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Microwave runs but turntable stalls intermittently with click
+Root cause (bulletin): Turntable Coupler Wear (Bulletin)
+Bulletin: coupler wear on 2024–2025 builds causes intermittent stall under load.
+
+Diagnostic: Inspect coupler and roller ring; replace if flats present
+Parts: Turntable coupler (TT-CPL-25-B)
+Error code focus: none
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

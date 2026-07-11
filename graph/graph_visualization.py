@@ -31,6 +31,7 @@ NODE_COLORS = {
     "Asset": "#C55A11",
     "Claim": "#843C0C",
     "HistoricalResolution": "#ED7D31",
+    "WarrantyPolicy": "#0D9488",
     "SchemaLabel": "#1F4E79",
 }
 
@@ -177,7 +178,8 @@ def get_product_subgraph(product_id: str) -> dict[str, Any]:
         ttl_seconds=settings.cache_ttl_subgraph_seconds,
         maxsize=settings.cache_maxsize_subgraph,
     )
-    return cache.get_or_set(product_id, lambda: _load_product_subgraph(product_id))
+    # v3 = expanded ontology neighborhood (steps, parts, components, codes, assets, policies)
+    return cache.get_or_set(f"{product_id}:v3", lambda: _load_product_subgraph(product_id))
 
 
 def _load_product_subgraph(product_id: str) -> dict[str, Any]:
@@ -291,6 +293,143 @@ def _load_product_subgraph(product_id: str) -> dict[str, Any]:
                 properties={"confidence": row["confidence"]},
             )
 
+        # Diagnostic step → failure mode confirmation edges
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)
+                  -[:CONFIRMS]->(fm:FailureMode)
+            RETURN ds.step_id AS step_id, fm.failure_mode_id AS failure_mode_id
+            """,
+            product_id=product_id,
+        ):
+            ds_key = _node_key("DiagnosticStep", row["step_id"])
+            fm_key = _node_key("FailureMode", row["failure_mode_id"])
+            if ds_key in nodes and fm_key in nodes:
+                _add_edge(edges, ds_key, fm_key, "CONFIRMS")
+
+        # Components impacted by failure modes
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:HAS_COMPONENT]->(c:Component)
+            RETURN c.component_id AS component_id, c.name AS name
+            """,
+            product_id=product_id,
+        ):
+            cid = row["component_id"]
+            c_key = _add_node(nodes, "Component", cid, row["name"] or cid)
+            _add_edge(edges, _node_key("Product", pid), c_key, "HAS_COMPONENT")
+
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)
+                  -[:IMPACTS_COMPONENT]->(c:Component)
+            RETURN fm.failure_mode_id AS failure_mode_id, c.component_id AS component_id
+            """,
+            product_id=product_id,
+        ):
+            fm_key = _node_key("FailureMode", row["failure_mode_id"])
+            c_key = _node_key("Component", row["component_id"])
+            if fm_key in nodes and c_key in nodes:
+                _add_edge(edges, fm_key, c_key, "IMPACTS_COMPONENT")
+
+        # Error codes
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:HAS_ERROR_CODE]->(ec:ErrorCode)
+            OPTIONAL MATCH (ec)-[ind:INDICATES]->(fm:FailureMode)
+            RETURN ec.error_code_id AS error_code_id, ec.code AS code,
+                   ec.description AS description, fm.failure_mode_id AS failure_mode_id,
+                   ind.confidence AS confidence
+            """,
+            product_id=product_id,
+        ):
+            eid = row["error_code_id"]
+            ec_key = _add_node(
+                nodes,
+                "ErrorCode",
+                eid,
+                f"{row['code'] or eid}\n{(row['description'] or '')[:50]}",
+            )
+            _add_edge(edges, _node_key("Product", pid), ec_key, "HAS_ERROR_CODE")
+            if row["failure_mode_id"]:
+                fm_key = _node_key("FailureMode", row["failure_mode_id"])
+                if fm_key in nodes:
+                    _add_edge(
+                        edges,
+                        ec_key,
+                        fm_key,
+                        "INDICATES",
+                        properties={"confidence": row["confidence"]},
+                    )
+
+        # Model + SKU structure
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:HAS_MODEL]->(m:Model)
+            RETURN m.model_id AS model_id, m.model_number AS model_number, m.name AS name
+            """,
+            product_id=product_id,
+        ):
+            mid = row["model_id"] or row["model_number"]
+            m_key = _add_node(
+                nodes,
+                "Model",
+                mid,
+                f"{row['model_number'] or mid}\n{row['name'] or ''}",
+            )
+            _add_edge(edges, _node_key("Product", pid), m_key, "HAS_MODEL")
+
+        for row in session.run(
+            """
+            MATCH (p:Product {product_id: $product_id})-[:HAS_SKU]->(sku:SKU)
+            RETURN sku.sku_id AS sku_id, sku.name AS name
+            """,
+            product_id=product_id,
+        ):
+            sid = row["sku_id"]
+            s_key = _add_node(nodes, "SKU", sid, row["name"] or sid)
+            _add_edge(edges, _node_key("Product", pid), s_key, "HAS_SKU")
+
+        # Installed assets (warranty units)
+        for row in session.run(
+            """
+            MATCH (a:Asset)-[:INSTANCE_OF]->(p:Product {product_id: $product_id})
+            OPTIONAL MATCH (a)-[:BOUND_TO_SKU]->(sku:SKU)
+            RETURN a.asset_id AS asset_id, a.serial_number AS serial_number,
+                   a.model_number AS model_number, sku.sku_id AS sku_id
+            """,
+            product_id=product_id,
+        ):
+            aid = row["asset_id"]
+            a_key = _add_node(
+                nodes,
+                "Asset",
+                aid,
+                f"{aid}\n{row['serial_number'] or row['model_number'] or ''}",
+            )
+            _add_edge(edges, a_key, _node_key("Product", pid), "INSTANCE_OF")
+            if row["sku_id"]:
+                sku_key = _node_key("SKU", row["sku_id"])
+                if sku_key in nodes:
+                    _add_edge(edges, a_key, sku_key, "BOUND_TO_SKU")
+
+        # Warranty policies covering this product
+        for row in session.run(
+            """
+            MATCH (wp:WarrantyPolicy)-[:COVERS_PRODUCT]->(p:Product {product_id: $product_id})
+            RETURN wp.policy_id AS policy_id, wp.name AS name, wp.coverage_months AS months
+            """,
+            product_id=product_id,
+        ):
+            wpid = row["policy_id"]
+            wp_key = _add_node(
+                nodes,
+                "WarrantyPolicy",
+                wpid,
+                f"{row['name'] or wpid}\n{row['months'] or ''} mo",
+            )
+            _add_edge(edges, wp_key, _node_key("Product", pid), "COVERS_PRODUCT")
+
         for row in session.run(
             """
             MATCH (r:HistoricalResolution)-[:FOR_PRODUCT]->(p:Product {product_id: $product_id})
@@ -314,6 +453,270 @@ def _load_product_subgraph(product_id: str) -> dict[str, Any]:
     return graph_payload(nodes, edges)
 
 
+def build_diagnosis_cypher_plan(
+    product_id: str,
+    symptom_ids: list[str] | None = None,
+    failure_mode_id: str | None = None,
+    *,
+    include_steps: bool = True,
+    include_resolutions: bool = True,
+) -> list[dict[str, Any]]:
+    """
+    Document the Cypher statements used for diagnosis-path materialization.
+
+    These mirror the live queries in ``get_diagnosis_subgraph`` / GraphRAG ranking
+    so the Explorer can show exactly what was run for a case (W3C KG explainability).
+    """
+    symptom_ids = symptom_ids or []
+    steps: list[dict[str, Any]] = []
+
+    steps.append(
+        {
+            "step": 1,
+            "name": "resolve_product",
+            "purpose": "Bind diagnosis scope to product node",
+            "cypher": (
+                "MATCH (p:Product {product_id: $product_id})\n" "RETURN p.product_id AS product_id, p.name AS name"
+            ),
+            "params": {"product_id": product_id},
+        }
+    )
+    if symptom_ids:
+        steps.append(
+            {
+                "step": 2,
+                "name": "matched_symptoms",
+                "purpose": "Load observed symptoms linked to product (HAS_SYMPTOM)",
+                "cypher": (
+                    "MATCH (p:Product {product_id: $product_id})-[:HAS_SYMPTOM]->(s:Symptom)\n"
+                    "WHERE s.symptom_id IN $symptom_ids\n"
+                    "RETURN s.symptom_id AS symptom_id, s.description AS description,\n"
+                    "       s.severity AS severity"
+                ),
+                "params": {"product_id": product_id, "symptom_ids": symptom_ids},
+            }
+        )
+    fm_cypher = "MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)\n"
+    fm_params: dict[str, Any] = {"product_id": product_id}
+    if failure_mode_id:
+        fm_cypher += "WHERE fm.failure_mode_id = $failure_mode_id\n"
+        fm_params["failure_mode_id"] = failure_mode_id
+    elif symptom_ids:
+        fm_cypher += (
+            "WHERE EXISTS {\n" "  MATCH (s:Symptom)-[:INDICATES]->(fm)\n" "  WHERE s.symptom_id IN $symptom_ids\n" "}\n"
+        )
+        fm_params["symptom_ids"] = symptom_ids
+    fm_cypher += (
+        "RETURN fm.failure_mode_id AS failure_mode_id, fm.name AS name,\n" "       fm.description AS description"
+    )
+    steps.append(
+        {
+            "step": 3,
+            "name": "candidate_failure_modes",
+            "purpose": "Failure modes on product; constrained by top FM and/or INDICATES from symptoms",
+            "cypher": fm_cypher,
+            "params": fm_params,
+        }
+    )
+    if symptom_ids:
+        steps.append(
+            {
+                "step": 4,
+                "name": "symptom_indicates_fm",
+                "purpose": "Traverse INDICATES edges (likelihood P(s|fm) for Bayesian ranking)",
+                "cypher": (
+                    "MATCH (s:Symptom)-[ind:INDICATES]->(fm:FailureMode)\n"
+                    "WHERE s.symptom_id IN $symptom_ids\n"
+                    "  AND fm.failure_mode_id IN $failure_mode_ids\n"
+                    "RETURN s.symptom_id AS symptom_id, fm.failure_mode_id AS failure_mode_id,\n"
+                    "       ind.confidence AS confidence"
+                ),
+                "params": {
+                    "symptom_ids": symptom_ids,
+                    "failure_mode_ids": [failure_mode_id] if failure_mode_id else ["<ranked_fm_ids>"],
+                },
+            }
+        )
+    if failure_mode_id:
+        steps.append(
+            {
+                "step": 5,
+                "name": "requires_part",
+                "purpose": "Parts required by top failure mode (REQUIRES_PART)",
+                "cypher": (
+                    "MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})-[:REQUIRES_PART]->(pt:Part)\n"
+                    "RETURN pt.part_id AS part_id, pt.name AS name,\n"
+                    "       pt.part_number AS part_number, pt.estimated_cost_usd AS cost"
+                ),
+                "params": {"failure_mode_id": failure_mode_id},
+            }
+        )
+    if include_steps:
+        steps.append(
+            {
+                "step": 6,
+                "name": "diagnostic_steps",
+                "purpose": "Service checks on product (HAS_DIAGNOSTIC_STEP)",
+                "cypher": (
+                    "MATCH (p:Product {product_id: $product_id})-[:HAS_DIAGNOSTIC_STEP]->(ds:DiagnosticStep)\n"
+                    "RETURN ds.step_id AS step_id, ds.description AS description, ds.order AS step_order\n"
+                    "ORDER BY ds.order LIMIT 4"
+                ),
+                "params": {"product_id": product_id},
+            }
+        )
+    if include_resolutions and failure_mode_id:
+        steps.append(
+            {
+                "step": 7,
+                "name": "historical_resolutions",
+                "purpose": "Prior field resolutions confirming this failure mode",
+                "cypher": (
+                    "MATCH (r:HistoricalResolution)-[:FOR_PRODUCT]->(p:Product {product_id: $product_id})\n"
+                    "MATCH (r)-[:CONFIRMED]->(fm:FailureMode {failure_mode_id: $failure_mode_id})\n"
+                    "RETURN r.resolution_id AS resolution_id, r.description AS description,\n"
+                    "       r.resolution_date AS resolution_date\n"
+                    "LIMIT 2"
+                ),
+                "params": {"product_id": product_id, "failure_mode_id": failure_mode_id},
+            }
+        )
+    # Ranking query used by GraphRAG (not always in path subgraph builder)
+    steps.append(
+        {
+            "step": 8,
+            "name": "rank_failure_modes_bayes",
+            "purpose": "GraphRAG ranking: INDICATES likelihoods + FMEA priors → posterior P(fm|symptoms)",
+            "cypher": (
+                "MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)\n"
+                "OPTIONAL MATCH (s:Symptom)-[ind:INDICATES]->(fm)\n"
+                "WHERE s.symptom_id IN $symptom_ids\n"
+                "WITH fm, collect(DISTINCT {symptom_id: s.symptom_id, confidence: ind.confidence}) AS indications,\n"
+                "     sum(CASE WHEN ind.confidence IS NULL THEN 0 ELSE ind.confidence END) AS total_confidence,\n"
+                "     count(ind) AS link_count\n"
+                "RETURN fm.failure_mode_id AS failure_mode_id, fm.name AS name,\n"
+                "       indications, total_confidence, link_count\n"
+                "ORDER BY total_confidence DESC, link_count DESC"
+            ),
+            "params": {"product_id": product_id, "symptom_ids": symptom_ids},
+        }
+    )
+    return steps
+
+
+def build_diagnosis_traversal(
+    product_id: str,
+    *,
+    symptom_ids: list[str] | None = None,
+    failure_mode_id: str | None = None,
+    matched_symptoms: list[dict[str, Any]] | None = None,
+    ranked_failure_modes: list[dict[str, Any]] | None = None,
+    evidence: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Human-readable hop-by-hop traversal for the diagnosis case."""
+    symptom_ids = symptom_ids or []
+    matched_symptoms = matched_symptoms or []
+    ranked_failure_modes = ranked_failure_modes or []
+    hops: list[dict[str, Any]] = []
+
+    hops.append(
+        {
+            "hop": 1,
+            "from": None,
+            "rel": None,
+            "to": f"Product:{product_id}",
+            "label": "Start at product scope",
+            "detail": f"Diagnosis scoped to product `{product_id}` (asset-bound or selected).",
+        }
+    )
+    for _i, sid in enumerate(symptom_ids):
+        ms = next((s for s in matched_symptoms if s.get("symptom_id") == sid), {})
+        hops.append(
+            {
+                "hop": len(hops) + 1,
+                "from": f"Product:{product_id}",
+                "rel": "HAS_SYMPTOM",
+                "to": f"Symptom:{sid}",
+                "label": "Observe symptom",
+                "detail": (
+                    f"{ms.get('description') or sid}"
+                    + (
+                        f" · text match {float(ms.get('match_score') or 0):.0%}"
+                        if ms.get("match_score") is not None
+                        else ""
+                    )
+                ),
+            }
+        )
+    top = ranked_failure_modes[0] if ranked_failure_modes else None
+    fm_id = failure_mode_id or (top.get("failure_mode_id") if top else None)
+    if fm_id:
+        hops.append(
+            {
+                "hop": len(hops) + 1,
+                "from": f"Product:{product_id}",
+                "rel": "CAN_HAVE",
+                "to": f"FailureMode:{fm_id}",
+                "label": "Candidate failure mode on product",
+                "detail": (top.get("name") if top else fm_id)
+                + (
+                    f" · posterior {float(top.get('posterior') or 0):.0%}"
+                    if top and top.get("posterior") is not None
+                    else ""
+                ),
+            }
+        )
+        for sid in symptom_ids:
+            conf = None
+            if top:
+                for ind in top.get("indications") or []:
+                    if ind.get("symptom_id") == sid:
+                        conf = ind.get("confidence")
+                        break
+            hops.append(
+                {
+                    "hop": len(hops) + 1,
+                    "from": f"Symptom:{sid}",
+                    "rel": "INDICATES",
+                    "to": f"FailureMode:{fm_id}",
+                    "label": "Symptom → failure (graph likelihood)",
+                    "detail": f"INDICATES confidence {float(conf):.0%}" if conf is not None else "INDICATES edge",
+                }
+            )
+        hops.append(
+            {
+                "hop": len(hops) + 1,
+                "from": f"FailureMode:{fm_id}",
+                "rel": "REQUIRES_PART",
+                "to": "Part:*",
+                "label": "Parts for top failure mode",
+                "detail": "Traverse REQUIRES_PART for predicted service parts",
+            }
+        )
+        hops.append(
+            {
+                "hop": len(hops) + 1,
+                "from": f"Product:{product_id}",
+                "rel": "HAS_DIAGNOSTIC_STEP",
+                "to": "DiagnosticStep:*",
+                "label": "Service diagnostic steps",
+                "detail": "Load checks (and CONFIRMS links when present)",
+            }
+        )
+    if evidence:
+        hops.append(
+            {
+                "hop": len(hops) + 1,
+                "from": None,
+                "rel": None,
+                "to": None,
+                "label": "Evidence summary",
+                "detail": " · ".join(evidence[:4]),
+            }
+        )
+    return hops
+
+
 def get_diagnosis_subgraph(
     product_id: str,
     symptom_ids: list[str] | None = None,
@@ -321,10 +724,15 @@ def get_diagnosis_subgraph(
     *,
     include_steps: bool = True,
     include_resolutions: bool = True,
+    matched_symptoms: list[dict[str, Any]] | None = None,
+    ranked_failure_modes: list[dict[str, Any]] | None = None,
+    evidence: list[str] | None = None,
 ) -> dict[str, Any]:
     """
     Subgraph for the reasoning path used during diagnosis — mirrors Cypher query
     results shown interactively in Neo4j tutorials when a chat/query fires.
+
+    Also returns ``cypher_queries`` and ``traversal`` for Explorer explainability.
     """
     driver = get_driver()
     nodes: dict[str, dict[str, Any]] = {}
@@ -492,7 +900,35 @@ def get_diagnosis_subgraph(
                     highlight=True,
                 )
 
-    return graph_payload(nodes, edges)
+    payload = graph_payload(nodes, edges)
+    # Enrich with explainability for Knowledge Explorer (Cypher + hop trace)
+    payload["params"] = {
+        "product_id": product_id,
+        "symptom_ids": symptom_ids,
+        "failure_mode_id": failure_mode_id,
+    }
+    payload["cypher_queries"] = build_diagnosis_cypher_plan(
+        product_id,
+        symptom_ids=symptom_ids,
+        failure_mode_id=failure_mode_id,
+        include_steps=include_steps,
+        include_resolutions=include_resolutions,
+    )
+    # Fill ranked FM ids into plan step 4 when available from live ranking
+    if ranked_failure_modes:
+        fm_ids = [fm.get("failure_mode_id") for fm in ranked_failure_modes if fm.get("failure_mode_id")]
+        for q in payload["cypher_queries"]:
+            if q.get("name") == "symptom_indicates_fm" and fm_ids:
+                q["params"] = {**q.get("params", {}), "failure_mode_ids": fm_ids}
+    payload["traversal"] = build_diagnosis_traversal(
+        product_id,
+        symptom_ids=symptom_ids,
+        failure_mode_id=failure_mode_id,
+        matched_symptoms=matched_symptoms,
+        ranked_failure_modes=ranked_failure_modes,
+        evidence=evidence,
+    )
+    return payload
 
 
 def diagnosis_subgraph_from_result(diagnosis: dict[str, Any]) -> dict[str, Any]:
@@ -501,14 +937,19 @@ def diagnosis_subgraph_from_result(diagnosis: dict[str, Any]) -> dict[str, Any]:
     if not product_id:
         return graph_payload({}, [])
 
-    symptom_ids = [s["symptom_id"] for s in diagnosis.get("matched_symptoms", [])]
+    symptom_ids = list(diagnosis.get("traversed_symptom_ids") or []) or [
+        s["symptom_id"] for s in diagnosis.get("matched_symptoms", []) if s.get("symptom_id")
+    ]
     top_fm = (diagnosis.get("ranked_failure_modes") or [None])[0]
-    failure_mode_id = top_fm.get("failure_mode_id") if top_fm else None
+    failure_mode_id = diagnosis.get("traversed_fm_id") or (top_fm.get("failure_mode_id") if top_fm else None)
 
     return get_diagnosis_subgraph(
         product_id,
         symptom_ids=symptom_ids,
         failure_mode_id=failure_mode_id,
+        matched_symptoms=diagnosis.get("matched_symptoms") or [],
+        ranked_failure_modes=diagnosis.get("ranked_failure_modes") or [],
+        evidence=diagnosis.get("evidence") or [],
     )
 
 

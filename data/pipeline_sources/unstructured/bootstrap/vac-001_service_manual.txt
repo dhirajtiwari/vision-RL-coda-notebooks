@@ -1,0 +1,8 @@
+Service manual excerpt — RoboClean Stick Vacuum Pro (vac-001)
+
+Model RC-SV90 · Brand RoboClean · MY2026
+
+If the unit shows error E12 (Brush roll jam / high load), inspect the Agitator Drive.
+Primary field failure: Brush Roll Motor Overload. Replace Brush Roll Motor Assembly (RC-BRM-90) when confirmed.
+Customer may report: Loss of suction / brush roll stops.
+Always disconnect power before opening the chassis.

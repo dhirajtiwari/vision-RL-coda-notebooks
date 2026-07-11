@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-SAM-WF45-2026-07
+Product: oem-sam-wf45 · Brand: Samsung · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Samsung washer 4E on spin after control board firmware F/W 3.2
+Root cause (bulletin): Hall Sensor Noise After FW 3.2 (Bulletin)
+Samsung field bulletin: hall sensor harness routing causes 4E after FW 3.2.
+
+Diagnostic: Reroute hall harness and apply ferrite per bulletin
+Parts: Hall sensor harness kit (DC93-HS-WF45-B)
+Error code focus: 4E
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-GE-JVM-2026-07
+Product: oem-ge-jvm3160 · Brand: GE · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: OTR microwave loud hum on high after magnetron service kit
+Root cause (bulletin): HV Diode Matching (Bulletin Kit)
+GE bulletin: service kit diode must match HV transformer revision.
+
+Diagnostic: Verify diode/transformer revision pair per bulletin table
+Parts: Matched HV diode (HVD-JVM-B)
+Error code focus: none
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

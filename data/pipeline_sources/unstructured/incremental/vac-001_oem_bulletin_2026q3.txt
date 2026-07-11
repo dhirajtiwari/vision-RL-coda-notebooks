@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-RC-VAC-2026-07
+Product: vac-001 · Brand: RoboClean · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Vacuum loses suction after brush-roll firmware update
+Root cause (bulletin): Brush-Roll Stall Detection Too Sensitive (Bulletin)
+Firmware bulletin: stall threshold too low on carpets; patch + brush clean procedure.
+
+Diagnostic: Apply FW patch and run bulletin brush clean cycle
+Parts: Brush-roll firmware dongle (RC-FW-DGL)
+Error code focus: E12
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

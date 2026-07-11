@@ -15,7 +15,7 @@
 | **Name** | WarrantyGraph / Remote Diagnostics Graph | ________________ |
 | **Problem** | Inconsistent warranty diagnosis, wrong parts, weak explainability | ________________ |
 | **User** | Contact-center agent / customer / knowledge admin | ________________ |
-| **Core loop** | Free text → product resolve → graph evidence → ranked diagnosis → parts/steps → claim/escalate | Same shape |
+| **Core loop** | Customer/asset bind → free text → graph evidence → ranked diagnosis → parts/steps → claim/escalate | Same shape |
 | **Truth store** | Neo4j property graph | Graph or equivalent multi-hop store |
 | **LLM role** | Optional phrasing only; **off by default** | Prefer same unless domain needs generative planning |
 | **Demo vs prod** | Demo that behaves like production (fixtures + mock enterprise) | Same: honest simulation labels |
@@ -24,12 +24,16 @@
 
 | Service | Port / command |
 |---------|----------------|
-| Next.js UI | `:3000` — `frontend/` |
+| Next.js UI | `:3000` — `frontend/` (`next dev --webpack`) |
 | FastAPI | `:8080` — `uvicorn api.main:app` |
-| Neo4j | Bolt `:7687` — `populate_graph.py` |
-| Mock enterprise | `:8090` — `simulation.mock_enterprise_apps` |
-| Redis (optional) | `:6379` — `REDIS_URL` |
-| ETL | `python -m graph.enterprise_pipeline.orchestrator` |
+| Neo4j **production** | Bolt `:7687` (Browser `:7474`) — diagnose + explorer read path |
+| Neo4j **staging** | Bolt `:7688` (Browser `:7475`) — promote-first MERGE target |
+| Mock enterprise | `:8090` — `simulation.mock_enterprise_apps` (optional; fixtures used if down) |
+| Redis | `:6379` — `REDIS_URL` (diagnose cache, rate limit, admission) |
+| Infra compose | `docker/docker-compose.infra.yaml` — prod Neo4j + staging Neo4j + Redis |
+| Stack helper | `./restart-all.sh` — infra + API + UI env wiring |
+| ETL / KG control plane | Admin UI + `/admin/kg-pipelines/*` + `python -m graph.enterprise_pipeline.orchestrator` |
+| RDF/OWL export CLI | `python -m graph.rdf_ontology_export` |
 
 ---
 
@@ -139,13 +143,22 @@ Asset/Serial → Product/Model/SKU
   → Claim / HistoricalResolution
 ```
 
-### 2.4 Formal export RDF/OWL `[x]`
+### 2.4 Formal export RDF/OWL `[x]` + interactive definitions `[x]`
 
 - [x] Turtle schema + instances (`graph/rdf_ontology_export.py`)
 - [x] RDF/XML OWL sample
-- [x] Artifacts under `docs/ontology/`
-- [x] CLI: `python -m graph.rdf_ontology_export`
+- [x] Artifacts under `docs/ontology/` (`warranty-diagnosis-schema.ttl`, `.ttl`, `.owl`)
+- [x] CLI: `python -m graph.rdf_ontology_export` (`--schema-only`, `--product-id`, formats)
+- [x] **W3C purpose alignment (in code + UI copy):**
+  - RDF 1.1 = triple data model (ABox facts)
+  - RDFS = labels / domain / range
+  - OWL 2 = formal TBox classes & properties
+  - Neo4j = runtime knowledge graph for GraphRAG (not an OWL reasoner)
+- [x] **API:** `GET /graph/rdf/schema`, `/graph/rdf/product/{id}`, `/graph/rdf/entity?label=&entity_id=`
+- [x] **Helpers:** `class_definition_ttl`, `entity_instance_ttl`, `describe_entity_rdf`, `product_full_turtle`
+- [x] **Explorer:** node click → OWL class + RDF instance Turtle; full product `.ttl` modal; copy
 - [ ] Full OWL reasoner / SHACL validation pipeline — **not** built
+- [ ] RDF as system-of-record / RDF→Neo4j import — **not** built
 
 ### 2.5 Rebuild checklist — redefine for new domain
 
@@ -240,13 +253,50 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [x] Provenance properties on entities when enabled
 - [x] Shared Bolt driver + connection pool (`neo4j_client.py`)
 
-### 5.5 Gaps for production rebuild
+### 5.5 Multi-source control plane (structured / semi / unstructured) `[x]`
+
+- [x] Architecture: `docs/20-Enterprise-KG-Ingestion-Pipeline-Architecture.md`
+- [x] **Step-by-step runbook:** `docs/21-KG-Ingestion-Step-by-Step-Runbook.md`
+- [x] **Dedicated todo:** `docs/todo-kg-ingestion-pipelines.md`
+- [x] Pipeline registry: structured, semi, unstructured, preprocess, materialize, smoke, promote, bootstrap_all, incremental_sync
+- [x] Run modes: bootstrap | incremental | on_demand
+- [x] Extractors + preprocess quality gate
+- [x] Fixture packs under `data/pipeline_sources/` (bootstrap + incremental semi/unstructured)
+- [x] Staging artifacts under `data/pipeline_staging/`
+- [x] API: `/admin/kg-pipelines/*` (list, run, runs, artifacts, sources inventory/preview)
+- [x] UI: Knowledge Pipeline Control Room (Admin tab) + tooltips + pre-run source inventory
+- [x] Tests: `tests/test_kg_ingestion_pipelines.py`
+- [x] Run history store under `data/lineage/pipeline_runs/`
+- [x] Dry-run bootstrap does not fail when Neo4j smoke is skipped
+
+### 5.6 Dual Neo4j + promote target env `[x]`
+
+- [x] Settings: `neo4j_uri` (prod), `neo4j_staging_uri` (default `:7688`), optional staging password
+- [x] `graph/neo4j_client.py`: dual drivers, `neo4j_env("staging"|"production")` contextvar, `neo4j_health()`
+- [x] Promote MERGE into **staging first** then production (`target_env` on `promote_graph`)
+- [x] `docker/docker-compose.infra.yaml`: neo4j + neo4j-staging + redis
+- [x] `restart-all.sh` exports `NEO4J_STAGING_URI`, starts staging container
+- [x] `/health` exposes `neo4j_detail` (prod + staging + `same_as_production`)
+- [x] Tests: `tests/test_staging_and_diagnose_cache.py`
+
+### 5.7 Product ops & warranty registration APIs `[x]`
+
+- [x] `graph/enterprise_pipeline/product_ops.py`
+  - [x] `bulk_upsert_products` — catalog merge + optional Neo4j promote (staging/prod)
+  - [x] `register_warranty_asset` — CRM fixture + Neo4j `Asset-[:INSTANCE_OF]->Product`
+- [x] `POST /admin/products/bulk-upsert`
+- [x] `POST /admin/warranty/register-asset`
+- [x] Cache invalidation after promote/register
+
+### 5.8 Gaps for production rebuild
 
 - [ ] Real SAP/Salesforce/Guidewire connectors (pattern ready; mock by default)
-- [ ] Async job queue / worker for long ETL
+- [ ] Async job queue / worker for long ETL (Airflow/Dagster/Prefect wire-up)
 - [ ] Multi-region Neo4j HA / read replicas
 - [ ] Automated approval workflow beyond admin token
 - [ ] Continuous learning: closed claims → refresh INDICATES weights
+- [ ] Full LLM/NLP NER for unstructured (hook ready; rule extractor today)
+- [ ] Live CDC / event bus (POS “warranty sold” → auto-register) — API pattern only
 
 ---
 
@@ -254,29 +304,40 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 
 ### 6.1 API surface `[x]`
 
-- [x] `POST /diagnose` — primary path
-- [x] `GET /products`, `/health`, `/metrics`
-- [x] `GET /graph/ontology`, `/graph/product/{id}`, `/graph/diagnosis-subgraph`
+- [x] `POST /diagnose` — primary path (`force_keep_context` for soft appliance mismatch)
+- [x] `GET /products`, `/health` (dual Neo4j + diagnose cache flags), `/metrics`
+- [x] `GET /graph/ontology`, `/graph/product/{id}`, `/graph/diagnosis-subgraph` (+ cypher/traversal)
+- [x] `GET /graph/rdf/schema`, `/graph/rdf/product/{id}`, `/graph/rdf/entity`
+- [x] CRM session APIs: `/crm/customers`, `/crm/customers/{id}/assets`, `/crm/assets/{id}`
 - [x] Claims CRUD-ish: list, get, submit, patch status
-- [x] Lineage batches, integrations status
-- [x] Admin pipeline endpoints (optional `X-Admin-Token`)
+- [x] Lineage batches, integrations status (expanded platform capabilities)
+- [x] Admin pipeline + KG control plane + bulk product + warranty register
 - [x] CORS for Next.js, request-id middleware, global 500 handler
 - [x] Rate limit on `/diagnose` (tenant-aware key)
 - [x] Concurrency admission control for diagnoses
-- [x] Pydantic request/response schemas
+- [x] Pydantic request/response schemas (incl. optional path explain fields)
 
 ### 6.2 Service & agent `[x]`
 
 - [x] Shared `services/diagnosis_service.run_full_diagnosis` (warranty gate + diagnose + case handoff)
+- [x] Asset-first: when CRM asset bound, product from asset; warranty only on that asset
+- [x] Soft mismatch: message vs asset product → confirm/force_keep; hard block on product_id ≠ asset product
+- [x] Do not open escalation cases / cache blocked conflict outcomes incorrectly
 - [x] Domain models `DiagnosisOutcome`, `WarrantyDecision`
 - [x] LangGraph: detect_product → run_diagnosis → format_response → handle_escalation
-- [x] Agent tools wrapping GraphRAG (`agents/tools.py`)
+- [x] Agent tools wrapping GraphRAG (`agents/tools.py`) + context_blocked / resolution_meta
 - [x] Works **without** external LLM
 
 ### 6.3 GraphRAG / intelligence `[x]`
 
-- [x] Product resolution (message / product_id / asset conflict handling)
+- [x] **Asset-first product resolution** (`resolve_product_for_diagnosis`)
+  - [x] Identified session: product from CRM/asset (never free-text override)
+  - [x] Anonymous session: product pick or message detect
+  - [x] Soft appliance mismatch (`soft_appliance_mismatch`) vs hard API invariant (`product_asset_conflict`)
+  - [x] Settings: `strict_context_consistency`, `product_message_signal_min_hits`
 - [x] Symptom match (lexical + hybrid TF-IDF)
+  - [x] Stricter admission: `symptom_match_min_score` + relative secondary floor (no floor-noise secondaries)
+  - [x] Evidence-only Bayes: only FMs with INDICATES `link_count > 0` (no prior-only impeller noise)
 - [x] Error code match
 - [x] Rank failure modes (Cypher + FMEA + Bayes)
 - [x] Diagnostic tree traversal (`diagnostic_engine.py`)
@@ -284,21 +345,25 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [x] Impacted components, claim precedents, historical resolutions
 - [x] Formatted response + provenance trail + graph subgraph
 - [x] Escalation rules (critical / low conf / weak language / ambiguity)
+- [x] **Diagnose read-path cache** (`runtime/diagnose_cache.py`): tenant|product|asset|norm message|catalog version, TTL 90s, bust on promote
+- [x] Diagnosis path explain: `cypher_queries` + `traversal` on diagnosis subgraph
 
 ### 6.4 Integrations `[x]`
 
-- [x] CRM enrichment (asset → product/SKU/warranty)
-- [x] Warranty eligibility gate
+- [x] CRM enrichment (asset → product/SKU/warranty) + list customers/assets for UI
+- [x] Fixture CRM under `data/enterprise_sources/crm_assets.json` (enriched sku/model fields)
+- [x] Warranty eligibility gate (asset-scoped)
 - [x] Claims workflow (JSON + optional Neo4j Claim)
-- [x] Case management on escalation (simulated CCaaS)
+- [x] Case management on escalation (simulated CCaaS); no case on context_blocked soft/hard mismatch
 
 ### 6.5 Rebuild checklist — online path
 
 - [ ] Define request DTO (message + optional entity keys)
-- [ ] Product/asset binding rules
+- [ ] Product/asset binding rules (**prefer asset-first**; message must not silently rebind product)
 - [ ] Matching strategy (lexical / hybrid / embeddings)
-- [ ] Ranking formula + escalation policy
+- [ ] Ranking formula + escalation policy + evidence-only FM candidates
 - [ ] Side effects (tickets, claims) behind action guardrails
+- [ ] Soft vs hard conflict UX for multi-appliance accounts
 
 ---
 
@@ -306,17 +371,59 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 
 ### 7.1 Next.js primary UI (`frontend/`)
 
-- [x] Diagnosis chat (natural language)
-- [x] Recommendation strength badge
+#### Diagnosis Chat — asset-first `[x]`
+
+- [x] Natural language diagnosis + recommendation strength badge
 - [x] 3-tile confidence (posterior / graph / language)
 - [x] Ranked failure modes, parts, provenance
-- [x] Knowledge Explorer (React Flow, hierarchical layout)
-- [x] Diagnosis path highlight on full graph
-- [x] Node inspection / keyboard pan / dark-light theme
-- [x] Agent cases / claims
-- [x] Enterprise ops (lineage, connector status)
-- [x] Admin pipeline actions via API client
-- [x] `lib/api.ts` client for all backend routes
+- [x] **Pinned composer** (messages scroll; input fixed — no sticky overlap)
+- [x] **Customer session:** CRM customer → registered asset cards → product/warranty read-only from asset
+- [x] **Anonymous demo:** product type pick only
+- [x] Soft appliance mismatch panel: switch asset / keep appliance (`force_keep_context`)
+- [x] Context-blocked UI (soft amber vs hard red)
+- [x] **Explore Exact Path** → Knowledge Explorer with case path highlighted (+ Cypher/traversal)
+- [x] Submit claim from diagnosis; escalation badge
+
+#### Knowledge Explorer — full viewport + explainability `[x]`
+
+- [x] React Flow full-viewport canvas (not fixed 560px box)
+- [x] Dagre layout Top→Down / Left→Right; Fit all; zoom/pan; minimap; keyboard (F, +/-, arrows)
+- [x] **Full ontology** default (Product, Symptom, FM, Step, Part, Component, ErrorCode, Model, SKU, Asset, WarrantyPolicy, …)
+- [x] Persona presets optional (customer/agent/analyst type chips); “Show all”
+- [x] Expanded product subgraph API (CONFIRMS, components, codes, assets, policies)
+- [x] **Diagnosis path highlight** (glow on-path, dim off-path); race-safe open from chat
+- [x] Path only toggle; Clear path
+- [x] **Cypher & traversal panel** for the active case (hops + named Cypher plan + params + copy)
+- [x] Node inspector: neighbors + **OWL class / RDF instance / combined Turtle** + copy
+- [x] Full product OWL/RDF `.ttl` modal
+- [x] Search nodes; edge label toggle
+
+#### Admin — Knowledge Base / Control Room `[x]`
+
+- [x] Guided onboarding wizard (sources → fetch/preview delta vs graph → ingest → smoke → approve → promote → customer test)
+- [x] Change-preview API: new/updated products vs production Neo4j + journey change log
+- [x] Classic staged gate: onboard, dry-run ETL, smoke, human approve, promote
+- [x] **Knowledge Pipeline Control Room** (bootstrap, incremental, promote, per-pipeline cards)
+- [x] Mode / target env / dry-run; run history; source & staging artifacts
+- [x] **Tooltips** with step-by-step “what happens on click” + write paths
+- [x] **Pre-run source inventory** (file list, samples, how-to-add, click-to-preview)
+- [x] Review state smoke/human flags fixed (true/false)
+
+#### Enterprise Ops — platform dashboard `[x]`
+
+- [x] Dual Neo4j + Redis + diagnose-cache KPIs (not raw JSON only)
+- [x] Connector cards with **fixture** mode (expected when `:8090` down)
+- [x] Capability chips (built vs gap: OWL import, CDC)
+- [x] KG pipeline catalog + recent control-plane runs + ETL lineage
+- [x] Runtime cache stats; operate playbook + jump links
+- [x] Expanded `/integrations/status` (`utils/connector_status.py`)
+
+#### Agent cases / shared chrome `[x]`
+
+- [x] Agent cases / claims list
+- [x] Role switcher Customer / Agent / Analyst
+- [x] Dark/light theme; system healthy indicator
+- [x] `lib/api.ts` client for backend routes (CRM, RDF, diagnose, claims, …)
 - [x] React Query providers
 
 ### 7.2 Archived Streamlit UI
@@ -326,10 +433,11 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 
 ### 7.3 Rebuild checklist
 
-- [ ] Chat surface for free text
-- [ ] Explainability panel (why this rank?)
-- [ ] Graph explorer for trust-building demos
-- [ ] Ops views for ETL health
+- [ ] Chat surface for free text **after** identity/asset bind when CRM exists
+- [ ] Explainability panel (why this rank?) + path + Cypher
+- [ ] Graph explorer for trust-building demos (full ontology + path highlight)
+- [ ] Ops views for ETL + runtime health (not raw dumps)
+- [ ] Admin control room with pre-run inventory + human gates
 
 ---
 
@@ -337,22 +445,25 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 
 - [x] Mock enterprise FastAPI (PIM/CRM/FSM/Claims/Cases) on `:8090`
 - [x] Fixture JSON under `data/enterprise_sources/`
-- [x] Demo CRM customers/assets for walkthroughs
+- [x] Demo CRM customers/assets for walkthroughs (multi-asset customers e.g. Jane / Robert)
+- [x] Pipeline source fixtures `data/pipeline_sources/**`
 - [x] Enterprise test scenarios JSON
 - [x] Simulated flags in provenance / fixtures
+- [x] Fixture fallback labeled in ops/status when mock host unreachable
 
 ---
 
 ## 9. Runtime platform package (`runtime/`) `[x]`
 
 - [x] `TtlCache` / `RedisTtlCache` + named registry + stats
+- [x] **Diagnose read-path cache** `runtime/diagnose_cache.py` (short TTL, catalog-version key, promote bust)
 - [x] `parallel_map` bounded thread pool
 - [x] `ConcurrencyLimiter` (memory/Redis)
 - [x] Partition key helpers (tenant/product/batch) + `batch_items`
 - [x] Redis client factory + health (`redis_url` empty → memory)
 - [x] Wired: ETL parallel extract, ontology/product caches, rate keys, diagnose admission, post-load invalidate
-- [x] Docker compose for Redis (`docker/docker-compose.redis.yaml`)
-- [x] Settings: cache TTLs, workers, pool size, max concurrent diagnoses, tenant id
+- [x] Docker compose Redis + infra compose (`docker/docker-compose.infra.yaml`, `docker-compose.redis.yaml`)
+- [x] Settings: cache TTLs, diagnose cache flags, workers, pool size, max concurrent diagnoses, tenant id, dual Neo4j, strict context
 
 ---
 
@@ -616,13 +727,17 @@ Use this as the **true backlog** if continuing this product:
 | P0 | Enforce approval gate on promote in all envs | `[~]` admin token only |
 | P1 | Real enterprise connectors (not mock) | `[ ]` pattern only |
 | P1 | Async ETL workers / job queue | `[ ]` |
-| P1 | Neo4j HA / read replicas | `[ ]` |
+| P1 | Neo4j HA / read replicas | `[ ]` dual env local only |
 | P1 | Postgres for ops data | `[ ]` SQLite today |
+| P1 | Live CDC / event bus (warranty sold → register-asset) | `[ ]` API exists |
+| P2 | OWL reasoner / SHACL validation pipeline | `[ ]` export + UI only |
+| P2 | RDF → Neo4j import as alternate SoR | `[ ]` |
 | P2 | Claim closed-loop learning into INDICATES | `[ ]` |
 | P2 | Part supersession chains (`SUPERSEDES`) | `[ ]` |
 | P2 | Richer conditional NEXT_STEP trees | `[~]` basic trees exist |
 | P2 | Multi-language manuals at scale | `[ ]` |
 | P2 | LLM semantic response cache (if LLM primary) | `[ ]` |
+| P2 | Full LLM NER for unstructured extract | `[~]` regex/heuristics |
 | P3 | C4 workspace reflect reliability/services/domain | `[ ]` F4 nicety |
 | P3 | Graph fabric / multi-DB by OEM | `[ ]` |
 | P3 | Full-text / vector indexes if scale demands | `[ ]` |
@@ -632,10 +747,12 @@ Use this as the **true backlog** if continuing this product:
 ## 20. How to use this document day-to-day
 
 1. **Planning a feature** — find the section, add a checkbox, keep WWWH (What/Where/When/How/Why).
-2. **Starting a new vertical** — copy §18 playbook + §1 theory + §2 ontology template.
-3. **Onboarding engineers** — walk §17 matrix + package encyclopedia (`docs/18`).
-4. **Interviews / design reviews** — multi-volume Vol 02 theory + Vol 03 code + this §1–3.
-5. **Don’t lie to future you** — keep `[ ]` items honest; demos must stay labeled.
+2. **After every feature/change lands** — **update this file the same session** (append or tick boxes). Do not ship code without tracking it here.
+3. **Before removing or rewriting UX/logic** — search this file for related `[x]` items so useful behavior is not dropped (path highlight, asset-first, dual Neo4j, RDF, etc.).
+4. **Starting a new vertical** — copy §18 playbook + §1 theory + §2 ontology template.
+5. **Onboarding engineers** — walk §17 matrix + package encyclopedia (`docs/18`) + **§22 session log**.
+6. **Interviews / design reviews** — multi-volume Vol 02 theory + Vol 03 code + this §1–3.
+7. **Don’t lie to future you** — keep `[ ]` items honest; demos must stay labeled; fixture vs live called out.
 
 ---
 
@@ -646,14 +763,276 @@ Use this as the **true backlog** if continuing this product:
 | `docs/18-FULL-PROJECT-CODEBASE-ENCYCLOPEDIA.md` | Every package inventory |
 | `docs/19-Indexes-…md` | Constraints/indexes WWWH |
 | `docs/15`–`17` | Ontology, runtime, landscape |
+| `docs/20-Enterprise-KG-Ingestion-Pipeline-Architecture.md` | Multi-source KG control plane architecture |
+| `docs/21-KG-Ingestion-Step-by-Step-Runbook.md` | How to run bootstrap / incremental / promote |
+| `docs/todo-kg-ingestion-pipelines.md` | KG pipeline checklist detail |
 | `docs/multi-volume/*` | Theory + annotated code + RDF PDFs |
+| `docs/ontology/*` | Generated Turtle / OWL artifacts |
 | `docs/interview/*` | Persona Q&A |
 | `docs/PIPELINE-AND-MODULE-GUIDE.md` | Phase 0–5 operational guide |
 | `docs/llmops-handbook/*` | LLMOps disciplines depth |
 | `README.md` | Quick start |
+| `docker/docker-compose.infra.yaml` | Prod Neo4j + staging Neo4j + Redis |
+| `restart-all.sh` | Local full stack start |
+
+---
+
+## 22. Session log — recent features (track every addition)
+
+> **Mandate:** Whenever we add/change a feature in WarrantyGraph, **append or update** this section (and the matching § above) **in the same change set**. Prefer WWWH: What / Where / When / How / Why. Mark status `[x]` / `[~]` / `[ ]`. Never delete prior session entries without consolidating into the main sections first.
+
+### 22.1 Dual Neo4j staging + diagnose read cache `[x]`
+
+| | |
+|--|--|
+| **What** | Production Bolt `:7687` + staging `:7688`; promote target_env; diagnose Redis cache |
+| **Where** | `graph/neo4j_client.py`, `config/settings.py`, `runtime/diagnose_cache.py`, `services/diagnosis_service.py`, `docker/docker-compose.infra.yaml`, `restart-all.sh`, control plane `runner.py` promote, `/health` |
+| **When** | Before/after catalog promote; every diagnose (optional TTL) |
+| **How** | `neo4j_env()` contextvar routes drivers; cache key = hash(tenant, product, asset, norm message, catalog version); invalidate on promote |
+| **Why** | Enterprise promote-first + hot-path latency without stale graph after MERGE |
+| **Tests** | `tests/test_staging_and_diagnose_cache.py` |
+
+### 22.2 Multi-source KG control plane + Admin Control Room `[x]`
+
+| | |
+|--|--|
+| **What** | Registry of pipelines (structured/semi/unstructured/preprocess/materialize/smoke/promote/bootstrap/incremental); Admin UI Control Room |
+| **Where** | `graph/enterprise_pipeline/control_plane/*`, extractors, preprocess, Admin tab `frontend/app/page.tsx`, `/admin/kg-pipelines/*` |
+| **When** | Bootstrap project build, incremental live, on-demand admin |
+| **How** | `run_pipeline(id, mode, dry_run, target_env)`; staging JSON artifacts; lineage under `data/lineage/pipeline_runs/` |
+| **Why** | Realistic multi-source ingestion with human gates |
+| **Tests** | `tests/test_kg_ingestion_pipelines.py` |
+| **Docs** | `docs/20`, `docs/21`, `docs/todo-kg-ingestion-pipelines.md` |
+
+### 22.3 Admin tooltips + pre-run source inventory `[x]`
+
+| | |
+|--|--|
+| **What** | Hover help on every Admin/pipeline action; inventory API parses sources before Run |
+| **Where** | `frontend` HelpTip + inventory panel; `GET /admin/kg-pipelines/sources/inventory`, `/preview` |
+| **When** | Operator opens Admin; after adding files under `data/pipeline_sources/` |
+| **How** | Schema-on-read samples for JSONL/CSV/txt; no pipeline execution required for preview |
+| **Why** | Discover → preview → extract → gate → promote (not blind Run) |
+
+### 22.4 Asset-first diagnosis + soft product mismatch `[x]`
+
+| | |
+|--|--|
+| **What** | Customer → assets → diagnose; product from CRM asset; soft mismatch confirm; hard product≠asset API invariant |
+| **Where** | `resolve_product_for_diagnosis`, `diagnosis_service`, diagnose request `force_keep_context`, CRM list APIs, Chat UI session modes |
+| **When** | Every customer-facing diagnose; anonymous demo still product-pick |
+| **How** | Message must not silently rebind product when asset bound; soft block then force or switch asset |
+| **Why** | Production CRM reality; washer text on dishwasher asset is a UX error, not “smart override” |
+| **Tests** | `tests/test_product_resolution.py` (fail-closed + soft + force + aligned) |
+
+### 22.5 Evidence-only ranking hygiene `[x]`
+
+| | |
+|--|--|
+| **What** | Higher symptom min score + relative floor; drop FMs with zero INDICATES from Bayes set |
+| **Where** | `graph/graph_rag.py` `match_symptoms`, `rank_failure_modes` / posteriors |
+| **Why** | Prevent weak secondary symptoms and prior-only FMs (e.g. impeller @ 10%) from faking differentials |
+
+### 22.6 Product bulk upsert + warranty asset register `[x]`
+
+| | |
+|--|--|
+| **What** | Bulk catalog product add/update; register customer warranty unit |
+| **Where** | `graph/enterprise_pipeline/product_ops.py`; `POST /admin/products/bulk-upsert`; `POST /admin/warranty/register-asset` |
+| **How** | Catalog JSON write + optional Neo4j MERGE / Asset INSTANCE_OF; cache invalidate |
+| **Why** | Realistic ops without full CDC yet |
+
+### 22.7 Knowledge Explorer overhaul `[x]`
+
+| | |
+|--|--|
+| **What** | Full-viewport graph; full ontology neighborhood; persona as optional preset; pan/zoom/fit; path highlight restored; OWL/RDF on click; Cypher + traversal for case |
+| **Where** | `frontend/app/page.tsx` explorer; `graph/graph_visualization.py` expanded subgraph + `build_diagnosis_cypher_plan` / `build_diagnosis_traversal`; RDF APIs |
+| **When** | Browse product; Explore Exact Path from chat; inspect node |
+| **How** | Product subgraph v3 includes steps/parts/components/codes/assets/policies; path overlay race-guarded; diagnosis-subgraph returns cypher_queries + traversal |
+| **Why** | Trust + audit: see true Neo4j ontology, formal RDF/OWL, and the exact Cypher hops for a case |
+| **Must not regress** | Explore Exact Path highlight; full ontology types; RDF inspector; dual-env promote |
+
+### 22.8 Enterprise Ops dashboard refresh `[x]`
+
+| | |
+|--|--|
+| **What** | Replace raw connector dump with platform KPIs, dual Neo4j, Redis, capabilities, KG runs, lineage, operate playbook |
+| **Where** | Enterprise Ops view; `utils/connector_status.integration_status()` |
+| **Why** | Ops page must track real architecture (not pre–control-plane UI) |
+
+### 22.9 Chat layout UX `[x]`
+
+| | |
+|--|--|
+| **What** | Diagnosis chat flex layout: scrollable transcript + pinned composer |
+| **Where** | `frontend/app/page.tsx` chat column; `globals.css` `.chat-composer` |
+| **Why** | Input no longer sticky-overlaps diagnosis cards |
+
+### 22.10 Tests added/updated (this era) `[x]`
+
+- [x] `tests/test_staging_and_diagnose_cache.py`
+- [x] `tests/test_kg_ingestion_pipelines.py`
+- [x] `tests/test_product_resolution.py` (asset-first / soft mismatch / force)
+- [x] Staging cache mock accepts `crm_product_id` / `force_keep_context`
+
+### 22.11 Standing process for future changes
+
+```text
+1. Reason: which existing [x] features must remain (path, asset-first, dual Neo4j, RDF, cache, …)?
+2. Implement without silent removal of those behaviors.
+3. Update matching § in this todo.md (and append a 22.x entry if multi-session feature).
+4. Note tests + docs + residual gaps honestly.
+```
+
+### 22.12 End-to-end new product `ice-001` (multi-source demo) `[x]`
+
+| | |
+|--|--|
+| **What** | Full walkthrough product **FrostBite Compact Ice Maker 12kg (`ice-001`)** via structured + semi + unstructured sources → catalog/ontology → Neo4j KG → RDF → customer diagnose |
+| **Where** | `data/pipeline_sources/**/ice-001*`, `data/enterprise_sources/pim_catalog.json`, semi work_orders/parts, CRM `AST-ICE-2201`, `docs/ontology/ice-001-product.ttl` |
+| **Pipeline path** | structured_extract → semi_structured_ingest → unstructured_extract → preprocess → knowledge_materialize → bulk_upsert/promote_graph → register_warranty_asset |
+| **KG result** | 4 symptoms, 3 FMs, 3 parts, 4 steps, 6 INDICATES, asset INSTANCE_OF |
+| **Diagnose sample** | Asset-bound Jane `AST-ICE-2201`: “not producing ice / E07” → **Water Inlet Valve Failure** (~72% posterior, Strong) |
+| **Fixes along the way** | `populate_graph` defaults for SKU revision/model_year, component impact_severity, step/error-code confidence (safe for new product packs) |
+| **UI how-to** | See operator runbook in chat response / `docs/21` + Admin Control Room |
+
+### 22.13 Guided Admin product onboarding wizard + change-preview `[x]`
+
+| | |
+|--|--|
+| **What** | Reorganized Admin so operators can **see new/updated products vs live Neo4j** after fetch, walk steps 1→6 with progress, and keep a **change log** of completed actions before customer persona tests |
+| **Where** | `graph/enterprise_pipeline/change_preview.py`; `GET /admin/pipeline/change-preview`; enhanced dry-run / status / review / promote / kg-pipeline run journey; `frontend/app/page.tsx` Admin wizard |
+| **When** | Operator opens Admin → Inspect sources → Fetch & show changes → Ingest → Smoke → Approve → Promote → Customer chat test |
+| **How** | Diff catalog/PIM/incoming product summaries vs production (and staging) graph; store `change_preview` + `journey` in `ADMIN_REVIEW_STATE`; UI stepper + “What’s coming” panel + collapsible inventory/Control Room |
+| **Keeps** | Classic gates, Control Room pipelines, source inventory/preview, tooltips, dual-env promote, dry-run modes, **partitioning** (`product_id_from_record`, ETL/rate-limit partition keys) |
+| **Why** | Prior Admin stacked dual panels (classic gate + Control Room) without a clear delta or progress trail — hard to follow for new product onboard |
+| **Must not regress** | bootstrap_all / incremental_sync / promote_graph; smoke + human approve gates; inventory previews; partitioning helpers |
+
+### 22.14 Nine new multi-source product test packs + change-set selection `[x]`
+
+| | |
+|--|--|
+| **What** | **9 brand-new products** as multi-source test artifacts (structured + semi + unstructured + CRM/FSM/claims) **without running pipelines**; Admin **select/deselect** which NEW vs UPDATE products enter promote scope |
+| **Product IDs** | `vac-001`, `ac-001`, `oven-001`, `dry-001`, `ref-001`, `grill-001`, `hob-001`, `fan-001`, `pur-001` |
+| **Artifacts** | PIM catalog (+9); `structured/new_products_9_pack.json` + notes; semi `new_products_9_parts.csv` / work orders + delta; unstructured manuals+tickets; CRM assets + FSM WOs + 3 claims; `NEW_PRODUCTS_9_MANIFEST.json` |
+| **Selection API** | `GET/POST /admin/pipeline/selection` — per product + bulk new/update; defaults **new=on**, **updates=opt-in** |
+| **Distinction** | UI: **NEW PRODUCT** (not in live graph) vs **UPDATE EXISTING** (field diffs) |
+| **Promote filter** | Selected `product_ids` → `run_staging_promotion` (filter via `product_id_from_record` — partitioning retained) |
+| **Pipeline** | Artifacts only — no pipeline run for this pack |
+
+### 22.15 Admin button failures (Load failed) — root cause fix `[x]`
+
+| | |
+|--|--|
+| **Cause** | 9-product test pack `historical_resolutions` used wrong keys (`summary`/`failure_mode_id`) → Pydantic `HistoricalResolution` validation error → dry-run ETL / bootstrap 500 → browser toast **Load failed** |
+| **Fix** | Corrected PIM + structured pack resolution fields; hardened `OntologyBuilder._merge_resolutions` with alias normalize + skip bad rows; claims/FSM missing FM no longer KeyError; frontend `adminFetch` surfaces HTTP/network errors clearly |
+| **Verified** | dry-run, validate, approve, bootstrap_all dry-run, selection, inventory all HTTP 200 |
+
+### 22.16 W3C ontology-first gate + Admin last-action UI `[x]`
+
+| | |
+|--|--|
+| **W3C recommendation (research)** | **TBox first** (OWL 2 / RDFS rule book: classes + properties) → **ABox** product instances as RDF facts → **SHACL-style shapes** for closed-world validation before load → operational graph. OWL = meaning/inference; SHACL = data quality. Sources: [OWL 2 Primer](https://www.w3.org/TR/owl2-primer/), [RDF 1.1](https://www.w3.org/TR/rdf11-concepts/), [SHACL](https://www.w3.org/TR/shacl/) |
+| **New product vs ontology (authoritative)** | OWL Primer: ontology has **terminological** knowledge (classes/properties) + **assertional** knowledge (individuals). A new product is almost always **new individuals (ABox)** under the **same domain TBox**. You only extend the ontology when you need new *kinds* of classes/relations. Product packs (pur-001, …) are ABox builds + shape validation — not a new TBox per SKU. |
+| **Critical gap (honest)** | Historically this app was **Neo4j property-graph first** with OWL/RDF as **export** after load — not full reasoner + SHACL pipeline. That risked accepting incomplete product packs into diagnosis. |
+| **What we added** | `ontology_validate.py`; tbox/validate APIs; dry-run ontology report; Admin preview-first redesign (single Fetch preview panel, workflow bar, collapsible advanced) |
+| **Still not full W3C stack** | No external OWL reasoner; no pyshacl; Neo4j remains runtime GraphRAG store |
+
+### 22.17 Admin UX critical redesign — preview-first `[x]`
+
+| | |
+|--|--|
+| **Problem** | Fetch showed toast only; long redundant wizard + W3C banners + dual control rooms hid the actual change-set |
+| **Fix** | One **Fetch preview** card (sources table, NEW vs UPDATE lists, selection, ABox validation); compact workflow 1–7; TBox/ABox one-liner; sources / log / advanced **collapsed** |
+| **Copy** | Explicit: new product = ABox under existing TBox; TBox extension only for new entity *types* |
+
+### 22.18 pur-001 insufficient data + Admin “dead” buttons `[x]`
+
+| | |
+|--|--|
+| **Diagnosis root cause** | CRM asset + Product node existed, but ABox symptoms were “filter light / F02 / intermittent” — user said “not starting” → **no symptom match** → posterior/graph/text 0% / Insufficient data. Pipeline not empty; **evidence mismatch**. Provenance steps still listed as product neighborhood, not ranked FM evidence. |
+| **Fix** | Expanded pur-001 ABox (start/power symptoms + Power Supply FM + INDICATES); MERGE production; query phrase rewrite for “not starting”; Admin dry-run default **off**; gate tooltips; Validate ABox works with zero selection (all new) |
+| **Lesson** | Onboard completeness = symptoms customers actually say, not only lab FMEA labels |
+
+### 22.19 soft_appliance_mismatch false positive on “purifier does not start” `[x]`
+
+| | |
+|--|--|
+| **Bug** | Substring match of error code `oe` inside English **“does”** scored LG WM4000; bound `pur-001` had no keywords → soft mismatch + blocked ranking |
+| **Fix** | Word-boundary matching for short keywords; remove bare `oe`/`de`; keywords for 9 new products; soft mismatch requires ≥2 hits and clear lead over bound product; name/brand boost from live product list |
+| **Tests** | `tests/test_product_resolution.py` still pass |
+
+### 22.24 Ingest plan: extract → detect → recommend next steps `[x]`
+
+| | |
+|--|--|
+| **What** | Closed-loop **ingest plan** after Fetch: detect `new_product` / `product_update` / `tbox_extension` / `sources_changed`; ordered `recommended_actions`; `wizard_unlocks`; fail-closed `gates.allow_materialize` |
+| **Module** | `graph/enterprise_pipeline/ingest_plan.py` |
+| **APIs** | `GET /admin/pipeline/plan`; `POST .../plan/lock-selection`; `POST .../plan/acknowledge-tbox`; plan on dry-run, status, validate, materialize |
+| **UI** | Admin **Ingest plan** card (next action, checklist, NEW/UPDATE counts, materialize OK, TBox acknowledge) |
+| **Policy** | Materialize blocked until selection + ABox validate (+ TBox ack if needed); selection-scoped write/promote |
+
+### 22.23 bootstrap_all “failed” was smoke ENT-001 + selection UI loss `[x]`
+
+| | |
+|--|--|
+| **Reality** | `knowledge_materialize` for `ac-001` **succeeded**; chain failed only on **smoke_validate** |
+| **Smoke root** | ENT-001 expected `expect_escalate=true` but diagnosis now Strong 92% without escalate — scenario updated |
+| **UI** | Materialize uses `knowledge_materialize` (not bootstrap_all); locked selection IDs survive refresh; materialize ✓ only when step explicitly completed |
+| **API check** | smoke 3/3 pass; materialize `ac-001` success |
+
+### 22.22 Change-preview detects ABox/bulletin growth as UPDATES `[x]`
+
+| | |
+|--|--|
+| **Bug** | Fetch reported “no new or updated” after OEM bulletins because IDs/names matched; only name-level fields were diffed |
+| **Fix** | Compare per-product **symptom/FM/step/component/error_code counts** (source vs live Neo4j) + bulletin_id; flag as UPDATE when source ABox is richer; UI copy for UPDATE opt-in selection |
+
+### 22.21 OEM bulletin 2026-Q3 UPDATE artifacts for existing products `[x]`
+
+| | |
+|--|--|
+| **What** | ABox **update** pack for all **23** existing products (OEM bulletins + tech resolutions + new symptoms/FMs/parts/steps) |
+| **change_type** | `product_update` (not new product onboard) |
+| **Sources** | PIM in-place; `structured/oem_bulletins_2026q3_pack.json` + per-pid notes; semi incremental parts/WOs; unstructured incremental bulletins + tech notes; FSM WOs; sample claims |
+| **Manifest** | `data/pipeline_sources/OEM_BULLETINS_2026Q3_MANIFEST.json` |
+| **Pipeline** | **Not run** — operator uses Admin selection → materialize/promote |
+
+### 22.20 Selection-enforced materialize + strict 1-by-1 Admin wizard `[x]`
+
+| | |
+|--|--|
+| **Bug** | Admin selection was cosmetic for bootstrap/materialize/promote_graph — ETL rewrote **full** PIM catalog and promoted all products; dry-run + unlocked steps looked “stuck/silent” |
+| **Backend** | `run_knowledge_etl(product_ids=)` merges **only selected** into existing catalog; `run_pipeline(..., product_ids=)` filters materialize + promote; API fails closed if selection empty on bootstrap/materialize/promote |
+| **Frontend** | Strict steps 1→8: only active step expands; next unlocks after completion; Materialize/Promote send `product_ids` query param |
+| **Chat** | New products appear as CRM assets after promote of that product_id; diagnose uses asset product_id |
+
+### 22.21 Ingest plan + durable audit + entity-level delta / RDF highlight `[x]`
+
+| | |
+|--|--|
+| **Problem** | Operators saw “23 UPDATE” with no entity detail; no audit trail across restarts; two promote buttons; completed steps still looked active; RDF dump hid NEW ABox under TBox schema |
+| **Ingest plan** | `graph/enterprise_pipeline/ingest_plan.py` — detect NEW/UPDATE/TBox; ordered actions; wizard unlocks; fail-closed materialize gates; APIs `GET /admin/pipeline/plan`, lock-selection, acknowledge-tbox |
+| **Durable audit** | `utils/admin_audit.py` → `data/lineage/admin_audit.jsonl`; every `_admin_journey` appends; `GET /admin/audit/history` unifies events + pipeline_runs + etl_batches; Admin **Audit & history** panel |
+| **Entity delta** | `graph/enterprise_pipeline/entity_delta.py` — per-product catalog vs Neo4j (symptoms/FMs/steps/parts); staging+prod presence; exact part ids (no `oem-` prefix explosion); `GET /admin/pipeline/entity-delta`, `neo4j-verify` |
+| **RDF/ontology map** | `build_ontology_rdf_highlight` — TBox unchanged vs NEW ABox IRIs; NEW-only Turtle; amber highlight in UI; Open graph / View RDF |
+| **Fleet vs batch** | Catalog wins over PIM for promote-path diff; **Pending UPDATE** vs **Already in sync**; batch-complete banner after production promote; Refresh plan re-diffs + toasts |
+| **Promote UX** | Single promote → staging\|production; success disables button (`✓ Promoted`); step actions lock after success; **Start next product batch** |
+| **Chat UX** | Diagnosis Chat renders **diagnostic_steps** + historical resolutions (were API-only before) |
+| **Files** | `change_preview.py`, `entity_delta.py`, `ingest_plan.py`, `admin_audit.py`, `api/main.py`, `frontend/app/page.tsx`, `frontend/lib/types.ts` |
+
+### 5.9 Guided onboard operator model (glossary) `[x]`
+
+- [x] **Pending UPDATE** = product in production, catalog still has more core ABox → promote still needed
+- [x] **Already in sync** = catalog core ABox matches production (post-promote) — stays in Neo4j, not re-work
+- [x] **NEW** = product_id missing from production
+- [x] **Refresh plan** = re-diff catalog↔prod + recompute checklist (no source re-scan, no Neo4j write)
+- [x] **Fetch** = dry-run ETL / source pull; resets wizard selection gates; does not undo promotes
+- [x] Selection-scoped materialize/promote only; fleet counts are independent of current batch
 
 ---
 
 **Legend recap:** `[x]` done in this repo · `[~]` partial/demo · `[ ]` gap / future
 
-*Last expanded to cover all major building sessions: graph core, warranty ontology, ETL, GraphRAG/reliability, Next.js UI, LLMOps, runtime/Redis, RDF export, multi-volume docs, indexes, and residual production gaps.*
+*Last expanded: **22.21 ingest plan + durable audit + entity delta/RDF + batch-complete UX**; dual Neo4j promote; selection-enforced ETL. Process: every subsequent feature must update this file the same session. Never remove partitioning or other built capabilities.*

@@ -1,0 +1,8 @@
+Service manual excerpt — BakePro Wall Oven 30in (oven-001)
+
+Model BP-WO30 · Brand BakePro · MY2026
+
+If the unit shows error F3 (Oven sensor open), inspect the Thermal Sensing.
+Primary field failure: Temperature Sensor Open Circuit. Replace Oven Temperature Sensor (BP-OTS-30) when confirmed.
+Customer may report: Oven will not preheat / F3 on display.
+Always disconnect power before opening the chassis.

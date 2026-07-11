@@ -86,6 +86,116 @@
       "purchase_date": "2023-11-20",
       "warranty_status": "active",
       "warranty_expiry": "2027-11-20"
+    },
+    {
+      "asset_id": "AST-ICE-2201",
+      "customer_id": "CUST-10042",
+      "product_id": "ice-001",
+      "sku_id": "SKU-ICE12-2025",
+      "model_number": "FB-ICE12",
+      "serial_number": "FB-ICE12-2025-02201",
+      "purchase_date": "2025-11-12",
+      "warranty_status": "active",
+      "warranty_expiry": "2027-11-12"
+    },
+    {
+      "asset_id": "AST-VAC001-3000",
+      "customer_id": "CUST-10042",
+      "product_id": "vac-001",
+      "sku_id": "SKU-RC-SV90-2026",
+      "model_number": "RC-SV90",
+      "serial_number": "RC-SV90-2026-3000",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-AC001-3001",
+      "customer_id": "CUST-10042",
+      "product_id": "ac-001",
+      "sku_id": "SKU-CA-PAC12-2026",
+      "model_number": "CA-PAC12",
+      "serial_number": "CA-PAC12-2026-3001",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-OVEN001-3002",
+      "customer_id": "CUST-10042",
+      "product_id": "oven-001",
+      "sku_id": "SKU-BP-WO30-2026",
+      "model_number": "BP-WO30",
+      "serial_number": "BP-WO30-2026-3002",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-DRY001-3003",
+      "customer_id": "CUST-10042",
+      "product_id": "dry-001",
+      "sku_id": "SKU-AF-HP8-2026",
+      "model_number": "AF-HP8",
+      "serial_number": "AF-HP8-2026-3003",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-REF001-3004",
+      "customer_id": "CUST-10042",
+      "product_id": "ref-001",
+      "sku_id": "SKU-CV-RF180-2026",
+      "model_number": "CV-RF180",
+      "serial_number": "CV-RF180-2026-3004",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-GRILL001-3005",
+      "customer_id": "CUST-10042",
+      "product_id": "grill-001",
+      "sku_id": "SKU-FM-GRXL-2026",
+      "model_number": "FM-GRXL",
+      "serial_number": "FM-GRXL-2026-3005",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-HOB001-3006",
+      "customer_id": "CUST-10042",
+      "product_id": "hob-001",
+      "sku_id": "SKU-SL-IH4-2026",
+      "model_number": "SL-IH4",
+      "serial_number": "SL-IH4-2026-3006",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-FAN001-3007",
+      "customer_id": "CUST-10042",
+      "product_id": "fan-001",
+      "sku_id": "SKU-BT-BL60-2026",
+      "model_number": "BT-BL60",
+      "serial_number": "BT-BL60-2026-3007",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
+    },
+    {
+      "asset_id": "AST-PUR001-3008",
+      "customer_id": "CUST-10042",
+      "product_id": "pur-001",
+      "sku_id": "SKU-PR-HP400-2026",
+      "model_number": "PR-HP400",
+      "serial_number": "PR-HP400-2026-3008",
+      "purchase_date": "2026-03-01",
+      "warranty_status": "active",
+      "warranty_expiry": "2028-03-01"
     }
   ]
 }

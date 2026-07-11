@@ -78,10 +78,18 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                 SET p.name = $name, p.category = $category, p.brand = $brand,
                     p.model_year = $model_year, p.etl_batch_id = $etl_batch_id,
                     p.source_system = $source_system, p.source_record_id = $source_record_id,
-                    p.source_document_uri = $source_document_uri, p.approval_status = $approval_status
+                    p.source_document_uri = $source_document_uri, p.approval_status = $approval_status,
+                    p.last_bulletin_id = $last_bulletin_id,
+                    p.bulletin_revision = $bulletin_revision
                 """,
                 {
-                    **product,
+                    "product_id": product_id,
+                    "name": product.get("name"),
+                    "category": product.get("category"),
+                    "brand": product.get("brand"),
+                    "model_year": product.get("model_year"),
+                    "last_bulletin_id": product.get("last_bulletin_id") or product.get("bulletin_id") or "",
+                    "bulletin_revision": product.get("bulletin_revision") or "",
                     "etl_batch_id": batch_id,
                     **{
                         k: p_prov.get(k, "")
@@ -210,9 +218,15 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                 session.run(
                     """
                     MERGE (sku:SKU {sku_id: $sku_id})
-                    SET sku.revision = $revision, sku.model_year = $model_year
+                    SET sku.revision = $revision, sku.model_year = $model_year,
+                        sku.name = $name
                     """,
-                    sku,
+                    {
+                        "sku_id": sku["sku_id"],
+                        "revision": sku.get("revision") or "A",
+                        "model_year": sku.get("model_year") or product.get("model_year") or 0,
+                        "name": sku.get("name") or sku["sku_id"],
+                    },
                 )
                 session.run(
                     """
@@ -269,7 +283,11 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MERGE (fm)-[r:IMPACTS_COMPONENT]->(c)
                     SET r.impact_severity = $impact_severity
                     """,
-                    link,
+                    {
+                        "failure_mode_id": link["failure_mode_id"],
+                        "component_id": link["component_id"],
+                        "impact_severity": link.get("impact_severity") or "medium",
+                    },
                 )
 
             for ec in product_data.get("error_codes", []):
@@ -298,7 +316,11 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MERGE (ec)-[r:INDICATES]->(fm)
                     SET r.confidence = $confidence
                     """,
-                    link,
+                    {
+                        "error_code_id": link["error_code_id"],
+                        "failure_mode_id": link["failure_mode_id"],
+                        "confidence": float(link.get("confidence", 0.8)),
+                    },
                 )
 
             for link in product_data.get("diagnostic_tree_links", []):
@@ -309,11 +331,17 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MERGE (a)-[r:NEXT_STEP]->(b)
                     SET r.condition = $condition
                     """,
-                    link,
+                    {
+                        "from_step_id": link["from_step_id"],
+                        "to_step_id": link["to_step_id"],
+                        "condition": link.get("condition") or "",
+                    },
                 )
 
             for link in product_data.get("diagnostic_step_failure_links", []):
                 rel = link.get("link_type", "CONFIRMS")
+                if rel not in ("CONFIRMS", "RULES_OUT"):
+                    rel = "CONFIRMS"
                 session.run(
                     f"""
                     MATCH (ds:DiagnosticStep {{step_id: $step_id}})
@@ -321,7 +349,11 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MERGE (ds)-[r:{rel}]->(fm)
                     SET r.confidence = $confidence
                     """,
-                    link,
+                    {
+                        "step_id": link["step_id"],
+                        "failure_mode_id": link["failure_mode_id"],
+                        "confidence": float(link.get("confidence", 0.85)),
+                    },
                 )
 
             for link in product_data.get("failure_mode_part_links", []):

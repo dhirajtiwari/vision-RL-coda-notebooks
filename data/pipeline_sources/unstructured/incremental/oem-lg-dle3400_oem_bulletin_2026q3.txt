@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-LG-DLE-2026-07
+Product: oem-lg-dle3400 · Brand: LG · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: LG dryer D80 with long dry times after lint housing redesign
+Root cause (bulletin): Lint Housing Bypass Path (Bulletin)
+Bulletin: redesigned housing can bypass filter; seal kit required.
+
+Diagnostic: Install housing seal and verify no bypass gaps
+Parts: Lint housing seal kit (LH-SEAL-DLE)
+Error code focus: D80
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

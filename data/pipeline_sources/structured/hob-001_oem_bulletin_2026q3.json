@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "hob-001",
+  "bulletin_id": "TB-SL-IH-2026-07",
+  "primary_symptom": "Induction zone E9 with certified cookware after board swap",
+  "primary_error_code": "E9",
+  "note": "UPDATE artifact \u2014 Coil Sense Gain After Board Swap (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

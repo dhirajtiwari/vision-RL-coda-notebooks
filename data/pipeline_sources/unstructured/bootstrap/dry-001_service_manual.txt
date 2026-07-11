@@ -1,0 +1,8 @@
+Service manual excerpt — AirFlow Heat Pump Dryer 8kg (dry-001)
+
+Model AF-HP8 · Brand AirFlow · MY2026
+
+If the unit shows error E66 (Heat pump pressure fault), inspect the Heat Pump Loop.
+Primary field failure: Heat Pump Compressor Fault. Replace Heat Pump Compressor Module (AF-HPC-8) when confirmed.
+Customer may report: Clothes remain damp after full cycle.
+Always disconnect power before opening the chassis.

@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-WHI-WTW-2026-07
+Product: oem-whi-wtw5000 · Brand: Whirlpool · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Top-load washer F9 E1 after clutch kit revision C
+Root cause (bulletin): Clutch Actuator Timing (Bulletin Rev C)
+Whirlpool bulletin: rev C clutch needs actuator re-index after install.
+
+Diagnostic: Re-index actuator using bulletin gauge tool
+Parts: Clutch actuator index shim (CA-SHIM-WTW)
+Error code focus: F9E1
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

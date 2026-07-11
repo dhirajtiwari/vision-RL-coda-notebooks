@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-CA-PAC-2026-07
+Product: ac-001 · Brand: CoolAir · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Portable AC E41 after mid-season filter wash
+Root cause (bulletin): Wet Filter Restriction / High Pressure (Bulletin)
+CoolAir bulletin: reinstalling damp filter trips high-pressure E41.
+
+Diagnostic: Dry filter 24h; verify condenser airflow before reset
+Parts: Filter dry rack note (CA-FILT-NOTE)
+Error code focus: E41
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-AF-HP-2026-07
+Product: dry-001 · Brand: AirFlow · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Heat pump dryer E66 after cold garage install
+Root cause (bulletin): Ambient Below Spec (Bulletin)
+AirFlow bulletin: ambient <45°F trips E66; relocation or kit required.
+
+Diagnostic: Verify ambient and install baffle kit if required
+Parts: Ambient kit baffle (AF-AMB-KIT)
+Error code focus: E66
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

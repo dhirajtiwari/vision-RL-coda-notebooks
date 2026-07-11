@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "oven-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 BakePro Wall Oven 30in",
+  "change_type": "new_product",
+  "primary_symptom": "Oven will not preheat / F3 on display",
+  "primary_error_code": "F3",
+  "brand": "BakePro",
+  "model_number": "BP-WO30"
+}

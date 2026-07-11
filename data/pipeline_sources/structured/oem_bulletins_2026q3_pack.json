@@ -1,0 +1,1986 @@
+{
+  "source_system": "OEM-BULLETIN-PACK",
+  "change_type": "product_update",
+  "pack_id": "OEM-BULL-2026-Q3",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00",
+  "product_count": 23,
+  "product_ids": [
+    "wm-001",
+    "dw-001",
+    "mw-001",
+    "ice-001",
+    "oem-sam-wf45",
+    "oem-lg-wm4000",
+    "oem-lg-ldf5545",
+    "oem-sam-dw80",
+    "oem-whi-wtw5000",
+    "oem-lg-dle3400",
+    "oem-sam-rf28",
+    "oem-whi-wfg505",
+    "oem-bos-shpm88",
+    "oem-ge-jvm3160",
+    "vac-001",
+    "ac-001",
+    "oven-001",
+    "dry-001",
+    "ref-001",
+    "grill-001",
+    "hob-001",
+    "fan-001",
+    "pur-001"
+  ],
+  "products": [
+    {
+      "product": {
+        "product_id": "wm-001",
+        "name": "Front Load Washing Machine 8kg",
+        "change_type": "product_update",
+        "bulletin_id": "TB-AH-WM-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "wm-s05",
+          "description": "Washer stops mid-cycle with error E21 after firmware update",
+          "severity": "high",
+          "source_bulletin": "TB-AH-WM-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "wm-fm04",
+          "name": "Drain Pump Impeller Debris (Bulletin)",
+          "description": "Field bulletin: residual debris after E21 firmware change causes intermittent pump stall.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-AH-WM-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "wm-p04",
+          "name": "Drain pump impeller kit",
+          "part_number": "DP-IMP-8K-B",
+          "estimated_cost_usd": 45.0,
+          "source_bulletin": "TB-AH-WM-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "wm-d05",
+          "description": "Inspect impeller for debris per OEM bulletin TB-AH-WM-2026-07",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-AH-WM-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "wm-s05",
+            "failure_mode_id": "wm-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "wm-s05",
+            "failure_mode_id": "wm-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "wm-fm04",
+            "part_id": "wm-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "wm-d05",
+            "failure_mode_id": "wm-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "wm-001-hr-bull-2026q3",
+          "description": "Cleared impeller debris and reseated pump per bulletin; E21 cleared",
+          "confirmed_failure_mode_id": "wm-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-AH-WM-2026-07.",
+          "source_bulletin": "TB-AH-WM-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "dw-001",
+        "name": "Built-in Dishwasher 12 Place Setting",
+        "change_type": "product_update",
+        "bulletin_id": "TB-CW-DW-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "dw-s05",
+          "description": "Dishwasher beeps and will not start dry cycle after door latch service kit",
+          "severity": "medium",
+          "source_bulletin": "TB-CW-DW-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "dw-fm04",
+          "name": "Door Latch Switch Drift (Bulletin)",
+          "description": "OEM bulletin: revised latch microswitch can mis-report door closed after kit install.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-CW-DW-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "dw-p04",
+          "name": "Door latch microswitch",
+          "part_number": "DL-MS-12-B",
+          "estimated_cost_usd": 28.0,
+          "source_bulletin": "TB-CW-DW-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "dw-d05",
+          "description": "Check latch continuity and bulletin torque on strike plate",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-CW-DW-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "dw-s05",
+            "failure_mode_id": "dw-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "dw-s05",
+            "failure_mode_id": "dw-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "dw-fm04",
+            "part_id": "dw-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "dw-d05",
+            "failure_mode_id": "dw-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "dw-001-hr-bull-2026q3",
+          "description": "Replaced latch switch per CleanWave bulletin; dry cycle restored",
+          "confirmed_failure_mode_id": "dw-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-CW-DW-2026-07.",
+          "source_bulletin": "TB-CW-DW-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "mw-001",
+        "name": "Convection Microwave 25L",
+        "change_type": "product_update",
+        "bulletin_id": "TB-HP-MW-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "mw-s05",
+          "description": "Microwave runs but turntable stalls intermittently with click",
+          "severity": "medium",
+          "source_bulletin": "TB-HP-MW-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "mw-fm04",
+          "name": "Turntable Coupler Wear (Bulletin)",
+          "description": "Bulletin: coupler wear on 2024\u20132025 builds causes intermittent stall under load.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-HP-MW-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "mw-p04",
+          "name": "Turntable coupler",
+          "part_number": "TT-CPL-25-B",
+          "estimated_cost_usd": 12.5,
+          "source_bulletin": "TB-HP-MW-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "mw-d05",
+          "description": "Inspect coupler and roller ring; replace if flats present",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-HP-MW-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "mw-s05",
+            "failure_mode_id": "mw-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "mw-s05",
+            "failure_mode_id": "mw-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "mw-fm04",
+            "part_id": "mw-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "mw-d05",
+            "failure_mode_id": "mw-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "mw-001-hr-bull-2026q3",
+          "description": "Installed bulletin coupler kit; turntable continuous",
+          "confirmed_failure_mode_id": "mw-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-HP-MW-2026-07.",
+          "source_bulletin": "TB-HP-MW-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "ice-001",
+        "name": "FrostBite Compact Ice Maker 12kg",
+        "change_type": "product_update",
+        "bulletin_id": "TB-FB-ICE-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "ice-s05",
+          "description": "Ice maker harvests empty trays after water filter change",
+          "severity": "high",
+          "source_bulletin": "TB-FB-ICE-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "ice-fm04",
+          "name": "Post-Filter Airlock / Inlet Restriction (Bulletin)",
+          "description": "OEM bulletin: airlock after filter swap prevents fill; purge procedure required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-FB-ICE-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "ice-p04",
+          "name": "Inlet purge adapter",
+          "part_number": "FB-PURGE-12",
+          "estimated_cost_usd": 9.0,
+          "source_bulletin": "TB-FB-ICE-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "ice-d05",
+          "description": "Run bulletin purge cycle 3x after filter install; verify mold fill",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-FB-ICE-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "ice-s05",
+            "failure_mode_id": "ice-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "ice-s05",
+            "failure_mode_id": "ice-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "ice-fm04",
+            "part_id": "ice-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "ice-d05",
+            "failure_mode_id": "ice-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "ice-001-hr-bull-2026q3",
+          "description": "Purged line per FrostBite bulletin; harvest filled normally",
+          "confirmed_failure_mode_id": "ice-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-FB-ICE-2026-07.",
+          "source_bulletin": "TB-FB-ICE-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-sam-wf45",
+        "name": "Samsung WF45T6000AW Front Load Washer",
+        "change_type": "product_update",
+        "bulletin_id": "TB-SAM-WF45-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-sam-wf45-s05",
+          "description": "Samsung washer 4E on spin after control board firmware F/W 3.2",
+          "severity": "high",
+          "source_bulletin": "TB-SAM-WF45-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-sam-wf45-fm04",
+          "name": "Hall Sensor Noise After FW 3.2 (Bulletin)",
+          "description": "Samsung field bulletin: hall sensor harness routing causes 4E after FW 3.2.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-SAM-WF45-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-sam-wf45-p04",
+          "name": "Hall sensor harness kit",
+          "part_number": "DC93-HS-WF45-B",
+          "estimated_cost_usd": 38.0,
+          "source_bulletin": "TB-SAM-WF45-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-sam-wf45-d05",
+          "description": "Reroute hall harness and apply ferrite per bulletin",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-SAM-WF45-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-sam-wf45-s05",
+            "failure_mode_id": "oem-sam-wf45-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-sam-wf45-s05",
+            "failure_mode_id": "oem-sam-wf45-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-sam-wf45-fm04",
+            "part_id": "oem-sam-wf45-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-sam-wf45-d05",
+            "failure_mode_id": "oem-sam-wf45-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-sam-wf45-hr-bull-2026q3",
+          "description": "Harness reroute per Samsung TB; 4E resolved on spin",
+          "confirmed_failure_mode_id": "oem-sam-wf45-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-SAM-WF45-2026-07.",
+          "source_bulletin": "TB-SAM-WF45-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-lg-wm4000",
+        "name": "LG WM4000HWA Front Load Washer",
+        "change_type": "product_update",
+        "bulletin_id": "TB-LG-WM4000-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-lg-wm4000-s05",
+          "description": "LG washer OE error on drain after pump replacement with revised pump",
+          "severity": "high",
+          "source_bulletin": "TB-LG-WM4000-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-lg-wm4000-fm04",
+          "name": "Revised Drain Pump Air Gap (Bulletin)",
+          "description": "LG bulletin: revised pump needs air-gap hose orientation to avoid OE.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-LG-WM4000-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-lg-wm4000-p04",
+          "name": "Drain hose air-gap clip",
+          "part_number": "AG-CLIP-WM4K",
+          "estimated_cost_usd": 6.5,
+          "source_bulletin": "TB-LG-WM4000-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-lg-wm4000-d05",
+          "description": "Orient discharge hose and clip per LG bulletin photo",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-LG-WM4000-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-lg-wm4000-s05",
+            "failure_mode_id": "oem-lg-wm4000-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-lg-wm4000-s05",
+            "failure_mode_id": "oem-lg-wm4000-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-lg-wm4000-fm04",
+            "part_id": "oem-lg-wm4000-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-lg-wm4000-d05",
+            "failure_mode_id": "oem-lg-wm4000-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-lg-wm4000-hr-bull-2026q3",
+          "description": "Reoriented hose/clip; OE cleared",
+          "confirmed_failure_mode_id": "oem-lg-wm4000-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-LG-WM4000-2026-07.",
+          "source_bulletin": "TB-LG-WM4000-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-lg-ldf5545",
+        "name": "LG LDF5545ST Built-in Dishwasher",
+        "change_type": "product_update",
+        "bulletin_id": "TB-LG-LDF-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-lg-ldf5545-s05",
+          "description": "LG dishwasher HE error after summer humidity spike",
+          "severity": "medium",
+          "source_bulletin": "TB-LG-LDF-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-lg-ldf5545-fm04",
+          "name": "Vario Motor / Spray Arm Fault / nE",
+          "description": "Spray arm motor or wiring harness issue.",
+          "estimated_repair_time_minutes": 90,
+          "safety_notes": "Do not run with obstructed spray arms."
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-lg-ldf5545-p04",
+          "name": "Spray Arm Vario Motor",
+          "part_number": "ABQ75742504",
+          "estimated_cost_usd": 95.0
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-lg-ldf5545-d05",
+          "description": "Measure NTC vs bulletin chart; replace if out of band",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-LG-LDF-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-lg-ldf5545-s05",
+            "failure_mode_id": "oem-lg-ldf5545-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-lg-ldf5545-s05",
+            "failure_mode_id": "oem-lg-ldf5545-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-lg-ldf5545-fm04",
+            "part_id": "oem-lg-ldf5545-p04",
+            "quantity": 1,
+            "probability": 0.87,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-lg-ldf5545-d05",
+            "failure_mode_id": "oem-lg-ldf5545-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-lg-ldf5545-hr-bull-2026q3",
+          "description": "Replaced NTC per humidity bulletin; HE gone",
+          "confirmed_failure_mode_id": "oem-lg-ldf5545-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-LG-LDF-2026-07.",
+          "source_bulletin": "TB-LG-LDF-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-sam-dw80",
+        "name": "Samsung DW80B7070US Smart Dishwasher",
+        "change_type": "product_update",
+        "bulletin_id": "TB-SAM-DW80-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-sam-dw80-s05",
+          "description": "Samsung dishwasher LC leak code with no visible water",
+          "severity": "medium",
+          "source_bulletin": "TB-SAM-DW80-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-sam-dw80-fm04",
+          "name": "Condensation on Floor Sensor (Bulletin)",
+          "description": "Bulletin: condensation path hits leak sensor; foam seal kit issued.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-SAM-DW80-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-sam-dw80-p04",
+          "name": "Base foam seal kit",
+          "part_number": "FS-DW80-B",
+          "estimated_cost_usd": 15.0,
+          "source_bulletin": "TB-SAM-DW80-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-sam-dw80-d05",
+          "description": "Install base foam seal and dry sensor per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-SAM-DW80-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-sam-dw80-s05",
+            "failure_mode_id": "oem-sam-dw80-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-sam-dw80-s05",
+            "failure_mode_id": "oem-sam-dw80-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-sam-dw80-fm04",
+            "part_id": "oem-sam-dw80-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-sam-dw80-d05",
+            "failure_mode_id": "oem-sam-dw80-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-sam-dw80-hr-bull-2026q3",
+          "description": "Foam seal kit installed; LC cleared",
+          "confirmed_failure_mode_id": "oem-sam-dw80-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-SAM-DW80-2026-07.",
+          "source_bulletin": "TB-SAM-DW80-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-whi-wtw5000",
+        "name": "Whirlpool WTW5000DW Top Load Washer",
+        "change_type": "product_update",
+        "bulletin_id": "TB-WHI-WTW-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-whi-wtw5000-s05",
+          "description": "Top-load washer F9 E1 after clutch kit revision C",
+          "severity": "high",
+          "source_bulletin": "TB-WHI-WTW-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-whi-wtw5000-fm04",
+          "name": "Clutch Actuator Timing (Bulletin Rev C)",
+          "description": "Whirlpool bulletin: rev C clutch needs actuator re-index after install.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-WHI-WTW-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-whi-wtw5000-p04",
+          "name": "Clutch actuator index shim",
+          "part_number": "CA-SHIM-WTW",
+          "estimated_cost_usd": 8.0,
+          "source_bulletin": "TB-WHI-WTW-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-whi-wtw5000-d05",
+          "description": "Re-index actuator using bulletin gauge tool",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-WHI-WTW-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-whi-wtw5000-s05",
+            "failure_mode_id": "oem-whi-wtw5000-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-whi-wtw5000-s05",
+            "failure_mode_id": "oem-whi-wtw5000-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-whi-wtw5000-fm04",
+            "part_id": "oem-whi-wtw5000-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-whi-wtw5000-d05",
+            "failure_mode_id": "oem-whi-wtw5000-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-whi-wtw5000-hr-bull-2026q3",
+          "description": "Re-indexed actuator; F9 E1 resolved",
+          "confirmed_failure_mode_id": "oem-whi-wtw5000-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-WHI-WTW-2026-07.",
+          "source_bulletin": "TB-WHI-WTW-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-lg-dle3400",
+        "name": "LG DLE3400W Electric Dryer",
+        "change_type": "product_update",
+        "bulletin_id": "TB-LG-DLE-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-lg-dle3400-s05",
+          "description": "LG dryer D80 with long dry times after lint housing redesign",
+          "severity": "medium",
+          "source_bulletin": "TB-LG-DLE-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-lg-dle3400-fm04",
+          "name": "Lint Housing Bypass Path (Bulletin)",
+          "description": "Bulletin: redesigned housing can bypass filter; seal kit required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-LG-DLE-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-lg-dle3400-p04",
+          "name": "Lint housing seal kit",
+          "part_number": "LH-SEAL-DLE",
+          "estimated_cost_usd": 18.0,
+          "source_bulletin": "TB-LG-DLE-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-lg-dle3400-d05",
+          "description": "Install housing seal and verify no bypass gaps",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-LG-DLE-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-lg-dle3400-s05",
+            "failure_mode_id": "oem-lg-dle3400-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-lg-dle3400-s05",
+            "failure_mode_id": "oem-lg-dle3400-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-lg-dle3400-fm04",
+            "part_id": "oem-lg-dle3400-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-lg-dle3400-d05",
+            "failure_mode_id": "oem-lg-dle3400-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-lg-dle3400-hr-bull-2026q3",
+          "description": "Seal kit installed; dry times normal",
+          "confirmed_failure_mode_id": "oem-lg-dle3400-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-LG-DLE-2026-07.",
+          "source_bulletin": "TB-LG-DLE-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-sam-rf28",
+        "name": "Samsung RF28R7351SG French Door Refrigerator",
+        "change_type": "product_update",
+        "bulletin_id": "TB-SAM-RF28-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-sam-rf28-s05",
+          "description": "Samsung fridge 22E after ice room fan bulletin kit",
+          "severity": "high",
+          "source_bulletin": "TB-SAM-RF28-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-sam-rf28-fm04",
+          "name": "Ice Room Fan Connector Polarization (Bulletin)",
+          "description": "Samsung bulletin: kit fan connector polarity reverse causes 22E.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-SAM-RF28-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-sam-rf28-p04",
+          "name": "Polarized fan connector",
+          "part_number": "IF-CONN-RF28-B",
+          "estimated_cost_usd": 11.0,
+          "source_bulletin": "TB-SAM-RF28-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-sam-rf28-d05",
+          "description": "Verify connector keying and polarity marks per bulletin",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-SAM-RF28-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-sam-rf28-s05",
+            "failure_mode_id": "oem-sam-rf28-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-sam-rf28-s05",
+            "failure_mode_id": "oem-sam-rf28-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-sam-rf28-fm04",
+            "part_id": "oem-sam-rf28-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-sam-rf28-d05",
+            "failure_mode_id": "oem-sam-rf28-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-sam-rf28-hr-bull-2026q3",
+          "description": "Corrected polarity; 22E cleared",
+          "confirmed_failure_mode_id": "oem-sam-rf28-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-SAM-RF28-2026-07.",
+          "source_bulletin": "TB-SAM-RF28-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-whi-wfg505",
+        "name": "Whirlpool WFG505M0BS Gas Range",
+        "change_type": "product_update",
+        "bulletin_id": "TB-WHI-WFG-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-whi-wfg505-s05",
+          "description": "Range oven F9 E0 after igniter redesign",
+          "severity": "high",
+          "source_bulletin": "TB-WHI-WFG-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-whi-wfg505-fm04",
+          "name": "Surface Igniter Electrode Fault",
+          "description": "Spark electrode worn or misaligned on burner.",
+          "estimated_repair_time_minutes": 35,
+          "safety_notes": "Ensure burner caps seated correctly."
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-whi-wfg505-p04",
+          "name": "Surface Burner Spark Electrode",
+          "part_number": "W11176400",
+          "estimated_cost_usd": 22.0
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-whi-wfg505-d05",
+          "description": "Set control jumpers and verify igniter mA per chart",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-WHI-WFG-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-whi-wfg505-s05",
+            "failure_mode_id": "oem-whi-wfg505-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-whi-wfg505-s05",
+            "failure_mode_id": "oem-whi-wfg505-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-whi-wfg505-fm04",
+            "part_id": "oem-whi-wfg505-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-whi-wfg505-d05",
+            "failure_mode_id": "oem-whi-wfg505-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-whi-wfg505-hr-bull-2026q3",
+          "description": "Jumpers set; bake ignition stable",
+          "confirmed_failure_mode_id": "oem-whi-wfg505-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-WHI-WFG-2026-07.",
+          "source_bulletin": "TB-WHI-WFG-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-bos-shpm88",
+        "name": "Bosch SHPM88Z75N 800 Series Dishwasher",
+        "change_type": "product_update",
+        "bulletin_id": "TB-BOS-SHP-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-bos-shpm88-s05",
+          "description": "Bosch dishwasher E24 with slow drain after garbage disposal install",
+          "severity": "medium",
+          "source_bulletin": "TB-BOS-SHP-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-bos-shpm88-fm04",
+          "name": "Disposal Air Gap / High Loop Missing (Bulletin)",
+          "description": "Bosch installation bulletin: missing high loop after disposal work causes E24.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-BOS-SHP-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-bos-shpm88-p04",
+          "name": "Drain high-loop bracket",
+          "part_number": "HL-BRK-BOS",
+          "estimated_cost_usd": 7.5,
+          "source_bulletin": "TB-BOS-SHP-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-bos-shpm88-d05",
+          "description": "Install high loop and confirm air gap per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-BOS-SHP-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-bos-shpm88-s05",
+            "failure_mode_id": "oem-bos-shpm88-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-bos-shpm88-s05",
+            "failure_mode_id": "oem-bos-shpm88-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-bos-shpm88-fm04",
+            "part_id": "oem-bos-shpm88-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-bos-shpm88-d05",
+            "failure_mode_id": "oem-bos-shpm88-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-bos-shpm88-hr-bull-2026q3",
+          "description": "High loop restored; E24 cleared",
+          "confirmed_failure_mode_id": "oem-bos-shpm88-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-BOS-SHP-2026-07.",
+          "source_bulletin": "TB-BOS-SHP-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oem-ge-jvm3160",
+        "name": "GE JVM3160RFSS Over-the-Range Microwave",
+        "change_type": "product_update",
+        "bulletin_id": "TB-GE-JVM-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oem-ge-jvm3160-s05",
+          "description": "OTR microwave loud hum on high after magnetron service kit",
+          "severity": "medium",
+          "source_bulletin": "TB-GE-JVM-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oem-ge-jvm3160-fm04",
+          "name": "HV Diode Matching (Bulletin Kit)",
+          "description": "GE bulletin: service kit diode must match HV transformer revision.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-GE-JVM-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oem-ge-jvm3160-p04",
+          "name": "Matched HV diode",
+          "part_number": "HVD-JVM-B",
+          "estimated_cost_usd": 14.0,
+          "source_bulletin": "TB-GE-JVM-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oem-ge-jvm3160-d05",
+          "description": "Verify diode/transformer revision pair per bulletin table",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-GE-JVM-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oem-ge-jvm3160-s05",
+            "failure_mode_id": "oem-ge-jvm3160-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oem-ge-jvm3160-s05",
+            "failure_mode_id": "oem-ge-jvm3160-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oem-ge-jvm3160-fm04",
+            "part_id": "oem-ge-jvm3160-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oem-ge-jvm3160-d05",
+            "failure_mode_id": "oem-ge-jvm3160-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oem-ge-jvm3160-hr-bull-2026q3",
+          "description": "Installed matched diode; hum eliminated",
+          "confirmed_failure_mode_id": "oem-ge-jvm3160-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-GE-JVM-2026-07.",
+          "source_bulletin": "TB-GE-JVM-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "vac-001",
+        "name": "RoboClean Stick Vacuum Pro",
+        "change_type": "product_update",
+        "bulletin_id": "TB-RC-VAC-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "vac-001-s04",
+          "description": "Vacuum loses suction after brush-roll firmware update",
+          "severity": "medium",
+          "source_bulletin": "TB-RC-VAC-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "vac-001-fm03",
+          "name": "Brush-Roll Stall Detection Too Sensitive (Bulletin)",
+          "description": "Firmware bulletin: stall threshold too low on carpets; patch + brush clean procedure.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-RC-VAC-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "vac-001-p03",
+          "name": "Brush-roll firmware dongle",
+          "part_number": "RC-FW-DGL",
+          "estimated_cost_usd": 0.0,
+          "source_bulletin": "TB-RC-VAC-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "vac-001-d04",
+          "description": "Apply FW patch and run bulletin brush clean cycle",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-RC-VAC-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "vac-001-s04",
+            "failure_mode_id": "vac-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "vac-001-s04",
+            "failure_mode_id": "vac-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "vac-001-fm03",
+            "part_id": "vac-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "vac-001-d04",
+            "failure_mode_id": "vac-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "vac-001-hr-bull-2026q3",
+          "description": "FW patch + clean; suction restored",
+          "confirmed_failure_mode_id": "vac-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-RC-VAC-2026-07.",
+          "source_bulletin": "TB-RC-VAC-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "ac-001",
+        "name": "CoolAir Portable AC 12k BTU",
+        "change_type": "product_update",
+        "bulletin_id": "TB-CA-PAC-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "ac-001-s04",
+          "description": "Portable AC E41 after mid-season filter wash",
+          "severity": "high",
+          "source_bulletin": "TB-CA-PAC-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "ac-001-fm03",
+          "name": "Wet Filter Restriction / High Pressure (Bulletin)",
+          "description": "CoolAir bulletin: reinstalling damp filter trips high-pressure E41.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-CA-PAC-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "ac-001-p03",
+          "name": "Filter dry rack note",
+          "part_number": "CA-FILT-NOTE",
+          "estimated_cost_usd": 0.0,
+          "source_bulletin": "TB-CA-PAC-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "ac-001-d04",
+          "description": "Dry filter 24h; verify condenser airflow before reset",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-CA-PAC-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "ac-001-s04",
+            "failure_mode_id": "ac-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "ac-001-s04",
+            "failure_mode_id": "ac-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "ac-001-fm03",
+            "part_id": "ac-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "ac-001-d04",
+            "failure_mode_id": "ac-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "ac-001-hr-bull-2026q3",
+          "description": "Dried filter; E41 cleared",
+          "confirmed_failure_mode_id": "ac-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-CA-PAC-2026-07.",
+          "source_bulletin": "TB-CA-PAC-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "oven-001",
+        "name": "BakePro Wall Oven 30in",
+        "change_type": "product_update",
+        "bulletin_id": "TB-BP-WO-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "oven-001-s04",
+          "description": "Wall oven F3 after self-clean cycle on new sensor kit",
+          "severity": "high",
+          "source_bulletin": "TB-BP-WO-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "oven-001-fm03",
+          "name": "Sensor Connector Oxidation (Bulletin)",
+          "description": "BakePro: self-clean heat oxidizes sensor plug; dielectric grease required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-BP-WO-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "oven-001-p03",
+          "name": "Sensor connector grease kit",
+          "part_number": "BP-GRS-KIT",
+          "estimated_cost_usd": 4.0,
+          "source_bulletin": "TB-BP-WO-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "oven-001-d04",
+          "description": "Clean pins and apply grease per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-BP-WO-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "oven-001-s04",
+            "failure_mode_id": "oven-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "oven-001-s04",
+            "failure_mode_id": "oven-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "oven-001-fm03",
+            "part_id": "oven-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "oven-001-d04",
+            "failure_mode_id": "oven-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "oven-001-hr-bull-2026q3",
+          "description": "Greased connector; F3 gone",
+          "confirmed_failure_mode_id": "oven-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-BP-WO-2026-07.",
+          "source_bulletin": "TB-BP-WO-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "dry-001",
+        "name": "AirFlow Heat Pump Dryer 8kg",
+        "change_type": "product_update",
+        "bulletin_id": "TB-AF-HP-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "dry-001-s04",
+          "description": "Heat pump dryer E66 after cold garage install",
+          "severity": "high",
+          "source_bulletin": "TB-AF-HP-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "dry-001-fm03",
+          "name": "Ambient Below Spec (Bulletin)",
+          "description": "AirFlow bulletin: ambient <45\u00b0F trips E66; relocation or kit required.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-AF-HP-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "dry-001-p03",
+          "name": "Ambient kit baffle",
+          "part_number": "AF-AMB-KIT",
+          "estimated_cost_usd": 55.0,
+          "source_bulletin": "TB-AF-HP-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "dry-001-d04",
+          "description": "Verify ambient and install baffle kit if required",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-AF-HP-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "dry-001-s04",
+            "failure_mode_id": "dry-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "dry-001-s04",
+            "failure_mode_id": "dry-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "dry-001-fm03",
+            "part_id": "dry-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "dry-001-d04",
+            "failure_mode_id": "dry-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "dry-001-hr-bull-2026q3",
+          "description": "Baffle kit + warmer location; E66 resolved",
+          "confirmed_failure_mode_id": "dry-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-AF-HP-2026-07.",
+          "source_bulletin": "TB-AF-HP-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "ref-001",
+        "name": "ChillVault Compact Fridge 180L",
+        "change_type": "product_update",
+        "bulletin_id": "TB-CV-RF-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "ref-001-s04",
+          "description": "Fridge warm with heavy frost after door gasket revision",
+          "severity": "high",
+          "source_bulletin": "TB-CV-RF-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "ref-001-fm03",
+          "name": "Gasket Revision Seal Gap (Bulletin)",
+          "description": "ChillVault: rev B gasket can gap at hinge; warm cabinet + frost.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-CV-RF-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "ref-001-p03",
+          "name": "Gasket hinge shim kit",
+          "part_number": "CV-GSK-SHIM",
+          "estimated_cost_usd": 9.5,
+          "source_bulletin": "TB-CV-RF-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "ref-001-d04",
+          "description": "Measure gap and install shim kit per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-CV-RF-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "ref-001-s04",
+            "failure_mode_id": "ref-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "ref-001-s04",
+            "failure_mode_id": "ref-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "ref-001-fm03",
+            "part_id": "ref-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "ref-001-d04",
+            "failure_mode_id": "ref-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "ref-001-hr-bull-2026q3",
+          "description": "Shim kit installed; temps normal",
+          "confirmed_failure_mode_id": "ref-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-CV-RF-2026-07.",
+          "source_bulletin": "TB-CV-RF-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "grill-001",
+        "name": "FlameMaster Outdoor Grill XL",
+        "change_type": "product_update",
+        "bulletin_id": "TB-FM-GR-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "grill-001-s04",
+          "description": "Grill burners light then drop flame after igniter kit",
+          "severity": "medium",
+          "source_bulletin": "TB-FM-GR-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "grill-001-fm03",
+          "name": "Regulator Setpoint Drift (Bulletin)",
+          "description": "FlameMaster: new igniter kit requires regulator setpoint check.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-FM-GR-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "grill-001-p03",
+          "name": "Regulator setpoint tool note",
+          "part_number": "FM-REG-NOTE",
+          "estimated_cost_usd": 0.0,
+          "source_bulletin": "TB-FM-GR-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "grill-001-d04",
+          "description": "Set regulator WC per bulletin table; retest flame",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-FM-GR-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "grill-001-s04",
+            "failure_mode_id": "grill-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "grill-001-s04",
+            "failure_mode_id": "grill-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "grill-001-fm03",
+            "part_id": "grill-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "grill-001-d04",
+            "failure_mode_id": "grill-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "grill-001-hr-bull-2026q3",
+          "description": "Regulator adjusted; stable flame",
+          "confirmed_failure_mode_id": "grill-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-FM-GR-2026-07.",
+          "source_bulletin": "TB-FM-GR-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "hob-001",
+        "name": "SparkLine Induction Hob 4-Zone",
+        "change_type": "product_update",
+        "bulletin_id": "TB-SL-IH-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "hob-001-s04",
+          "description": "Induction zone E9 with certified cookware after board swap",
+          "severity": "medium",
+          "source_bulletin": "TB-SL-IH-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "hob-001-fm03",
+          "name": "Coil Sense Gain After Board Swap (Bulletin)",
+          "description": "SparkLine: board swap needs coil gain calibration for pan detect.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-SL-IH-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "hob-001-p03",
+          "name": "Calibration procedure",
+          "part_number": "SL-CAL-PROC",
+          "estimated_cost_usd": 0.0,
+          "source_bulletin": "TB-SL-IH-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "hob-001-d04",
+          "description": "Run coil gain calibration sequence per bulletin",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-SL-IH-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "hob-001-s04",
+            "failure_mode_id": "hob-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "hob-001-s04",
+            "failure_mode_id": "hob-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "hob-001-fm03",
+            "part_id": "hob-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "hob-001-d04",
+            "failure_mode_id": "hob-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "hob-001-hr-bull-2026q3",
+          "description": "Calibrated; pan detect OK",
+          "confirmed_failure_mode_id": "hob-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-SL-IH-2026-07.",
+          "source_bulletin": "TB-SL-IH-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "fan-001",
+        "name": "BreezeTower Bladeless Fan",
+        "change_type": "product_update",
+        "bulletin_id": "TB-BT-BL-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "fan-001-s04",
+          "description": "Bladeless fan E03 oscillation only after summer dust event",
+          "severity": "low",
+          "source_bulletin": "TB-BT-BL-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "fan-001-fm03",
+          "name": "Inlet Mesh Clog (Bulletin)",
+          "description": "BreezeTower care bulletin: fine dust clogs inlet mesh tripping E03.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-BT-BL-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "fan-001-p03",
+          "name": "Inlet mesh filter",
+          "part_number": "BT-MESH-60",
+          "estimated_cost_usd": 12.0,
+          "source_bulletin": "TB-BT-BL-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "fan-001-d04",
+          "description": "Remove and wash inlet mesh; reset E03",
+          "order": 4,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-BT-BL-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "fan-001-s04",
+            "failure_mode_id": "fan-001-fm03",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "fan-001-s04",
+            "failure_mode_id": "fan-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "fan-001-fm03",
+            "part_id": "fan-001-p03",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "fan-001-d04",
+            "failure_mode_id": "fan-001-fm03",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "fan-001-hr-bull-2026q3",
+          "description": "Mesh cleaned; full airflow restored",
+          "confirmed_failure_mode_id": "fan-001-fm03",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-BT-BL-2026-07.",
+          "source_bulletin": "TB-BT-BL-2026-07"
+        }
+      ]
+    },
+    {
+      "product": {
+        "product_id": "pur-001",
+        "name": "PureRoom HEPA Air Purifier",
+        "change_type": "product_update",
+        "bulletin_id": "TB-PR-HP-2026-07",
+        "bulletin_revision": "B"
+      },
+      "new_symptoms": [
+        {
+          "symptom_id": "pur-001-s06",
+          "description": "Purifier F02 immediately after genuine filter install",
+          "severity": "medium",
+          "source_bulletin": "TB-PR-HP-2026-07"
+        }
+      ],
+      "new_failure_modes": [
+        {
+          "failure_mode_id": "pur-001-fm04",
+          "name": "Filter RFID Orientation (Bulletin)",
+          "description": "PureRoom: filter RFID must face sensor; reverse install causes F02.",
+          "estimated_repair_time_minutes": 40,
+          "safety_notes": "Follow OEM bulletin PPE and isolation steps.",
+          "source_bulletin": "TB-PR-HP-2026-07"
+        }
+      ],
+      "new_parts": [
+        {
+          "part_id": "pur-001-p04",
+          "name": "Filter orientation label",
+          "part_number": "PR-RFID-LBL",
+          "estimated_cost_usd": 0.0,
+          "source_bulletin": "TB-PR-HP-2026-07"
+        }
+      ],
+      "new_diagnostic_steps": [
+        {
+          "step_id": "pur-001-d05",
+          "description": "Reseat filter with RFID toward sensor; clear F02",
+          "order": 5,
+          "expected_outcome": "Matches bulletin failure signature",
+          "source_bulletin": "TB-PR-HP-2026-07"
+        }
+      ],
+      "new_links": {
+        "symptom_failure_links": [
+          {
+            "symptom_id": "pur-001-s06",
+            "failure_mode_id": "pur-001-fm04",
+            "confidence": 0.91
+          },
+          {
+            "symptom_id": "pur-001-s06",
+            "failure_mode_id": "pur-001-fm01",
+            "confidence": 0.4
+          }
+        ],
+        "failure_mode_part_links": [
+          {
+            "failure_mode_id": "pur-001-fm04",
+            "part_id": "pur-001-p04",
+            "quantity": 1,
+            "probability": 0.88,
+            "is_primary": true
+          }
+        ],
+        "diagnostic_step_failure_links": [
+          {
+            "step_id": "pur-001-d05",
+            "failure_mode_id": "pur-001-fm04",
+            "link_type": "CONFIRMS"
+          }
+        ]
+      },
+      "new_resolutions": [
+        {
+          "resolution_id": "pur-001-hr-bull-2026q3",
+          "description": "Filter reoriented; F02 cleared",
+          "confirmed_failure_mode_id": "pur-001-fm04",
+          "resolution_date": "2026-07-01",
+          "technician_notes": "Technician closed per OEM bulletin TB-PR-HP-2026-07.",
+          "source_bulletin": "TB-PR-HP-2026-07"
+        }
+      ]
+    }
+  ],
+  "note": "Structured delta for Admin selection as UPDATES \u2014 do not treat as brand-new products"
+}

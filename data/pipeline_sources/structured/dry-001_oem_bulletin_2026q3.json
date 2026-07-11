@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "dry-001",
+  "bulletin_id": "TB-AF-HP-2026-07",
+  "primary_symptom": "Heat pump dryer E66 after cold garage install",
+  "primary_error_code": "E66",
+  "note": "UPDATE artifact \u2014 Ambient Below Spec (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

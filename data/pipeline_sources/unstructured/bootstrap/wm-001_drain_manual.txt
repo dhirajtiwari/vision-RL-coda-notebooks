@@ -1,0 +1,5 @@
+Service manual excerpt — AquaHome Front Load 8kg (wm-001)
+
+If the unit will not drain and displays error code E21, check the drain pump and filter.
+A common failure is a seized drain pump. Customer may report water stays in the drum.
+Also inspect for leaks under the cabinet after repair.

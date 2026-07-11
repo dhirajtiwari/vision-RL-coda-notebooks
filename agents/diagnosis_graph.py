@@ -16,30 +16,47 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 
-class AgentState(TypedDict):
+class AgentState(TypedDict, total=False):
     user_message: str
     product_id: str | None
     asset_id: str | None
+    crm_product_id: str | None
+    crm_context: dict[str, Any] | None
+    force_keep_context: bool
     product_name: str | None
     diagnosis: dict[str, Any] | None
     response: str
     escalated: bool
     case_id: str | None
+    context_block_code: str
 
 
 def node_detect_product(state: AgentState) -> AgentState:
     from graph.graph_rag import resolve_product_for_diagnosis
 
-    product, _, effective_asset_id, _warnings = resolve_product_for_diagnosis(
+    product, _, effective_asset_id, _warnings, block_code, _meta = resolve_product_for_diagnosis(
         state["user_message"],
         product_id=state.get("product_id"),
         asset_id=state.get("asset_id"),
+        crm_product_id=state.get("crm_product_id"),
+        force_keep_context=bool(state.get("force_keep_context")),
+        crm_context=state.get("crm_context"),
     )
+    if block_code:
+        return {
+            **state,
+            # Keep bound product for soft mismatch messaging (asset-first product)
+            "product_id": (product["product_id"] if product else state.get("product_id")),
+            "product_name": product["name"] if product else state.get("product_name"),
+            "asset_id": effective_asset_id if block_code.startswith("soft_") else state.get("asset_id"),
+            "context_block_code": block_code,
+        }
     return {
         **state,
         "product_id": product["product_id"] if product else state.get("product_id"),
         "product_name": product["name"] if product else state.get("product_name"),
         "asset_id": effective_asset_id,
+        "context_block_code": "",
     }
 
 
@@ -48,6 +65,9 @@ def node_run_graph_diagnosis(state: AgentState) -> AgentState:
         state["user_message"],
         product_id=state.get("product_id"),
         asset_id=state.get("asset_id"),
+        crm_product_id=state.get("crm_product_id"),
+        force_keep_context=bool(state.get("force_keep_context")),
+        crm_context=state.get("crm_context"),
     )
     return {**state, "diagnosis": payload}
 
@@ -98,6 +118,9 @@ def run_diagnosis(
     user_message: str,
     product_id: str | None = None,
     asset_id: str | None = None,
+    crm_product_id: str | None = None,
+    force_keep_context: bool = False,
+    crm_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Run the full LangGraph diagnosis pipeline."""
     app = get_diagnosis_app()
@@ -105,11 +128,15 @@ def run_diagnosis(
         "user_message": user_message,
         "product_id": product_id,
         "asset_id": asset_id,
+        "crm_product_id": crm_product_id,
+        "force_keep_context": force_keep_context,
+        "crm_context": crm_context,
         "product_name": None,
         "diagnosis": None,
         "response": "",
         "escalated": False,
         "case_id": None,
+        "context_block_code": "",
     }
     final = app.invoke(initial)
     return {

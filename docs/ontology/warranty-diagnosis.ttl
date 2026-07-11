@@ -337,19 +337,19 @@ wd:fm_wm-fm03 a wd:FailureMode ;
 wd:product_wm-001 wd:canHave wd:fm_wm-fm03 .
 
 wd:symptom_wm-s01 wd:indicates wd:fm_wm-fm01 .
-[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm01 ; wd:confidence "0.92"^^xsd:decimal .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm01 ; wd:confidence "0.94"^^xsd:decimal .
 
 wd:symptom_wm-s02 wd:indicates wd:fm_wm-fm03 .
 [] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm03 ; wd:confidence "0.85"^^xsd:decimal .
 
 wd:symptom_wm-s03 wd:indicates wd:fm_wm-fm02 .
-[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm02 ; wd:confidence "0.88"^^xsd:decimal .
-
-wd:symptom_wm-s04 wd:indicates wd:fm_wm-fm02 .
-[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm02 ; wd:confidence "0.7"^^xsd:decimal .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm02 ; wd:confidence "0.9"^^xsd:decimal .
 
 wd:symptom_wm-s04 wd:indicates wd:fm_wm-fm01 .
 [] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm01 ; wd:confidence "0.55"^^xsd:decimal .
+
+wd:symptom_wm-s04 wd:indicates wd:fm_wm-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_wm-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_wm-fm02 ; wd:confidence "0.7"^^xsd:decimal .
 
 wd:step_wm-d01 a wd:DiagnosticStep ;
   rdfs:label "wm-d01" ;
@@ -425,6 +425,1349 @@ wd:product_wm-001 wd:hasErrorCode wd:ec_wm-ec-e21 .
 
 wd:ec_wm-ec-e21 wd:errorCodeIndicates wd:fm_wm-fm02 .
 
+# --- Product dw-001 ---
+wd:product_dw-001 a wd:Product ;
+  wd:productId "dw-001" ;
+  wd:name "Built-in Dishwasher 12 Place Setting" ;
+  wd:category "Kitchen" ;
+  wd:brand "CleanWave" .
+
+wd:model_mdl-dw12 a wd:Model ;
+  rdfs:label "CleanWave Built-in 12 Place" ;
+  rdfs:comment "CW-DW12" .
+wd:product_dw-001 wd:hasModel wd:model_mdl-dw12 .
+
+wd:sku_SKU-DW12-2022 a wd:SKU ;
+  rdfs:label "SKU-DW12-2022" .
+wd:product_dw-001 wd:hasSku wd:sku_SKU-DW12-2022 .
+wd:model_mdl-dw12 wd:modelHasSku wd:sku_SKU-DW12-2022 .
+
+wd:symptom_dw-s01 a wd:Symptom ;
+  wd:symptomId "dw-s01" ;
+  wd:description "Dishes come out wet and cold" ;
+  wd:severity "medium" .
+wd:product_dw-001 wd:hasSymptom wd:symptom_dw-s01 .
+
+wd:symptom_dw-s02 a wd:Symptom ;
+  wd:symptomId "dw-s02" ;
+  wd:description "Standing water at bottom after cycle" ;
+  wd:severity "high" .
+wd:product_dw-001 wd:hasSymptom wd:symptom_dw-s02 .
+
+wd:symptom_dw-s03 a wd:Symptom ;
+  wd:symptomId "dw-s03" ;
+  wd:description "Grinding noise during wash phase" ;
+  wd:severity "medium" .
+wd:product_dw-001 wd:hasSymptom wd:symptom_dw-s03 .
+
+wd:symptom_dw-s04 a wd:Symptom ;
+  wd:symptomId "dw-s04" ;
+  wd:description "Detergent dispenser does not open" ;
+  wd:severity "low" .
+wd:product_dw-001 wd:hasSymptom wd:symptom_dw-s04 .
+
+wd:fm_dw-fm01 a wd:FailureMode ;
+  wd:failureModeId "dw-fm01" ;
+  rdfs:label "Heating Element Failure" ;
+  rdfs:comment "Heating element open circuit; water does not reach sanitizing temperature." .
+wd:product_dw-001 wd:canHave wd:fm_dw-fm01 .
+
+wd:fm_dw-fm02 a wd:FailureMode ;
+  wd:failureModeId "dw-fm02" ;
+  rdfs:label "Clogged Drain Hose" ;
+  rdfs:comment "Kinked or blocked drain hose prevents complete drainage." .
+wd:product_dw-001 wd:canHave wd:fm_dw-fm02 .
+
+wd:fm_dw-fm03 a wd:FailureMode ;
+  wd:failureModeId "dw-fm03" ;
+  rdfs:label "Wash Impeller Obstruction" ;
+  rdfs:comment "Glass shard or bone fragment jamming circulation pump impeller." .
+wd:product_dw-001 wd:canHave wd:fm_dw-fm03 .
+
+wd:symptom_dw-s01 wd:indicates wd:fm_dw-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_dw-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_dw-fm01 ; wd:confidence "0.9"^^xsd:decimal .
+
+wd:symptom_dw-s02 wd:indicates wd:fm_dw-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_dw-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_dw-fm02 ; wd:confidence "0.87"^^xsd:decimal .
+
+wd:symptom_dw-s03 wd:indicates wd:fm_dw-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_dw-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_dw-fm03 ; wd:confidence "0.93"^^xsd:decimal .
+
+wd:symptom_dw-s04 wd:indicates wd:fm_dw-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_dw-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_dw-fm01 ; wd:confidence "0.3"^^xsd:decimal .
+
+wd:step_dw-d01 a wd:DiagnosticStep ;
+  rdfs:label "dw-d01" ;
+  rdfs:comment "Run rinse-only cycle and measure outlet water temperature." .
+wd:product_dw-001 wd:hasDiagnosticStep wd:step_dw-d01 .
+
+wd:step_dw-d02 a wd:DiagnosticStep ;
+  rdfs:label "dw-d02" ;
+  rdfs:comment "Inspect drain hose for kinks behind kick plate." .
+wd:product_dw-001 wd:hasDiagnosticStep wd:step_dw-d02 .
+
+wd:step_dw-d03 a wd:DiagnosticStep ;
+  rdfs:label "dw-d03" ;
+  rdfs:comment "Remove lower spray arm and check impeller chamber." .
+wd:product_dw-001 wd:hasDiagnosticStep wd:step_dw-d03 .
+
+wd:step_dw-d04 a wd:DiagnosticStep ;
+  rdfs:label "dw-d04" ;
+  rdfs:comment "Test detergent dispenser solenoid with multimeter." .
+wd:product_dw-001 wd:hasDiagnosticStep wd:step_dw-d04 .
+
+wd:step_dw-d01 wd:confirms wd:fm_dw-fm01 .
+wd:step_dw-d02 wd:confirms wd:fm_dw-fm02 .
+wd:step_dw-d03 wd:confirms wd:fm_dw-fm03 .
+wd:component_dw-c01 a wd:Component ;
+  rdfs:label "Heating System" ;
+  wd:subsystem "Thermal" .
+
+wd:component_dw-c02 a wd:Component ;
+  rdfs:label "Drain System" ;
+  wd:subsystem "Plumbing" .
+
+wd:component_dw-c03 a wd:Component ;
+  rdfs:label "Wash Circulation" ;
+  wd:subsystem "Hydraulic" .
+
+wd:part_dw-p01 a wd:Part ;
+  rdfs:label "Heating Element" ;
+  wd:partNumber "CW-HE-4412" ;
+  wd:estimatedCostUsd "45.0"^^xsd:decimal .
+
+wd:part_dw-p02 a wd:Part ;
+  rdfs:label "Drain Hose Kit" ;
+  wd:partNumber "CW-DH-1100" ;
+  wd:estimatedCostUsd "18.75"^^xsd:decimal .
+
+wd:part_dw-p03 a wd:Part ;
+  rdfs:label "Circulation Pump Assembly" ;
+  wd:partNumber "CW-CP-9920" ;
+  wd:estimatedCostUsd "110.0"^^xsd:decimal .
+
+wd:fm_dw-fm01 wd:impactsComponent wd:component_dw-c01 .
+wd:fm_dw-fm02 wd:impactsComponent wd:component_dw-c02 .
+wd:fm_dw-fm03 wd:impactsComponent wd:component_dw-c03 .
+wd:component_dw-c01 wd:realizedBy wd:part_dw-p01 .
+wd:component_dw-c02 wd:realizedBy wd:part_dw-p02 .
+wd:component_dw-c03 wd:realizedBy wd:part_dw-p03 .
+wd:fm_dw-fm01 wd:requiresPart wd:part_dw-p01 .
+wd:fm_dw-fm02 wd:requiresPart wd:part_dw-p02 .
+wd:fm_dw-fm03 wd:requiresPart wd:part_dw-p03 .
+wd:sku_SKU-DW12-2022 wd:compatibleWith wd:part_dw-p01 .
+wd:sku_SKU-DW12-2022 wd:compatibleWith wd:part_dw-p02 .
+wd:sku_SKU-DW12-2022 wd:compatibleWith wd:part_dw-p03 .
+wd:ec_dw-ec-f09 a wd:ErrorCode ;
+  rdfs:label "F09" ;
+  rdfs:comment "Heating circuit fault" .
+wd:product_dw-001 wd:hasErrorCode wd:ec_dw-ec-f09 .
+
+wd:ec_dw-ec-f09 wd:errorCodeIndicates wd:fm_dw-fm01 .
+
+# --- Product mw-001 ---
+wd:product_mw-001 a wd:Product ;
+  wd:productId "mw-001" ;
+  wd:name "Convection Microwave 25L" ;
+  wd:category "Kitchen" ;
+  wd:brand "HeatPro" .
+
+wd:model_mdl-mw25 a wd:Model ;
+  rdfs:label "HeatPro Convection 25L" ;
+  rdfs:comment "HP-MW25" .
+wd:product_mw-001 wd:hasModel wd:model_mdl-mw25 .
+
+wd:sku_SKU-MW25-2024 a wd:SKU ;
+  rdfs:label "SKU-MW25-2024" .
+wd:product_mw-001 wd:hasSku wd:sku_SKU-MW25-2024 .
+wd:model_mdl-mw25 wd:modelHasSku wd:sku_SKU-MW25-2024 .
+
+wd:symptom_mw-s01 a wd:Symptom ;
+  wd:symptomId "mw-s01" ;
+  wd:description "Microwave runs but food stays cold" ;
+  wd:severity "critical" .
+wd:product_mw-001 wd:hasSymptom wd:symptom_mw-s01 .
+
+wd:symptom_mw-s02 a wd:Symptom ;
+  wd:symptomId "mw-s02" ;
+  wd:description "Arcing/sparking inside cavity" ;
+  wd:severity "critical" .
+wd:product_mw-001 wd:hasSymptom wd:symptom_mw-s02 .
+
+wd:symptom_mw-s03 a wd:Symptom ;
+  wd:symptomId "mw-s03" ;
+  wd:description "Convection fan not running" ;
+  wd:severity "medium" .
+wd:product_mw-001 wd:hasSymptom wd:symptom_mw-s03 .
+
+wd:symptom_mw-s04 a wd:Symptom ;
+  wd:symptomId "mw-s04" ;
+  wd:description "Door latch feels loose" ;
+  wd:severity "high" .
+wd:product_mw-001 wd:hasSymptom wd:symptom_mw-s04 .
+
+wd:fm_mw-fm01 a wd:FailureMode ;
+  wd:failureModeId "mw-fm01" ;
+  rdfs:label "Magnetron Failure" ;
+  rdfs:comment "Magnetron filament or high-voltage diode failed; no microwave energy produced." .
+wd:product_mw-001 wd:canHave wd:fm_mw-fm01 .
+
+wd:fm_mw-fm02 a wd:FailureMode ;
+  wd:failureModeId "mw-fm02" ;
+  rdfs:label "Damaged Waveguide Cover" ;
+  rdfs:comment "Grease buildup on mica waveguide cover causing arcing and burn-through." .
+wd:product_mw-001 wd:canHave wd:fm_mw-fm02 .
+
+wd:fm_mw-fm03 a wd:FailureMode ;
+  wd:failureModeId "mw-fm03" ;
+  rdfs:label "Convection Fan Motor Failure" ;
+  rdfs:comment "Fan motor bearing seized; convection bake mode ineffective." .
+wd:product_mw-001 wd:canHave wd:fm_mw-fm03 .
+
+wd:symptom_mw-s01 wd:indicates wd:fm_mw-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_mw-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_mw-fm01 ; wd:confidence "0.94"^^xsd:decimal .
+
+wd:symptom_mw-s02 wd:indicates wd:fm_mw-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_mw-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_mw-fm02 ; wd:confidence "0.91"^^xsd:decimal .
+
+wd:symptom_mw-s03 wd:indicates wd:fm_mw-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_mw-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_mw-fm03 ; wd:confidence "0.86"^^xsd:decimal .
+
+wd:symptom_mw-s04 wd:indicates wd:fm_mw-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_mw-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_mw-fm01 ; wd:confidence "0.4"^^xsd:decimal .
+
+wd:step_mw-d01 a wd:DiagnosticStep ;
+  rdfs:label "mw-d01" ;
+  rdfs:comment "Heat cup of water for 60 seconds on high power." .
+wd:product_mw-001 wd:hasDiagnosticStep wd:step_mw-d01 .
+
+wd:step_mw-d02 a wd:DiagnosticStep ;
+  rdfs:label "mw-d02" ;
+  rdfs:comment "Inspect waveguide cover for burn marks or holes." .
+wd:product_mw-001 wd:hasDiagnosticStep wd:step_mw-d02 .
+
+wd:step_mw-d03 a wd:DiagnosticStep ;
+  rdfs:label "mw-d03" ;
+  rdfs:comment "Run convection bake at 180°C and listen for fan." .
+wd:product_mw-001 wd:hasDiagnosticStep wd:step_mw-d03 .
+
+wd:step_mw-d04 a wd:DiagnosticStep ;
+  rdfs:label "mw-d04" ;
+  rdfs:comment "Check door switch continuity with door closed." .
+wd:product_mw-001 wd:hasDiagnosticStep wd:step_mw-d04 .
+
+wd:step_mw-d01 wd:confirms wd:fm_mw-fm01 .
+wd:step_mw-d02 wd:confirms wd:fm_mw-fm02 .
+wd:step_mw-d03 wd:confirms wd:fm_mw-fm03 .
+wd:component_mw-c01 a wd:Component ;
+  rdfs:label "Magnetron HV System" ;
+  wd:subsystem "RF Generation" .
+
+wd:component_mw-c02 a wd:Component ;
+  rdfs:label "Waveguide Assembly" ;
+  wd:subsystem "RF Delivery" .
+
+wd:component_mw-c03 a wd:Component ;
+  rdfs:label "Convection Airflow" ;
+  wd:subsystem "Thermal" .
+
+wd:part_mw-p01 a wd:Part ;
+  rdfs:label "Magnetron Assembly" ;
+  wd:partNumber "HP-MG-7700" ;
+  wd:estimatedCostUsd "95.0"^^xsd:decimal .
+
+wd:part_mw-p02 a wd:Part ;
+  rdfs:label "Waveguide Mica Cover" ;
+  wd:partNumber "HP-WG-0012" ;
+  wd:estimatedCostUsd "8.5"^^xsd:decimal .
+
+wd:part_mw-p03 a wd:Part ;
+  rdfs:label "Convection Fan Motor" ;
+  wd:partNumber "HP-CF-3300" ;
+  wd:estimatedCostUsd "42.0"^^xsd:decimal .
+
+wd:fm_mw-fm01 wd:impactsComponent wd:component_mw-c01 .
+wd:fm_mw-fm02 wd:impactsComponent wd:component_mw-c02 .
+wd:fm_mw-fm03 wd:impactsComponent wd:component_mw-c03 .
+wd:component_mw-c01 wd:realizedBy wd:part_mw-p01 .
+wd:component_mw-c02 wd:realizedBy wd:part_mw-p02 .
+wd:component_mw-c03 wd:realizedBy wd:part_mw-p03 .
+wd:fm_mw-fm01 wd:requiresPart wd:part_mw-p01 .
+wd:fm_mw-fm02 wd:requiresPart wd:part_mw-p02 .
+wd:fm_mw-fm03 wd:requiresPart wd:part_mw-p03 .
+wd:sku_SKU-MW25-2024 wd:compatibleWith wd:part_mw-p01 .
+wd:sku_SKU-MW25-2024 wd:compatibleWith wd:part_mw-p02 .
+wd:sku_SKU-MW25-2024 wd:compatibleWith wd:part_mw-p03 .
+wd:ec_mw-ec-hv a wd:ErrorCode ;
+  rdfs:label "HV" ;
+  rdfs:comment "High-voltage / magnetron fault" .
+wd:product_mw-001 wd:hasErrorCode wd:ec_mw-ec-hv .
+
+wd:ec_mw-ec-hv wd:errorCodeIndicates wd:fm_mw-fm01 .
+
+# --- Product oem-sam-wf45 ---
+wd:product_oem-sam-wf45 a wd:Product ;
+  wd:productId "oem-sam-wf45" ;
+  wd:name "Samsung WF45T6000AW Front Load Washer" ;
+  wd:category "Laundry" ;
+  wd:brand "Samsung" .
+
+wd:symptom_oem-sam-wf45-s01 a wd:Symptom ;
+  wd:symptomId "oem-sam-wf45-s01" ;
+  wd:description "Washer does not spin at all during cycle" ;
+  wd:severity "high" .
+wd:product_oem-sam-wf45 wd:hasSymptom wd:symptom_oem-sam-wf45-s01 .
+
+wd:symptom_oem-sam-wf45-s02 a wd:Symptom ;
+  wd:symptomId "oem-sam-wf45-s02" ;
+  wd:description "Clothes extremely wet after final spin" ;
+  wd:severity "medium" .
+wd:product_oem-sam-wf45 wd:hasSymptom wd:symptom_oem-sam-wf45-s02 .
+
+wd:symptom_oem-sam-wf45-s03 a wd:Symptom ;
+  wd:symptomId "oem-sam-wf45-s03" ;
+  wd:description "UE error — unbalanced load repeated" ;
+  wd:severity "medium" .
+wd:product_oem-sam-wf45 wd:hasSymptom wd:symptom_oem-sam-wf45-s03 .
+
+wd:symptom_oem-sam-wf45-s04 a wd:Symptom ;
+  wd:symptomId "oem-sam-wf45-s04" ;
+  wd:description "4E or 5E water supply error displayed" ;
+  wd:severity "high" .
+wd:product_oem-sam-wf45 wd:hasSymptom wd:symptom_oem-sam-wf45-s04 .
+
+wd:fm_oem-sam-wf45-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-wf45-fm01" ;
+  rdfs:label "Clogged Pump Filter / Drain Blockage" ;
+  rdfs:comment "Pump filter obstructed preventing drain before spin phase." .
+wd:product_oem-sam-wf45 wd:canHave wd:fm_oem-sam-wf45-fm01 .
+
+wd:fm_oem-sam-wf45-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-wf45-fm02" ;
+  rdfs:label "Drain Hose Siphoning / Install Fault" ;
+  rdfs:comment "Incorrect drain hose depth causes siphoning; washer cannot drain." .
+wd:product_oem-sam-wf45 wd:canHave wd:fm_oem-sam-wf45-fm02 .
+
+wd:fm_oem-sam-wf45-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-wf45-fm03" ;
+  rdfs:label "Drive Motor or Inverter Fault" ;
+  rdfs:comment "Motor does not engage after drain completes; calibration fails." .
+wd:product_oem-sam-wf45 wd:canHave wd:fm_oem-sam-wf45-fm03 .
+
+wd:symptom_oem-sam-wf45-s01 wd:indicates wd:fm_oem-sam-wf45-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-wf45-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-wf45-fm01 ; wd:confidence "0.88"^^xsd:decimal .
+
+wd:symptom_oem-sam-wf45-s01 wd:indicates wd:fm_oem-sam-wf45-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-wf45-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-wf45-fm03 ; wd:confidence "0.72"^^xsd:decimal .
+
+wd:symptom_oem-sam-wf45-s02 wd:indicates wd:fm_oem-sam-wf45-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-wf45-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-wf45-fm01 ; wd:confidence "0.8"^^xsd:decimal .
+
+wd:symptom_oem-sam-wf45-s03 wd:indicates wd:fm_oem-sam-wf45-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-wf45-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-wf45-fm02 ; wd:confidence "0.65"^^xsd:decimal .
+
+wd:symptom_oem-sam-wf45-s04 wd:indicates wd:fm_oem-sam-wf45-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-wf45-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-wf45-fm02 ; wd:confidence "0.7"^^xsd:decimal .
+
+wd:step_oem-sam-wf45-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-wf45-d01" ;
+  rdfs:comment "Clean front-load pump filter and verify impeller turns freely." .
+wd:product_oem-sam-wf45 wd:hasDiagnosticStep wd:step_oem-sam-wf45-d01 .
+
+wd:step_oem-sam-wf45-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-wf45-d02" ;
+  rdfs:comment "Verify drain hose 6-8 in standpipe, no airtight seal, 18-96 in height." .
+wd:product_oem-sam-wf45 wd:hasDiagnosticStep wd:step_oem-sam-wf45-d02 .
+
+wd:step_oem-sam-wf45-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-wf45-d03" ;
+  rdfs:comment "Run Calibration Mode (Temp + Delay End 3 sec → Cb → Start)." .
+wd:product_oem-sam-wf45 wd:hasDiagnosticStep wd:step_oem-sam-wf45-d03 .
+
+wd:step_oem-sam-wf45-d04 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-wf45-d04" ;
+  rdfs:comment "If no spin after calibration, test motor engagement in spin cycle." .
+wd:product_oem-sam-wf45 wd:hasDiagnosticStep wd:step_oem-sam-wf45-d04 .
+
+wd:part_oem-sam-wf45-p01 a wd:Part ;
+  rdfs:label "Drain Pump Assembly" ;
+  wd:partNumber "DC31-00098A" ;
+  wd:estimatedCostUsd "78.0"^^xsd:decimal .
+
+wd:part_oem-sam-wf45-p02 a wd:Part ;
+  rdfs:label "Drive Belt Kit" ;
+  wd:partNumber "6602-001655" ;
+  wd:estimatedCostUsd "32.0"^^xsd:decimal .
+
+wd:part_oem-sam-wf45-p03 a wd:Part ;
+  rdfs:label "Motor Inverter Board" ;
+  wd:partNumber "DC92-01583A" ;
+  wd:estimatedCostUsd "185.0"^^xsd:decimal .
+
+wd:fm_oem-sam-wf45-fm01 wd:requiresPart wd:part_oem-sam-wf45-p01 .
+wd:fm_oem-sam-wf45-fm02 wd:requiresPart wd:part_oem-sam-wf45-p02 .
+wd:fm_oem-sam-wf45-fm03 wd:requiresPart wd:part_oem-sam-wf45-p03 .
+
+# --- Product oem-lg-wm4000 ---
+wd:product_oem-lg-wm4000 a wd:Product ;
+  wd:productId "oem-lg-wm4000" ;
+  wd:name "LG WM4000HWA Front Load Washer" ;
+  wd:category "Laundry" ;
+  wd:brand "LG" .
+
+wd:symptom_oem-lg-wm4000-s01 a wd:Symptom ;
+  wd:symptomId "oem-lg-wm4000-s01" ;
+  wd:description "OE error — drain pump fault" ;
+  wd:severity "high" .
+wd:product_oem-lg-wm4000 wd:hasSymptom wd:symptom_oem-lg-wm4000-s01 .
+
+wd:symptom_oem-lg-wm4000-s02 a wd:Symptom ;
+  wd:symptomId "oem-lg-wm4000-s02" ;
+  wd:description "DE error — door lock fault" ;
+  wd:severity "medium" .
+wd:product_oem-lg-wm4000 wd:hasSymptom wd:symptom_oem-lg-wm4000-s02 .
+
+wd:symptom_oem-lg-wm4000-s03 a wd:Symptom ;
+  wd:symptomId "oem-lg-wm4000-s03" ;
+  wd:description "UE unbalanced load repeated aborts" ;
+  wd:severity "medium" .
+wd:product_oem-lg-wm4000 wd:hasSymptom wd:symptom_oem-lg-wm4000-s03 .
+
+wd:fm_oem-lg-wm4000-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-wm4000-fm01" ;
+  rdfs:label "Drain Pump Blockage or Failure" ;
+  rdfs:comment "Pump cannot evacuate water; OE displayed." .
+wd:product_oem-lg-wm4000 wd:canHave wd:fm_oem-lg-wm4000-fm01 .
+
+wd:fm_oem-lg-wm4000-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-wm4000-fm02" ;
+  rdfs:label "Door Lock Mechanism Fault" ;
+  rdfs:comment "Door switch or lock assembly fails DE code." .
+wd:product_oem-lg-wm4000 wd:canHave wd:fm_oem-lg-wm4000-fm02 .
+
+wd:fm_oem-lg-wm4000-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-wm4000-fm03" ;
+  rdfs:label "Motor Stator or Rotor Fault" ;
+  rdfs:comment "Direct drive motor fails spin after balance attempts." .
+wd:product_oem-lg-wm4000 wd:canHave wd:fm_oem-lg-wm4000-fm03 .
+
+wd:symptom_oem-lg-wm4000-s01 wd:indicates wd:fm_oem-lg-wm4000-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-wm4000-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-wm4000-fm01 ; wd:confidence "0.94"^^xsd:decimal .
+
+wd:symptom_oem-lg-wm4000-s02 wd:indicates wd:fm_oem-lg-wm4000-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-wm4000-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-wm4000-fm02 ; wd:confidence "0.93"^^xsd:decimal .
+
+wd:symptom_oem-lg-wm4000-s03 wd:indicates wd:fm_oem-lg-wm4000-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-wm4000-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-wm4000-fm03 ; wd:confidence "0.7"^^xsd:decimal .
+
+wd:step_oem-lg-wm4000-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-wm4000-d01" ;
+  rdfs:comment "Clean drain pump filter and foreign object trap." .
+wd:product_oem-lg-wm4000 wd:hasDiagnosticStep wd:step_oem-lg-wm4000-d01 .
+
+wd:step_oem-lg-wm4000-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-wm4000-d02" ;
+  rdfs:comment "Test door lock latch engagement and wiring harness." .
+wd:product_oem-lg-wm4000 wd:hasDiagnosticStep wd:step_oem-lg-wm4000-d02 .
+
+wd:step_oem-lg-wm4000-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-wm4000-d03" ;
+  rdfs:comment "Run tub clean cycle; redistribute load for UE test." .
+wd:product_oem-lg-wm4000 wd:hasDiagnosticStep wd:step_oem-lg-wm4000-d03 .
+
+wd:part_oem-lg-wm4000-p01 a wd:Part ;
+  rdfs:label "Drain Pump Assembly" ;
+  wd:partNumber "ABQ75742503" ;
+  wd:estimatedCostUsd "65.0"^^xsd:decimal .
+
+wd:part_oem-lg-wm4000-p02 a wd:Part ;
+  rdfs:label "Door Lock Switch" ;
+  wd:partNumber "EBF49827801" ;
+  wd:estimatedCostUsd "55.0"^^xsd:decimal .
+
+wd:part_oem-lg-wm4000-p03 a wd:Part ;
+  rdfs:label "Stator Assembly" ;
+  wd:partNumber "AJS73172601" ;
+  wd:estimatedCostUsd "195.0"^^xsd:decimal .
+
+wd:fm_oem-lg-wm4000-fm01 wd:requiresPart wd:part_oem-lg-wm4000-p01 .
+wd:fm_oem-lg-wm4000-fm02 wd:requiresPart wd:part_oem-lg-wm4000-p02 .
+wd:fm_oem-lg-wm4000-fm03 wd:requiresPart wd:part_oem-lg-wm4000-p03 .
+
+# --- Product oem-lg-ldf5545 ---
+wd:product_oem-lg-ldf5545 a wd:Product ;
+  wd:productId "oem-lg-ldf5545" ;
+  wd:name "LG LDF5545ST Built-in Dishwasher" ;
+  wd:category "Kitchen" ;
+  wd:brand "LG" .
+
+wd:symptom_oem-lg-ldf5545-s01 a wd:Symptom ;
+  wd:symptomId "oem-lg-ldf5545-s01" ;
+  wd:description "Standing water in tub after cycle" ;
+  wd:severity "high" .
+wd:product_oem-lg-ldf5545 wd:hasSymptom wd:symptom_oem-lg-ldf5545-s01 .
+
+wd:symptom_oem-lg-ldf5545-s02 a wd:Symptom ;
+  wd:symptomId "oem-lg-ldf5545-s02" ;
+  wd:description "Dishes not drying; water not heating" ;
+  wd:severity "medium" .
+wd:product_oem-lg-ldf5545 wd:hasSymptom wd:symptom_oem-lg-ldf5545-s02 .
+
+wd:symptom_oem-lg-ldf5545-s03 a wd:Symptom ;
+  wd:symptomId "oem-lg-ldf5545-s03" ;
+  wd:description "AE or E1 leak protection triggered" ;
+  wd:severity "critical" .
+wd:product_oem-lg-ldf5545 wd:hasSymptom wd:symptom_oem-lg-ldf5545-s03 .
+
+wd:symptom_oem-lg-ldf5545-s04 a wd:Symptom ;
+  wd:symptomId "oem-lg-ldf5545-s04" ;
+  wd:description "Long cycle or delayed wash time" ;
+  wd:severity "low" .
+wd:product_oem-lg-ldf5545 wd:hasSymptom wd:symptom_oem-lg-ldf5545-s04 .
+
+wd:fm_oem-lg-ldf5545-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-ldf5545-fm01" ;
+  rdfs:label "Drain Obstruction / OE Condition" ;
+  rdfs:comment "Drain hose kinked, disposal knockout not removed, or pump blocked." .
+wd:product_oem-lg-ldf5545 wd:canHave wd:fm_oem-lg-ldf5545-fm01 .
+
+wd:fm_oem-lg-ldf5545-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-ldf5545-fm02" ;
+  rdfs:label "Inadequate Water Fill / IE Condition" ;
+  rdfs:comment "Water valve closed, low pressure <20 PSI, or siphoning drain install." .
+wd:product_oem-lg-ldf5545 wd:canHave wd:fm_oem-lg-ldf5545-fm02 .
+
+wd:fm_oem-lg-ldf5545-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-ldf5545-fm03" ;
+  rdfs:label "Heater or Thermistor Fault / HE" ;
+  rdfs:comment "Heating element open or water overheated above 149°F." .
+wd:product_oem-lg-ldf5545 wd:canHave wd:fm_oem-lg-ldf5545-fm03 .
+
+wd:fm_oem-lg-ldf5545-fm04 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-ldf5545-fm04" ;
+  rdfs:label "Vario Motor / Spray Arm Fault / nE" ;
+  rdfs:comment "Spray arm motor or wiring harness issue." .
+wd:product_oem-lg-ldf5545 wd:canHave wd:fm_oem-lg-ldf5545-fm04 .
+
+wd:symptom_oem-lg-ldf5545-s01 wd:indicates wd:fm_oem-lg-ldf5545-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-ldf5545-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-ldf5545-fm01 ; wd:confidence "0.91"^^xsd:decimal .
+
+wd:symptom_oem-lg-ldf5545-s02 wd:indicates wd:fm_oem-lg-ldf5545-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-ldf5545-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-ldf5545-fm03 ; wd:confidence "0.89"^^xsd:decimal .
+
+wd:symptom_oem-lg-ldf5545-s03 wd:indicates wd:fm_oem-lg-ldf5545-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-ldf5545-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-ldf5545-fm01 ; wd:confidence "0.6"^^xsd:decimal .
+
+wd:symptom_oem-lg-ldf5545-s04 wd:indicates wd:fm_oem-lg-ldf5545-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-ldf5545-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-ldf5545-fm02 ; wd:confidence "0.45"^^xsd:decimal .
+
+wd:step_oem-lg-ldf5545-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-ldf5545-d01" ;
+  rdfs:comment "Check drain hose for kinks; verify disposal knockout removed." .
+wd:product_oem-lg-ldf5545 wd:hasDiagnosticStep wd:step_oem-lg-ldf5545-d01 .
+
+wd:step_oem-lg-ldf5545-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-ldf5545-d02" ;
+  rdfs:comment "Confirm water supply on, 20+ PSI, inlet hose not kinked." .
+wd:product_oem-lg-ldf5545 wd:hasDiagnosticStep wd:step_oem-lg-ldf5545-d02 .
+
+wd:step_oem-lg-ldf5545-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-ldf5545-d03" ;
+  rdfs:comment "Power cycle breaker 10s; rerun cycle to clear HE/PF." .
+wd:product_oem-lg-ldf5545 wd:hasDiagnosticStep wd:step_oem-lg-ldf5545-d03 .
+
+wd:step_oem-lg-ldf5545-d04 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-ldf5545-d04" ;
+  rdfs:comment "Inspect door gasket seal for E1/AE overfill trigger." .
+wd:product_oem-lg-ldf5545 wd:hasDiagnosticStep wd:step_oem-lg-ldf5545-d04 .
+
+wd:part_oem-lg-ldf5545-p01 a wd:Part ;
+  rdfs:label "Drain Pump Motor" ;
+  wd:partNumber "ABQ75742501" ;
+  wd:estimatedCostUsd "68.0"^^xsd:decimal .
+
+wd:part_oem-lg-ldf5545-p02 a wd:Part ;
+  rdfs:label "Inlet Valve Assembly" ;
+  wd:partNumber "5221DD1001H" ;
+  wd:estimatedCostUsd "42.0"^^xsd:decimal .
+
+wd:part_oem-lg-ldf5545-p03 a wd:Part ;
+  rdfs:label "Heating Element" ;
+  wd:partNumber "Mee61841401" ;
+  wd:estimatedCostUsd "55.0"^^xsd:decimal .
+
+wd:part_oem-lg-ldf5545-p04 a wd:Part ;
+  rdfs:label "Spray Arm Vario Motor" ;
+  wd:partNumber "ABQ75742504" ;
+  wd:estimatedCostUsd "95.0"^^xsd:decimal .
+
+wd:fm_oem-lg-ldf5545-fm01 wd:requiresPart wd:part_oem-lg-ldf5545-p01 .
+wd:fm_oem-lg-ldf5545-fm02 wd:requiresPart wd:part_oem-lg-ldf5545-p02 .
+wd:fm_oem-lg-ldf5545-fm03 wd:requiresPart wd:part_oem-lg-ldf5545-p03 .
+wd:fm_oem-lg-ldf5545-fm04 wd:requiresPart wd:part_oem-lg-ldf5545-p04 .
+
+# --- Product oem-sam-dw80 ---
+wd:product_oem-sam-dw80 a wd:Product ;
+  wd:productId "oem-sam-dw80" ;
+  wd:name "Samsung DW80B7070US Smart Dishwasher" ;
+  wd:category "Kitchen" ;
+  wd:brand "Samsung" .
+
+wd:symptom_oem-sam-dw80-s01 a wd:Symptom ;
+  wd:symptomId "oem-sam-dw80-s01" ;
+  wd:description "LC or LE leak error code displayed" ;
+  wd:severity "critical" .
+wd:product_oem-sam-dw80 wd:hasSymptom wd:symptom_oem-sam-dw80-s01 .
+
+wd:symptom_oem-sam-dw80-s02 a wd:Symptom ;
+  wd:symptomId "oem-sam-dw80-s02" ;
+  wd:description "Dishes not clean; low water spray" ;
+  wd:severity "medium" .
+wd:product_oem-sam-dw80 wd:hasSymptom wd:symptom_oem-sam-dw80-s02 .
+
+wd:symptom_oem-sam-dw80-s03 a wd:Symptom ;
+  wd:symptomId "oem-sam-dw80-s03" ;
+  wd:description "OC or 0C over-level water error" ;
+  wd:severity "high" .
+wd:product_oem-sam-dw80 wd:hasSymptom wd:symptom_oem-sam-dw80-s03 .
+
+wd:fm_oem-sam-dw80-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-dw80-fm01" ;
+  rdfs:label "Drain Hose / Sump Obstruction" ;
+  rdfs:comment "Food debris blocking drain path or check valve." .
+wd:product_oem-sam-dw80 wd:canHave wd:fm_oem-sam-dw80-fm01 .
+
+wd:fm_oem-sam-dw80-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-dw80-fm02" ;
+  rdfs:label "WaterWall Motor or Track Fault" ;
+  rdfs:comment "Spray arm not traversing tub length." .
+wd:product_oem-sam-dw80 wd:canHave wd:fm_oem-sam-dw80-fm02 .
+
+wd:fm_oem-sam-dw80-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-dw80-fm03" ;
+  rdfs:label "Inlet Valve Overfill / LC Leak" ;
+  rdfs:comment "Inlet valve stuck open or float leak sensor wet." .
+wd:product_oem-sam-dw80 wd:canHave wd:fm_oem-sam-dw80-fm03 .
+
+wd:symptom_oem-sam-dw80-s01 wd:indicates wd:fm_oem-sam-dw80-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-dw80-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-dw80-fm03 ; wd:confidence "0.88"^^xsd:decimal .
+
+wd:symptom_oem-sam-dw80-s02 wd:indicates wd:fm_oem-sam-dw80-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-dw80-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-dw80-fm02 ; wd:confidence "0.87"^^xsd:decimal .
+
+wd:symptom_oem-sam-dw80-s03 wd:indicates wd:fm_oem-sam-dw80-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-dw80-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-dw80-fm01 ; wd:confidence "0.91"^^xsd:decimal .
+
+wd:step_oem-sam-dw80-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-dw80-d01" ;
+  rdfs:comment "Inspect drain hose and remove sump filter debris." .
+wd:product_oem-sam-dw80 wd:hasDiagnosticStep wd:step_oem-sam-dw80-d01 .
+
+wd:step_oem-sam-dw80-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-dw80-d02" ;
+  rdfs:comment "Verify WaterWall arm moves freely full stroke." .
+wd:product_oem-sam-dw80 wd:hasDiagnosticStep wd:step_oem-sam-dw80-d02 .
+
+wd:step_oem-sam-dw80-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-dw80-d03" ;
+  rdfs:comment "Dry leak sensor in pan; test inlet valve shuts off." .
+wd:product_oem-sam-dw80 wd:hasDiagnosticStep wd:step_oem-sam-dw80-d03 .
+
+wd:part_oem-sam-dw80-p01 a wd:Part ;
+  rdfs:label "Drain Pump" ;
+  wd:partNumber "DD81-02655A" ;
+  wd:estimatedCostUsd "72.0"^^xsd:decimal .
+
+wd:part_oem-sam-dw80-p02 a wd:Part ;
+  rdfs:label "WaterWall Vane Motor" ;
+  wd:partNumber "DD82-01315A" ;
+  wd:estimatedCostUsd "125.0"^^xsd:decimal .
+
+wd:part_oem-sam-dw80-p03 a wd:Part ;
+  rdfs:label "Water Inlet Valve" ;
+  wd:partNumber "DD62-00084A" ;
+  wd:estimatedCostUsd "48.0"^^xsd:decimal .
+
+wd:fm_oem-sam-dw80-fm01 wd:requiresPart wd:part_oem-sam-dw80-p01 .
+wd:fm_oem-sam-dw80-fm02 wd:requiresPart wd:part_oem-sam-dw80-p02 .
+wd:fm_oem-sam-dw80-fm03 wd:requiresPart wd:part_oem-sam-dw80-p03 .
+
+# --- Product oem-whi-wtw5000 ---
+wd:product_oem-whi-wtw5000 a wd:Product ;
+  wd:productId "oem-whi-wtw5000" ;
+  wd:name "Whirlpool WTW5000DW Top Load Washer" ;
+  wd:category "Laundry" ;
+  wd:brand "Whirlpool" .
+
+wd:symptom_oem-whi-wtw5000-s01 a wd:Symptom ;
+  wd:symptomId "oem-whi-wtw5000-s01" ;
+  wd:description "Washer fills but will not agitate or spin" ;
+  wd:severity "high" .
+wd:product_oem-whi-wtw5000 wd:hasSymptom wd:symptom_oem-whi-wtw5000-s01 .
+
+wd:symptom_oem-whi-wtw5000-s02 a wd:Symptom ;
+  wd:symptomId "oem-whi-wtw5000-s02" ;
+  wd:description "Lid lock flashing; cycle will not start" ;
+  wd:severity "medium" .
+wd:product_oem-whi-wtw5000 wd:hasSymptom wd:symptom_oem-whi-wtw5000-s02 .
+
+wd:symptom_oem-whi-wtw5000-s03 a wd:Symptom ;
+  wd:symptomId "oem-whi-wtw5000-s03" ;
+  wd:description "F9 E1 drain pump error code" ;
+  wd:severity "high" .
+wd:product_oem-whi-wtw5000 wd:hasSymptom wd:symptom_oem-whi-wtw5000-s03 .
+
+wd:fm_oem-whi-wtw5000-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wtw5000-fm01" ;
+  rdfs:label "Shift Actuator Failure" ;
+  rdfs:comment "Actuator cannot shift transmission between agitate and spin." .
+wd:product_oem-whi-wtw5000 wd:canHave wd:fm_oem-whi-wtw5000-fm01 .
+
+wd:fm_oem-whi-wtw5000-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wtw5000-fm02" ;
+  rdfs:label "Lid Lock Assembly Fault" ;
+  rdfs:comment "Lid lock fails to engage preventing cycle start." .
+wd:product_oem-whi-wtw5000 wd:canHave wd:fm_oem-whi-wtw5000-fm02 .
+
+wd:fm_oem-whi-wtw5000-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wtw5000-fm03" ;
+  rdfs:label "Drain Pump Failure" ;
+  rdfs:comment "Pump unable to evacuate water; F9 E1 displayed." .
+wd:product_oem-whi-wtw5000 wd:canHave wd:fm_oem-whi-wtw5000-fm03 .
+
+wd:symptom_oem-whi-wtw5000-s01 wd:indicates wd:fm_oem-whi-wtw5000-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wtw5000-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wtw5000-fm01 ; wd:confidence "0.9"^^xsd:decimal .
+
+wd:symptom_oem-whi-wtw5000-s02 wd:indicates wd:fm_oem-whi-wtw5000-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wtw5000-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wtw5000-fm02 ; wd:confidence "0.93"^^xsd:decimal .
+
+wd:symptom_oem-whi-wtw5000-s03 wd:indicates wd:fm_oem-whi-wtw5000-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wtw5000-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wtw5000-fm03 ; wd:confidence "0.95"^^xsd:decimal .
+
+wd:step_oem-whi-wtw5000-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wtw5000-d01" ;
+  rdfs:comment "Run automatic diagnostic mode from console." .
+wd:product_oem-whi-wtw5000 wd:hasDiagnosticStep wd:step_oem-whi-wtw5000-d01 .
+
+wd:step_oem-whi-wtw5000-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wtw5000-d02" ;
+  rdfs:comment "Test lid lock engagement with lid closed." .
+wd:product_oem-whi-wtw5000 wd:hasDiagnosticStep wd:step_oem-whi-wtw5000-d02 .
+
+wd:step_oem-whi-wtw5000-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wtw5000-d03" ;
+  rdfs:comment "Inspect coin trap and drain pump for obstruction." .
+wd:product_oem-whi-wtw5000 wd:hasDiagnosticStep wd:step_oem-whi-wtw5000-d03 .
+
+wd:part_oem-whi-wtw5000-p01 a wd:Part ;
+  rdfs:label "Shift Actuator" ;
+  wd:partNumber "W10913953" ;
+  wd:estimatedCostUsd "72.0"^^xsd:decimal .
+
+wd:part_oem-whi-wtw5000-p02 a wd:Part ;
+  rdfs:label "Lid Lock Switch" ;
+  wd:partNumber "W10810403" ;
+  wd:estimatedCostUsd "48.0"^^xsd:decimal .
+
+wd:part_oem-whi-wtw5000-p03 a wd:Part ;
+  rdfs:label "Drain Pump" ;
+  wd:partNumber "W10840948" ;
+  wd:estimatedCostUsd "58.0"^^xsd:decimal .
+
+wd:fm_oem-whi-wtw5000-fm01 wd:requiresPart wd:part_oem-whi-wtw5000-p01 .
+wd:fm_oem-whi-wtw5000-fm02 wd:requiresPart wd:part_oem-whi-wtw5000-p02 .
+wd:fm_oem-whi-wtw5000-fm03 wd:requiresPart wd:part_oem-whi-wtw5000-p03 .
+
+# --- Product oem-lg-dle3400 ---
+wd:product_oem-lg-dle3400 a wd:Product ;
+  wd:productId "oem-lg-dle3400" ;
+  wd:name "LG DLE3400W Electric Dryer" ;
+  wd:category "Laundry" ;
+  wd:brand "LG" .
+
+wd:symptom_oem-lg-dle3400-s01 a wd:Symptom ;
+  wd:symptomId "oem-lg-dle3400-s01" ;
+  wd:description "Clothes still damp after full cycle" ;
+  wd:severity "medium" .
+wd:product_oem-lg-dle3400 wd:hasSymptom wd:symptom_oem-lg-dle3400-s01 .
+
+wd:symptom_oem-lg-dle3400-s02 a wd:Symptom ;
+  wd:symptomId "oem-lg-dle3400-s02" ;
+  wd:description "d80 error — 80% vent blockage detected" ;
+  wd:severity "high" .
+wd:product_oem-lg-dle3400 wd:hasSymptom wd:symptom_oem-lg-dle3400-s02 .
+
+wd:symptom_oem-lg-dle3400-s03 a wd:Symptom ;
+  wd:symptomId "oem-lg-dle3400-s03" ;
+  wd:description "d90 or d95 error — severe vent restriction" ;
+  wd:severity "high" .
+wd:product_oem-lg-dle3400 wd:hasSymptom wd:symptom_oem-lg-dle3400-s03 .
+
+wd:symptom_oem-lg-dle3400-s04 a wd:Symptom ;
+  wd:symptomId "oem-lg-dle3400-s04" ;
+  wd:description "Dryer runs but no heat produced" ;
+  wd:severity "high" .
+wd:product_oem-lg-dle3400 wd:hasSymptom wd:symptom_oem-lg-dle3400-s04 .
+
+wd:fm_oem-lg-dle3400-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-dle3400-fm01" ;
+  rdfs:label "Restricted Exhaust Duct / d80-d95" ;
+  rdfs:comment "Lint buildup in duct or external vent hood blocked." .
+wd:product_oem-lg-dle3400 wd:canHave wd:fm_oem-lg-dle3400-fm01 .
+
+wd:fm_oem-lg-dle3400-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-dle3400-fm02" ;
+  rdfs:label "Flow Sensor Fault" ;
+  rdfs:comment "Sensor reports false restriction or failed reading." .
+wd:product_oem-lg-dle3400 wd:canHave wd:fm_oem-lg-dle3400-fm02 .
+
+wd:fm_oem-lg-dle3400-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-lg-dle3400-fm03" ;
+  rdfs:label "Heating Element or Thermostat Failure" ;
+  rdfs:comment "Open heating element or high-limit thermostat tripped." .
+wd:product_oem-lg-dle3400 wd:canHave wd:fm_oem-lg-dle3400-fm03 .
+
+wd:symptom_oem-lg-dle3400-s01 wd:indicates wd:fm_oem-lg-dle3400-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-dle3400-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-dle3400-fm01 ; wd:confidence "0.82"^^xsd:decimal .
+
+wd:symptom_oem-lg-dle3400-s02 wd:indicates wd:fm_oem-lg-dle3400-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-dle3400-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-dle3400-fm01 ; wd:confidence "0.93"^^xsd:decimal .
+
+wd:symptom_oem-lg-dle3400-s03 wd:indicates wd:fm_oem-lg-dle3400-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-dle3400-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-dle3400-fm01 ; wd:confidence "0.96"^^xsd:decimal .
+
+wd:symptom_oem-lg-dle3400-s04 wd:indicates wd:fm_oem-lg-dle3400-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-lg-dle3400-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-lg-dle3400-fm03 ; wd:confidence "0.9"^^xsd:decimal .
+
+wd:step_oem-lg-dle3400-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-dle3400-d01" ;
+  rdfs:comment "Clean lint filter and inspect external vent hood flap opens." .
+wd:product_oem-lg-dle3400 wd:hasDiagnosticStep wd:step_oem-lg-dle3400-d01 .
+
+wd:step_oem-lg-dle3400-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-dle3400-d02" ;
+  rdfs:comment "Run duct blockage test; measure exhaust run length (<60 ft equivalent)." .
+wd:product_oem-lg-dle3400 wd:hasDiagnosticStep wd:step_oem-lg-dle3400-d02 .
+
+wd:step_oem-lg-dle3400-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-dle3400-d03" ;
+  rdfs:comment "Inspect flow sensor harness and sensor port for lint packing." .
+wd:product_oem-lg-dle3400 wd:hasDiagnosticStep wd:step_oem-lg-dle3400-d03 .
+
+wd:step_oem-lg-dle3400-d04 a wd:DiagnosticStep ;
+  rdfs:label "oem-lg-dle3400-d04" ;
+  rdfs:comment "Test heating element and thermostat with multimeter." .
+wd:product_oem-lg-dle3400 wd:hasDiagnosticStep wd:step_oem-lg-dle3400-d04 .
+
+wd:part_oem-lg-dle3400-p01 a wd:Part ;
+  rdfs:label "Flexible Vent Duct Kit" ;
+  wd:partNumber "5215EL2002A" ;
+  wd:estimatedCostUsd "35.0"^^xsd:decimal .
+
+wd:part_oem-lg-dle3400-p02 a wd:Part ;
+  rdfs:label "Flow Sensor Assembly" ;
+  wd:partNumber "6500EL2001A" ;
+  wd:estimatedCostUsd "42.0"^^xsd:decimal .
+
+wd:part_oem-lg-dle3400-p03 a wd:Part ;
+  rdfs:label "Heating Element" ;
+  wd:partNumber "5301EL1001J" ;
+  wd:estimatedCostUsd "58.0"^^xsd:decimal .
+
+wd:fm_oem-lg-dle3400-fm01 wd:requiresPart wd:part_oem-lg-dle3400-p01 .
+wd:fm_oem-lg-dle3400-fm02 wd:requiresPart wd:part_oem-lg-dle3400-p02 .
+wd:fm_oem-lg-dle3400-fm03 wd:requiresPart wd:part_oem-lg-dle3400-p03 .
+
+# --- Product oem-sam-rf28 ---
+wd:product_oem-sam-rf28 a wd:Product ;
+  wd:productId "oem-sam-rf28" ;
+  wd:name "Samsung RF28R7351SG French Door Refrigerator" ;
+  wd:category "Refrigeration" ;
+  wd:brand "Samsung" .
+
+wd:symptom_oem-sam-rf28-s01 a wd:Symptom ;
+  wd:symptomId "oem-sam-rf28-s01" ;
+  wd:description "Refrigerator section not cooling; freezer OK" ;
+  wd:severity "high" .
+wd:product_oem-sam-rf28 wd:hasSymptom wd:symptom_oem-sam-rf28-s01 .
+
+wd:symptom_oem-sam-rf28-s02 a wd:Symptom ;
+  wd:symptomId "oem-sam-rf28-s02" ;
+  wd:description "22E error — evaporator fan fault" ;
+  wd:severity "high" .
+wd:product_oem-sam-rf28 wd:hasSymptom wd:symptom_oem-sam-rf28-s02 .
+
+wd:symptom_oem-sam-rf28-s03 a wd:Symptom ;
+  wd:symptomId "oem-sam-rf28-s03" ;
+  wd:description "33E error — ice maker fan fault" ;
+  wd:severity "medium" .
+wd:product_oem-sam-rf28 wd:hasSymptom wd:symptom_oem-sam-rf28-s03 .
+
+wd:symptom_oem-sam-rf28-s04 a wd:Symptom ;
+  wd:symptomId "oem-sam-rf28-s04" ;
+  wd:description "Excessive frost in freezer compartment" ;
+  wd:severity "medium" .
+wd:product_oem-sam-rf28 wd:hasSymptom wd:symptom_oem-sam-rf28-s04 .
+
+wd:fm_oem-sam-rf28-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-rf28-fm01" ;
+  rdfs:label "Evaporator Fan Motor Failure / 22E" ;
+  rdfs:comment "Fan motor not circulating cold air to refrigerator section." .
+wd:product_oem-sam-rf28 wd:canHave wd:fm_oem-sam-rf28-fm01 .
+
+wd:fm_oem-sam-rf28-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-rf28-fm02" ;
+  rdfs:label "Ice Maker Fan or Duct Blockage / 33E" ;
+  rdfs:comment "Ice room fan blocked by frost or motor failure." .
+wd:product_oem-sam-rf28 wd:canHave wd:fm_oem-sam-rf28-fm02 .
+
+wd:fm_oem-sam-rf28-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-sam-rf28-fm03" ;
+  rdfs:label "Defrost Heater or Bi-Metal Failure" ;
+  rdfs:comment "Defrost cycle not clearing evaporator frost buildup." .
+wd:product_oem-sam-rf28 wd:canHave wd:fm_oem-sam-rf28-fm03 .
+
+wd:symptom_oem-sam-rf28-s01 wd:indicates wd:fm_oem-sam-rf28-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-rf28-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-rf28-fm01 ; wd:confidence "0.88"^^xsd:decimal .
+
+wd:symptom_oem-sam-rf28-s02 wd:indicates wd:fm_oem-sam-rf28-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-rf28-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-rf28-fm01 ; wd:confidence "0.95"^^xsd:decimal .
+
+wd:symptom_oem-sam-rf28-s03 wd:indicates wd:fm_oem-sam-rf28-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-rf28-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-rf28-fm02 ; wd:confidence "0.94"^^xsd:decimal .
+
+wd:symptom_oem-sam-rf28-s04 wd:indicates wd:fm_oem-sam-rf28-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-sam-rf28-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-sam-rf28-fm03 ; wd:confidence "0.86"^^xsd:decimal .
+
+wd:step_oem-sam-rf28-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-rf28-d01" ;
+  rdfs:comment "Verify condenser coils clean and doors seal properly." .
+wd:product_oem-sam-rf28 wd:hasDiagnosticStep wd:step_oem-sam-rf28-d01 .
+
+wd:step_oem-sam-rf28-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-rf28-d02" ;
+  rdfs:comment "Remove evaporator cover; test fan motor for obstruction/spin." .
+wd:product_oem-sam-rf28 wd:hasDiagnosticStep wd:step_oem-sam-rf28-d02 .
+
+wd:step_oem-sam-rf28-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-rf28-d03" ;
+  rdfs:comment "Inspect ice maker fan duct for ice blockage." .
+wd:product_oem-sam-rf28 wd:hasDiagnosticStep wd:step_oem-sam-rf28-d03 .
+
+wd:step_oem-sam-rf28-d04 a wd:DiagnosticStep ;
+  rdfs:label "oem-sam-rf28-d04" ;
+  rdfs:comment "Force defrost mode; check heater continuity." .
+wd:product_oem-sam-rf28 wd:hasDiagnosticStep wd:step_oem-sam-rf28-d04 .
+
+wd:part_oem-sam-rf28-p01 a wd:Part ;
+  rdfs:label "Evaporator Fan Motor" ;
+  wd:partNumber "DA97-17376A" ;
+  wd:estimatedCostUsd "89.0"^^xsd:decimal .
+
+wd:part_oem-sam-rf28-p02 a wd:Part ;
+  rdfs:label "Ice Maker Fan Motor" ;
+  wd:partNumber "DA97-15217D" ;
+  wd:estimatedCostUsd "72.0"^^xsd:decimal .
+
+wd:part_oem-sam-rf28-p03 a wd:Part ;
+  rdfs:label "Defrost Heater Assembly" ;
+  wd:partNumber "DA47-00244U" ;
+  wd:estimatedCostUsd "48.0"^^xsd:decimal .
+
+wd:fm_oem-sam-rf28-fm01 wd:requiresPart wd:part_oem-sam-rf28-p01 .
+wd:fm_oem-sam-rf28-fm02 wd:requiresPart wd:part_oem-sam-rf28-p02 .
+wd:fm_oem-sam-rf28-fm03 wd:requiresPart wd:part_oem-sam-rf28-p03 .
+
+# --- Product oem-whi-wfg505 ---
+wd:product_oem-whi-wfg505 a wd:Product ;
+  wd:productId "oem-whi-wfg505" ;
+  wd:name "Whirlpool WFG505M0BS Gas Range" ;
+  wd:category "Cooking" ;
+  wd:brand "Whirlpool" .
+
+wd:symptom_oem-whi-wfg505-s01 a wd:Symptom ;
+  wd:symptomId "oem-whi-wfg505-s01" ;
+  wd:description "Oven ignites but won't stay lit or won't heat" ;
+  wd:severity "high" .
+wd:product_oem-whi-wfg505 wd:hasSymptom wd:symptom_oem-whi-wfg505-s01 .
+
+wd:symptom_oem-whi-wfg505-s02 a wd:Symptom ;
+  wd:symptomId "oem-whi-wfg505-s02" ;
+  wd:description "Gas smell when oven on; weak ignition" ;
+  wd:severity "critical" .
+wd:product_oem-whi-wfg505 wd:hasSymptom wd:symptom_oem-whi-wfg505-s02 .
+
+wd:symptom_oem-whi-wfg505-s03 a wd:Symptom ;
+  wd:symptomId "oem-whi-wfg505-s03" ;
+  wd:description "F9 E0 error — oven temperature sensor fault" ;
+  wd:severity "medium" .
+wd:product_oem-whi-wfg505 wd:hasSymptom wd:symptom_oem-whi-wfg505-s03 .
+
+wd:symptom_oem-whi-wfg505-s04 a wd:Symptom ;
+  wd:symptomId "oem-whi-wfg505-s04" ;
+  wd:description "Surface burner won't light; clicking only" ;
+  wd:severity "medium" .
+wd:product_oem-whi-wfg505 wd:hasSymptom wd:symptom_oem-whi-wfg505-s04 .
+
+wd:fm_oem-whi-wfg505-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wfg505-fm01" ;
+  rdfs:label "Weak or Failed Bake Igniter" ;
+  rdfs:comment "Igniter glows insufficiently to open gas valve." .
+wd:product_oem-whi-wfg505 wd:canHave wd:fm_oem-whi-wfg505-fm01 .
+
+wd:fm_oem-whi-wfg505-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wfg505-fm02" ;
+  rdfs:label "Gas Valve or Safety Valve Fault" ;
+  rdfs:comment "Valve does not open after igniter sequence." .
+wd:product_oem-whi-wfg505 wd:canHave wd:fm_oem-whi-wfg505-fm02 .
+
+wd:fm_oem-whi-wfg505-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wfg505-fm03" ;
+  rdfs:label "Oven Temperature Sensor Out of Range" ;
+  rdfs:comment "RTD sensor reading triggers F9 E0." .
+wd:product_oem-whi-wfg505 wd:canHave wd:fm_oem-whi-wfg505-fm03 .
+
+wd:fm_oem-whi-wfg505-fm04 a wd:FailureMode ;
+  wd:failureModeId "oem-whi-wfg505-fm04" ;
+  rdfs:label "Surface Igniter Electrode Fault" ;
+  rdfs:comment "Spark electrode worn or misaligned on burner." .
+wd:product_oem-whi-wfg505 wd:canHave wd:fm_oem-whi-wfg505-fm04 .
+
+wd:symptom_oem-whi-wfg505-s01 wd:indicates wd:fm_oem-whi-wfg505-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wfg505-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wfg505-fm01 ; wd:confidence "0.91"^^xsd:decimal .
+
+wd:symptom_oem-whi-wfg505-s02 wd:indicates wd:fm_oem-whi-wfg505-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wfg505-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wfg505-fm02 ; wd:confidence "0.75"^^xsd:decimal .
+
+wd:symptom_oem-whi-wfg505-s03 wd:indicates wd:fm_oem-whi-wfg505-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wfg505-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wfg505-fm03 ; wd:confidence "0.94"^^xsd:decimal .
+
+wd:symptom_oem-whi-wfg505-s04 wd:indicates wd:fm_oem-whi-wfg505-fm04 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-whi-wfg505-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-whi-wfg505-fm04 ; wd:confidence "0.89"^^xsd:decimal .
+
+wd:step_oem-whi-wfg505-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wfg505-d01" ;
+  rdfs:comment "Observe bake igniter glow amp draw during ignition sequence." .
+wd:product_oem-whi-wfg505 wd:hasDiagnosticStep wd:step_oem-whi-wfg505-d01 .
+
+wd:step_oem-whi-wfg505-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wfg505-d02" ;
+  rdfs:comment "Test oven temperature sensor resistance at room temp (~1080 ohms)." .
+wd:product_oem-whi-wfg505 wd:hasDiagnosticStep wd:step_oem-whi-wfg505-d02 .
+
+wd:step_oem-whi-wfg505-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wfg505-d03" ;
+  rdfs:comment "Inspect surface burner caps, ports, and spark electrode gap." .
+wd:product_oem-whi-wfg505 wd:hasDiagnosticStep wd:step_oem-whi-wfg505-d03 .
+
+wd:step_oem-whi-wfg505-d04 a wd:DiagnosticStep ;
+  rdfs:label "oem-whi-wfg505-d04" ;
+  rdfs:comment "If igniter weak, replace igniter before gas valve." .
+wd:product_oem-whi-wfg505 wd:hasDiagnosticStep wd:step_oem-whi-wfg505-d04 .
+
+wd:part_oem-whi-wfg505-p01 a wd:Part ;
+  rdfs:label "Bake Igniter" ;
+  wd:partNumber "W10918546" ;
+  wd:estimatedCostUsd "52.0"^^xsd:decimal .
+
+wd:part_oem-whi-wfg505-p02 a wd:Part ;
+  rdfs:label "Oven Safety Valve" ;
+  wd:partNumber "W10861612" ;
+  wd:estimatedCostUsd "95.0"^^xsd:decimal .
+
+wd:part_oem-whi-wfg505-p03 a wd:Part ;
+  rdfs:label "Temperature Sensor W10181986" ;
+  wd:partNumber "W10181986" ;
+  wd:estimatedCostUsd "28.0"^^xsd:decimal .
+
+wd:part_oem-whi-wfg505-p04 a wd:Part ;
+  rdfs:label "Surface Burner Spark Electrode" ;
+  wd:partNumber "W11176400" ;
+  wd:estimatedCostUsd "22.0"^^xsd:decimal .
+
+wd:fm_oem-whi-wfg505-fm01 wd:requiresPart wd:part_oem-whi-wfg505-p01 .
+wd:fm_oem-whi-wfg505-fm02 wd:requiresPart wd:part_oem-whi-wfg505-p02 .
+wd:fm_oem-whi-wfg505-fm03 wd:requiresPart wd:part_oem-whi-wfg505-p03 .
+wd:fm_oem-whi-wfg505-fm04 wd:requiresPart wd:part_oem-whi-wfg505-p04 .
+
+# --- Product oem-bos-shpm88 ---
+wd:product_oem-bos-shpm88 a wd:Product ;
+  wd:productId "oem-bos-shpm88" ;
+  wd:name "Bosch SHPM88Z75N 800 Series Dishwasher" ;
+  wd:category "Kitchen" ;
+  wd:brand "Bosch" .
+
+wd:symptom_oem-bos-shpm88-s01 a wd:Symptom ;
+  wd:symptomId "oem-bos-shpm88-s01" ;
+  wd:description "E24 drain error on display" ;
+  wd:severity "high" .
+wd:product_oem-bos-shpm88 wd:hasSymptom wd:symptom_oem-bos-shpm88-s01 .
+
+wd:symptom_oem-bos-shpm88-s02 a wd:Symptom ;
+  wd:symptomId "oem-bos-shpm88-s02" ;
+  wd:description "Dishes not clean; low spray pressure" ;
+  wd:severity "medium" .
+wd:product_oem-bos-shpm88 wd:hasSymptom wd:symptom_oem-bos-shpm88-s02 .
+
+wd:symptom_oem-bos-shpm88-s03 a wd:Symptom ;
+  wd:symptomId "oem-bos-shpm88-s03" ;
+  wd:description "E01 pump failure code" ;
+  wd:severity "high" .
+wd:product_oem-bos-shpm88 wd:hasSymptom wd:symptom_oem-bos-shpm88-s03 .
+
+wd:fm_oem-bos-shpm88-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-bos-shpm88-fm01" ;
+  rdfs:label "Drain Hose Blockage / E24" ;
+  rdfs:comment "Blocked drain hose or air gap." .
+wd:product_oem-bos-shpm88 wd:canHave wd:fm_oem-bos-shpm88-fm01 .
+
+wd:fm_oem-bos-shpm88-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-bos-shpm88-fm02" ;
+  rdfs:label "Circulation Pump Fault / E01" ;
+  rdfs:comment "Main circulation pump failure." .
+wd:product_oem-bos-shpm88 wd:canHave wd:fm_oem-bos-shpm88-fm02 .
+
+wd:fm_oem-bos-shpm88-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-bos-shpm88-fm03" ;
+  rdfs:label "Heat Exchanger Scaling" ;
+  rdfs:comment "Hard water scale reducing heat transfer." .
+wd:product_oem-bos-shpm88 wd:canHave wd:fm_oem-bos-shpm88-fm03 .
+
+wd:symptom_oem-bos-shpm88-s01 wd:indicates wd:fm_oem-bos-shpm88-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-bos-shpm88-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-bos-shpm88-fm01 ; wd:confidence "0.92"^^xsd:decimal .
+
+wd:symptom_oem-bos-shpm88-s02 wd:indicates wd:fm_oem-bos-shpm88-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-bos-shpm88-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-bos-shpm88-fm02 ; wd:confidence "0.85"^^xsd:decimal .
+
+wd:symptom_oem-bos-shpm88-s03 wd:indicates wd:fm_oem-bos-shpm88-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-bos-shpm88-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-bos-shpm88-fm02 ; wd:confidence "0.94"^^xsd:decimal .
+
+wd:step_oem-bos-shpm88-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-bos-shpm88-d01" ;
+  rdfs:comment "Verify drain hose loop and air gap per install guide." .
+wd:product_oem-bos-shpm88 wd:hasDiagnosticStep wd:step_oem-bos-shpm88-d01 .
+
+wd:step_oem-bos-shpm88-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-bos-shpm88-d02" ;
+  rdfs:comment "Run Bosch test program for pump operation." .
+wd:product_oem-bos-shpm88 wd:hasDiagnosticStep wd:step_oem-bos-shpm88-d02 .
+
+wd:step_oem-bos-shpm88-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-bos-shpm88-d03" ;
+  rdfs:comment "Inspect heat exchanger and run machine care cycle." .
+wd:product_oem-bos-shpm88 wd:hasDiagnosticStep wd:step_oem-bos-shpm88-d03 .
+
+wd:part_oem-bos-shpm88-p01 a wd:Part ;
+  rdfs:label "Drain Hose Kit" ;
+  wd:partNumber "00611468" ;
+  wd:estimatedCostUsd "28.0"^^xsd:decimal .
+
+wd:part_oem-bos-shpm88-p02 a wd:Part ;
+  rdfs:label "Circulation Pump" ;
+  wd:partNumber "12004119" ;
+  wd:estimatedCostUsd "165.0"^^xsd:decimal .
+
+wd:part_oem-bos-shpm88-p03 a wd:Part ;
+  rdfs:label "Heat Exchanger" ;
+  wd:partNumber "12008380" ;
+  wd:estimatedCostUsd "120.0"^^xsd:decimal .
+
+wd:fm_oem-bos-shpm88-fm01 wd:requiresPart wd:part_oem-bos-shpm88-p01 .
+wd:fm_oem-bos-shpm88-fm02 wd:requiresPart wd:part_oem-bos-shpm88-p02 .
+wd:fm_oem-bos-shpm88-fm03 wd:requiresPart wd:part_oem-bos-shpm88-p03 .
+
+# --- Product oem-ge-jvm3160 ---
+wd:product_oem-ge-jvm3160 a wd:Product ;
+  wd:productId "oem-ge-jvm3160" ;
+  wd:name "GE JVM3160RFSS Over-the-Range Microwave" ;
+  wd:category "Kitchen" ;
+  wd:brand "GE" .
+
+wd:symptom_oem-ge-jvm3160-s01 a wd:Symptom ;
+  wd:symptomId "oem-ge-jvm3160-s01" ;
+  wd:description "Microwave runs but does not heat food" ;
+  wd:severity "critical" .
+wd:product_oem-ge-jvm3160 wd:hasSymptom wd:symptom_oem-ge-jvm3160-s01 .
+
+wd:symptom_oem-ge-jvm3160-s02 a wd:Symptom ;
+  wd:symptomId "oem-ge-jvm3160-s02" ;
+  wd:description "Door error or won't start when door closed" ;
+  wd:severity "high" .
+wd:product_oem-ge-jvm3160 wd:hasSymptom wd:symptom_oem-ge-jvm3160-s02 .
+
+wd:symptom_oem-ge-jvm3160-s03 a wd:Symptom ;
+  wd:symptomId "oem-ge-jvm3160-s03" ;
+  wd:description "Turntable not rotating" ;
+  wd:severity "low" .
+wd:product_oem-ge-jvm3160 wd:hasSymptom wd:symptom_oem-ge-jvm3160-s03 .
+
+wd:fm_oem-ge-jvm3160-fm01 a wd:FailureMode ;
+  wd:failureModeId "oem-ge-jvm3160-fm01" ;
+  rdfs:label "Magnetron or HV Diode Failure" ;
+  rdfs:comment "No microwave energy produced." .
+wd:product_oem-ge-jvm3160 wd:canHave wd:fm_oem-ge-jvm3160-fm01 .
+
+wd:fm_oem-ge-jvm3160-fm02 a wd:FailureMode ;
+  wd:failureModeId "oem-ge-jvm3160-fm02" ;
+  rdfs:label "Door Switch Interlock Fault" ;
+  rdfs:comment "Primary or monitor switch fails continuity." .
+wd:product_oem-ge-jvm3160 wd:canHave wd:fm_oem-ge-jvm3160-fm02 .
+
+wd:fm_oem-ge-jvm3160-fm03 a wd:FailureMode ;
+  wd:failureModeId "oem-ge-jvm3160-fm03" ;
+  rdfs:label "Turntable Motor Failure" ;
+  rdfs:comment "Coupler or motor not driving turntable." .
+wd:product_oem-ge-jvm3160 wd:canHave wd:fm_oem-ge-jvm3160-fm03 .
+
+wd:symptom_oem-ge-jvm3160-s01 wd:indicates wd:fm_oem-ge-jvm3160-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-ge-jvm3160-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-ge-jvm3160-fm01 ; wd:confidence "0.94"^^xsd:decimal .
+
+wd:symptom_oem-ge-jvm3160-s02 wd:indicates wd:fm_oem-ge-jvm3160-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-ge-jvm3160-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-ge-jvm3160-fm02 ; wd:confidence "0.91"^^xsd:decimal .
+
+wd:symptom_oem-ge-jvm3160-s03 wd:indicates wd:fm_oem-ge-jvm3160-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_oem-ge-jvm3160-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_oem-ge-jvm3160-fm03 ; wd:confidence "0.88"^^xsd:decimal .
+
+wd:step_oem-ge-jvm3160-d01 a wd:DiagnosticStep ;
+  rdfs:label "oem-ge-jvm3160-d01" ;
+  rdfs:comment "Heat 1 cup water 60 seconds; measure temperature rise." .
+wd:product_oem-ge-jvm3160 wd:hasDiagnosticStep wd:step_oem-ge-jvm3160-d01 .
+
+wd:step_oem-ge-jvm3160-d02 a wd:DiagnosticStep ;
+  rdfs:label "oem-ge-jvm3160-d02" ;
+  rdfs:comment "Test door switch continuity with multimeter." .
+wd:product_oem-ge-jvm3160 wd:hasDiagnosticStep wd:step_oem-ge-jvm3160-d02 .
+
+wd:step_oem-ge-jvm3160-d03 a wd:DiagnosticStep ;
+  rdfs:label "oem-ge-jvm3160-d03" ;
+  rdfs:comment "Inspect turntable coupler and motor shaft." .
+wd:product_oem-ge-jvm3160 wd:hasDiagnosticStep wd:step_oem-ge-jvm3160-d03 .
+
+wd:part_oem-ge-jvm3160-p01 a wd:Part ;
+  rdfs:label "Magnetron Assembly" ;
+  wd:partNumber "WB27X11213" ;
+  wd:estimatedCostUsd "105.0"^^xsd:decimal .
+
+wd:part_oem-ge-jvm3160-p02 a wd:Part ;
+  rdfs:label "Door Switch Kit" ;
+  wd:partNumber "WB24X829" ;
+  wd:estimatedCostUsd "38.0"^^xsd:decimal .
+
+wd:part_oem-ge-jvm3160-p03 a wd:Part ;
+  rdfs:label "Turntable Motor" ;
+  wd:partNumber "WB26X10038" ;
+  wd:estimatedCostUsd "22.0"^^xsd:decimal .
+
+wd:fm_oem-ge-jvm3160-fm01 wd:requiresPart wd:part_oem-ge-jvm3160-p01 .
+wd:fm_oem-ge-jvm3160-fm02 wd:requiresPart wd:part_oem-ge-jvm3160-p02 .
+wd:fm_oem-ge-jvm3160-fm03 wd:requiresPart wd:part_oem-ge-jvm3160-p03 .
+
+# --- Product ice-001 ---
+wd:product_ice-001 a wd:Product ;
+  wd:productId "ice-001" ;
+  wd:name "FrostBite Compact Ice Maker 12kg" ;
+  wd:category "Kitchen" ;
+  wd:brand "FrostBite" .
+
+wd:symptom_ice-s01 a wd:Symptom ;
+  wd:symptomId "ice-s01" ;
+  wd:description "Ice maker not producing ice" ;
+  wd:severity "high" .
+wd:product_ice-001 wd:hasSymptom wd:symptom_ice-s01 .
+
+wd:symptom_ice-s02 a wd:Symptom ;
+  wd:symptomId "ice-s02" ;
+  wd:description "Error code E07 on ice maker display" ;
+  wd:severity "medium" .
+wd:product_ice-001 wd:hasSymptom wd:symptom_ice-s02 .
+
+wd:symptom_ice-s03 a wd:Symptom ;
+  wd:symptomId "ice-s03" ;
+  wd:description "Ice bin never fills / harvest cycle incomplete" ;
+  wd:severity "medium" .
+wd:product_ice-001 wd:hasSymptom wd:symptom_ice-s03 .
+
+wd:symptom_ice-s04 a wd:Symptom ;
+  wd:symptomId "ice-s04" ;
+  wd:description "Only small cloudy ice cubes produced" ;
+  wd:severity "low" .
+wd:product_ice-001 wd:hasSymptom wd:symptom_ice-s04 .
+
+wd:fm_ice-fm01 a wd:FailureMode ;
+  wd:failureModeId "ice-fm01" ;
+  rdfs:label "Water Inlet Valve Failure" ;
+  rdfs:comment "Inlet valve stuck closed; no water reaches the ice mold." .
+wd:product_ice-001 wd:canHave wd:fm_ice-fm01 .
+
+wd:fm_ice-fm02 a wd:FailureMode ;
+  wd:failureModeId "ice-fm02" ;
+  rdfs:label "Frozen Fill Tube" ;
+  rdfs:comment "Fill tube iced over, blocking water fill into mold." .
+wd:product_ice-001 wd:canHave wd:fm_ice-fm02 .
+
+wd:fm_ice-fm03 a wd:FailureMode ;
+  wd:failureModeId "ice-fm03" ;
+  rdfs:label "Bin Full Sensor Fault" ;
+  rdfs:comment "Sensor incorrectly reports bin full; harvest never starts." .
+wd:product_ice-001 wd:canHave wd:fm_ice-fm03 .
+
+wd:symptom_ice-s01 wd:indicates wd:fm_ice-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_ice-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_ice-fm01 ; wd:confidence "0.92"^^xsd:decimal .
+
+wd:symptom_ice-s01 wd:indicates wd:fm_ice-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_ice-s01 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_ice-fm02 ; wd:confidence "0.75"^^xsd:decimal .
+
+wd:symptom_ice-s02 wd:indicates wd:fm_ice-fm01 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_ice-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_ice-fm01 ; wd:confidence "0.88"^^xsd:decimal .
+
+wd:symptom_ice-s02 wd:indicates wd:fm_ice-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_ice-s02 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_ice-fm02 ; wd:confidence "0.7"^^xsd:decimal .
+
+wd:symptom_ice-s03 wd:indicates wd:fm_ice-fm03 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_ice-s03 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_ice-fm03 ; wd:confidence "0.91"^^xsd:decimal .
+
+wd:symptom_ice-s04 wd:indicates wd:fm_ice-fm02 .
+[] a owl:Axiom ; owl:annotatedSource wd:symptom_ice-s04 ; owl:annotatedProperty wd:indicates ; owl:annotatedTarget wd:fm_ice-fm02 ; wd:confidence "0.65"^^xsd:decimal .
+
+wd:step_ice-d01 a wd:DiagnosticStep ;
+  rdfs:label "ice-d01" ;
+  rdfs:comment "Verify water supply and listen for inlet valve click during fill." .
+wd:product_ice-001 wd:hasDiagnosticStep wd:step_ice-d01 .
+
+wd:step_ice-d02 a wd:DiagnosticStep ;
+  rdfs:label "ice-d02" ;
+  rdfs:comment "Inspect fill tube for ice blockage." .
+wd:product_ice-001 wd:hasDiagnosticStep wd:step_ice-d02 .
+
+wd:step_ice-d03 a wd:DiagnosticStep ;
+  rdfs:label "ice-d03" ;
+  rdfs:comment "Check bin full sensor continuity and alignment." .
+wd:product_ice-001 wd:hasDiagnosticStep wd:step_ice-d03 .
+
+wd:step_ice-d04 a wd:DiagnosticStep ;
+  rdfs:label "ice-d04" ;
+  rdfs:comment "Run forced harvest cycle and observe mold fill level." .
+wd:product_ice-001 wd:hasDiagnosticStep wd:step_ice-d04 .
+
+wd:part_ice-p01 a wd:Part ;
+  rdfs:label "Water Inlet Valve" ;
+  wd:partNumber "FB-WIV-12" ;
+  wd:estimatedCostUsd "34.0"^^xsd:decimal .
+
+wd:part_ice-p02 a wd:Part ;
+  rdfs:label "Fill Tube Assembly" ;
+  wd:partNumber "FB-FT-12" ;
+  wd:estimatedCostUsd "18.5"^^xsd:decimal .
+
+wd:part_ice-p03 a wd:Part ;
+  rdfs:label "Bin Full Sensor" ;
+  wd:partNumber "FB-BFS-12" ;
+  wd:estimatedCostUsd "22.0"^^xsd:decimal .
+
+wd:fm_ice-fm01 wd:requiresPart wd:part_ice-p01 .
+wd:fm_ice-fm02 wd:requiresPart wd:part_ice-p02 .
+wd:fm_ice-fm03 wd:requiresPart wd:part_ice-p03 .
+
 wd:asset_AST-WM-4421 a wd:Asset ;
   rdfs:label "AH-WM8K-2023-99421" .
 wd:asset_AST-WM-4421 wd:instanceOf wd:product_wm-001 .
@@ -443,36 +1786,6 @@ wd:asset_AST-MW-7702 wd:instanceOf wd:product_mw-001 .
 wd:asset_AST-MW-7702 wd:boundToSku wd:sku_SKU-MW25-2024 .
 wd:asset_AST-MW-7702 wd:coveredBy wd:policy_WP-STANDARD-24M .
 
-wd:asset_AST-SAM-WF45-001 a wd:Asset ;
-  rdfs:label "SAM-WF45T6000AW-2022-88001" .
-wd:asset_AST-SAM-WF45-001 wd:instanceOf wd:product_oem-sam-wf45 .
-wd:asset_AST-SAM-WF45-001 wd:boundToSku wd:sku_SKU-SAM-WF45-2022 .
-wd:asset_AST-SAM-WF45-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
-
-wd:asset_AST-LG-DW-001 a wd:Asset ;
-  rdfs:label "LG-LDF5545ST-2021-22001" .
-wd:asset_AST-LG-DW-001 wd:instanceOf wd:product_oem-lg-ldf5545 .
-wd:asset_AST-LG-DW-001 wd:boundToSku wd:sku_SKU-LG-LDF5545-2021 .
-wd:asset_AST-LG-DW-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
-
-wd:asset_AST-SAM-RF28-001 a wd:Asset ;
-  rdfs:label "SAM-RF28R7351SG-2021-55001" .
-wd:asset_AST-SAM-RF28-001 wd:instanceOf wd:product_oem-sam-rf28 .
-wd:asset_AST-SAM-RF28-001 wd:boundToSku wd:sku_SKU-SAM-RF28-2021 .
-wd:asset_AST-SAM-RF28-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
-
-wd:asset_AST-LG-DLE-001 a wd:Asset ;
-  rdfs:label "LG-DLE3400W-2022-77001" .
-wd:asset_AST-LG-DLE-001 wd:instanceOf wd:product_oem-lg-dle3400 .
-wd:asset_AST-LG-DLE-001 wd:boundToSku wd:sku_SKU-LG-DLE3400-2022 .
-wd:asset_AST-LG-DLE-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
-
-wd:asset_AST-WHI-RNG-001 a wd:Asset ;
-  rdfs:label "WHI-WFG505M0BS-2023-12001" .
-wd:asset_AST-WHI-RNG-001 wd:instanceOf wd:product_oem-whi-wfg505 .
-wd:asset_AST-WHI-RNG-001 wd:boundToSku wd:sku_SKU-WHI-WFG505-2023 .
-wd:asset_AST-WHI-RNG-001 wd:coveredBy wd:policy_WP-STANDARD-24M .
-
 wd:policy_WP-STANDARD-24M a wd:WarrantyPolicy ;
   rdfs:label "Standard 24-month manufacturer warranty" .
 
@@ -487,9 +1800,3 @@ wd:claim_CLM-2025-01933 a wd:Claim ;
   rdfs:comment "Waveguide cover replaced; arcing resolved." .
 wd:claim_CLM-2025-01933 wd:confirmed wd:fm_mw-fm02 .
 wd:claim_CLM-2025-01933 wd:usedPart wd:part_mw-p02 .
-
-wd:claim_CLM-2026-00812 a wd:Claim ;
-  rdfs:label "CLM-2026-00812" ;
-  rdfs:comment "Pump filter cleaned; drain pump replaced under warranty." .
-wd:claim_CLM-2026-00812 wd:confirmed wd:fm_oem-sam-wf45-fm01 .
-wd:claim_CLM-2026-00812 wd:usedPart wd:part_oem-sam-wf45-p01 .

@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "dry-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 AirFlow Heat Pump Dryer 8kg",
+  "change_type": "new_product",
+  "primary_symptom": "Clothes remain damp after full cycle",
+  "primary_error_code": "E66",
+  "brand": "AirFlow",
+  "model_number": "AF-HP8"
+}

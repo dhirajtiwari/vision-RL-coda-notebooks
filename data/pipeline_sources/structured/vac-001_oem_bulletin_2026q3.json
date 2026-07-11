@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "vac-001",
+  "bulletin_id": "TB-RC-VAC-2026-07",
+  "primary_symptom": "Vacuum loses suction after brush-roll firmware update",
+  "primary_error_code": "E12",
+  "note": "UPDATE artifact \u2014 Brush-Roll Stall Detection Too Sensitive (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

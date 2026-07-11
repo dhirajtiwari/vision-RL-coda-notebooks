@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "vac-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 RoboClean Stick Vacuum Pro",
+  "change_type": "new_product",
+  "primary_symptom": "Loss of suction / brush roll stops",
+  "primary_error_code": "E12",
+  "brand": "RoboClean",
+  "model_number": "RC-SV90"
+}

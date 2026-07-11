@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "ice-001",
+  "bulletin_id": "TB-FB-ICE-2026-07",
+  "primary_symptom": "Ice maker harvests empty trays after water filter change",
+  "primary_error_code": "E07",
+  "note": "UPDATE artifact \u2014 Post-Filter Airlock / Inlet Restriction (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

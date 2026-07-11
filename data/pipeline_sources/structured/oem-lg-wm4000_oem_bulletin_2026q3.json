@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "oem-lg-wm4000",
+  "bulletin_id": "TB-LG-WM4000-2026-07",
+  "primary_symptom": "LG washer OE error on drain after pump replacement with revised pump",
+  "primary_error_code": "OE",
+  "note": "UPDATE artifact \u2014 Revised Drain Pump Air Gap (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

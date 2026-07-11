@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-WHI-WFG-2026-07
+Product: oem-whi-wfg505 · Brand: Whirlpool · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Range oven F9 E0 after igniter redesign
+Root cause (bulletin): Igniter Current Window Shift (Bulletin)
+Whirlpool: new igniter current window requires control calibration jumpers.
+
+Diagnostic: Set control jumpers and verify igniter mA per chart
+Parts: Igniter calibration jumper (IGN-JMP-WFG)
+Error code focus: F9E0
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

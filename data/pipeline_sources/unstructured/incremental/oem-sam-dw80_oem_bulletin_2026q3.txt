@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-SAM-DW80-2026-07
+Product: oem-sam-dw80 · Brand: Samsung · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Samsung dishwasher LC leak code with no visible water
+Root cause (bulletin): Condensation on Floor Sensor (Bulletin)
+Bulletin: condensation path hits leak sensor; foam seal kit issued.
+
+Diagnostic: Install base foam seal and dry sensor per bulletin
+Parts: Base foam seal kit (FS-DW80-B)
+Error code focus: LC
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

@@ -1,0 +1,10 @@
+{
+  "source": "PIM",
+  "product_id": "hob-001",
+  "note": "NEW product onboard candidate 2026-Q3 \u2014 SparkLine Induction Hob 4-Zone",
+  "change_type": "new_product",
+  "primary_symptom": "Zone flashes and will not heat pan",
+  "primary_error_code": "E9",
+  "brand": "SparkLine",
+  "model_number": "SL-IH4"
+}

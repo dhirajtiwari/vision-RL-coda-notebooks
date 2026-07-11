@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "ac-001",
+  "bulletin_id": "TB-CA-PAC-2026-07",
+  "primary_symptom": "Portable AC E41 after mid-season filter wash",
+  "primary_error_code": "E41",
+  "note": "UPDATE artifact \u2014 Wet Filter Restriction / High Pressure (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

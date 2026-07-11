@@ -1,0 +1,8 @@
+Service manual excerpt — SparkLine Induction Hob 4-Zone (hob-001)
+
+Model SL-IH4 · Brand SparkLine · MY2026
+
+If the unit shows error E9 (Pan detection fault), inspect the Power Stage.
+Primary field failure: Induction Coil Driver Fault. Replace Induction Coil Board (SL-ICB-4) when confirmed.
+Customer may report: Zone flashes and will not heat pan.
+Always disconnect power before opening the chassis.

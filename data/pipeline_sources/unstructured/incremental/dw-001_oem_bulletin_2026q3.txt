@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-CW-DW-2026-07
+Product: dw-001 · Brand: CleanWave · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Dishwasher beeps and will not start dry cycle after door latch service kit
+Root cause (bulletin): Door Latch Switch Drift (Bulletin)
+OEM bulletin: revised latch microswitch can mis-report door closed after kit install.
+
+Diagnostic: Check latch continuity and bulletin torque on strike plate
+Parts: Door latch microswitch (DL-MS-12-B)
+Error code focus: E04
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

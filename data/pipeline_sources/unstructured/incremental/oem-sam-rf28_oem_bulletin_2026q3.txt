@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-SAM-RF28-2026-07
+Product: oem-sam-rf28 · Brand: Samsung · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Samsung fridge 22E after ice room fan bulletin kit
+Root cause (bulletin): Ice Room Fan Connector Polarization (Bulletin)
+Samsung bulletin: kit fan connector polarity reverse causes 22E.
+
+Diagnostic: Verify connector keying and polarity marks per bulletin
+Parts: Polarized fan connector (IF-CONN-RF28-B)
+Error code focus: 22E
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

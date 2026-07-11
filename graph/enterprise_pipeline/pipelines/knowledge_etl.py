@@ -29,6 +29,7 @@ class ETLReport:
     partition_keys: list[str] = field(default_factory=list)
     product_partitions: int = 1
     connector_workers: int = 1
+    product_summaries: list[dict] = field(default_factory=list)
 
 
 def _summarize(result: ConnectorResult) -> dict:
@@ -45,7 +46,68 @@ def _fetch_connector(item: tuple[str, object]) -> tuple[str, ConnectorResult]:
     return name, conn.fetch()  # type: ignore[attr-defined]
 
 
-def run_knowledge_etl(*, load_neo4j: bool = False, dry_run: bool = False) -> ETLReport:
+def _merge_selected_products(
+    built_catalog: dict,
+    *,
+    product_ids: list[str] | None,
+) -> tuple[dict, list[str]]:
+    """
+    When product_ids is set, upsert *only* those bundles into the existing
+    enterprise catalog (do not wipe unselected products). Returns (catalog, applied_ids).
+    """
+    from runtime.partitioning import product_id_from_record
+
+    if not product_ids:
+        return built_catalog, [
+            str(pid)
+            for p in (built_catalog.get("products") or [])
+            if isinstance(p, dict) and (pid := product_id_from_record(p))
+        ]
+
+    allow = {str(x) for x in product_ids}
+    selected_rows = []
+    for p in built_catalog.get("products") or []:
+        if not isinstance(p, dict):
+            continue
+        pid = product_id_from_record(p)
+        if pid and str(pid) in allow:
+            selected_rows.append(p)
+
+    existing: dict = {"products": []}
+    if settings.enterprise_catalog_file.exists():
+        try:
+            existing = json.loads(settings.enterprise_catalog_file.read_text(encoding="utf-8"))
+        except Exception:
+            existing = {"products": []}
+
+    by_id: dict[str, dict] = {}
+    for p in existing.get("products") or []:
+        if isinstance(p, dict) and (pid := product_id_from_record(p)):
+            by_id[str(pid)] = p
+    applied: list[str] = []
+    for p in selected_rows:
+        pid = product_id_from_record(p)
+        if pid:
+            by_id[str(pid)] = p
+            applied.append(str(pid))
+
+    out = dict(existing)
+    out["products"] = list(by_id.values())
+    out["etl_batch_id"] = built_catalog.get("etl_batch_id") or existing.get("etl_batch_id")
+    out["selection_filter"] = {
+        "requested": sorted(allow),
+        "applied": applied,
+        "note": "Only selected product ABox bundles were upserted into the catalog",
+    }
+    return out, applied
+
+
+def run_knowledge_etl(
+    *,
+    load_neo4j: bool = False,
+    dry_run: bool = False,
+    product_ids: list[str] | None = None,
+) -> ETLReport:
     report = ETLReport(batch_id=new_batch_id())
     connectors = {
         "PIM": PIMConnector(),
@@ -81,10 +143,14 @@ def run_knowledge_etl(*, load_neo4j: bool = False, dry_run: bool = False) -> ETL
     catalog = builder.build_catalog_payload(
         pim=fetched["PIM"], fsm=fetched["FSM"], claims=fetched["Claims"], crm=fetched.get("CRM")
     )
+    # Optional Admin selection: merge only selected products into existing catalog
+    catalog, applied_ids = _merge_selected_products(catalog, product_ids=product_ids)
     report.product_count = len(catalog.get("products", []))
-    product_ids = [pid for p in catalog.get("products", []) if (pid := product_id_from_record(p)) is not None]
+    all_ids = [pid for p in catalog.get("products", []) if (pid := product_id_from_record(p)) is not None]
     chunk_size = int(settings.etl_product_batch_size)
-    product_chunks = batch_items(product_ids, chunk_size) if chunk_size > 0 else [product_ids]
+    # Partition work by selection when present (enterprise batching)
+    partition_ids = applied_ids if product_ids else all_ids
+    product_chunks = batch_items(partition_ids, chunk_size) if chunk_size > 0 else [partition_ids]
     report.product_partitions = max(1, len(product_chunks))
     for idx, chunk in enumerate(product_chunks):
         label = chunk[0] if len(chunk) == 1 else f"chunk-{idx}-n{len(chunk)}"
@@ -92,10 +158,29 @@ def run_knowledge_etl(*, load_neo4j: bool = False, dry_run: bool = False) -> ETL
             partition_for_etl(batch_id=report.batch_id, source_system="TRANSFORM", product_id=label)
         )
 
+    # Product summaries for Admin change-preview (always useful; cheap vs Neo4j load)
+    try:
+        from graph.enterprise_pipeline.change_preview import catalog_products_from_etl_payload
+
+        # Summaries of *built* selection or full catalog
+        report.product_summaries = catalog_products_from_etl_payload(catalog)
+        if product_ids and applied_ids:
+            report.product_summaries = [s for s in report.product_summaries if s.get("product_id") in set(applied_ids)]
+    except Exception:
+        report.product_summaries = []
+
     if dry_run:
         log_batch(
-            pipeline="knowledge_etl", status="dry_run", product_count=report.product_count, sources=report.sources
+            pipeline="knowledge_etl",
+            status="dry_run",
+            product_count=len(applied_ids) if product_ids else report.product_count,
+            sources=report.sources,
         )
+        return report
+
+    if product_ids and not applied_ids:
+        report.errors.append(f"None of the selected product_ids were found in PIM/catalog build: {sorted(product_ids)}")
+        log_batch(pipeline="knowledge_etl", status="failed", errors=report.errors, sources=report.sources)
         return report
 
     settings.enterprise_catalog_file.parent.mkdir(parents=True, exist_ok=True)
@@ -106,7 +191,19 @@ def run_knowledge_etl(*, load_neo4j: bool = False, dry_run: bool = False) -> ETL
     if load_neo4j:
         driver = get_driver()
         try:
-            report.entity_counts = populate_graph(driver, catalog, etl_batch_id=report.batch_id)
+            # Promote only selected slices when filter set
+            load_catalog = catalog
+            if product_ids and applied_ids:
+                allow = set(applied_ids)
+                load_catalog = {
+                    **catalog,
+                    "products": [
+                        p
+                        for p in catalog.get("products") or []
+                        if (pid := product_id_from_record(p)) and str(pid) in allow
+                    ],
+                }
+            report.entity_counts = populate_graph(driver, load_catalog, etl_batch_id=report.batch_id)
             report.neo4j_loaded = True
             # Knowledge graph changed — drop read caches so API serves fresh subgraphs.
             invalidate_all_named_caches()

@@ -1,0 +1,10 @@
+{
+  "source": "OEM_BULLETIN",
+  "change_type": "product_update",
+  "product_id": "pur-001",
+  "bulletin_id": "TB-PR-HP-2026-07",
+  "primary_symptom": "Purifier F02 immediately after genuine filter install",
+  "primary_error_code": "F02",
+  "note": "UPDATE artifact \u2014 Filter RFID Orientation (Bulletin)",
+  "generated_at": "2026-07-11T11:50:23.820029+00:00"
+}

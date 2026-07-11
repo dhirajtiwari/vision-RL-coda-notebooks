@@ -1,0 +1,14 @@
+OEM SERVICE BULLETIN TB-BT-BL-2026-07
+Product: fan-001 · Brand: BreezeTower · Pack: OEM-BULL-2026-Q3
+Change type: product_update (existing product — not new SKU onboard)
+
+Field issue: Bladeless fan E03 oscillation only after summer dust event
+Root cause (bulletin): Inlet Mesh Clog (Bulletin)
+BreezeTower care bulletin: fine dust clogs inlet mesh tripping E03.
+
+Diagnostic: Remove and wash inlet mesh; reset E03
+Parts: Inlet mesh filter (BT-MESH-60)
+Error code focus: E03
+
+Technicians must not invent new ontology classes — add instance data under existing TBox
+(Product, Symptom, FailureMode, Part, DiagnosticStep) only.

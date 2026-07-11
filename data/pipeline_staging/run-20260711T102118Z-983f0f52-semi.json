@@ -1,0 +1,219 @@
+{
+  "work_orders": [
+    {
+      "record_type": "work_order_delta",
+      "product_id": "wm-001",
+      "symptom_id": "wm-s03",
+      "confirmed_failure_mode_id": "wm-fm02",
+      "resolution_summary": "Replaced drain pump",
+      "closed_date": "2026-03-01",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "symptom_id": "wm-s03",
+        "failure_mode_id": "wm-fm02",
+        "resolution": "Replaced drain pump",
+        "closed_date": "2026-03-01"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "wm-001",
+      "symptom_id": "wm-s01",
+      "confirmed_failure_mode_id": "wm-fm01",
+      "resolution_summary": "Bearing kit install",
+      "closed_date": "2026-03-05",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "symptom_id": "wm-s01",
+        "failure_mode_id": "wm-fm01",
+        "resolution": "Bearing kit install",
+        "closed_date": "2026-03-05"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "dw-001",
+      "symptom_id": "dw-s01",
+      "confirmed_failure_mode_id": "dw-fm01",
+      "resolution_summary": "Heating element",
+      "closed_date": "2026-03-08",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dw-001",
+        "symptom_id": "dw-s01",
+        "failure_mode_id": "dw-fm01",
+        "resolution": "Heating element",
+        "closed_date": "2026-03-08"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "mw-001",
+      "symptom_id": "mw-s02",
+      "confirmed_failure_mode_id": "mw-fm02",
+      "resolution_summary": "Waveguide cover",
+      "closed_date": "2026-03-10",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "mw-001",
+        "symptom_id": "mw-s02",
+        "failure_mode_id": "mw-fm02",
+        "resolution": "Waveguide cover",
+        "closed_date": "2026-03-10"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ice-001",
+      "symptom_id": "ice-s01",
+      "confirmed_failure_mode_id": "ice-fm01",
+      "resolution_summary": "Replaced water inlet valve",
+      "closed_date": "2026-04-02",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "symptom_id": "ice-s01",
+        "failure_mode_id": "ice-fm01",
+        "resolution": "Replaced water inlet valve",
+        "closed_date": "2026-04-02"
+      }
+    },
+    {
+      "record_type": "work_order_delta",
+      "product_id": "ice-001",
+      "symptom_id": "ice-s02",
+      "confirmed_failure_mode_id": "ice-fm02",
+      "resolution_summary": "Cleared frozen fill tube; insulated line",
+      "closed_date": "2026-04-10",
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "symptom_id": "ice-s02",
+        "failure_mode_id": "ice-fm02",
+        "resolution": "Cleared frozen fill tube; insulated line",
+        "closed_date": "2026-04-10"
+      }
+    }
+  ],
+  "parts": [
+    {
+      "record_type": "part_delta",
+      "product_id": "wm-001",
+      "part_id": "wm-p02",
+      "part_number": "DP-8K-01",
+      "name": "Drain pump",
+      "estimated_cost_usd": 89.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "part_id": "wm-p02",
+        "part_number": "DP-8K-01",
+        "name": "Drain pump",
+        "cost": "89.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "wm-001",
+      "part_id": "wm-p01",
+      "part_number": "BRG-8K-01",
+      "name": "Drum bearing kit",
+      "estimated_cost_usd": 120.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "wm-001",
+        "part_id": "wm-p01",
+        "part_number": "BRG-8K-01",
+        "name": "Drum bearing kit",
+        "cost": "120.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "dw-001",
+      "part_id": "dw-p01",
+      "part_number": "HE-12-01",
+      "name": "Heating element",
+      "estimated_cost_usd": 75.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "dw-001",
+        "part_id": "dw-p01",
+        "part_number": "HE-12-01",
+        "name": "Heating element",
+        "cost": "75.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "mw-001",
+      "part_id": "mw-p02",
+      "part_number": "WG-25-01",
+      "name": "Waveguide cover",
+      "estimated_cost_usd": 22.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "mw-001",
+        "part_id": "mw-p02",
+        "part_number": "WG-25-01",
+        "name": "Waveguide cover",
+        "cost": "22.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ice-001",
+      "part_id": "ice-p01",
+      "part_number": "FB-WIV-12",
+      "name": "Water inlet valve",
+      "estimated_cost_usd": 34.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "part_id": "ice-p01",
+        "part_number": "FB-WIV-12",
+        "name": "Water inlet valve",
+        "cost": "34.0"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ice-001",
+      "part_id": "ice-p02",
+      "part_number": "FB-FT-12",
+      "name": "Fill tube assembly",
+      "estimated_cost_usd": 18.5,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "part_id": "ice-p02",
+        "part_number": "FB-FT-12",
+        "name": "Fill tube assembly",
+        "cost": "18.5"
+      }
+    },
+    {
+      "record_type": "part_delta",
+      "product_id": "ice-001",
+      "part_id": "ice-p03",
+      "part_number": "FB-BFS-12",
+      "name": "Bin full sensor",
+      "estimated_cost_usd": 22.0,
+      "source": "semi_structured",
+      "raw": {
+        "product_id": "ice-001",
+        "part_id": "ice-p03",
+        "part_number": "FB-BFS-12",
+        "name": "Bin full sensor",
+        "cost": "22.0"
+      }
+    }
+  ],
+  "artifacts": [
+    "/Users/dhiraj/diagnosis-chatbot-demo/diagnostic-chatbot/data/pipeline_sources/semi_structured/bootstrap/parts_delta.csv",
+    "/Users/dhiraj/diagnosis-chatbot-demo/diagnostic-chatbot/data/pipeline_sources/semi_structured/bootstrap/work_orders.jsonl"
+  ],
+  "record_count": 13
+}
