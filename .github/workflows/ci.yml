@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "feature/**"]
   pull_request:
-    branches: [main]
+    branches: [main, "feature/**"]
 
 permissions:
   contents: read
@@ -53,6 +53,15 @@ jobs:
         run: pip-audit -r requirements.txt --strict || echo "::warning::pip-audit found advisories (non-blocking)"
         continue-on-error: true
 
+      - name: Multi-source packs + TBox/ABox discipline (no Neo4j required)
+        # Gates for hmd-001 / esp-001 source inventory, OntologyBuilder rich ABox,
+        # shape validation under shared TBox, tbox_extension detection, change preview.
+        run: |
+          pytest tests/test_multi_source_tbox_abox.py tests/test_pipeline_integration.py \
+            tests/test_kg_ingestion_pipelines.py tests/test_warranty_ontology.py \
+            tests/test_rdf_ontology_export.py tests/test_runtime.py \
+            -q --tb=short
+
       - name: Run tests (with coverage)
         run: pytest tests/ -q --tb=short --cov=. --cov-report=xml --cov-report=term-missing
 
@@ -61,6 +70,15 @@ jobs:
         # golden suite auto-skips when Neo4j is absent in CI. A nightly job runs
         # the full gate against a live graph (see eval-nightly.yml).
         run: python evals/run_eval.py --suite smoke
+
+      - name: Docs present for multi-source / TBox mechanism
+        run: |
+          test -f docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md
+          test -f data/pipeline_sources/ESP_001_MULTI_SOURCE_MANIFEST.json
+          test -f data/pipeline_sources/HMD_001_MULTI_SOURCE_MANIFEST.json
+          grep -q "TBox" docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md
+          grep -q "esp-001" todo.md
+          grep -q "26. Gap research" todo.md || grep -q "Gap research" todo.md
 
   frontend:
     runs-on: ubuntu-latest

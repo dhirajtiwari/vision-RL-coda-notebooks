@@ -743,28 +743,34 @@ Copy this section into a new repo’s `todo.md` and re-check boxes as you implem
 
 ## 19. Open / next work (realistic, not vapor)
 
-Use this as the **true backlog** if continuing this product:
+Use this as the **true backlog** if continuing this product.
+**Full research (why each gap has value):** **§26**.
 
-| Priority | Item | Status |
-|----------|------|--------|
-| P0 | End-user AuthN/Z (OIDC/JWT) + real tenant ACL | `[ ]` |
-| P0 | Enforce approval gate on promote in all envs | `[~]` admin token only |
-| P1 | Real enterprise connectors (not mock) | `[ ]` pattern only |
-| P1 | Async ETL workers / job queue | `[ ]` |
-| P1 | Neo4j HA / read replicas | `[ ]` dual env local only |
-| P1 | Postgres for ops data | `[ ]` SQLite today |
-| P1 | Live CDC / event bus (warranty sold → register-asset) | `[ ]` API exists |
-| P2 | OWL reasoner / SHACL validation pipeline | `[ ]` export + UI only |
-| P2 | RDF → Neo4j import as alternate SoR | `[ ]` |
-| P2 | Claim closed-loop learning into INDICATES | `[ ]` |
-| P2 | Part supersession chains (`SUPERSEDES`) | `[ ]` |
-| P2 | Richer conditional NEXT_STEP trees | `[~]` basic trees exist |
-| P2 | Multi-language manuals at scale | `[ ]` |
-| P2 | LLM semantic response cache (if LLM primary) | `[ ]` |
-| P2 | Full LLM NER for unstructured extract | `[~]` regex/heuristics |
-| P3 | C4 workspace reflect reliability/services/domain | `[ ]` F4 nicety |
-| P3 | Graph fabric / multi-DB by OEM | `[ ]` |
-| P3 | Full-text / vector indexes if scale demands | `[ ]` |
+| Priority | Item | Status | Value (one line) |
+|----------|------|--------|------------------|
+| P0 | End-user AuthN/Z (OIDC/JWT) + real tenant ACL | `[ ]` | Commercial security; who can promote/diagnose |
+| P0 | Enforce approval gate on promote in all envs | `[~]` admin token only | Dual control for production KG writes |
+| P1 | Real enterprise connectors (not mock) | `[ ]` pattern only | Continuous ABox from SoR; no hand packs at scale |
+| P1 | Async ETL workers / job queue | `[ ]` | Long extracts without blocking API |
+| P1 | Neo4j HA / read replicas | `[ ]` dual env local only | Chat uptime SLOs |
+| P1 | Postgres for ops data | `[ ]` SQLite today | Multi-writer API replicas |
+| P1 | Live CDC / event bus (warranty sold → register-asset) | `[ ]` API exists | Correct asset on first contact |
+| P1 | Redis multi-replica shared rate/cache/admission | `[~]` code ready, default memory | Correct multi-pod limits |
+| P1 | Hermetic CI (pytest must not dirty fixtures) | `[~]` known pitfall; multi-source CI gate added | Reliable release gates |
+| P1 | Source-pack contract doc + validation only | `[~]` implicit Pydantic | Faster correct multi-source packs |
+| P2 | OWL reasoner / SHACL validation pipeline | `[ ]` export + shapes-lite | Formal governance before promote |
+| P2 | RDF → Neo4j import as alternate SoR | `[ ]` | OEM interchange |
+| P2 | Claim closed-loop learning into INDICATES | `[ ]` | Lower wrong-part rate over time |
+| P2 | Part supersession chains (`SUPERSEDES`) | `[ ]` | Correct replacement part |
+| P2 | Richer conditional NEXT_STEP trees | `[~]` CONFIRMS + basic trees | Service-manual fidelity |
+| P2 | Multi-language manuals at scale | `[ ]` | Global CSP |
+| P2 | LLM semantic response cache (if LLM primary) | `[ ]` | FinOps when LLM on |
+| P2 | Full LLM NER for unstructured extract | `[~]` regex/heuristics | Faster bulletin ingest |
+| P2 | Shrink PRODUCT_KEYWORDS; asset/graph-first bind | `[~]` keywords still used | Less artificial wiring |
+| P2 | OTEL default-on in non-demo | `[~]` optional | Cross-service latency debug |
+| P3 | C4 workspace reflect reliability/services/domain | `[ ]` F4 nicety | Architecture review polish |
+| P3 | Graph fabric / multi-DB by OEM | `[ ]` | Extreme multi-tenant scale |
+| P3 | Full-text / vector indexes if scale demands | `[ ]` | Catalog size ≫ demo |
 
 ---
 
@@ -777,6 +783,7 @@ Use this as the **true backlog** if continuing this product:
 5. **Onboarding engineers** — walk §17 matrix + package encyclopedia (`docs/18`) + **§22 session log**.
 6. **Interviews / design reviews** — multi-volume Vol 02 theory + Vol 03 code + this §1–3.
 7. **Don’t lie to future you** — keep `[ ]` items honest; demos must stay labeled; fixture vs live called out.
+8. **Prioritizing roadmap** — use **§26** gap research (value + industry why), not only §19 short list.
 
 ---
 
@@ -1261,12 +1268,153 @@ Chronological capability delivered **today** (Admin onboard through diagnosis ac
 - [x] `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md` — mechanism + next phases A–E
 - [x] Interview guide + doc 15/21 pointers updated for TBox/ABox multi-source truth
 
-### 25.4 Honest gaps / next (see docs/22 §9)
+### 25.4 Honest gaps / next
 
-- [ ] Phase B: reduce PRODUCT_KEYWORDS dependence; source-pack contract only
-- [ ] Phase C: connector/mock HTTP as primary extract vs static JSON edits
-- [ ] Phase D: formal TBox ADR when unknown keys appear
-- [ ] Phase E: CI tests for pack-vs-TBox + tbox_extension detection
+- See **§26 Gap research** (full inventory, value, industry why)
+- Short pointers: docs/22 §9 phases B–E; §19 backlog table
+
+### 25.5 CI / GitHub Actions (multi-source + TBox/ABox gates) `[x]`
+
+- [x] **`tests/test_multi_source_tbox_abox.py`** — pack inventory, OntologyBuilder rich keys + CRM assets, ABox validate under shared TBox, tbox_extension unknown-key detection, change preview, entity-delta actionable helper, unstructured/keywords for hmd/esp
+- [x] **`tests/test_pipeline_integration.py`** — dry-run ETL product_count ≥ 20 (fleet growth)
+- [x] **`.github/workflows/ci.yml`** — runs on `main` **and** `feature/**` push/PR; dedicated step for multi-source/TBox tests before full suite; docs/manifest presence check
+- [x] Full `pytest tests/` + ruff + frontend + eval smoke still in CI
+
+---
+
+## 26. Gap research — inventory, industry why, and business value
+
+> **Purpose:** One place for *what we do not fully have*, *why enterprises care*, and *what value closing each gap unlocks*.
+> **Legend:** status `[ ]` missing · `[~]` partial/demo · **Value** = customer / ops / risk ROI · **Industry anchor** = practice or standard we align to (not a certification claim).
+> **Rule:** Gaps are **not** “missing ontology per product.” Shared TBox exists; most gaps are **connectors, platform, governance, and scale**.
+
+### 26.1 How to read this research
+
+| Column | Meaning |
+|--------|---------|
+| **Gap** | Capability not complete in this repo |
+| **Current** | What we have today |
+| **Industry why** | Why mature warranty / FS / contact-center platforms invest |
+| **Value if closed** | Concrete outcome for OEM / CSP / demo credibility |
+| **Pri** | P0 must-have for real multi-tenant prod · P1 scale/integration · P2 quality/learning · P3 nice |
+
+---
+
+### 26.2 Identity, security & multi-tenancy
+
+| Gap | Current | Industry why | Value if closed | Pri |
+|-----|---------|--------------|-----------------|-----|
+| **End-user AuthN/Z (OIDC/JWT)** | Demo open Admin/API; optional `X-Admin-Token` only | Zero-trust / least privilege; contact-center agents are named users; audit who promoted | Stops unauthorized promote/diagnose; enables real agent accountability; sales-ready security story | **P0** |
+| **Tenant ACL / data isolation** | `default_tenant_id` + logical partition keys; no hard isolation | Multi-OEM SaaS / multi-brand CSP must not leak catalog or diagnosis across tenants | Unlocks multi-tenant commercial model; reduces data-exfil risk | **P0** |
+| **Encrypted Bolt + cert rotation** | Local password demo; compose defaults | Prod graph always TLS; secrets in vault | Compliance (SOC2/ISO27001) path; no credential screenshots | **P1** |
+| **Approval workflow beyond token** | In-session approve + optional admin token | Change boards, dual control for production graph writes | Audit-ready promote; prevents single-operator mistakes | **P1** |
+
+**Why this cluster is high value:** Without identity, everything else (perfect KG, great Bayes) is **demo-only**. Buyers ask “who can push production knowledge?” first.
+
+---
+
+### 26.3 Enterprise integration & data plane
+
+| Gap | Current | Industry why | Value if closed | Pri |
+|-----|---------|--------------|-----------------|-----|
+| **Live PIM/FSM/Claims/CRM connectors** | Fixture JSON + optional mock `:8090`; URL hooks exist | Real SoR (SAP, Salesforce, ServiceMax, Guidewire…) change daily | Auto-ingest new SKUs/resolutions without hand packs; continuous accuracy | **P1** |
+| **Fixture-primary authoring** | Hand-edited multi-source packs (`esp-001`, `hmd-001`) | Real ops never hand-merge full ABox for every SKU in git | Credibility with architects; proves extract→ABox path is system-driven | **P1** |
+| **CDC / event bus** (warranty sold → asset) | `register-asset` API pattern only | Event-driven FS: sale/install triggers installed-base | Right product on first call; fewer wrong-product diagnoses | **P1** |
+| **Async ETL workers / job queue** | Sync pipeline in API process | Long extracts must not block HTTP; Airflow/Dagster/Prefect/K8s Jobs | Hours-long OEM loads; retries; multi-worker scale | **P1** |
+| **Postgres (or equiv) ops DB** | SQLite for claims/escalations | Multi-writer API replicas cannot share SQLite safely | Horizontal API scale; concurrent ops durability | **P1** |
+| **Contract tests vs real enterprise APIs** | Mock-only tests | Schema drift kills production ETL | Safer connector upgrades | **P1** |
+| **Incremental always-on live path** | `incremental_sync` exists; still demo-shaped | Only deltas after go-live | Lower cost, fresher field knowledge | **P1** |
+
+**Why this cluster is high value:** The **pipeline shape is enterprise**; the **source of truth is still demo**. Closing this is the step from “architecture demo” to “integration platform.”
+
+---
+
+### 26.4 Knowledge, ontology & diagnosis quality
+
+| Gap | Current | Industry why | Value if closed | Pri |
+|-----|---------|--------------|-----------------|-----|
+| **External SHACL / OWL reasoner in CI** | In-repo shape checks + Turtle export | Formal data contracts before promote (SHACL TR) | Blocks bad ABox in CI; governance for knowledge stewards | **P2** |
+| **RDF as alternate system-of-record / RDF→Neo4j** | Export only | Some OEMs exchange RDF/OWL packages | Interop with enterprise data mesh / catalog tools | **P2** |
+| **Closed-loop learning (claims → INDICATES)** | Static confidence on edges | Field outcomes should update likelihoods | Lower wrong-part rate over time; measurable improvement | **P2** |
+| **Part supersession (`SUPERSEDES`)** | Basic part links | Aftermarket / BOM revisions | Correct replacement part on first ship | **P2** |
+| **Richer conditional diagnostic trees** | CONFIRMS + basic NEXT_STEP | Service manuals are branching | Fewer wrong steps; tech trust | **P2** |
+| **LLM/NLP NER for unstructured** | Regex/heuristics extract | Manuals are free text | Faster onboard of bulletins without full PIM rewrite | **P2** |
+| **Multi-language manuals** | EN-centric fixtures | Global CSPs | Same graph, local language match | **P2** |
+| **PRODUCT_KEYWORDS growth** | Per-product keyword lists | Brittle; not enterprise product master | Prefer asset/CRM/graph name tokens only | **P2** |
+| **Customer-language synonym expansion** | Manual symptom authoring | Users say “not heating” not catalog full phrase | Higher text-match without false FMs | **P2** |
+| **Full-text / vector indexes** | Hybrid lexical+TF-IDF in process | Scale when catalog ≫ demo | Latency + recall at OEM catalog size | **P3** |
+
+**Why this cluster is high value:** Improves **diagnosis accuracy and maintainability** after core GraphRAG works. Lower priority than security/connectors for first production cut, high value for **field outcomes**.
+
+**Explicit non-gap:** “Build a new ontology schema when adding source packs” is **not** a missing feature — by design NEW product = **ABox under shared TBox** (docs/22).
+
+---
+
+### 26.5 Runtime platform, scale & resilience
+
+| Gap | Current | Industry why | Value if closed | Pri |
+|-----|---------|--------------|-----------------|-----|
+| **Redis always-on multi-replica** | Code ready; default **memory** if `REDIS_URL` empty | Shared rate limit / cache / admission across API pods | Correct multi-replica behavior; no per-pod limit bypass | **P1** |
+| **Neo4j HA / read replicas** | Dual **local** staging+prod Docker | Prod needs failover + scale reads | Uptime SLOs for chat | **P1** |
+| **Multi-region active-active** | Not built | Global CSP latency / DR | Regional compliance and HA | **P3** |
+| **Load / perf suite at scale** | Unit/e2e functional | Prove 32 concurrent diagnoses + pool | Capacity planning; avoid surprise latency | **P1** |
+| **OTEL always-on** | Optional `otel_enabled=false` | Distributed tracing is default in modern platforms | Debug promote/diagnose latency across services | **P2** |
+| **LLM semantic response cache** | Diagnose cache exists; LLM path optional | Cost control if LLM primary | FinOps (handbook ch06/09) | **P2** |
+| **Product-level parallel transform chunks** | `etl_product_batch_size=0` (single batch) | Large OEM catalogs need chunked transform | Throughput without OOM | **P2** |
+| **Pre-push pytest fixture hygiene** | Suite can dirty catalog/staging files | CI must be hermetic | Reliable gates; no accidental fixture commits | **P1** |
+
+**Why this cluster is high value:** What we **already have** (parallel extract, TTL caches, admission, pool, invalidate-on-promote) matches industry **single-node** practice. Gaps are **multi-replica / HA / load proof** — required for “production SaaS,” not for local multi-source demo.
+
+**Already working (not gaps):** parallel connector extract (4 workers), ontology/subgraph/diagnose caches, rate limit 60/min, max 32 concurrent diagnoses, Neo4j pool 50, cache invalidation on promote/ETL load, lineage partitions, provenance. See `/health` → `runtime` and docs/16.
+
+---
+
+### 26.6 Product UX / ops experience
+
+| Gap | Current | Industry why | Value if closed | Pri |
+|-----|---------|--------------|-----------------|-----|
+| **Source-pack contract only** (documented schema for authors) | Implicit Pydantic + pack examples | Knowledge stewards need a single contract | Faster, correct packs; fewer Fetch crashes | **P1** |
+| **Admin always shows runtime chip** | Health/runtime exists; not always first-class panel | Ops needs cache hit rate / workers visible | Trust that platform features are “on” | **P2** |
+| **C4 diagrams fully reflect reliability/domain** | Partial | Architecture reviews | Interview/enterprise decks stay current | **P3** |
+| **Graph fabric multi-DB by OEM** | Logical keys only | Mega multi-OEM isolation | Extreme multi-tenant scale | **P3** |
+
+---
+
+### 26.7 Value summary — what to close first
+
+```text
+                    ┌─────────────────────────────────────┐
+   Highest value →  │ P0 Identity & tenant isolation      │  commercial + security
+                    │ P1 Live connectors + async ETL      │  continuous knowledge
+                    │ P1 Redis multi-replica + HA graph   │  scale & resilience
+                    │ P1 Pack contract + CI hermetic tests│  quality of delivery
+                    ├─────────────────────────────────────┤
+   High quality →   │ P2 Closed-loop learning, SHACL CI   │  accuracy over time
+                    │ P2 Unstructured NLP, synonyms       │  match customer language
+                    ├─────────────────────────────────────┤
+   Later →          │ P3 Multi-region, vector indexes     │  only when scale forces
+                    └─────────────────────────────────────┘
+```
+
+### 26.8 What we should *not* treat as a gap
+
+| Apparent “gap” | Why it is not a defect |
+|----------------|------------------------|
+| No OWL file per product (`esp-001.owl`) | ABox under shared TBox is correct W3C/enterprise practice |
+| No multi-threaded single diagnose | Prefer correctness; graph path already bounded |
+| Serial OntologyBuilder | Deterministic merge after parallel extract |
+| Fixture fallbacks in demo_mode | Intentional simulation with honesty labels |
+| Staging ≠ chat until promote | Change management; production is source of truth for diagnose |
+
+### 26.9 Cross-links
+
+| Topic | Doc / code |
+|-------|------------|
+| TBox/ABox multi-source mechanism | `docs/22-…Mechanism.md` |
+| Runtime cache/parallel | `docs/16-Enterprise-Runtime-Capabilities.md`, `runtime/*` |
+| Ingestion architecture | `docs/20`, `docs/21` |
+| Open backlog (short) | §19 |
+| Session learnings | §22.28–22.29, §23 |
 
 ---
 
@@ -1291,4 +1439,4 @@ Use this list when stakeholders ask “why this design?” — **cite only what 
 
 **Legend recap:** `[x]` done in this repo · `[~]` partial/demo · `[ ]` gap / future
 
-*Last expanded: **2026-07-11 continued** — multi-source **hmd-001** / **esp-001**, OntologyBuilder rich ABox + CRM/Claims merge, fleet/selection UX, Drop IN SYNC, session reset-for-next-cycle, docs/22 TBox·ABox mechanism, interview/doc refresh, pitfalls §22.28–22.29 + §25 state. Process: update this file every feature session. Never remove partitioning or dual-Neo4j promote discipline. **Never invent per-product TBox when adding source packs.***
+*Last expanded: **2026-07-11** — §26 gap research; §25.5 CI gates (`test_multi_source_tbox_abox` + feature-branch CI); multi-source hmd/esp; docs/22. Process: update this file every feature session. Never remove partitioning or dual-Neo4j promote discipline. **Never invent per-product TBox when adding source packs.***
