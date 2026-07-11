@@ -288,7 +288,18 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [x] `POST /admin/warranty/register-asset`
 - [x] Cache invalidation after promote/register
 
-### 5.8 Gaps for production rebuild
+### 5.8 Guided onboard + audit + entity delta (2026-07-11) `[x]`
+
+- [x] Selection-scoped materialize/promote (fail-closed empty selection)
+- [x] Ingest plan: NEW / pending UPDATE / in sync + recommended actions
+- [x] Durable admin audit JSONL + `/admin/audit/history`
+- [x] Entity-level ABox delta + Neo4j verify (staging + production)
+- [x] RDF NEW-only highlight + ontology map (TBox unchanged vs ABox growth)
+- [x] Catalog-authoritative fleet diff (PIM must not re-flag promoted products)
+- [x] `repair_confirms_links` for DiagnosticStep CONFIRMS integrity
+- [x] See §22.20–22.27, §23 pitfalls, §5.9 glossary
+
+### 5.9 Gaps for production rebuild
 
 - [ ] Real SAP/Salesforce/Guidewire connectors (pattern ready; mock by default)
 - [ ] Async job queue / worker for long ETL (Airflow/Dagster/Prefect wire-up)
@@ -297,6 +308,8 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 - [ ] Continuous learning: closed claims → refresh INDICATES weights
 - [ ] Full LLM/NLP NER for unstructured (hook ready; rule extractor today)
 - [ ] Live CDC / event bus (POS “warranty sold” → auto-register) — API pattern only
+- [ ] pyshacl / external OWL reasoner in CI before promote
+- [ ] Pre-push suite must not dirty tracked catalog/staging fixtures
 
 ---
 
@@ -321,7 +334,7 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
 
 - [x] Shared `services/diagnosis_service.run_full_diagnosis` (warranty gate + diagnose + case handoff)
 - [x] Asset-first: when CRM asset bound, product from asset; warranty only on that asset
-- [x] Soft mismatch: message vs asset product → confirm/force_keep; hard block on product_id ≠ asset product
+- [x] Soft mismatch: message vs asset product → **warning when asset-bound** (diagnose continues); force_keep for explicit confirm; hard block only on product_id ≠ asset product (API invariant)
 - [x] Do not open escalation cases / cache blocked conflict outcomes incorrectly
 - [x] Domain models `DiagnosisOutcome`, `WarrantyDecision`
 - [x] LangGraph: detect_product → run_diagnosis → format_response → handle_escalation
@@ -334,19 +347,27 @@ Doc: `docs/19-Indexes-Constraints-and-Lookup-Performance.md`
   - [x] Identified session: product from CRM/asset (never free-text override)
   - [x] Anonymous session: product pick or message detect
   - [x] Soft appliance mismatch (`soft_appliance_mismatch`) vs hard API invariant (`product_asset_conflict`)
+  - [x] **Asset-bound: soft mismatch is warning-only** (bound product remains source of truth)
   - [x] Settings: `strict_context_consistency`, `product_message_signal_min_hits`
 - [x] Symptom match (lexical + hybrid TF-IDF)
   - [x] Stricter admission: `symptom_match_min_score` + relative secondary floor (no floor-noise secondaries)
   - [x] Evidence-only Bayes: only FMs with INDICATES `link_count > 0` (no prior-only impeller noise)
+  - [x] Word-boundary short codes (no `oe` inside “does”)
 - [x] Error code match
 - [x] Rank failure modes (Cypher + FMEA + Bayes)
 - [x] Diagnostic tree traversal (`diagnostic_engine.py`)
+  - [x] **FM-targeted steps**: CONFIRMS(top FM) + order≤1 entry; never other-FM checks
+  - [x] Prefer CONFIRMS over linear NEXT_STEP dump
+  - [x] `repair_confirms_links` for missing bulletin d05→fm04 style links
 - [x] Parts prediction multi-source (`parts_predictor.py`)
 - [x] Impacted components, claim precedents, historical resolutions
 - [x] Formatted response + provenance trail + graph subgraph
+  - [x] Provenance prefers steps with `targets_top_fm`
+  - [x] UI: diagnostic steps + historical resolutions cards
 - [x] Escalation rules (critical / low conf / weak language / ambiguity)
 - [x] **Diagnose read-path cache** (`runtime/diagnose_cache.py`): tenant|product|asset|norm message|catalog version, TTL 90s, bust on promote
 - [x] Diagnosis path explain: `cypher_queries` + `traversal` on diagnosis subgraph
+  - [x] Explore Exact Path: CONFIRMS-filtered steps + highlighted path edges
 
 ### 6.4 Integrations `[x]`
 
@@ -1008,31 +1029,156 @@ Use this as the **true backlog** if continuing this product:
 | **Frontend** | Strict steps 1→8: only active step expands; next unlocks after completion; Materialize/Promote send `product_ids` query param |
 | **Chat** | New products appear as CRM assets after promote of that product_id; diagnose uses asset product_id |
 
-### 22.21 Ingest plan + durable audit + entity-level delta / RDF highlight `[x]`
+### 22.25 Operator-grade onboard: audit, entity delta, fleet vs batch, promote UX `[x]`
+
+*(Consolidates work previously sketched as 22.21 / 5.9 — authoritative for rebuild.)*
+
+| Area | Built |
+|------|--------|
+| **Ingest plan** | `ingest_plan.py` + `GET /admin/pipeline/plan`, lock-selection, acknowledge-tbox; wizard unlocks; fail-closed `allow_materialize` |
+| **Durable audit** | `utils/admin_audit.py` → `data/lineage/admin_audit.jsonl` (gitignored runtime); `_admin_journey` dual-writes; `GET /admin/audit/history` |
+| **Entity delta** | `entity_delta.py` — catalog vs Neo4j per selection; staging+prod presence; **exact** part ids (never `oem-` prefix); neo4j-verify |
+| **RDF highlight** | NEW ABox Turtle only; TBox vs ABox callout; ontology map (class → instance IRI → Neo4j rel) |
+| **Fleet vs batch** | Catalog wins over PIM for promote-path diff; **Pending UPDATE** / **Already in sync** / **NEW**; batch-complete banner |
+| **Promote UX** | One button + target env; success disables; step action locks; Start next product batch |
+| **Refresh plan** | Re-diff + recompute checklist + toast (not silent); does **not** re-fetch sources or write Neo4j |
+| **Chat** | Renders `diagnostic_steps` + historical resolutions (were API-only) |
+
+### 22.26 Diagnostic steps, CONFIRMS integrity, explorer path accuracy `[x]`
 
 | | |
 |--|--|
-| **Problem** | Operators saw “23 UPDATE” with no entity detail; no audit trail across restarts; two promote buttons; completed steps still looked active; RDF dump hid NEW ABox under TBox schema |
-| **Ingest plan** | `graph/enterprise_pipeline/ingest_plan.py` — detect NEW/UPDATE/TBox; ordered actions; wizard unlocks; fail-closed materialize gates; APIs `GET /admin/pipeline/plan`, lock-selection, acknowledge-tbox |
-| **Durable audit** | `utils/admin_audit.py` → `data/lineage/admin_audit.jsonl`; every `_admin_journey` appends; `GET /admin/audit/history` unifies events + pipeline_runs + etl_batches; Admin **Audit & history** panel |
-| **Entity delta** | `graph/enterprise_pipeline/entity_delta.py` — per-product catalog vs Neo4j (symptoms/FMs/steps/parts); staging+prod presence; exact part ids (no `oem-` prefix explosion); `GET /admin/pipeline/entity-delta`, `neo4j-verify` |
-| **RDF/ontology map** | `build_ontology_rdf_highlight` — TBox unchanged vs NEW ABox IRIs; NEW-only Turtle; amber highlight in UI; Open graph / View RDF |
-| **Fleet vs batch** | Catalog wins over PIM for promote-path diff; **Pending UPDATE** vs **Already in sync**; batch-complete banner after production promote; Refresh plan re-diffs + toasts |
-| **Promote UX** | Single promote → staging\|production; success disables button (`✓ Promoted`); step actions lock after success; **Start next product batch** |
-| **Chat UX** | Diagnosis Chat renders **diagnostic_steps** + historical resolutions (were API-only before) |
-| **Files** | `change_preview.py`, `entity_delta.py`, `ingest_plan.py`, `admin_audit.py`, `api/main.py`, `frontend/app/page.tsx`, `frontend/lib/types.ts` |
+| **Bug (chat)** | For top FM “Defrost heater”, UI listed ice-maker + evaporator steps (d01–d04). Operators lost trust in “targeted” steps |
+| **Root cause A** | `get_diagnostic_steps_for_failure_mode` used `order ≤ max(confirming order)` — linear dump of unrelated FMs |
+| **Root cause B** | `resolve_dynamic_steps` walked linear `NEXT_STEP` chains and ignored CONFIRMS targeting |
+| **Root cause C** | Many products (all `*-d05` bulletins) had **no** `diagnostic_step_failure_links` → no CONFIRMS for bulletin FM |
+| **Root cause D** | Explore Exact Path subgraph loaded first N product steps, not FM-confirming steps |
+| **Root cause E** | Soft appliance mismatch **blocked** asset-bound sessions (e.g. RF28 bulletin phrase → false “washer”) |
+| **Fix engine** | `diagnostic_engine.py`: CONFIRMS(top FM) + order≤1 entry steps only; never other-FM confirms; CONFIRMS preferred over linear tree |
+| **Fix data** | `repair_confirms_links.py` — keyword + order repair of catalog links; replace Neo4j CONFIRMS per product |
+| **Fix explorer** | `graph_visualization.py` diagnosis subgraph filters steps by CONFIRMS + highlights path |
+| **Fix session** | Asset-bound soft mismatch → **warning**, not hard block (asset is source of truth) |
+| **Verified** | Frost → d01+d04 + heater part; bulletin phrase → fm04 + d05 + polarized connector |
 
-### 5.9 Guided onboard operator model (glossary) `[x]`
+### 22.27 Day log — 2026-07-11 (this application session cluster) `[x]`
 
-- [x] **Pending UPDATE** = product in production, catalog still has more core ABox → promote still needed
-- [x] **Already in sync** = catalog core ABox matches production (post-promote) — stays in Neo4j, not re-work
+Chronological capability delivered **today** (Admin onboard through diagnosis accuracy):
+
+1. **Selection-scoped ETL/promote** — fail-closed empty selection; materialize only locked products
+2. **OEM bulletin 2026-Q3 ABox packs** — 23 product_updates (not new TBox)
+3. **Strict 1–8 wizard** — Sources → Fetch → Select → Validate ABox → Materialize → Smoke → Approve → Promote
+4. **Ingest plan** — recommended next actions, gates, TBox-ack path
+5. **Durable admin audit** — JSONL + UI panel
+6. **Entity delta + Neo4j verify** — catalog/staging/prod matrix; Docker bolt awareness
+7. **RDF/OWL NEW-only highlight** — stop showing schema-only dump as “the change”
+8. **Fleet vs batch UX** — pending UPDATE is fleet-wide; batch complete is selection-scoped
+9. **Single promote path** — staging :7688 then production :7687; Diagnosis Chat = production only
+10. **Chat diagnostic steps UI** — render graph steps + past resolutions
+11. **CONFIRMS repair + FM-targeted steps** — diagnosis + Explore Exact Path + RDF confirms edges
+12. **Pushed branch** — `feature/llmops-for-remote-diagnostics` (`0fce795`, `4e572df`)
+
+### 5.10 Guided onboard operator model (glossary) `[x]`
+
+- [x] **Pending UPDATE** = product exists in production, catalog still has more **core ABox** → promote still needed for that product
+- [x] **Already in sync** = catalog core ABox matches production (typical post-promote) — **not** “deleted”; stays in Neo4j
 - [x] **NEW** = product_id missing from production
-- [x] **Refresh plan** = re-diff catalog↔prod + recompute checklist (no source re-scan, no Neo4j write)
-- [x] **Fetch** = dry-run ETL / source pull; resets wizard selection gates; does not undo promotes
-- [x] Selection-scoped materialize/promote only; fleet counts are independent of current batch
+- [x] **Refresh plan** = re-diff catalog↔production + recompute checklist (**no** source re-scan, **no** Neo4j write)
+- [x] **Fetch** = dry-run ETL / source preview; resets wizard selection gates; **does not undo promotes**
+- [x] **This batch** = locked selection only; fleet counts can still show other pending UPDATEs
+- [x] **Materialize** = catalog write (selection); **Promote** = MERGE Neo4j target_env
+- [x] Selection-scoped materialize/promote only (fail-closed)
+
+---
+
+## 23. Mistakes, pitfalls & anti-patterns (MUST NOT REPEAT)
+
+> These are **authoritative operational lessons** from building and debugging this app. Rebuilds that ignore them will re-ship the same defects.
+
+### 23.1 Ontology / knowledge graph discipline
+
+| Pitfall | Wrong instinct | Correct practice | Sources |
+|---------|----------------|------------------|---------|
+| Treat every new SKU as “new ontology” | Create new OWL classes per product | New product = **ABox individuals** under shared **TBox** classes | [OWL 2 Primer](https://www.w3.org/TR/owl2-primer/) (TBox vs ABox); [RDF 1.1 Concepts](https://www.w3.org/TR/rdf11-concepts/) |
+| Validate only after Neo4j load | “Graph has nodes ⇒ valid” | Shape-check ABox against TBox **before** materialize/promote | [SHACL](https://www.w3.org/TR/shacl/) (closed-world data quality); OWL ≠ SHACL |
+| Confuse PROV export with governance | Turtle export alone | Lineage batches + audit events + batch ids on entities | [PROV-O](https://www.w3.org/TR/prov-o/) |
+| Show TBox schema dump as “the delta” | Full OWL file = change | Highlight **NEW ABox triples** + class→instance map | OWL Primer: assertional knowledge |
+
+### 23.2 Ingest / promote / dual graph
+
+| Pitfall | What broke | Correct practice |
+|---------|------------|------------------|
+| **Selection is cosmetic** | Checked 2 products, promoted all 23 | Fail-closed: empty selection rejected; ETL merge **only** selected IDs into catalog |
+| **Staging success = chat ready** | Promote staging, chat unchanged | Diagnosis Chat reads **production** `:7687` only; staging `:7688` is preview |
+| **Fleet UPDATE count = this batch failed** | After promote still “15 UPDATE” | Split **fleet pending** vs **selection in sync** |
+| **PIM over catalog in diff** | Promoted products still “UPDATE” forever | Promote-path diff: **catalog wins** on id collision |
+| **Part id prefix `oem-`** | One product counted 36 parts | Match **exact catalog part_ids** only |
+| **bootstrap_all as Materialize** | Smoke failure marked materialize failed | Materialize step = `knowledge_materialize` only; smoke is separate step |
+| **Silent admin buttons** | Toast-only / swallowed errors | Always-visible last action; HTTP error body; busy + success disabled states |
+| **Refresh plan silent** | Click does nothing visible | Toast + banner + re-diff counts; explain no-op when plan unchanged |
+| **Index-pair CONFIRMS naively** | d03↔defrost wrongly | Keyword score then order; replace Neo4j CONFIRMS set, don’t double-link |
+
+### 23.3 Diagnosis / ranking / UX
+
+| Pitfall | What broke | Correct practice | Sources |
+|---------|------------|------------------|---------|
+| **Steps = all orders ≤ confirming** | Frost FM showed ice + fan checks | CONFIRMS(top FM) + entry-only prerequisites | Graph decision trees: only edges that **confirm** the ranked hypothesis |
+| **Linear NEXT_STEP as targeting** | Same wrong step list | Prefer CONFIRMS; tree walk only if it lands on confirming step | — |
+| **Missing CONFIRMS for bulletin d05** | Bulletin FM had no confirming step | Repair + require links at ABox validate | Ontology shapes on link tables |
+| **Soft mismatch hard-blocks asset** | Bound RF28 + “fridge 22E…” → blocked as washer | Asset-bound: warn, still diagnose bound product | Asset-first CRM sessions |
+| **Substring OE in “does”** | purifier → LG washer | Word boundaries; no bare 2-letter OE/DE | — |
+| **Lab FMEA symptoms only** | “not starting” → insufficient data | Author customer-language symptoms | Field service / FMEA practice: detection must match customer narrative |
+| **Provenance shows neighborhood** | Steps not related to top FM | Provenance prefers `targets_top_fm` steps | Explainability: evidence for **ranked** conclusion |
+| **Explore path dumps all steps** | Graph noise | Subgraph filter CONFIRMS + highlight | Cypher path-bounded retrieval |
+
+### 23.4 Scoring & reliability (do not invent)
+
+| Topic | Practice in this app | Authoritative / standard references |
+|-------|----------------------|-------------------------------------|
+| Bayesian ranking | Naive Bayes over INDICATES likelihoods + occurrence prior; normalize; miss likelihood > 0 | Pearl, *Probabilistic Reasoning* (1988); Russell & Norvig *AIMA* (Bayes nets) |
+| RPN / AP | S×O×D retained; Action Priority severity-led | AIAG-VDA FMEA Handbook (2019); SAE J1739; MIL-STD-1629A; Kmenta & Ishii on RPN misuse |
+| GraphRAG | Typed multi-hop Cypher from product, not whole-graph scan | Enterprise GraphRAG practice: schema-constrained retrieval before generation |
+| Ontology | TBox shared; ABox per product; RDF export optional | W3C OWL 2, RDF 1.1; ISO 14224-style hierarchy **as modeling inspiration** (not full certification claim) |
+
+### 23.5 Engineering / process pitfalls
+
+| Pitfall | Mitigation |
+|---------|------------|
+| Pre-push pytest mutates catalog/staging fixtures | Restore fixtures after suite; don’t treat dirty tree as test failure of assertions |
+| Hook SIM105 / trailing whitespace fails large commits | Fix ruff before push; prefer small commits for data packs |
+| Session journey lost on API restart | Durable `admin_audit.jsonl` + pipeline_runs — not memory alone |
+| Dual promote buttons | One control-plane promote with `target_env` |
+| Completing wizard still shows active actions | Disable primary actions after success; “Change selection” / “Start next batch” explicit |
+
+### 23.6 Operator test matrix (bulletin push)
+
+| Intent | Example product | Phrase | Expect |
+|--------|-----------------|--------|--------|
+| Baseline (not bulletin) | `oem-sam-rf28` | “Excessive frost in freezer” | fm03 defrost; steps d01+d04; heater part |
+| Bulletin ABox | `oem-sam-rf28` | “Samsung fridge 22E after ice room fan bulletin kit” | fm04 polarity; d05; IF-CONN-RF28-B |
+| Prior bulletin dry | `dry-001` | “E66 after cold garage install” | Ambient Below Spec; baffle kit |
+| Prior bulletin DW | `dw-001` | “beeps won’t start dry cycle after latch kit” | Latch switch drift |
+
+---
+
+## 24. Authoritative sources checklist (validate claims before demo)
+
+Use this list when stakeholders ask “why this design?” — **cite only what we actually implement**.
+
+| Claim we make | Status | Source to cite | Honesty bound |
+|---------------|--------|----------------|---------------|
+| Diagnosis is Bayesian over graph likelihoods | `[x]` | Pearl; AIMA; our `reliability.py` / graph_rag | Naive Bayes assumption (conditional independence) |
+| FMEA-aligned RPN + Action Priority | `[x]` | AIAG-VDA 2019; SAE J1739 | Demo ratings are authored, not live plant data |
+| W3C OWL/RDF ontology | `[x]` export + shapes-lite validate | OWL 2 Primer; RDF 1.1 | No external DL reasoner; Neo4j is runtime |
+| SHACL-level governance | `[~]` | SHACL TR | In-repo shape checks, not pyshacl CI gate |
+| PROV lineage | `[x]` fields + batch JSONL | PROV-O | Demo fixtures labeled simulated |
+| ISO 14224 / IEC 81346 | `[~]` modeling inspiration | ISO 14224; IEC 81346 | **Not** certified implementation |
+| Graph-native no LLM required | `[x]` | Architecture | LLM optional for phrasing only |
+| Staging then production promote | `[x]` | Enterprise change-management pattern | Local Docker dual Neo4j, not full HA |
+
+**Do not claim:** full OWL reasoner in the diagnose path; live SAP/Salesforce; certified ISO 14224; automatic SHACL in CI unless wired.
 
 ---
 
 **Legend recap:** `[x]` done in this repo · `[~]` partial/demo · `[ ]` gap / future
 
-*Last expanded: **22.21 ingest plan + durable audit + entity delta/RDF + batch-complete UX**; dual Neo4j promote; selection-enforced ETL. Process: every subsequent feature must update this file the same session. Never remove partitioning or other built capabilities.*
+*Last expanded: **2026-07-11 daybook** — selection-scoped onboard, audit, entity delta, fleet/batch UX, CONFIRMS repair, FM-targeted diagnostic steps, Explore path accuracy, pitfalls §23, sources §24. Process: update this file every feature session. Never remove partitioning or dual-Neo4j promote discipline.*
