@@ -76,4 +76,31 @@ export const api = {
       `/crm/customers/${encodeURIComponent(customerId)}/assets`,
     ),
   getCrmAsset: (assetId: string) => fetchJson<any>(`/crm/assets/${encodeURIComponent(assetId)}`),
+
+  // ── Study Lab ────────────────────────────────────────────────────────────
+  studyModules: () => fetchJson<{ modules: any[] }>("/study/modules"),
+  studyModule: (id: string) => fetchJson<any>(`/study/modules/${encodeURIComponent(id)}`),
+  studyGenerate: (body: { title?: string; tags?: string[]; text: string; filename?: string }) =>
+    fetchJson<any>("/study/modules/generate", { method: "POST", body: JSON.stringify(body) }),
+  studyUpload: async (file: File, title = "", tags = "") => {
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("title", title);
+    fd.append("tags", tags);
+    const res = await fetch(`${API_BASE}/study/modules/upload`, { method: "POST", body: fd });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  },
+  studyGradeFill: (body: { module_id: string; beat_id: string; answers: Record<string, string> }) =>
+    fetchJson<any>("/study/grade/fill-blanks", { method: "POST", body: JSON.stringify(body) }),
+  studyGradeLine: (body: { module_id: string; beat_id: string; line: number; choice: string }) =>
+    fetchJson<any>("/study/grade/line-quiz", { method: "POST", body: JSON.stringify(body) }),
+  studyProgressGet: (clientKey = "local") =>
+    fetchJson<any>(`/study/progress/${encodeURIComponent(clientKey)}`),
+  studyProgressSave: (body: any, clientKey = "local") =>
+    fetchJson<any>(`/study/progress?client_key=${encodeURIComponent(clientKey)}`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  studyReseed: () => fetchJson<any>("/study/reseed", { method: "POST" }),
 };

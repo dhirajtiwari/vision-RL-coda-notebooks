@@ -1,0 +1,385 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix wd: <https://example.org/warranty-diagnosis#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+wd:Claim a owl:Class ;
+    rdfs:label "Claim" ;
+    rdfs:comment "Warranty claim with confirmed failure." .
+
+wd:asset_SN00123 a wd:Asset ;
+    wd:boundToSku wd:sku_wm8k_2024 ;
+    wd:coveredBy wd:policy_WP001 ;
+    wd:instanceOf wd:product_wm001 ;
+    wd:serialNumber "SN-00123" .
+
+wd:boundToSku a owl:ObjectProperty ;
+    rdfs:comment "Asset bound to SKU" ;
+    rdfs:domain wd:Asset ;
+    rdfs:range wd:SKU .
+
+wd:brand a owl:DatatypeProperty ;
+    rdfs:comment "Brand name" ;
+    rdfs:domain wd:Product ;
+    rdfs:range xsd:string .
+
+wd:canHave a owl:ObjectProperty ;
+    rdfs:comment "Product can exhibit FailureMode" ;
+    rdfs:domain wd:Product ;
+    rdfs:range wd:FailureMode .
+
+wd:category a owl:DatatypeProperty ;
+    rdfs:comment "Product category" ;
+    rdfs:domain wd:Product ;
+    rdfs:range xsd:string .
+
+wd:compatibleWith a owl:ObjectProperty ;
+    rdfs:comment "SKU compatible with Part" ;
+    rdfs:domain wd:SKU ;
+    rdfs:range wd:Part .
+
+wd:confidence a owl:DatatypeProperty ;
+    rdfs:comment "Link confidence 0.0-1.0 (used on Axiom nodes)" ;
+    rdfs:range xsd:decimal .
+
+wd:confirms a owl:ObjectProperty ;
+    rdfs:comment "Step confirms FailureMode" ;
+    rdfs:domain wd:DiagnosticStep ;
+    rdfs:range wd:FailureMode .
+
+wd:coverageMonths a owl:DatatypeProperty ;
+    rdfs:comment "Coverage duration in months" ;
+    rdfs:domain wd:WarrantyPolicy ;
+    rdfs:range xsd:integer .
+
+wd:description a owl:DatatypeProperty ;
+    rdfs:comment "Symptom description text" ;
+    rdfs:domain wd:Symptom ;
+    rdfs:range xsd:string .
+
+wd:errorCodeId a owl:DatatypeProperty ;
+    rdfs:comment "Error code string e.g. E21" ;
+    rdfs:domain wd:ErrorCode ;
+    rdfs:range xsd:string .
+
+wd:errorCodeIndicates a owl:ObjectProperty ;
+    rdfs:comment "ErrorCode → FailureMode" ;
+    rdfs:domain wd:ErrorCode ;
+    rdfs:range wd:FailureMode .
+
+wd:estimatedCostUsd a owl:DatatypeProperty ;
+    rdfs:comment "Estimated part cost in USD" ;
+    rdfs:domain wd:Part ;
+    rdfs:range xsd:decimal .
+
+wd:failureModeId a owl:DatatypeProperty ;
+    rdfs:comment "Failure mode identifier" ;
+    rdfs:domain wd:FailureMode ;
+    rdfs:range xsd:string .
+
+wd:hasDiagnosticStep a owl:ObjectProperty ;
+    rdfs:comment "Product has DiagnosticStep" ;
+    rdfs:domain wd:Product ;
+    rdfs:range wd:DiagnosticStep .
+
+wd:hasErrorCode a owl:ObjectProperty ;
+    rdfs:comment "Product can raise ErrorCode" ;
+    rdfs:domain wd:Product ;
+    rdfs:range wd:ErrorCode .
+
+wd:hasSku a owl:ObjectProperty ;
+    rdfs:comment "Product → SKU" ;
+    rdfs:domain wd:Product ;
+    rdfs:range wd:SKU .
+
+wd:hasSymptom a owl:ObjectProperty ;
+    rdfs:comment "Product can present Symptom" ;
+    rdfs:domain wd:Product ;
+    rdfs:range wd:Symptom .
+
+wd:impactsComponent a owl:ObjectProperty ;
+    rdfs:comment "FailureMode → Component" ;
+    rdfs:domain wd:FailureMode ;
+    rdfs:range wd:Component .
+
+wd:instanceOf a owl:ObjectProperty ;
+    rdfs:comment "Asset is instance of Product" ;
+    rdfs:domain wd:Asset ;
+    rdfs:range wd:Product .
+
+wd:instruction a owl:DatatypeProperty ;
+    rdfs:comment "Step instruction text" ;
+    rdfs:domain wd:DiagnosticStep ;
+    rdfs:range xsd:string .
+
+wd:isModelOf a owl:ObjectProperty ;
+    rdfs:label "isModelOf" ;
+    owl:inverseOf wd:hasModel .
+
+wd:modelHasSku a owl:ObjectProperty ;
+    rdfs:comment "Model → SKU revision" ;
+    rdfs:domain wd:Model ;
+    rdfs:range wd:SKU .
+
+wd:name a owl:DatatypeProperty ;
+    rdfs:comment "Display name" ;
+    rdfs:domain wd:Product ;
+    rdfs:range xsd:string .
+
+wd:nextStep a owl:ObjectProperty,
+        owl:TransitiveProperty ;
+    rdfs:comment "Step chains to next Step" ;
+    rdfs:domain wd:DiagnosticStep ;
+    rdfs:range wd:DiagnosticStep .
+
+wd:partNumber a owl:DatatypeProperty ;
+    rdfs:comment "OEM / service part number" ;
+    rdfs:domain wd:Part ;
+    rdfs:range xsd:string .
+
+wd:policyId a owl:DatatypeProperty ;
+    rdfs:comment "Policy identifier" ;
+    rdfs:domain wd:WarrantyPolicy ;
+    rdfs:range xsd:string .
+
+wd:productId a owl:DatatypeProperty ;
+    rdfs:comment "Stable product identifier" ;
+    rdfs:domain wd:Product ;
+    rdfs:range xsd:string .
+
+wd:realizedBy a owl:ObjectProperty ;
+    rdfs:comment "Component → service Part" ;
+    rdfs:domain wd:Component ;
+    rdfs:range wd:Part .
+
+wd:requiresPart a owl:ObjectProperty ;
+    rdfs:comment "FailureMode requires Part" ;
+    rdfs:domain wd:FailureMode ;
+    rdfs:range wd:Part .
+
+wd:rulesOut a owl:ObjectProperty ;
+    rdfs:comment "Step rules out FailureMode" ;
+    rdfs:domain wd:DiagnosticStep ;
+    rdfs:range wd:FailureMode .
+
+wd:serialNumber a owl:DatatypeProperty ;
+    rdfs:comment "Asset serial number" ;
+    rdfs:domain wd:Asset ;
+    rdfs:range xsd:string .
+
+wd:severity a owl:DatatypeProperty ;
+    rdfs:comment "low | medium | high | critical" ;
+    rdfs:domain wd:Symptom ;
+    rdfs:range xsd:string .
+
+wd:stepId a owl:DatatypeProperty ;
+    rdfs:comment "Step identifier" ;
+    rdfs:domain wd:DiagnosticStep ;
+    rdfs:range xsd:string .
+
+wd:symptomId a owl:DatatypeProperty ;
+    rdfs:comment "Symptom identifier" ;
+    rdfs:domain wd:Symptom ;
+    rdfs:range xsd:string .
+
+<https://example.org/warranty-diagnosis/ontology> a owl:Ontology ;
+    rdfs:label "Warranty Diagnosis Ontology" ;
+    owl:versionInfo "1.0.0" .
+
+wd:coveredBy a owl:ObjectProperty ;
+    rdfs:comment "Asset covered by WarrantyPolicy" ;
+    rdfs:domain wd:Asset ;
+    rdfs:range wd:WarrantyPolicy .
+
+wd:hasModel a owl:ObjectProperty ;
+    rdfs:comment "Product → Model" ;
+    rdfs:domain wd:Product ;
+    rdfs:range wd:Model .
+
+wd:model_wm8k a wd:Model ;
+    rdfs:label "AH-WM8K" ;
+    wd:modelHasSku wd:sku_wm8k_2023,
+        wd:sku_wm8k_2024 .
+
+wd:part_belt_wm8k a wd:Part ;
+    rdfs:label "Drive Belt WM8K" ;
+    wd:estimatedCostUsd 28.99 ;
+    wd:partNumber "AH-WM8K-BELT-001" .
+
+wd:part_pump_wm8k a wd:Part ;
+    rdfs:label "Drain Pump WM8K" ;
+    wd:estimatedCostUsd 65.00 ;
+    wd:partNumber "AH-WM8K-PUMP-002" .
+
+wd:part_rod_wm8k a wd:Part ;
+    rdfs:label "Suspension Rod WM8K" ;
+    wd:estimatedCostUsd 18.50 ;
+    wd:partNumber "AH-WM8K-ROD-003" .
+
+wd:policy_WP001 a wd:WarrantyPolicy ;
+    wd:coverageMonths 24 ;
+    wd:policyId "WP-001" .
+
+wd:product_wm001 a wd:Product ;
+    wd:brand "AquaHome" ;
+    wd:canHave wd:fm_wm_fm01,
+        wd:fm_wm_fm02,
+        wd:fm_wm_fm03 ;
+    wd:category "Laundry" ;
+    wd:hasDiagnosticStep wd:step_wm_ds01,
+        wd:step_wm_ds02,
+        wd:step_wm_ds03 ;
+    wd:hasModel wd:model_wm8k ;
+    wd:hasSku wd:sku_wm8k_2023,
+        wd:sku_wm8k_2024 ;
+    wd:hasSymptom wd:sym_wm_s01,
+        wd:sym_wm_s02,
+        wd:sym_wm_s03,
+        wd:sym_wm_s04 ;
+    wd:name "Front Load Washing Machine 8kg" ;
+    wd:productId "wm-001" .
+
+wd:step_wm_ds01 a wd:DiagnosticStep ;
+    wd:confirms wd:fm_wm_fm01 ;
+    wd:instruction "Open back panel, inspect the drive belt for cracks or slack." ;
+    wd:nextStep wd:step_wm_ds02 ;
+    wd:stepId "wm-ds01" .
+
+wd:sku_wm8k_2023 a wd:SKU ;
+    rdfs:label "SKU-WM8K-2023" .
+
+wd:step_wm_ds02 a wd:DiagnosticStep ;
+    wd:confirms wd:fm_wm_fm02 ;
+    wd:instruction "Run drain-only cycle and listen for pump motor hum or grinding." ;
+    wd:nextStep wd:step_wm_ds03 ;
+    wd:stepId "wm-ds02" .
+
+wd:step_wm_ds03 a wd:DiagnosticStep ;
+    wd:confirms wd:fm_wm_fm03 ;
+    wd:instruction "Check suspension rods for wear; push drum and observe rebound." ;
+    wd:stepId "wm-ds03" .
+
+wd:sym_wm_s01 a wd:Symptom ;
+    wd:description "Machine does not spin during final cycle" ;
+    wd:indicates wd:fm_wm_fm01 ;
+    wd:severity "high" ;
+    wd:symptomId "wm-s01" .
+
+wd:sym_wm_s02 a wd:Symptom ;
+    wd:description "Excessive vibration and banging noise" ;
+    wd:indicates wd:fm_wm_fm03 ;
+    wd:severity "medium" ;
+    wd:symptomId "wm-s02" .
+
+wd:sym_wm_s03 a wd:Symptom ;
+    wd:description "Water remains in drum after cycle" ;
+    wd:indicates wd:fm_wm_fm02 ;
+    wd:severity "high" ;
+    wd:symptomId "wm-s03" .
+
+wd:sym_wm_s04 a wd:Symptom ;
+    wd:description "Error code E21 displayed on panel" ;
+    wd:indicates wd:fm_wm_fm01 ;
+    wd:severity "medium" ;
+    wd:symptomId "wm-s04" .
+
+wd:Component a owl:Class ;
+    rdfs:label "Component" ;
+    rdfs:comment "BOM / subsystem component (product structure)." .
+
+wd:ErrorCode a owl:Class ;
+    rdfs:label "ErrorCode" ;
+    rdfs:comment "Device-reported diagnostic error code." .
+
+wd:Model a owl:Class ;
+    rdfs:label "Model" ;
+    rdfs:comment "Engineering model under a product family." .
+
+wd:sku_wm8k_2024 a wd:SKU ;
+    rdfs:label "SKU-WM8K-2024" .
+
+wd:WarrantyPolicy a owl:Class ;
+    rdfs:label "WarrantyPolicy" ;
+    rdfs:comment "Coverage rules for parts and labor." .
+
+wd:fm_wm_fm02 a wd:FailureMode ;
+    rdfs:label "Failed Drain Pump" ;
+    rdfs:comment "Pump impeller blocked or motor burned out, preventing water evacuation." ;
+    wd:failureModeId "wm-fm02" ;
+    wd:requiresPart wd:part_pump_wm8k .
+
+wd:fm_wm_fm03 a wd:FailureMode ;
+    rdfs:label "Unbalanced Load Sensor Fault" ;
+    rdfs:comment "Suspension rods or shock absorbers degraded, triggering imbalance shutdown." ;
+    wd:failureModeId "wm-fm03" ;
+    wd:requiresPart wd:part_rod_wm8k .
+
+wd:indicates a owl:ObjectProperty ;
+    rdfs:comment "Symptom → FailureMode (confidence on edge)" ;
+    rdfs:domain wd:Symptom ;
+    rdfs:range wd:FailureMode .
+
+wd:Asset a owl:Class ;
+    rdfs:label "Asset" ;
+    rdfs:comment "Installed unit identified by serial number." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:minCardinality 1 ;
+            owl:onProperty wd:coveredBy ] .
+
+wd:SKU a owl:Class ;
+    rdfs:label "SKU" ;
+    rdfs:comment "Sellable stock-keeping unit / revision." .
+
+wd:fm_wm_fm01 a wd:FailureMode ;
+    rdfs:label "Worn Drive Belt" ;
+    rdfs:comment "Drive belt stretched or snapped, preventing drum rotation." ;
+    wd:failureModeId "wm-fm01" ;
+    wd:requiresPart wd:part_belt_wm8k .
+
+wd:Part a owl:Class ;
+    rdfs:label "Part" ;
+    rdfs:comment "Serviceable replacement part." ;
+    owl:disjointWith wd:Component .
+
+wd:DiagnosticStep a owl:Class ;
+    rdfs:label "DiagnosticStep" ;
+    rdfs:comment "Troubleshooting or confirmation step." .
+
+wd:Symptom a owl:Class ;
+    rdfs:label "Symptom" ;
+    rdfs:comment "Customer-observable or technician-observed symptom." ;
+    owl:disjointWith wd:FailureMode .
+
+wd:Product a owl:Class ;
+    rdfs:label "Product" ;
+    rdfs:comment "Manufacturable product family / catalog product." ;
+    owl:disjointWith wd:FailureMode,
+        wd:Symptom .
+
+wd:FailureMode a owl:Class ;
+    rdfs:label "FailureMode" ;
+    rdfs:comment "Diagnosed failure mode (FMEA-aligned)." .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s02 ;
+    owl:annotatedTarget wd:fm_wm_fm03 ;
+    wd:confidence 0.85 .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s04 ;
+    owl:annotatedTarget wd:fm_wm_fm01 ;
+    wd:confidence 0.55 .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s03 ;
+    owl:annotatedTarget wd:fm_wm_fm02 ;
+    wd:confidence 0.90 .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s01 ;
+    owl:annotatedTarget wd:fm_wm_fm01 ;
+    wd:confidence 0.94 .

@@ -1,0 +1,306 @@
+{
+  "id": "01-rdf-owl-tbox-abox",
+  "title": "RDF / OWL — TBox then ABox",
+  "description": "Build a warranty ontology: classes, properties, individuals, Turtle serialization.",
+  "tags": [
+    "rdf",
+    "owl",
+    "tbox",
+    "abox",
+    "turtle",
+    "rdflib"
+  ],
+  "story": "Imagine a warehouse with one rule book on the wall (TBox): shelves may only be labeled Product, Symptom, FailureMode, Part. Trucks deliver boxes of facts about specific machines (ABox). You never print a new rule book for each SKU — you shelve new boxes under existing labels. RDF is the triple language for both; OWL adds logical rules.",
+  "one_liner": "TBox = rule book (classes/properties); ABox = shelves (instances); RDF triples for both.",
+  "change_table": [
+    {
+      "from": "Ad-hoc JSON",
+      "to": "Typed triples",
+      "why": "Interchange + formal meaning"
+    },
+    {
+      "from": "Per-product schema",
+      "to": "Shared TBox",
+      "why": "Scale to thousands of SKUs"
+    },
+    {
+      "from": "Only Neo4j",
+      "to": "OWL export + Neo4j runtime",
+      "why": "Audit + operational speed"
+    }
+  ],
+  "beats": [
+    {
+      "id": "tbox-classes",
+      "title": "TBox Part A — Classes with rdflib",
+      "language": "python",
+      "narrative": "Three triples per class: type, label, comment. This is the pattern — memorize it.",
+      "code": "from rdflib import Graph, Namespace, RDF, RDFS, OWL, XSD, Literal, URIRef\n\nWD = Namespace(\"https://example.org/warranty-diagnosis#\")\ng = Graph()\ng.bind(\"wd\", WD)\ng.bind(\"owl\", OWL)\ng.bind(\"rdfs\", RDFS)\n\n# Every class is three triples: type, label, comment\ng.add((WD.Product, RDF.type, OWL.Class))\ng.add((WD.Product, RDFS.label, Literal(\"Product\")))\ng.add((WD.Product, RDFS.comment, Literal(\"Appliance product family\")))\n\ng.add((WD.Symptom, RDF.type, OWL.Class))\ng.add((WD.FailureMode, RDF.type, OWL.Class))\ng.add((WD.Part, RDF.type, OWL.Class))",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "rdflib Graph is an in-memory triple store."
+        },
+        {
+          "line": 3,
+          "note": "Namespace keeps IRIs short and consistent (wd:Product)."
+        },
+        {
+          "line": 4,
+          "note": "Empty Graph(); bind prefixes for readable Turtle later."
+        },
+        {
+          "line": 9,
+          "note": "OWL.Class declares a TBox class — not an instance."
+        },
+        {
+          "line": 10,
+          "note": "Human label for UI / tooling."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 9,
+          "prompt": "What does this triple assert?",
+          "answer": "WD.Product is an OWL Class",
+          "choices": [
+            "WD.Product is an OWL Class",
+            "WD.Product is an instance of a washing machine",
+            "Deletes the Product class",
+            "Opens a Neo4j session"
+          ],
+          "why": ""
+        },
+        {
+          "line": 1,
+          "prompt": "Which library provides Graph/Namespace?",
+          "answer": "rdflib",
+          "choices": [
+            "rdflib",
+            "neo4j",
+            "langchain",
+            "fastapi"
+          ],
+          "why": ""
+        }
+      ],
+      "fill_blanks": {
+        "template": "g.add((WD.Product, RDF.type, {{c1}}))\ng.add((WD.Product, RDFS.label, {{c2}}(\"Product\")))",
+        "blanks": [
+          {
+            "id": "c1",
+            "answer": "OWL.Class",
+            "hint": "OWL class type"
+          },
+          {
+            "id": "c2",
+            "answer": "Literal",
+            "hint": "rdflib literal wrapper"
+          }
+        ]
+      }
+    },
+    {
+      "id": "tbox-props",
+      "title": "TBox Part B — Object & Datatype properties",
+      "language": "python",
+      "narrative": "ObjectProperty = edge between resources. DatatypeProperty = literal attributes.",
+      "code": "# ObjectProperty = edge between two resources (URI → URI)\ng.add((WD.indicates, RDF.type, OWL.ObjectProperty))\ng.add((WD.indicates, RDFS.domain, WD.Symptom))\ng.add((WD.indicates, RDFS.range, WD.FailureMode))\ng.add((WD.indicates, RDFS.label, Literal(\"indicates\")))\n\n# DatatypeProperty = attribute with a literal\ng.add((WD.confidence, RDF.type, OWL.DatatypeProperty))\ng.add((WD.confidence, RDFS.domain, WD.indicates))  # often on reified axiom\ng.add((WD.confidence, RDFS.range, XSD.decimal))",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "ObjectProperty: both ends are resources (URIs)."
+        },
+        {
+          "line": 3,
+          "note": "domain = allowed subject class."
+        },
+        {
+          "line": 4,
+          "note": "range = allowed object class."
+        },
+        {
+          "line": 8,
+          "note": "DatatypeProperty points to XSD literals (numbers, strings)."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "indicates is which kind of property?",
+          "answer": "OWL.ObjectProperty",
+          "choices": [
+            "OWL.ObjectProperty",
+            "OWL.DatatypeProperty",
+            "OWL.Class",
+            "RDF.Bag"
+          ],
+          "why": ""
+        }
+      ],
+      "fill_blanks": {
+        "template": "g.add((WD.indicates, RDF.type, {{p1}}))\ng.add((WD.indicates, RDFS.domain, {{p2}}))\ng.add((WD.indicates, RDFS.range, {{p3}}))",
+        "blanks": [
+          {
+            "id": "p1",
+            "answer": "OWL.ObjectProperty",
+            "hint": ""
+          },
+          {
+            "id": "p2",
+            "answer": "WD.Symptom",
+            "hint": ""
+          },
+          {
+            "id": "p3",
+            "answer": "WD.FailureMode",
+            "hint": ""
+          }
+        ]
+      }
+    },
+    {
+      "id": "abox-instances",
+      "title": "ABox — individuals and INDICATES",
+      "language": "python",
+      "narrative": "Same Graph API; RDF.type points at your TBox class, not owl:Class.",
+      "code": "# ABox: individuals under TBox classes\nwm = WD[\"product_wm_001\"]\ng.add((wm, RDF.type, WD.Product))\ng.add((wm, RDFS.label, Literal(\"Front Load Washer 8kg\")))\n\ns = WD[\"sym_wm_s01\"]\ng.add((s, RDF.type, WD.Symptom))\ng.add((s, RDFS.label, Literal(\"Will not drain\")))\n\nfm = WD[\"fm_wm_fm01\"]\ng.add((fm, RDF.type, WD.FailureMode))\ng.add((s, WD.indicates, fm))  # plain triple\n# confidence often stored via owl:Axiom reification in richer models",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Individual IRI under the product namespace."
+        },
+        {
+          "line": 3,
+          "note": "Type is WD.Product — ABox fact under TBox class."
+        },
+        {
+          "line": 12,
+          "note": "Predicate WD.indicates is the TBox ObjectProperty."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 3,
+          "prompt": "Is this TBox or ABox?",
+          "answer": "ABox individual typed as Product",
+          "choices": [
+            "ABox individual typed as Product",
+            "TBox class definition",
+            "SPARQL query",
+            "Cypher MERGE"
+          ],
+          "why": ""
+        }
+      ],
+      "fill_blanks": null
+    },
+    {
+      "id": "turtle-read",
+      "title": "Turtle serialization — read what you built",
+      "language": "turtle",
+      "narrative": "If you can hand-write this Turtle from memory, you understand TBox+ABox.",
+      "code": "@prefix wd:   <https://example.org/warranty-diagnosis#> .\n@prefix owl:  <http://www.w3.org/2002/07/owl#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n\nwd:Product a owl:Class ;\n    rdfs:label \"Product\" .\n\nwd:Symptom a owl:Class .\nwd:FailureMode a owl:Class .\n\nwd:indicates a owl:ObjectProperty ;\n    rdfs:domain wd:Symptom ;\n    rdfs:range wd:FailureMode .\n\nwd:product_wm_001 a wd:Product ;\n    rdfs:label \"Front Load Washer 8kg\" .\n\nwd:sym_wm_s01 a wd:Symptom ;\n    wd:indicates wd:fm_wm_fm01 .",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "Prefix maps short names to IRIs."
+        },
+        {
+          "line": 5,
+          "note": "a owl:Class is Turtle sugar for rdf:type."
+        },
+        {
+          "line": 14,
+          "note": "ABox individual with indicates edge."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 5,
+          "prompt": "What does `a owl:Class` mean?",
+          "answer": "rdf:type owl:Class",
+          "choices": [
+            "rdf:type owl:Class",
+            "Creates a Neo4j node",
+            "Deletes a class",
+            "Runs SPARQL"
+          ],
+          "why": ""
+        }
+      ],
+      "fill_blanks": {
+        "template": "wd:indicates a owl:{{t1}} ;\n    rdfs:domain wd:{{t2}} ;\n    rdfs:range wd:{{t3}} .",
+        "blanks": [
+          {
+            "id": "t1",
+            "answer": "ObjectProperty",
+            "hint": ""
+          },
+          {
+            "id": "t2",
+            "answer": "Symptom",
+            "hint": ""
+          },
+          {
+            "id": "t3",
+            "answer": "FailureMode",
+            "hint": ""
+          }
+        ]
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "term": "RDF triple",
+      "definition": "subject–predicate–object statement",
+      "analogy": "One edge fact"
+    },
+    {
+      "term": "TBox",
+      "definition": "Terminological box: classes & properties",
+      "analogy": "CREATE TABLE"
+    },
+    {
+      "term": "ABox",
+      "definition": "Assertional box: individuals & facts",
+      "analogy": "INSERT rows"
+    },
+    {
+      "term": "OWL",
+      "definition": "Ontology language on Description Logic",
+      "analogy": "Schema + logic rules"
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Why not create a new OWL file per product SKU?",
+      "a": "New product is ABox under shared TBox; per-SKU schema does not scale.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "ObjectProperty vs DatatypeProperty?",
+      "a": "Object links resources; Datatype links to literals (XSD).",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Where does runtime diagnosis usually run?",
+      "a": "Neo4j property graph (operational ABox); RDF/OWL for formal interchange.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Typing an instance as owl:Class instead of your domain class.",
+    "Inventing property names not in the TBox.",
+    "Thinking Turtle file is what the chat queries at runtime."
+  ],
+  "final_boss": [
+    "From blank page: create Product, Symptom, FailureMode, indicates in rdflib.",
+    "Write equivalent Turtle by hand.",
+    "Explain TBox vs ABox with the warehouse story in 45 seconds."
+  ],
+  "source": "seed",
+  "order": 10,
+  "estimated_minutes": 40
+}

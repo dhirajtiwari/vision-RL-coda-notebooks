@@ -1,0 +1,2074 @@
+{
+  "id": "08-notebook-auto",
+  "title": "Notebook: RDF/OWL + LangGraph tutorial (auto)",
+  "description": "Auto-generated study module from rdf_owl_langgraph_tutorial.ipynb.",
+  "tags": [
+    "notebook",
+    "rdf",
+    "langgraph",
+    "assertional-box",
+    "neo4j-query-language",
+    "failure-mode-effects-analysis",
+    "indicates-edge"
+  ],
+  "story": "> **Use case:** Same warranty-diagnosis domain as the repo.\n> Works **without** an API key (mock mode). Upgrades to real LLM + Neo4j in Part 6.\n\ndef new_graph():\n    '''Helper: create a Graph with standard prefixes already bound.'''\n    g = Graph()\n    g.bind('wd',   WD)\n    g.bind('prov', PROV)\n    return g",
+  "one_liner": "Memorize, write, and test: Notebook: RDF/OWL + LangGraph tutorial (auto).",
+  "change_table": [],
+  "beats": [
+    {
+      "id": "b01",
+      "title": "Table of Contents",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# Install the two packages not yet in this venv\nimport subprocess, sys\nsubprocess.check_call([sys.executable, '-m', 'pip', 'install', '-q',\n                       'rdflib', 'langchain-openai', 'langchain-neo4j'])\nprint('Dependencies installed ✓')",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Import — brings a library/module into scope."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "What does line 2 do?",
+          "answer": "import subprocess, sys",
+          "choices": [
+            "import subprocess, sys",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `import subprocess, sys`"
+        },
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "'rdflib', 'langchain-openai', 'langchain-neo4j'])",
+          "choices": [
+            "'rdflib', 'langchain-openai', 'langchain-neo4j'])",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `'rdflib', 'langchain-openai', 'langchain-neo4j'])`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "import {{b1}}, sys\nsubprocess.{{b2}}([sys.{{b3}}, '-m', 'pip', '{{b4}}', '-q',\n                       '{{b5}}', 'langchain-openai', 'langchain-neo4j'])\nprint('Dependencies installed ✓')",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "subprocess",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "check_call",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "executable",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "install",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "rdflib",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b02",
+      "title": "Install the two packages not yet in this venv",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── Core rdflib imports ───────────────────────────────────────────────────────\nfrom rdflib import Graph, Namespace, RDF, RDFS, OWL, XSD, Literal, URIRef, BNode\nimport os\n\n# Our project namespace — same URI as the repo's warranty-diagnosis ontology\nWD   = Namespace('https://example.org/warranty-diagnosis#')\nPROV = Namespace('http://www.w3.org/ns/prov#')\n\ndef new_graph():\n    '''Helper: create a Graph with standard prefixes already bound.'''\n    g = Graph()\n    g.bind('wd',   WD)\n    g.bind('prov', PROV)\n    return g\n\nprint('rdflib imported ✓')",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Import — brings a library/module into scope."
+        },
+        {
+          "line": 3,
+          "note": "Import — brings a library/module into scope."
+        },
+        {
+          "line": 9,
+          "note": "Function definition — a reusable unit of work."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "What does line 2 do?",
+          "answer": "from rdflib import Graph, Namespace, RDF, RDFS, OWL, XSD, Literal, URIRef, BNode",
+          "choices": [
+            "from rdflib import Graph, Namespace, RDF, RDFS, OWL, XSD, Literal, URIRef, BNode",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `from rdflib import Graph, Namespace, RDF, RDFS, OWL, XSD, Literal, URIRef, BNode`"
+        },
+        {
+          "line": 3,
+          "prompt": "What does line 3 do?",
+          "answer": "import os",
+          "choices": [
+            "import os",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `import os`"
+        },
+        {
+          "line": 9,
+          "prompt": "What does line 9 do?",
+          "answer": "def new_graph():",
+          "choices": [
+            "def new_graph():",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `def new_graph():`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "g.bind('wd',   WD)",
+          "choices": [
+            "g.bind('wd',   WD)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g.bind('wd',   WD)`"
+        },
+        {
+          "line": 14,
+          "prompt": "What does line 14 do?",
+          "answer": "return g",
+          "choices": [
+            "return g",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `return g`"
+        },
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "print('rdflib imported ✓')",
+          "choices": [
+            "print('rdflib imported ✓')",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `print('rdflib imported ✓')`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "from {{b1}} import {{b2}}, {{b3}}, RDF, {{b4}}, OWL, XSD, {{b5}}, URIRef, BNode\nimport os\nWD   = Namespace('https://example.org/warranty-diagnosis#')\nPROV = Namespace('http://www.w3.org/ns/prov#')\ndef new_graph():\n    '''Helper: create a Graph with standard prefixes already bound.'''\n    g = Graph()\n    g.bind('wd',   WD)\n    g.bind('prov', PROV)\n    return g\nprint('rdflib imported ✓')",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "rdflib",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "Graph",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "Namespace",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "RDFS",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "Literal",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b03",
+      "title": "The one rule that explains everything",
+      "language": "text",
+      "narrative": "Master this text fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "Subject  →  Predicate  →  Object",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 1,
+          "prompt": "What does line 1 do?",
+          "answer": "Subject  →  Predicate  →  Object",
+          "choices": [
+            "Subject  →  Predicate  →  Object",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `Subject  →  Predicate  →  Object`"
+        }
+      ],
+      "fill_blanks": null
+    },
+    {
+      "id": "b04",
+      "title": "The vocabulary ladder (what each keyword does)",
+      "language": "turtle",
+      "narrative": "Master this turtle fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "rdf:type            ← \"is of type\" (what something IS)\nrdfs:label          ← human-readable name\nrdfs:comment        ← description\nrdfs:subClassOf     ← inheritance (A is a kind of B)\nrdfs:domain         ← the \"from\" class of a property\nrdfs:range          ← the \"to\" class / datatype of a property\n\nowl:Class           ← declares a class  (stronger than rdfs:Class)\nowl:ObjectProperty  ← relationship between two nodes (URI → URI)\nowl:DatatypeProperty ← attribute with a literal value (URI → string/number)\nowl:Ontology        ← the namespace/file declaration itself",
+      "annotations": [
+        {
+          "line": 8,
+          "note": "TBox class declaration."
+        },
+        {
+          "line": 9,
+          "note": "Object property — edge between two resources."
+        },
+        {
+          "line": 10,
+          "note": "Datatype property — literal attribute."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 1,
+          "prompt": "What does line 1 do?",
+          "answer": "rdf:type            ← \"is of type\" (what something IS)",
+          "choices": [
+            "rdf:type            ← \"is of type\" (what something IS)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `rdf:type            ← \"is of type\" (what something IS)`"
+        },
+        {
+          "line": 2,
+          "prompt": "What does line 2 do?",
+          "answer": "rdfs:label          ← human-readable name",
+          "choices": [
+            "rdfs:label          ← human-readable name",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `rdfs:label          ← human-readable name`"
+        },
+        {
+          "line": 3,
+          "prompt": "What does line 3 do?",
+          "answer": "rdfs:comment        ← description",
+          "choices": [
+            "rdfs:comment        ← description",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `rdfs:comment        ← description`"
+        },
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "rdfs:subClassOf     ← inheritance (A is a kind of B)",
+          "choices": [
+            "rdfs:subClassOf     ← inheritance (A is a kind of B)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `rdfs:subClassOf     ← inheritance (A is a kind of B)`"
+        },
+        {
+          "line": 5,
+          "prompt": "What does line 5 do?",
+          "answer": "rdfs:domain         ← the \"from\" class of a property",
+          "choices": [
+            "rdfs:domain         ← the \"from\" class of a property",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `rdfs:domain         ← the \"from\" class of a property`"
+        },
+        {
+          "line": 6,
+          "prompt": "What does line 6 do?",
+          "answer": "rdfs:range          ← the \"to\" class / datatype of a property",
+          "choices": [
+            "rdfs:range          ← the \"to\" class / datatype of a property",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `rdfs:range          ← the \"to\" class / datatype of a property`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "owl:Class           ← declares a class  (stronger than rdfs:Class)",
+          "choices": [
+            "owl:Class           ← declares a class  (stronger than rdfs:Class)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `owl:Class           ← declares a class  (stronger than rdfs:Class)`"
+        },
+        {
+          "line": 9,
+          "prompt": "What does line 9 do?",
+          "answer": "owl:ObjectProperty  ← relationship between two nodes (URI → URI)",
+          "choices": [
+            "owl:ObjectProperty  ← relationship between two nodes (URI → URI)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `owl:ObjectProperty  ← relationship between two nodes (URI → URI)`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "rdf:{{b1}}            ← \"is of type\" ({{b2}} {{b3}} IS)\n{{b4}}:{{b5}}          ← human-readable name\nrdfs:comment        ← description\nrdfs:subClassOf     ← inheritance (A is a kind of B)\nrdfs:domain         ← the \"from\" class of a property\nrdfs:range          ← the \"to\" class / datatype of a property\nowl:Class           ← declares a class  (stronger than rdfs:Class)\nowl:ObjectProperty  ← relationship between two nodes (URI → URI)\nowl:DatatypeProperty ← attribute with a literal value (URI → string/number)\nowl:Ontology        ← the namespace/file declaration itself",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "type",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b2",
+            "answer": "what",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b3",
+            "answer": "something",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b4",
+            "answer": "rdfs",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b5",
+            "answer": "label",
+            "hint": "turtle token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b05",
+      "title": "The vocabulary ladder (what each keyword does)",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── TBox Part A: Classes ───────────────────────────────────────────────────────\n#\n# Pattern for every class (three triples per class):\n#   g.add( (WD.ClassName, RDF.type,     OWL.Class)           )  ← IS an OWL Class\n#   g.add( (WD.ClassName, RDFS.label,   Literal('name'))     )  ← human-readable label\n#   g.add( (WD.ClassName, RDFS.comment, Literal('desc'))     )  ← description\n#\n# In Turtle syntax this looks like:\n#   wd:Product a owl:Class ;\n#     rdfs:label   \"Product\" ;\n#     rdfs:comment \"Manufacturable product family.\" .\n\ng_tbox = new_graph()\n\n# Declare the Ontology header (the namespace itself)\nONTO = URIRef('https://example.org/warranty-diagnosis/ontology')\ng_tbox.add((ONTO, RDF.type,        OWL.Ontology))\ng_tbox.add((ONTO, RDFS.label,      Literal('Warranty Diagnosis Ontology')))\ng_tbox.add((ONTO, OWL.versionInfo, Literal('1.0.0')))\n\n# (URI, label, description)\nCLASSES = [\n    (WD.Product,        'Product',        'Manufacturable product family / catalog product.'),\n    (WD.Model,          'Model',          'Engineering model under a product family.'),\n    (WD.SKU,            'SKU',            'Sellable stock-keeping unit / revision.'),\n    (WD.Asset,          'Asset',          'Installed unit identified by serial number.'),\n    (WD.Symptom,        'Symptom',        'Customer-observable or technician-observed symptom.'),\n    (WD.ErrorCode,      'ErrorCode',      'Device-reported diagnostic error code.'),\n    (WD.FailureMode,    'FailureMode',    'Diagnosed failure mode (FMEA-aligned).'),\n    (WD.DiagnosticStep, 'DiagnosticStep', 'Troubleshooting or confirmation step.'),\n    (WD.Component,      'Component',      'BOM / subsystem component (product structure).'),\n    (WD.Part,           'Part',           'Serviceable replacement part.'),\n    (WD.Claim,          'Claim',          'Warranty claim with confirmed failure.'),\n    (WD.WarrantyPolicy, 'WarrantyPolicy', 'Coverage rules for parts and labor.'),\n]\n\nfor uri, label, comment in CLASSES:\n    g_tbox.add((uri, RDF.type,     OWL.Class))\n    g_tbox.add((uri, RDFS.label,   Literal(label)))\n    g_tbox.add((uri, RDFS.comment, Literal(comment)))\n\nprint(f'Classes defined: {len(CLASSES)}')\nprint(f'TBox triples so far: {len(g_tbox)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "ONTO = URIRef('https://example.org/warranty-diagnosis/ontology')",
+          "choices": [
+            "ONTO = URIRef('https://example.org/warranty-diagnosis/ontology')",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `ONTO = URIRef('https://example.org/warranty-diagnosis/ontology')`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "(WD.Model,          'Model',          'Engineering model under a product family.'),",
+          "choices": [
+            "(WD.Model,          'Model',          'Engineering model under a product family.'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.Model,          'Model',          'Engineering model under a product family.`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "(WD.ErrorCode,      'ErrorCode',      'Device-reported diagnostic error code.'),",
+          "choices": [
+            "(WD.ErrorCode,      'ErrorCode',      'Device-reported diagnostic error code.'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.ErrorCode,      'ErrorCode',      'Device-reported diagnostic error code.'),`"
+        },
+        {
+          "line": 32,
+          "prompt": "What does line 32 do?",
+          "answer": "(WD.Part,           'Part',           'Serviceable replacement part.'),",
+          "choices": [
+            "(WD.Part,           'Part',           'Serviceable replacement part.'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.Part,           'Part',           'Serviceable replacement part.'),`"
+        },
+        {
+          "line": 40,
+          "prompt": "What does line 40 do?",
+          "answer": "g_tbox.add((uri, RDFS.comment, Literal(comment)))",
+          "choices": [
+            "g_tbox.add((uri, RDFS.comment, Literal(comment)))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((uri, RDFS.comment, Literal(comment)))`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = {{b2}}()\n{{b3}} = {{b4}}('{{b5}}://example.org/warranty-diagnosis/ontology')\ng_tbox.add((ONTO, RDF.type,        OWL.Ontology))\ng_tbox.add((ONTO, RDFS.label,      Literal('Warranty Diagnosis Ontology')))\ng_tbox.add((ONTO, OWL.versionInfo, Literal('1.0.0')))\nCLASSES = [\n    (WD.Product,        'Product',        'Manufacturable product family / catalog product.'),\n    (WD.Model,          'Model',          'Engineering model under a product family.'),\n    (WD.SKU,            'SKU',            'Sellable stock-keeping unit / revision.'),\n    (WD.Asset,          'Asset',          'Installed unit identified by serial number.'),\n    (WD.Symptom,        'Symptom',        'Customer-observable or technician-observed symptom.'),\n    (WD.ErrorCode,      'ErrorCode',      'Device-reported diagnostic error code.'),\n    (WD.FailureMode,    'FailureMode',    'Diagnosed failure mode (FMEA-aligned).'),\n    (WD.DiagnosticStep, 'DiagnosticStep', 'Troubleshooting or confirmation step.'),",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "g_tbox",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "new_graph",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "ONTO",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "URIRef",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "https",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b06",
+      "title": "(URI, label, description)",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── TBox Part B: ObjectProperties (edges between nodes) ───────────────────────\n#\n# ObjectProperty  = both sides are URIs (node → node)\n# DatatypeProperty = right side is a literal (node → string/number/date)\n#\n# rdfs:domain = the \"from\" class    (left side of the arrow)\n# rdfs:range  = the \"to\" class      (right side of the arrow)\n#\n# Turtle example:\n#   wd:hasSymptom a owl:ObjectProperty ;\n#     rdfs:domain wd:Product ;   ← a Product ...\n#     rdfs:range  wd:Symptom .   ← ... hasSymptom → a Symptom\n\nOBJECT_PROPS = [\n    # (property_URI,          from_class,        to_class,           comment)\n    (WD.hasModel,           WD.Product,        WD.Model,           'Product → Model'),\n    (WD.hasSku,             WD.Product,        WD.SKU,             'Product → SKU'),\n    (WD.modelHasSku,        WD.Model,          WD.SKU,             'Model → SKU revision'),\n    (WD.instanceOf,         WD.Asset,          WD.Product,         'Asset is instance of Product'),\n    (WD.boundToSku,         WD.Asset,          WD.SKU,             'Asset bound to SKU'),\n    (WD.hasSymptom,         WD.Product,        WD.Symptom,         'Product can present Symptom'),\n    (WD.hasErrorCode,       WD.Product,        WD.ErrorCode,       'Product can raise ErrorCode'),\n    (WD.canHave,            WD.Product,        WD.FailureMode,     'Product can exhibit FailureMode'),\n    (WD.hasDiagnosticStep,  WD.Product,        WD.DiagnosticStep,  'Product has DiagnosticStep'),\n    (WD.indicates,          WD.Symptom,        WD.FailureMode,     'Symptom → FailureMode (confidence on edge)'),\n    (WD.errorCodeIndicates, WD.ErrorCode,      WD.FailureMode,     'ErrorCode → FailureMode'),\n    (WD.confirms,           WD.DiagnosticStep, WD.FailureMode,     'Step confirms FailureMode'),\n    (WD.rulesOut,           WD.DiagnosticStep, WD.FailureMode,     'Step rules out FailureMode'),\n    (WD.nextStep,           WD.DiagnosticStep, WD.DiagnosticStep,  'Step chains to next Step'),\n    (WD.impactsComponent,   WD.FailureMode,    WD.Component,       'FailureMode → Component'),\n    (WD.realizedBy,         WD.Component,      WD.Part,            'Component → service Part'),\n    (WD.requiresPart,       WD.FailureMode,    WD.Part,            'FailureMode requires Part'),\n    (WD.compatibleWith,     WD.SKU,            WD.Part,            'SKU compatible with Part'),\n    (WD.coveredBy,          WD.Asset,          WD.WarrantyPolicy,  'Asset covered by WarrantyPolicy'),\n]\n\nfor prop, domain, range_, comment in OBJECT_PROPS:\n    g_tbox.add((prop, RDF.type,     OWL.ObjectProperty))\n    g_tbox.add((prop, RDFS.domain,  domain))\n    g_tbox.add((prop, RDFS.range,   range_))\n    g_tbox.add((prop, RDFS.comment, Literal(comment)))\n\nprint(f'ObjectProperties added: {len(OBJECT_PROPS)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "(WD.hasModel,           WD.Product,        WD.Model,           'Product → Model'),",
+          "choices": [
+            "(WD.hasModel,           WD.Product,        WD.Model,           'Product → Model'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.hasModel,           WD.Product,        WD.Model,           'Product → Model'`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "(WD.boundToSku,         WD.Asset,          WD.SKU,             'Asset bound to SKU'),",
+          "choices": [
+            "(WD.boundToSku,         WD.Asset,          WD.SKU,             'Asset bound to SKU'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.boundToSku,         WD.Asset,          WD.SKU,             'Asset bound to S`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "(WD.hasDiagnosticStep,  WD.Product,        WD.DiagnosticStep,  'Product has DiagnosticStep'),",
+          "choices": [
+            "(WD.hasDiagnosticStep,  WD.Product,        WD.DiagnosticStep,  'Product has DiagnosticStep'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.hasDiagnosticStep,  WD.Product,        WD.DiagnosticStep,  'Product has Diag`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "(WD.rulesOut,           WD.DiagnosticStep, WD.FailureMode,     'Step rules out FailureMode'),",
+          "choices": [
+            "(WD.rulesOut,           WD.DiagnosticStep, WD.FailureMode,     'Step rules out FailureMode'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.rulesOut,           WD.DiagnosticStep, WD.FailureMode,     'Step rules out F`"
+        },
+        {
+          "line": 32,
+          "prompt": "What does line 32 do?",
+          "answer": "(WD.requiresPart,       WD.FailureMode,    WD.Part,            'FailureMode requires Part'),",
+          "choices": [
+            "(WD.requiresPart,       WD.FailureMode,    WD.Part,            'FailureMode requires Part'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.requiresPart,       WD.FailureMode,    WD.Part,            'FailureMode requ`"
+        },
+        {
+          "line": 40,
+          "prompt": "What does line 40 do?",
+          "answer": "g_tbox.add((prop, RDFS.range,   range_))",
+          "choices": [
+            "g_tbox.add((prop, RDFS.range,   range_))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((prop, RDFS.range,   range_))`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = [\n    (WD.{{b2}},           WD.{{b3}},        WD.{{b4}},           'Product → Model'),\n    (WD.{{b5}},             WD.Product,        WD.SKU,             'Product → SKU'),\n    (WD.modelHasSku,        WD.Model,          WD.SKU,             'Model → SKU revision'),\n    (WD.instanceOf,         WD.Asset,          WD.Product,         'Asset is instance of Product'),\n    (WD.boundToSku,         WD.Asset,          WD.SKU,             'Asset bound to SKU'),\n    (WD.hasSymptom,         WD.Product,        WD.Symptom,         'Product can present Symptom'),\n    (WD.hasErrorCode,       WD.Product,        WD.ErrorCode,       'Product can raise ErrorCode'),\n    (WD.canHave,            WD.Product,        WD.FailureMode,     'Product can exhibit FailureMode'),\n    (WD.hasDiagnosticStep,  WD.Product,        WD.DiagnosticStep,  'Product has DiagnosticStep'),\n    (WD.indicates,          WD.Symptom,        WD.FailureMode,     'Symptom → FailureMode (confidence on edge)'),\n    (WD.errorCodeIndicates, WD.ErrorCode,      WD.FailureMode,     'ErrorCode → FailureMode'),\n    (WD.confirms,           WD.DiagnosticStep, WD.FailureMode,     'Step confirms FailureMode'),\n    (WD.rulesOut,           WD.DiagnosticStep, WD.FailureMode,     'Step rules out FailureMode'),",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "OBJECT_PROPS",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "hasModel",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "Product",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "Model",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "hasSku",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b07",
+      "title": "rdfs:range  wd:Symptom .   ← ... hasSymptom → a Symptom",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── TBox Part C: DatatypeProperties (attributes with literal values) ───────────\n#\n# DatatypeProperty = right side is NOT another node, it is a literal value\n# rdfs:range here is an XSD datatype, not an owl:Class\n#\n# XSD type cheat sheet:\n#   xsd:string    → any text\n#   xsd:decimal   → number with decimals (0.94, 28.99)\n#   xsd:integer   → whole number (24, 1)\n#   xsd:boolean   → true / false\n#   xsd:date      → ISO date (2024-01-15)\n#\n# Turtle example:\n#   wd:severity a owl:DatatypeProperty ;\n#     rdfs:domain wd:Symptom ;\n#     rdfs:range  xsd:string .   ← value will be a string, not a URI\n\nDATATYPE_PROPS = [\n    # (property_URI,         domain,            xsd_type,     comment)\n    (WD.productId,         WD.Product,        XSD.string,   'Stable product identifier'),\n    (WD.name,              WD.Product,        XSD.string,   'Display name'),\n    (WD.category,          WD.Product,        XSD.string,   'Product category'),\n    (WD.brand,             WD.Product,        XSD.string,   'Brand name'),\n    (WD.symptomId,         WD.Symptom,        XSD.string,   'Symptom identifier'),\n    (WD.description,       WD.Symptom,        XSD.string,   'Symptom description text'),\n    (WD.severity,          WD.Symptom,        XSD.string,   'low | medium | high | critical'),\n    (WD.errorCodeId,       WD.ErrorCode,      XSD.string,   'Error code string e.g. E21'),\n    (WD.failureModeId,     WD.FailureMode,    XSD.string,   'Failure mode identifier'),\n    (WD.confidence,        None,              XSD.decimal,  'Link confidence 0.0-1.0 (used on Axiom nodes)'),\n    (WD.partNumber,        WD.Part,           XSD.string,   'OEM / service part number'),\n    (WD.estimatedCostUsd,  WD.Part,           XSD.decimal,  'Estimated part cost in USD'),\n    (WD.stepId,            WD.DiagnosticStep, XSD.string,   'Step identifier'),\n    (WD.instruction,       WD.DiagnosticStep, XSD.string,   'Step instruction text'),\n    (WD.serialNumber,      WD.Asset,          XSD.string,   'Asset serial number'),\n    (WD.policyId,          WD.WarrantyPolicy, XSD.string,   'Policy identifier'),\n    (WD.coverageMonths,    WD.WarrantyPolicy, XSD.integer,  'Coverage duration in months'),\n]\n\nfor prop, domain, range_, comment in DATATYPE_PROPS:\n    g_tbox.add((prop, RDF.type,     OWL.DatatypeProperty))\n    if domain:                              # confidence has no fixed domain\n        g_tbox.add((prop, RDFS.domain, domain))\n    g_tbox.add((prop, RDFS.range,   range_))\n    g_tbox.add((prop, RDFS.comment, Literal(comment)))\n\nprint(f'DatatypeProperties added: {len(DATATYPE_PROPS)}')\nprint(f'Total TBox triples now:   {len(g_tbox)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "(WD.productId,         WD.Product,        XSD.string,   'Stable product identifier'),",
+          "choices": [
+            "(WD.productId,         WD.Product,        XSD.string,   'Stable product identifier'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.productId,         WD.Product,        XSD.string,   'Stable product identifi`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "(WD.symptomId,         WD.Symptom,        XSD.string,   'Symptom identifier'),",
+          "choices": [
+            "(WD.symptomId,         WD.Symptom,        XSD.string,   'Symptom identifier'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.symptomId,         WD.Symptom,        XSD.string,   'Symptom identifier'),`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "(WD.failureModeId,     WD.FailureMode,    XSD.string,   'Failure mode identifier'),",
+          "choices": [
+            "(WD.failureModeId,     WD.FailureMode,    XSD.string,   'Failure mode identifier'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.failureModeId,     WD.FailureMode,    XSD.string,   'Failure mode identifier`"
+        },
+        {
+          "line": 32,
+          "prompt": "What does line 32 do?",
+          "answer": "(WD.stepId,            WD.DiagnosticStep, XSD.string,   'Step identifier'),",
+          "choices": [
+            "(WD.stepId,            WD.DiagnosticStep, XSD.string,   'Step identifier'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.stepId,            WD.DiagnosticStep, XSD.string,   'Step identifier'),`"
+        },
+        {
+          "line": 36,
+          "prompt": "What does line 36 do?",
+          "answer": "(WD.coverageMonths,    WD.WarrantyPolicy, XSD.integer,  'Coverage duration in months'),",
+          "choices": [
+            "(WD.coverageMonths,    WD.WarrantyPolicy, XSD.integer,  'Coverage duration in months'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.coverageMonths,    WD.WarrantyPolicy, XSD.integer,  'Coverage duration in mo`"
+        },
+        {
+          "line": 40,
+          "prompt": "What does line 40 do?",
+          "answer": "g_tbox.add((prop, RDF.type,     OWL.DatatypeProperty))",
+          "choices": [
+            "g_tbox.add((prop, RDF.type,     OWL.DatatypeProperty))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((prop, RDF.type,     OWL.DatatypeProperty))`"
+        },
+        {
+          "line": 44,
+          "prompt": "What does line 44 do?",
+          "answer": "g_tbox.add((prop, RDFS.comment, Literal(comment)))",
+          "choices": [
+            "g_tbox.add((prop, RDFS.comment, Literal(comment)))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((prop, RDFS.comment, Literal(comment)))`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = [\n    (WD.{{b2}},         WD.{{b3}},        XSD.{{b4}},   '{{b5}} product identifier'),\n    (WD.name,              WD.Product,        XSD.string,   'Display name'),\n    (WD.category,          WD.Product,        XSD.string,   'Product category'),\n    (WD.brand,             WD.Product,        XSD.string,   'Brand name'),\n    (WD.symptomId,         WD.Symptom,        XSD.string,   'Symptom identifier'),\n    (WD.description,       WD.Symptom,        XSD.string,   'Symptom description text'),\n    (WD.severity,          WD.Symptom,        XSD.string,   'low | medium | high | critical'),\n    (WD.errorCodeId,       WD.ErrorCode,      XSD.string,   'Error code string e.g. E21'),\n    (WD.failureModeId,     WD.FailureMode,    XSD.string,   'Failure mode identifier'),\n    (WD.confidence,        None,              XSD.decimal,  'Link confidence 0.0-1.0 (used on Axiom nodes)'),\n    (WD.partNumber,        WD.Part,           XSD.string,   'OEM / service part number'),\n    (WD.estimatedCostUsd,  WD.Part,           XSD.decimal,  'Estimated part cost in USD'),\n    (WD.stepId,            WD.DiagnosticStep, XSD.string,   'Step identifier'),",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "DATATYPE_PROPS",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "productId",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "Product",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "string",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "Stable",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b08",
+      "title": "OWL-Only Axioms",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── TBox Part D: OWL-only logical axioms ──────────────────────────────────────\n\n# 1. Disjoint classes — a reasoner flags anything that is BOTH a Product AND a Symptom\nfor class_a, class_b in [\n    (WD.Product,   WD.Symptom),\n    (WD.Product,   WD.FailureMode),\n    (WD.Symptom,   WD.FailureMode),\n    (WD.Part,      WD.Component),\n]:\n    g_tbox.add((class_a, OWL.disjointWith, class_b))\n\n# 2. Inverse property\n#    If product_wm001 hasModel model_wm8k  →  reasoner infers  model_wm8k isModelOf product_wm001\ng_tbox.add((WD.isModelOf, RDF.type,      OWL.ObjectProperty))\ng_tbox.add((WD.isModelOf, OWL.inverseOf, WD.hasModel))\ng_tbox.add((WD.isModelOf, RDFS.label,    Literal('isModelOf')))\n\n# 3. Transitive property\n#    stepA nextStep stepB  +  stepB nextStep stepC  →  stepA nextStep stepC  (inferred)\ng_tbox.add((WD.nextStep, RDF.type, OWL.TransitiveProperty))\n\n# 4. Cardinality restriction using a blank node (anonymous node, no name needed)\n#    \"Every Asset MUST have at least one WarrantyPolicy\"\n#    In Turtle:  wd:Asset rdfs:subClassOf [ a owl:Restriction ;\n#                  owl:onProperty wd:coveredBy ; owl:minCardinality 1 ] .\nr = BNode()                                                        # anonymous blank node\ng_tbox.add((r, RDF.type,           OWL.Restriction))\ng_tbox.add((r, OWL.onProperty,     WD.coveredBy))\ng_tbox.add((r, OWL.minCardinality, Literal(1, datatype=XSD.integer)))\ng_tbox.add((WD.Asset, RDFS.subClassOf, r))          # Asset must satisfy this restriction\n\nprint('OWL axioms added ✓')\nprint(f'Final TBox triple count: {len(g_tbox)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "for class_a, class_b in [",
+          "choices": [
+            "for class_a, class_b in [",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `for class_a, class_b in [`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "(WD.Part,      WD.Component),",
+          "choices": [
+            "(WD.Part,      WD.Component),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.Part,      WD.Component),`"
+        },
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "g_tbox.add((WD.isModelOf, RDFS.label,    Literal('isModelOf')))",
+          "choices": [
+            "g_tbox.add((WD.isModelOf, RDFS.label,    Literal('isModelOf')))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((WD.isModelOf, RDFS.label,    Literal('isModelOf')))`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "g_tbox.add((WD.nextStep, RDF.type, OWL.TransitiveProperty))",
+          "choices": [
+            "g_tbox.add((WD.nextStep, RDF.type, OWL.TransitiveProperty))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((WD.nextStep, RDF.type, OWL.TransitiveProperty))`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "g_tbox.add((r, OWL.onProperty,     WD.coveredBy))",
+          "choices": [
+            "g_tbox.add((r, OWL.onProperty,     WD.coveredBy))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_tbox.add((r, OWL.onProperty,     WD.coveredBy))`"
+        },
+        {
+          "line": 32,
+          "prompt": "What does line 32 do?",
+          "answer": "print('OWL axioms added ✓')",
+          "choices": [
+            "print('OWL axioms added ✓')",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `print('OWL axioms added ✓')`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "for {{b1}}, {{b2}} in [\n    (WD.{{b3}},   WD.{{b4}}),\n    (WD.Product,   WD.{{b5}}),\n    (WD.Symptom,   WD.FailureMode),\n    (WD.Part,      WD.Component),\n]:\n    g_tbox.add((class_a, OWL.disjointWith, class_b))\ng_tbox.add((WD.isModelOf, RDF.type,      OWL.ObjectProperty))\ng_tbox.add((WD.isModelOf, OWL.inverseOf, WD.hasModel))\ng_tbox.add((WD.isModelOf, RDFS.label,    Literal('isModelOf')))\ng_tbox.add((WD.nextStep, RDF.type, OWL.TransitiveProperty))\nr = BNode()                                                        # anonymous blank node\ng_tbox.add((r, RDF.type,           OWL.Restriction))\ng_tbox.add((r, OWL.onProperty,     WD.coveredBy))",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "class_a",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "class_b",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "Product",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "Symptom",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "FailureMode",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b09",
+      "title": "owl:onProperty wd:coveredBy ; owl:minCardinality 1 ] .",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── Serialize TBox to Turtle — READ this to see what you just built ────────────\n# Every add() call above corresponds to one or more of these lines.\nprint(g_tbox.serialize(format='turtle'))",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": null
+    },
+    {
+      "id": "b10",
+      "title": "Part 2 — ABox: Populating the Graph with Data",
+      "language": "turtle",
+      "narrative": "Master this turtle fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# TBox line (defines the class Product):\nwd:Product  a  owl:Class .                           \n\n# ABox lines (create an instance of Product):\nwd:product_wm001  a            wd:Product .          # ← \"this node IS a Product\"\nwd:product_wm001  wd:name      \"Washing Machine\" .   # ← data attribute\nwd:product_wm001  wd:hasModel  wd:model_wm8k .       # ← relationship to another node",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "TBox class declaration."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "What does line 2 do?",
+          "answer": "wd:Product  a  owl:Class .",
+          "choices": [
+            "wd:Product  a  owl:Class .",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `wd:Product  a  owl:Class .`"
+        },
+        {
+          "line": 5,
+          "prompt": "What does line 5 do?",
+          "answer": "wd:product_wm001  a            wd:Product .          # ← \"this node IS a Product\"",
+          "choices": [
+            "wd:product_wm001  a            wd:Product .          # ← \"this node IS a Product\"",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `wd:product_wm001  a            wd:Product .          # ← \"this node IS a Product`"
+        },
+        {
+          "line": 6,
+          "prompt": "What does line 6 do?",
+          "answer": "wd:product_wm001  wd:name      \"Washing Machine\" .   # ← data attribute",
+          "choices": [
+            "wd:product_wm001  wd:name      \"Washing Machine\" .   # ← data attribute",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `wd:product_wm001  wd:name      \"Washing Machine\" .   # ← data attribute`"
+        },
+        {
+          "line": 7,
+          "prompt": "What does line 7 do?",
+          "answer": "wd:product_wm001  wd:hasModel  wd:model_wm8k .       # ← relationship to another node",
+          "choices": [
+            "wd:product_wm001  wd:hasModel  wd:model_wm8k .       # ← relationship to another node",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `wd:product_wm001  wd:hasModel  wd:model_wm8k .       # ← relationship to another`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "wd:{{b1}}  a  owl:Class .                           \nwd:{{b2}}  a            wd:Product .          # ← \"this {{b3}} IS a Product\"\nwd:product_wm001  wd:{{b4}}      \"{{b5}} Machine\" .   # ← data attribute\nwd:product_wm001  wd:hasModel  wd:model_wm8k .       # ← relationship to another node",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "Product",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b2",
+            "answer": "product_wm001",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b3",
+            "answer": "node",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b4",
+            "answer": "name",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b5",
+            "answer": "Washing",
+            "hint": "turtle token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b11",
+      "title": "Annotating edges: `owl:Axiom` reification",
+      "language": "turtle",
+      "narrative": "Master this turtle fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# The plain edge:\nwd:sym_wm_s01  wd:indicates  wd:fm_wm_fm01 .\n\n# The annotation ([] = anonymous blank node):\n[]  a  owl:Axiom ;\n    owl:annotatedSource    wd:sym_wm_s01 ;     ← points at the subject\n    owl:annotatedProperty  wd:indicates ;       ← points at the predicate\n    owl:annotatedTarget    wd:fm_wm_fm01 ;      ← points at the object\n    wd:confidence          \"0.94\"^^xsd:decimal .  ← the extra data",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "What does line 2 do?",
+          "answer": "wd:sym_wm_s01  wd:indicates  wd:fm_wm_fm01 .",
+          "choices": [
+            "wd:sym_wm_s01  wd:indicates  wd:fm_wm_fm01 .",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `wd:sym_wm_s01  wd:indicates  wd:fm_wm_fm01 .`"
+        },
+        {
+          "line": 5,
+          "prompt": "What does line 5 do?",
+          "answer": "[]  a  owl:Axiom ;",
+          "choices": [
+            "[]  a  owl:Axiom ;",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `[]  a  owl:Axiom ;`"
+        },
+        {
+          "line": 6,
+          "prompt": "What does line 6 do?",
+          "answer": "owl:annotatedSource    wd:sym_wm_s01 ;     ← points at the subject",
+          "choices": [
+            "owl:annotatedSource    wd:sym_wm_s01 ;     ← points at the subject",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `owl:annotatedSource    wd:sym_wm_s01 ;     ← points at the subject`"
+        },
+        {
+          "line": 7,
+          "prompt": "What does line 7 do?",
+          "answer": "owl:annotatedProperty  wd:indicates ;       ← points at the predicate",
+          "choices": [
+            "owl:annotatedProperty  wd:indicates ;       ← points at the predicate",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `owl:annotatedProperty  wd:indicates ;       ← points at the predicate`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "owl:annotatedTarget    wd:fm_wm_fm01 ;      ← points at the object",
+          "choices": [
+            "owl:annotatedTarget    wd:fm_wm_fm01 ;      ← points at the object",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `owl:annotatedTarget    wd:fm_wm_fm01 ;      ← points at the object`"
+        },
+        {
+          "line": 9,
+          "prompt": "What does line 9 do?",
+          "answer": "wd:confidence          \"0.94\"^^xsd:decimal .  ← the extra data",
+          "choices": [
+            "wd:confidence          \"0.94\"^^xsd:decimal .  ← the extra data",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `wd:confidence          \"0.94\"^^xsd:decimal .  ← the extra data`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "wd:{{b1}}  wd:{{b2}}  wd:{{b3}} .\n[]  a  owl:{{b4}} ;\n    owl:{{b5}}    wd:sym_wm_s01 ;     ← points at the subject\n    owl:annotatedProperty  wd:indicates ;       ← points at the predicate\n    owl:annotatedTarget    wd:fm_wm_fm01 ;      ← points at the object\n    wd:confidence          \"0.94\"^^xsd:decimal .  ← the extra data",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "sym_wm_s01",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b2",
+            "answer": "indicates",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b3",
+            "answer": "fm_wm_fm01",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b4",
+            "answer": "Axiom",
+            "hint": "turtle token"
+          },
+          {
+            "id": "b5",
+            "answer": "annotatedSource",
+            "hint": "turtle token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b12",
+      "title": "The annotation ([] = anonymous blank node):",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── ABox: Products, Models, SKUs, Assets ──────────────────────────────────────\ng_abox = new_graph()\n\n# ── Product ───────────────────────────────────────────────────────────────────\ng_abox.add((WD.product_wm001, RDF.type,     WD.Product))\ng_abox.add((WD.product_wm001, WD.productId, Literal('wm-001')))\ng_abox.add((WD.product_wm001, WD.name,      Literal('Front Load Washing Machine 8kg')))\ng_abox.add((WD.product_wm001, WD.category,  Literal('Laundry')))\ng_abox.add((WD.product_wm001, WD.brand,     Literal('AquaHome')))\n\n# ── Model ─────────────────────────────────────────────────────────────────────\ng_abox.add((WD.model_wm8k, RDF.type,   WD.Model))\ng_abox.add((WD.model_wm8k, RDFS.label, Literal('AH-WM8K')))\ng_abox.add((WD.product_wm001, WD.hasModel, WD.model_wm8k))   # relationship triple\n\n# ── SKUs (two revisions of the same model) ────────────────────────────────────\nfor sku_attr, sku_label in [('sku_wm8k_2023', 'SKU-WM8K-2023'),\n                              ('sku_wm8k_2024', 'SKU-WM8K-2024')]:\n    sku_uri = WD[sku_attr]\n    g_abox.add((sku_uri, RDF.type,   WD.SKU))\n    g_abox.add((sku_uri, RDFS.label, Literal(sku_label)))\n    g_abox.add((WD.product_wm001, WD.hasSku,      sku_uri))\n    g_abox.add((WD.model_wm8k,   WD.modelHasSku,  sku_uri))\n\n# ── Asset (a specific installed unit with a serial number) ────────────────────\ng_abox.add((WD.asset_SN00123, RDF.type,        WD.Asset))\ng_abox.add((WD.asset_SN00123, WD.serialNumber, Literal('SN-00123')))\ng_abox.add((WD.asset_SN00123, WD.instanceOf,   WD.product_wm001))\ng_abox.add((WD.asset_SN00123, WD.boundToSku,   WD['sku_wm8k_2024']))\n\n# ── WarrantyPolicy ────────────────────────────────────────────────────────────\ng_abox.add((WD.policy_WP001, RDF.type,          WD.WarrantyPolicy))\ng_abox.add((WD.policy_WP001, WD.policyId,       Literal('WP-001')))\ng_abox.add((WD.policy_WP001, WD.coverageMonths, Literal(24, datatype=XSD.integer)))\ng_abox.add((WD.asset_SN00123, WD.coveredBy,     WD.policy_WP001))\n\nprint(f'Product/Model/SKU/Asset triples: {len(g_abox)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "g_abox.add((WD.product_wm001, WD.category,  Literal('Laundry')))",
+          "choices": [
+            "g_abox.add((WD.product_wm001, WD.category,  Literal('Laundry')))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((WD.product_wm001, WD.category,  Literal('Laundry')))`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "g_abox.add((WD.model_wm8k, RDF.type,   WD.Model))",
+          "choices": [
+            "g_abox.add((WD.model_wm8k, RDF.type,   WD.Model))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((WD.model_wm8k, RDF.type,   WD.Model))`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "g_abox.add((sku_uri, RDF.type,   WD.SKU))",
+          "choices": [
+            "g_abox.add((sku_uri, RDF.type,   WD.SKU))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((sku_uri, RDF.type,   WD.SKU))`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "g_abox.add((WD.asset_SN00123, WD.instanceOf,   WD.product_wm001))",
+          "choices": [
+            "g_abox.add((WD.asset_SN00123, WD.instanceOf,   WD.product_wm001))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((WD.asset_SN00123, WD.instanceOf,   WD.product_wm001))`"
+        },
+        {
+          "line": 32,
+          "prompt": "What does line 32 do?",
+          "answer": "g_abox.add((WD.policy_WP001, RDF.type,          WD.WarrantyPolicy))",
+          "choices": [
+            "g_abox.add((WD.policy_WP001, RDF.type,          WD.WarrantyPolicy))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((WD.policy_WP001, RDF.type,          WD.WarrantyPolicy))`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = {{b2}}()\ng_abox.add((WD.{{b3}}, RDF.{{b4}},     WD.{{b5}}))\ng_abox.add((WD.product_wm001, WD.productId, Literal('wm-001')))\ng_abox.add((WD.product_wm001, WD.name,      Literal('Front Load Washing Machine 8kg')))\ng_abox.add((WD.product_wm001, WD.category,  Literal('Laundry')))\ng_abox.add((WD.product_wm001, WD.brand,     Literal('AquaHome')))\ng_abox.add((WD.model_wm8k, RDF.type,   WD.Model))\ng_abox.add((WD.model_wm8k, RDFS.label, Literal('AH-WM8K')))\ng_abox.add((WD.product_wm001, WD.hasModel, WD.model_wm8k))   # relationship triple\nfor sku_attr, sku_label in [('sku_wm8k_2023', 'SKU-WM8K-2023'),\n                              ('sku_wm8k_2024', 'SKU-WM8K-2024')]:\n    sku_uri = WD[sku_attr]\n    g_abox.add((sku_uri, RDF.type,   WD.SKU))\n    g_abox.add((sku_uri, RDFS.label, Literal(sku_label)))",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "g_abox",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "new_graph",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "product_wm001",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "type",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "Product",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b13",
+      "title": "── WarrantyPolicy ────────────────────────────────────────────────────────────",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── ABox: Symptoms + FailureModes ─────────────────────────────────────────────\n\nSYMPTOMS = [\n    ('sym_wm_s01', 'wm-s01', 'Machine does not spin during final cycle', 'high'),\n    ('sym_wm_s02', 'wm-s02', 'Excessive vibration and banging noise',    'medium'),\n    ('sym_wm_s03', 'wm-s03', 'Water remains in drum after cycle',        'high'),\n    ('sym_wm_s04', 'wm-s04', 'Error code E21 displayed on panel',        'medium'),\n]\nfor attr, sym_id, desc, sev in SYMPTOMS:\n    uri = WD[attr]\n    g_abox.add((uri, RDF.type,       WD.Symptom))\n    g_abox.add((uri, WD.symptomId,   Literal(sym_id)))\n    g_abox.add((uri, WD.description, Literal(desc)))\n    g_abox.add((uri, WD.severity,    Literal(sev)))\n    g_abox.add((WD.product_wm001, WD.hasSymptom, uri))\n\nFAILURE_MODES = [\n    ('fm_wm_fm01', 'wm-fm01', 'Worn Drive Belt',\n     'Drive belt stretched or snapped, preventing drum rotation.'),\n    ('fm_wm_fm02', 'wm-fm02', 'Failed Drain Pump',\n     'Pump impeller blocked or motor burned out, preventing water evacuation.'),\n    ('fm_wm_fm03', 'wm-fm03', 'Unbalanced Load Sensor Fault',\n     'Suspension rods or shock absorbers degraded, triggering imbalance shutdown.'),\n]\nfor attr, fm_id, label, comment in FAILURE_MODES:\n    uri = WD[attr]\n    g_abox.add((uri, RDF.type,         WD.FailureMode))\n    g_abox.add((uri, WD.failureModeId, Literal(fm_id)))\n    g_abox.add((uri, RDFS.label,       Literal(label)))\n    g_abox.add((uri, RDFS.comment,     Literal(comment)))\n    g_abox.add((WD.product_wm001, WD.canHave, uri))\n\n# Plain symptom → failureMode edges (without confidence yet)\ng_abox.add((WD.sym_wm_s01, WD.indicates, WD.fm_wm_fm01))  # no-spin    → worn belt\ng_abox.add((WD.sym_wm_s02, WD.indicates, WD.fm_wm_fm03))  # vibration  → sensor fault\ng_abox.add((WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02))  # water left → drain pump\ng_abox.add((WD.sym_wm_s04, WD.indicates, WD.fm_wm_fm01))  # E21 code   → worn belt\n\nprint(f'ABox after symptoms + failure modes: {len(g_abox)} triples')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "('sym_wm_s01', 'wm-s01', 'Machine does not spin during final cycle', 'high'),",
+          "choices": [
+            "('sym_wm_s01', 'wm-s01', 'Machine does not spin during final cycle', 'high'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `('sym_wm_s01', 'wm-s01', 'Machine does not spin during final cycle', 'high'),`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "g_abox.add((uri, WD.symptomId,   Literal(sym_id)))",
+          "choices": [
+            "g_abox.add((uri, WD.symptomId,   Literal(sym_id)))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((uri, WD.symptomId,   Literal(sym_id)))`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "('fm_wm_fm02', 'wm-fm02', 'Failed Drain Pump',",
+          "choices": [
+            "('fm_wm_fm02', 'wm-fm02', 'Failed Drain Pump',",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `('fm_wm_fm02', 'wm-fm02', 'Failed Drain Pump',`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "g_abox.add((uri, WD.failureModeId, Literal(fm_id)))",
+          "choices": [
+            "g_abox.add((uri, WD.failureModeId, Literal(fm_id)))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((uri, WD.failureModeId, Literal(fm_id)))`"
+        },
+        {
+          "line": 36,
+          "prompt": "What does line 36 do?",
+          "answer": "g_abox.add((WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02))  # water left → drain pump",
+          "choices": [
+            "g_abox.add((WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02))  # water left → drain pump",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02))  # water left → drain p`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = [\n    ('{{b2}}', 'wm-s01', '{{b3}} {{b4}} not {{b5}} during final cycle', 'high'),\n    ('sym_wm_s02', 'wm-s02', 'Excessive vibration and banging noise',    'medium'),\n    ('sym_wm_s03', 'wm-s03', 'Water remains in drum after cycle',        'high'),\n    ('sym_wm_s04', 'wm-s04', 'Error code E21 displayed on panel',        'medium'),\n]\nfor attr, sym_id, desc, sev in SYMPTOMS:\n    uri = WD[attr]\n    g_abox.add((uri, RDF.type,       WD.Symptom))\n    g_abox.add((uri, WD.symptomId,   Literal(sym_id)))\n    g_abox.add((uri, WD.description, Literal(desc)))\n    g_abox.add((uri, WD.severity,    Literal(sev)))\n    g_abox.add((WD.product_wm001, WD.hasSymptom, uri))\nFAILURE_MODES = [",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "SYMPTOMS",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "sym_wm_s01",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "Machine",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "does",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "spin",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b14",
+      "title": "Plain symptom → failureMode edges (without confidence yet)",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── ABox: Reification — add confidence scores to edges via owl:Axiom ──────────\n#\n# Pattern:\n#   1. The plain triple already exists: (sym, WD.indicates, fm)\n#   2. Create an anonymous BNode (no URI needed)\n#   3. Add 4 triples to the BNode: type=Axiom, source=sym, property=indicates, target=fm\n#   4. Add the metadata: confidence value\n\nCONFIDENCE_EDGES = [\n    (WD.sym_wm_s01, WD.indicates, WD.fm_wm_fm01, '0.94'),\n    (WD.sym_wm_s02, WD.indicates, WD.fm_wm_fm03, '0.85'),\n    (WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02, '0.90'),\n    (WD.sym_wm_s04, WD.indicates, WD.fm_wm_fm01, '0.55'),\n]\n\nfor source, prop, target, conf in CONFIDENCE_EDGES:\n    axiom = BNode()                                          # anonymous node — no name\n    g_abox.add((axiom, RDF.type,              OWL.Axiom))\n    g_abox.add((axiom, OWL.annotatedSource,   source))      # points at subject\n    g_abox.add((axiom, OWL.annotatedProperty, prop))        # points at predicate\n    g_abox.add((axiom, OWL.annotatedTarget,   target))      # points at object\n    g_abox.add((axiom, WD.confidence,         Literal(conf, datatype=XSD.decimal)))\n\nprint('Confidence annotations added ✓')\nprint(f'ABox triples now: {len(g_abox)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "(WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02, '0.90'),",
+          "choices": [
+            "(WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02, '0.90'),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `(WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02, '0.90'),`"
+        },
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "for source, prop, target, conf in CONFIDENCE_EDGES:",
+          "choices": [
+            "for source, prop, target, conf in CONFIDENCE_EDGES:",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `for source, prop, target, conf in CONFIDENCE_EDGES:`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "g_abox.add((axiom, OWL.annotatedProperty, prop))        # points at predicate",
+          "choices": [
+            "g_abox.add((axiom, OWL.annotatedProperty, prop))        # points at predicate",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((axiom, OWL.annotatedProperty, prop))        # points at predicate`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "print('Confidence annotations added ✓')",
+          "choices": [
+            "print('Confidence annotations added ✓')",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `print('Confidence annotations added ✓')`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = [\n    (WD.{{b2}}, WD.{{b3}}, WD.{{b4}}, '0.94'),\n    (WD.{{b5}}, WD.indicates, WD.fm_wm_fm03, '0.85'),\n    (WD.sym_wm_s03, WD.indicates, WD.fm_wm_fm02, '0.90'),\n    (WD.sym_wm_s04, WD.indicates, WD.fm_wm_fm01, '0.55'),\n]\nfor source, prop, target, conf in CONFIDENCE_EDGES:\n    axiom = BNode()                                          # anonymous node — no name\n    g_abox.add((axiom, RDF.type,              OWL.Axiom))\n    g_abox.add((axiom, OWL.annotatedSource,   source))      # points at subject\n    g_abox.add((axiom, OWL.annotatedProperty, prop))        # points at predicate\n    g_abox.add((axiom, OWL.annotatedTarget,   target))      # points at object\n    g_abox.add((axiom, WD.confidence,         Literal(conf, datatype=XSD.decimal)))\nprint('Confidence annotations added ✓')",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "CONFIDENCE_EDGES",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "sym_wm_s01",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "indicates",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "fm_wm_fm01",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "sym_wm_s02",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b15",
+      "title": "4. Add the metadata: confidence value",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── ABox: Parts + DiagnosticSteps ─────────────────────────────────────────────\n\nPARTS = [\n    ('part_belt_wm8k', 'AH-WM8K-BELT-001', 'Drive Belt WM8K',   '28.99', WD.fm_wm_fm01),\n    ('part_pump_wm8k', 'AH-WM8K-PUMP-002', 'Drain Pump WM8K',   '65.00', WD.fm_wm_fm02),\n    ('part_rod_wm8k',  'AH-WM8K-ROD-003',  'Suspension Rod WM8K','18.50', WD.fm_wm_fm03),\n]\nfor attr, pn, label, cost, fm in PARTS:\n    uri = WD[attr]\n    g_abox.add((uri, RDF.type,            WD.Part))\n    g_abox.add((uri, WD.partNumber,       Literal(pn)))\n    g_abox.add((uri, RDFS.label,          Literal(label)))\n    g_abox.add((uri, WD.estimatedCostUsd, Literal(cost, datatype=XSD.decimal)))\n    g_abox.add((fm,  WD.requiresPart,     uri))\n\n# DiagnosticSteps chained together with nextStep\nSTEPS = [\n    ('step_wm_ds01', 'wm-ds01', 'Open back panel, inspect the drive belt for cracks or slack.',        WD.fm_wm_fm01),\n    ('step_wm_ds02', 'wm-ds02', 'Run drain-only cycle and listen for pump motor hum or grinding.',     WD.fm_wm_fm02),\n    ('step_wm_ds03', 'wm-ds03', 'Check suspension rods for wear; push drum and observe rebound.',      WD.fm_wm_fm03),\n]\nprev = None\nfor attr, sid, inst, confirms_fm in STEPS:\n    uri = WD[attr]\n    g_abox.add((uri, RDF.type,       WD.DiagnosticStep))\n    g_abox.add((uri, WD.stepId,      Literal(sid)))\n    g_abox.add((uri, WD.instruction, Literal(inst)))\n    g_abox.add((uri, WD.confirms,    confirms_fm))\n    g_abox.add((WD.product_wm001, WD.hasDiagnosticStep, uri))\n    if prev:\n        g_abox.add((prev, WD.nextStep, uri))              # chain: ds01 → ds02 → ds03\n    prev = uri\n\nprint(f'Final ABox triple count: {len(g_abox)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "('part_belt_wm8k', 'AH-WM8K-BELT-001', 'Drive Belt WM8K',   '28.99', WD.fm_wm_fm01),",
+          "choices": [
+            "('part_belt_wm8k', 'AH-WM8K-BELT-001', 'Drive Belt WM8K',   '28.99', WD.fm_wm_fm01),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `('part_belt_wm8k', 'AH-WM8K-BELT-001', 'Drive Belt WM8K',   '28.99', WD.fm_wm_fm`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "for attr, pn, label, cost, fm in PARTS:",
+          "choices": [
+            "for attr, pn, label, cost, fm in PARTS:",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `for attr, pn, label, cost, fm in PARTS:`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "g_abox.add((uri, RDFS.label,          Literal(label)))",
+          "choices": [
+            "g_abox.add((uri, RDFS.label,          Literal(label)))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((uri, RDFS.label,          Literal(label)))`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "('step_wm_ds03', 'wm-ds03', 'Check suspension rods for wear; push drum and observe rebound.',      WD.fm_wm_fm03),",
+          "choices": [
+            "('step_wm_ds03', 'wm-ds03', 'Check suspension rods for wear; push drum and observe rebound.',      WD.fm_wm_fm03),",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `('step_wm_ds03', 'wm-ds03', 'Check suspension rods for wear; push drum and obser`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "uri = WD[attr]",
+          "choices": [
+            "uri = WD[attr]",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `uri = WD[attr]`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "g_abox.add((uri, WD.confirms,    confirms_fm))",
+          "choices": [
+            "g_abox.add((uri, WD.confirms,    confirms_fm))",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_abox.add((uri, WD.confirms,    confirms_fm))`"
+        },
+        {
+          "line": 32,
+          "prompt": "What does line 32 do?",
+          "answer": "prev = uri",
+          "choices": [
+            "prev = uri",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `prev = uri`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = [\n    ('{{b2}}', 'AH-{{b3}}-{{b4}}-001', '{{b5}} Belt WM8K',   '28.99', WD.fm_wm_fm01),\n    ('part_pump_wm8k', 'AH-WM8K-PUMP-002', 'Drain Pump WM8K',   '65.00', WD.fm_wm_fm02),\n    ('part_rod_wm8k',  'AH-WM8K-ROD-003',  'Suspension Rod WM8K','18.50', WD.fm_wm_fm03),\n]\nfor attr, pn, label, cost, fm in PARTS:\n    uri = WD[attr]\n    g_abox.add((uri, RDF.type,            WD.Part))\n    g_abox.add((uri, WD.partNumber,       Literal(pn)))\n    g_abox.add((uri, RDFS.label,          Literal(label)))\n    g_abox.add((uri, WD.estimatedCostUsd, Literal(cost, datatype=XSD.decimal)))\n    g_abox.add((fm,  WD.requiresPart,     uri))\nSTEPS = [\n    ('step_wm_ds01', 'wm-ds01', 'Open back panel, inspect the drive belt for cracks or slack.',        WD.fm_wm_fm01),",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "PARTS",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "part_belt_wm8k",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "WM8K",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "BELT",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "Drive",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b16",
+      "title": "DiagnosticSteps chained together with nextStep",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── Merge TBox + ABox and serialize to files ──────────────────────────────────\ng_full = g_tbox + g_abox\n\nos.makedirs('generated_ontology', exist_ok=True)\n\ng_tbox.serialize(destination='generated_ontology/warranty-schema.ttl', format='turtle')\ng_abox.serialize(destination='generated_ontology/warranty-abox.ttl',   format='turtle')\ng_full.serialize(destination='generated_ontology/warranty-full.ttl',   format='turtle')\ng_full.serialize(destination='generated_ontology/warranty.owl',         format='xml')    # same data, XML syntax\n\nprint('Files written:')\nfor fn in sorted(os.listdir('generated_ontology')):\n    size = os.path.getsize(f'generated_ontology/{fn}')\n    print(f'  {fn:40s}  {size:>7,} bytes')\nprint(f'\\nTotal triples (TBox + ABox): {len(g_full)}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "os.makedirs('generated_ontology', exist_ok=True)",
+          "choices": [
+            "os.makedirs('generated_ontology', exist_ok=True)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `os.makedirs('generated_ontology', exist_ok=True)`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "g_full.serialize(destination='generated_ontology/warranty-full.ttl',   format='turtle')",
+          "choices": [
+            "g_full.serialize(destination='generated_ontology/warranty-full.ttl',   format='turtle')",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `g_full.serialize(destination='generated_ontology/warranty-full.ttl',   format='t`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "for fn in sorted(os.listdir('generated_ontology')):",
+          "choices": [
+            "for fn in sorted(os.listdir('generated_ontology')):",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `for fn in sorted(os.listdir('generated_ontology')):`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} = {{b2}} + {{b3}}\nos.{{b4}}('{{b5}}', exist_ok=True)\ng_tbox.serialize(destination='generated_ontology/warranty-schema.ttl', format='turtle')\ng_abox.serialize(destination='generated_ontology/warranty-abox.ttl',   format='turtle')\ng_full.serialize(destination='generated_ontology/warranty-full.ttl',   format='turtle')\ng_full.serialize(destination='generated_ontology/warranty.owl',         format='xml')    # same data, XML syntax\nprint('Files written:')\nfor fn in sorted(os.listdir('generated_ontology')):\n    size = os.path.getsize(f'generated_ontology/{fn}')\n    print(f'  {fn:40s}  {size:>7,} bytes')\nprint(f'\\nTotal triples (TBox + ABox): {len(g_full)}')",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "g_full",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "g_tbox",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "g_abox",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "makedirs",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "generated_ontology",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b17",
+      "title": "Minimal template",
+      "language": "sparql",
+      "narrative": "Master this sparql fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "PREFIX wd: <https://example.org/warranty-diagnosis#>\n\nSELECT ?a ?b\nWHERE {\n  ?subject  wd:someProperty  ?a .   ← triple pattern (. ends it)\n  ?subject  rdfs:label       ?b .   ← same ?subject = implicit JOIN\n}",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "PREFIX — short name for a namespace IRI."
+        },
+        {
+          "line": 3,
+          "note": "SELECT — variables to return."
+        },
+        {
+          "line": 4,
+          "note": "WHERE graph pattern — triple patterns to match."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 1,
+          "prompt": "What does line 1 do?",
+          "answer": "PREFIX wd: <https://example.org/warranty-diagnosis#>",
+          "choices": [
+            "PREFIX wd: <https://example.org/warranty-diagnosis#>",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `PREFIX wd: <https://example.org/warranty-diagnosis#>`"
+        },
+        {
+          "line": 3,
+          "prompt": "What does line 3 do?",
+          "answer": "SELECT ?a ?b",
+          "choices": [
+            "SELECT ?a ?b",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `SELECT ?a ?b`"
+        },
+        {
+          "line": 5,
+          "prompt": "What does line 5 do?",
+          "answer": "?subject  wd:someProperty  ?a .   ← triple pattern (. ends it)",
+          "choices": [
+            "?subject  wd:someProperty  ?a .   ← triple pattern (. ends it)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `?subject  wd:someProperty  ?a .   ← triple pattern (. ends it)`"
+        },
+        {
+          "line": 6,
+          "prompt": "What does line 6 do?",
+          "answer": "?subject  rdfs:label       ?b .   ← same ?subject = implicit JOIN",
+          "choices": [
+            "?subject  rdfs:label       ?b .   ← same ?subject = implicit JOIN",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `?subject  rdfs:label       ?b .   ← same ?subject = implicit JOIN`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{b1}} wd: <{{b2}}://{{b3}}.org/{{b4}}-{{b5}}#>\nSELECT ?a ?b\nWHERE {\n  ?subject  wd:someProperty  ?a .   ← triple pattern (. ends it)\n  ?subject  rdfs:label       ?b .   ← same ?subject = implicit JOIN\n}",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "PREFIX",
+            "hint": "sparql token"
+          },
+          {
+            "id": "b2",
+            "answer": "https",
+            "hint": "sparql token"
+          },
+          {
+            "id": "b3",
+            "answer": "example",
+            "hint": "sparql token"
+          },
+          {
+            "id": "b4",
+            "answer": "warranty",
+            "hint": "sparql token"
+          },
+          {
+            "id": "b5",
+            "answer": "diagnosis",
+            "hint": "sparql token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b18",
+      "title": "Minimal template",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── Reusable prefix block ──────────────────────────────────────────────────────\nPFX = '''\nPREFIX wd:   <https://example.org/warranty-diagnosis#>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX owl:  <http://www.w3.org/2002/07/owl#>\nPREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>\n'''\n\n# ── Query 1: All symptoms of the washing machine ──────────────────────────────\n# Reading: \"Find ?sym where product_wm001 hasSymptom ?sym, and get its id/desc/sev\"\nq1 = PFX + '''\nSELECT ?id ?description ?severity\nWHERE {\n  wd:product_wm001  wd:hasSymptom  ?sym .\n  ?sym  wd:symptomId   ?id .\n  ?sym  wd:description ?description .\n  ?sym  wd:severity    ?severity .\n}\nORDER BY DESC(?severity)\n'''\n\nprint('=== Q1: Symptoms for product_wm001 ===')\nfor row in g_full.query(q1):\n    print(f'  [{row.severity:6s}]  {row.id}:  {row.description}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
+          "choices": [
+            "PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `PREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "q1 = PFX + '''",
+          "choices": [
+            "q1 = PFX + '''",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `q1 = PFX + '''`"
+        },
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "?sym  wd:symptomId   ?id .",
+          "choices": [
+            "?sym  wd:symptomId   ?id .",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `?sym  wd:symptomId   ?id .`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "ORDER BY DESC(?severity)",
+          "choices": [
+            "ORDER BY DESC(?severity)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `ORDER BY DESC(?severity)`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "for row in g_full.query(q1):",
+          "choices": [
+            "for row in g_full.query(q1):",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `for row in g_full.query(q1):`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "PFX = '''\n{{b1}} wd:   <{{b2}}://{{b3}}.org/{{b4}}-{{b5}}#>\nPREFIX rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\nPREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\nPREFIX owl:  <http://www.w3.org/2002/07/owl#>\nPREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>\n'''\nq1 = PFX + '''\nSELECT ?id ?description ?severity\nWHERE {\n  wd:product_wm001  wd:hasSymptom  ?sym .\n  ?sym  wd:symptomId   ?id .\n  ?sym  wd:description ?description .\n  ?sym  wd:severity    ?severity .",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "PREFIX",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "https",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "example",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "warranty",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "diagnosis",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b19",
+      "title": "Reading: \"Find ?sym where product_wm001 hasSymptom ?sym, and get its id/desc/sev\"",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── Query 2: Symptom → FailureMode with confidence from the reified Axiom ──────\n# The owl:Axiom blank node lets us access edge metadata (confidence) in a query.\nq2 = PFX + '''\nSELECT ?symDesc ?fmLabel ?conf\nWHERE {\n  ?sym  wd:indicates   ?fm .\n  ?sym  wd:description ?symDesc .\n  ?fm   rdfs:label     ?fmLabel .\n\n  ?axiom  a  owl:Axiom ;\n    owl:annotatedSource    ?sym ;\n    owl:annotatedProperty  wd:indicates ;\n    owl:annotatedTarget    ?fm ;\n    wd:confidence          ?conf .\n}\nORDER BY DESC(?conf)\n'''\n\nprint('=== Q2: Symptom → FailureMode ranked by confidence ===')\nfor row in g_full.query(q2):\n    conf_val = float(str(row.conf))\n    bar = '█' * int(conf_val * 10)\n    print(f'  {conf_val:.2f}  {bar:10s}  {str(row.fmLabel):32s}  ←  {str(row.symDesc)[:42]}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "SELECT ?symDesc ?fmLabel ?conf",
+          "choices": [
+            "SELECT ?symDesc ?fmLabel ?conf",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `SELECT ?symDesc ?fmLabel ?conf`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "?fm   rdfs:label     ?fmLabel .",
+          "choices": [
+            "?fm   rdfs:label     ?fmLabel .",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `?fm   rdfs:label     ?fmLabel .`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "owl:annotatedProperty  wd:indicates ;",
+          "choices": [
+            "owl:annotatedProperty  wd:indicates ;",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `owl:annotatedProperty  wd:indicates ;`"
+        },
+        {
+          "line": 16,
+          "prompt": "What does line 16 do?",
+          "answer": "ORDER BY DESC(?conf)",
+          "choices": [
+            "ORDER BY DESC(?conf)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `ORDER BY DESC(?conf)`"
+        },
+        {
+          "line": 20,
+          "prompt": "What does line 20 do?",
+          "answer": "for row in g_full.query(q2):",
+          "choices": [
+            "for row in g_full.query(q2):",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `for row in g_full.query(q2):`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "q2 = PFX + '''\n{{b1}} ?{{b2}} ?{{b3}} ?{{b4}}\n{{b5}} {\n  ?sym  wd:indicates   ?fm .\n  ?sym  wd:description ?symDesc .\n  ?fm   rdfs:label     ?fmLabel .\n  ?axiom  a  owl:Axiom ;\n    owl:annotatedSource    ?sym ;\n    owl:annotatedProperty  wd:indicates ;\n    owl:annotatedTarget    ?fm ;\n    wd:confidence          ?conf .\n}\nORDER BY DESC(?conf)\n'''",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "SELECT",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "symDesc",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "fmLabel",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "conf",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "WHERE",
+            "hint": "python token"
+          }
+        ]
+      }
+    },
+    {
+      "id": "b20",
+      "title": "The owl:Axiom blank node lets us access edge metadata (confidence) in a query.",
+      "language": "python",
+      "narrative": "Master this python fragment. Annotate each critical line, then hide it and rewrite.",
+      "code": "# ── Query 3: Full diagnostic path — symptom → FM → step → part + cost ─────────\n# Multiple triple patterns with a shared variable chain = implicit JOINs\nq3 = PFX + '''\nSELECT ?symptomDesc ?fmLabel ?instruction ?partLabel ?cost\nWHERE {\n  wd:product_wm001  wd:hasSymptom  ?sym .\n  ?sym  wd:description  ?symptomDesc .\n  ?sym  wd:indicates    ?fm .\n  ?fm   rdfs:label      ?fmLabel .\n  ?fm   wd:requiresPart ?part .\n  ?part rdfs:label      ?partLabel .\n  ?part wd:estimatedCostUsd ?cost .\n  OPTIONAL {\n    ?step  wd:confirms    ?fm .\n    ?step  wd:instruction ?instruction .\n  }\n}\nORDER BY ?fmLabel\n'''\n\nprint('=== Q3: Full diagnostic paths ===')\nseen = set()\nfor row in g_full.query(q3):\n    key = str(row.fmLabel)\n    if key not in seen:\n        seen.add(key)\n        print(f'\\n  Failure Mode : {row.fmLabel}')\n        print(f'  Symptom      : {str(row.symptomDesc)[:55]}')\n        print(f'  Part needed  : {row.partLabel}  (${row.cost})')\n        if row.instruction:\n            print(f'  Diag step    : {str(row.instruction)[:60]}')",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does line 4 do?",
+          "answer": "SELECT ?symptomDesc ?fmLabel ?instruction ?partLabel ?cost",
+          "choices": [
+            "SELECT ?symptomDesc ?fmLabel ?instruction ?partLabel ?cost",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `SELECT ?symptomDesc ?fmLabel ?instruction ?partLabel ?cost`"
+        },
+        {
+          "line": 8,
+          "prompt": "What does line 8 do?",
+          "answer": "?sym  wd:indicates    ?fm .",
+          "choices": [
+            "?sym  wd:indicates    ?fm .",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `?sym  wd:indicates    ?fm .`"
+        },
+        {
+          "line": 12,
+          "prompt": "What does line 12 do?",
+          "answer": "?part wd:estimatedCostUsd ?cost .",
+          "choices": [
+            "?part wd:estimatedCostUsd ?cost .",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `?part wd:estimatedCostUsd ?cost .`"
+        },
+        {
+          "line": 24,
+          "prompt": "What does line 24 do?",
+          "answer": "key = str(row.fmLabel)",
+          "choices": [
+            "key = str(row.fmLabel)",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `key = str(row.fmLabel)`"
+        },
+        {
+          "line": 28,
+          "prompt": "What does line 28 do?",
+          "answer": "print(f'  Symptom      : {str(row.symptomDesc)[:55]}')",
+          "choices": [
+            "print(f'  Symptom      : {str(row.symptomDesc)[:55]}')",
+            "Declares a CSS style rule",
+            "Opens a network socket only",
+            "Deletes the database permanently"
+          ],
+          "why": "Exact source line: `print(f'  Symptom      : {str(row.symptomDesc)[:55]}')`"
+        }
+      ],
+      "fill_blanks": {
+        "template": "q3 = PFX + '''\n{{b1}} ?{{b2}} ?{{b3}} ?{{b4}} ?{{b5}} ?cost\nWHERE {\n  wd:product_wm001  wd:hasSymptom  ?sym .\n  ?sym  wd:description  ?symptomDesc .\n  ?sym  wd:indicates    ?fm .\n  ?fm   rdfs:label      ?fmLabel .\n  ?fm   wd:requiresPart ?part .\n  ?part rdfs:label      ?partLabel .\n  ?part wd:estimatedCostUsd ?cost .\n  OPTIONAL {\n    ?step  wd:confirms    ?fm .\n    ?step  wd:instruction ?instruction .\n  }",
+        "blanks": [
+          {
+            "id": "b1",
+            "answer": "SELECT",
+            "hint": "python token"
+          },
+          {
+            "id": "b2",
+            "answer": "symptomDesc",
+            "hint": "python token"
+          },
+          {
+            "id": "b3",
+            "answer": "fmLabel",
+            "hint": "python token"
+          },
+          {
+            "id": "b4",
+            "answer": "instruction",
+            "hint": "python token"
+          },
+          {
+            "id": "b5",
+            "answer": "partLabel",
+            "hint": "python token"
+          }
+        ]
+      }
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Assertional Box",
+      "definition": "Instance facts about specific products/assets.",
+      "analogy": ""
+    },
+    {
+      "term": "Assertional Box",
+      "definition": "Instance facts about specific products/assets.",
+      "analogy": ""
+    },
+    {
+      "term": "Neo4j query language",
+      "definition": "Pattern matching over property graphs.",
+      "analogy": ""
+    },
+    {
+      "term": "Neo4j query language",
+      "definition": "Pattern matching over property graphs.",
+      "analogy": ""
+    },
+    {
+      "term": "Failure Mode Effects Analysis",
+      "definition": "Severity/Occurrence/Detection risk signals.",
+      "analogy": ""
+    },
+    {
+      "term": "INDICATES edge",
+      "definition": "Symptom → FailureMode likelihood link.",
+      "analogy": ""
+    },
+    {
+      "term": "INDICATES edge",
+      "definition": "Symptom → FailureMode likelihood link.",
+      "analogy": ""
+    },
+    {
+      "term": "LangGraph",
+      "definition": "Stateful agent workflows as graphs of nodes/edges.",
+      "analogy": ""
+    },
+    {
+      "term": "LangGraph",
+      "definition": "Stateful agent workflows as graphs of nodes/edges.",
+      "analogy": ""
+    },
+    {
+      "term": "Neo4j",
+      "definition": "Property graph database used as operational ABox.",
+      "analogy": ""
+    },
+    {
+      "term": "Neo4j",
+      "definition": "Property graph database used as operational ABox.",
+      "analogy": ""
+    },
+    {
+      "term": "Web Ontology Language",
+      "definition": "Formal ontology language built on Description Logic.",
+      "analogy": ""
+    },
+    {
+      "term": "Web Ontology Language",
+      "definition": "Formal ontology language built on Description Logic.",
+      "analogy": ""
+    },
+    {
+      "term": "Resource Description Framework",
+      "definition": "Triple model: subject–predicate–object.",
+      "analogy": ""
+    },
+    {
+      "term": "Resource Description Framework",
+      "definition": "Triple model: subject–predicate–object.",
+      "analogy": ""
+    },
+    {
+      "term": "SPARQL Protocol and RDF Query Language",
+      "definition": "Query language for RDF graphs.",
+      "analogy": ""
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "In one sentence, what is «RDF / OWL + LangGraph — Learning Notebook» about?",
+      "a": "Explain the core idea of section «RDF / OWL + LangGraph — Learning Notebook» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «Table of Contents» about?",
+      "a": "Explain the core idea of section «Table of Contents» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «Install the two packages not yet in this venv» about?",
+      "a": "Explain the core idea of section «Install the two packages not yet in this venv» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «── Core rdflib imports ───────────────────────────────────────────────────────» about?",
+      "a": "Explain the core idea of section «── Core rdflib imports ───────────────────────────────────────────────────────» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «Our project namespace — same URI as the repo's warranty-diagnosis ontology» about?",
+      "a": "Explain the core idea of section «Our project namespace — same URI as the repo's warranty-diagnosis ontology» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «Part 1 — TBox: Defining the Schema» about?",
+      "a": "Explain the core idea of section «Part 1 — TBox: Defining the Schema» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «The one rule that explains everything» about?",
+      "a": "Explain the core idea of section «The one rule that explains everything» from the uploaded material.",
+      "difficulty": "easy"
+    },
+    {
+      "q": "In one sentence, what is «Turtle punctuation cheat sheet» about?",
+      "a": "Explain the core idea of section «Turtle punctuation cheat sheet» from the uploaded material.",
+      "difficulty": "easy"
+    }
+  ],
+  "common_mistakes": [
+    "Skimming code without saying each line's job out loud.",
+    "Memorizing syntax without the story (why this exists).",
+    "Confusing schema (TBox) with instances (ABox)."
+  ],
+  "final_boss": [
+    "Explain «Notebook: RDF/OWL + LangGraph tutorial (auto)» in under 90 seconds.",
+    "Write the most important code beat from a blank page.",
+    "List three mistakes someone would make implementing this."
+  ],
+  "source": "notebook",
+  "order": 15,
+  "estimated_minutes": 90
+}

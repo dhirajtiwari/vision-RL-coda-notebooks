@@ -2128,6 +2128,12 @@ def get_products():
         }
 
 
+# Interview Study Lab (modular curriculum + upload → generate)
+from api.study_routes import router as study_router  # noqa: E402
+
+app.include_router(study_router)
+
+
 if __name__ == "__main__":
     import uvicorn
 

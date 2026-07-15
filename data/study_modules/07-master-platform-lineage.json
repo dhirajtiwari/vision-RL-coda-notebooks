@@ -1,0 +1,92 @@
+{
+  "id": "07-master-platform-lineage",
+  "title": "Platform lineage — warehouse story end-to-end",
+  "description": "Glue module: dual graph, multi-source ABox, GraphRAG, LLMOps defaults.",
+  "tags": [
+    "platform",
+    "tbox",
+    "pipeline",
+    "interview"
+  ],
+  "story": "Sources arrive → OntologyBuilder restickers to shared TBox language → shapes clipboard → staging back room → smoke test → production floor. Shoppers (chat) never enter staging. Specialist walks INDICATES, multiplies likelihoods, returns parts with a paper trail. LLM is optional translator at the door — accountant still does the math.",
+  "one_liner": "Shared TBox; multi-source ABox; shape-check; stage→prod; deterministic GraphRAG+Bayes.",
+  "change_table": [],
+  "beats": [
+    {
+      "id": "wizard-chant",
+      "title": "Operator chant (memorize order)",
+      "language": "text",
+      "narrative": "If you can recite this, you understand the control plane.",
+      "code": "Sources → Fetch → Select → Validate ABox → Materialize → Smoke → Approve\n→ Promote staging (:7688) → Promote production (:7687)\n→ Chat / GraphRAG reads production only\n→ invalidate caches",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "Selection-scoped work — don't rewrite whole fleet."
+        },
+        {
+          "line": 2,
+          "note": "Dual graph blast-radius control."
+        },
+        {
+          "line": 3,
+          "note": "Read path isolation."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "Which port does chat use?",
+          "answer": "Production 7687",
+          "choices": [
+            "Production 7687",
+            "Staging 7688 only",
+            "Redis 6379",
+            "Frontend 3000"
+          ],
+          "why": ""
+        }
+      ],
+      "fill_blanks": null
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Dual graph",
+      "definition": "Staging write-first; production diagnose-read",
+      "analogy": ""
+    },
+    {
+      "term": "OntologyBuilder",
+      "definition": "Maps SoR payloads into catalog ABox",
+      "analogy": ""
+    },
+    {
+      "term": "LLMOps ready",
+      "definition": "Guardrails/evals active; LLM gateway inactive by default",
+      "analogy": ""
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "New product = ?",
+      "a": "New ABox under shared TBox.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "llm_enabled default?",
+      "a": "false — GraphRAG primary.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Saying chat reads staging.",
+    "Calling sources 'the ontology'."
+  ],
+  "final_boss": [
+    "90-second warehouse pitch.",
+    "Draw dual graph + wizard steps from blank page."
+  ],
+  "source": "seed",
+  "order": 5,
+  "estimated_minutes": 20
+}

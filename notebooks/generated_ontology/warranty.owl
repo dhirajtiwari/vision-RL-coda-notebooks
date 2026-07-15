@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:owl="http://www.w3.org/2002/07/owl#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:wd="https://example.org/warranty-diagnosis#"
+>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Claim">
+    <rdfs:comment>Warranty claim with confirmed failure.</rdfs:comment>
+    <rdfs:label>Claim</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#boundToSku">
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Asset bound to SKU</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#sku_wm8k_2023">
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:label>SKU-WM8K-2023</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#indicates">
+    <rdfs:comment>Symptom → FailureMode (confidence on edge)</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#instruction">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Step instruction text</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#sym_wm_s02">
+    <wd:severity>medium</wd:severity>
+    <wd:indicates rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm03"/>
+    <wd:description>Excessive vibration and banging noise</wd:description>
+    <wd:symptomId>wm-s02</wd:symptomId>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Product">
+    <rdfs:label>Product</rdfs:label>
+    <owl:disjointWith rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <owl:disjointWith rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:comment>Manufacturable product family / catalog product.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#sym_wm_s01">
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <wd:symptomId>wm-s01</wd:symptomId>
+    <wd:description>Machine does not spin during final cycle</wd:description>
+    <wd:severity>high</wd:severity>
+    <wd:indicates rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm01"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#DiagnosticStep">
+    <rdfs:comment>Troubleshooting or confirmation step.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label>DiagnosticStep</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#sym_wm_s03">
+    <wd:description>Water remains in drum after cycle</wd:description>
+    <wd:severity>high</wd:severity>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <wd:indicates rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm02"/>
+    <wd:symptomId>wm-s03</wd:symptomId>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#errorCodeIndicates">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#ErrorCode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>ErrorCode → FailureMode</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#ErrorCode">
+    <rdfs:comment>Device-reported diagnostic error code.</rdfs:comment>
+    <rdfs:label>ErrorCode</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#confirms">
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Step confirms FailureMode</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#sym_wm_s04">
+    <wd:symptomId>wm-s04</wd:symptomId>
+    <wd:severity>medium</wd:severity>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <wd:indicates rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm01"/>
+    <wd:description>Error code E21 displayed on panel</wd:description>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#symptomId">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:comment>Symptom identifier</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#policyId">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#WarrantyPolicy"/>
+    <rdfs:comment>Policy identifier</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nbc228ff4acad4596a013e270849d593f">
+    <wd:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.94</wd:confidence>
+    <owl:annotatedTarget rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm01"/>
+    <owl:annotatedSource rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s01"/>
+    <owl:annotatedProperty rdf:resource="https://example.org/warranty-diagnosis#indicates"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#brand">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:comment>Brand name</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#coveredBy">
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#WarrantyPolicy"/>
+    <rdfs:comment>Asset covered by WarrantyPolicy</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Component">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:label>Component</rdfs:label>
+    <rdfs:comment>BOM / subsystem component (product structure).</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#name">
+    <rdfs:comment>Display name</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N589e0a0ffa2f477788c39888246d4dbb">
+    <owl:annotatedSource rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s04"/>
+    <owl:annotatedTarget rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm01"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedProperty rdf:resource="https://example.org/warranty-diagnosis#indicates"/>
+    <wd:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.55</wd:confidence>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#modelHasSku">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Model"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdfs:comment>Model → SKU revision</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#policy_WP001">
+    <wd:policyId>WP-001</wd:policyId>
+    <wd:coverageMonths rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">24</wd:coverageMonths>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#WarrantyPolicy"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#part_pump_wm8k">
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <wd:estimatedCostUsd rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">65.00</wd:estimatedCostUsd>
+    <rdfs:label>Drain Pump WM8K</rdfs:label>
+    <wd:partNumber>AH-WM8K-PUMP-002</wd:partNumber>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#fm_wm_fm02">
+    <rdfs:comment>Pump impeller blocked or motor burned out, preventing water evacuation.</rdfs:comment>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <wd:failureModeId>wm-fm02</wd:failureModeId>
+    <wd:requiresPart rdf:resource="https://example.org/warranty-diagnosis#part_pump_wm8k"/>
+    <rdfs:label>Failed Drain Pump</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#WarrantyPolicy">
+    <rdfs:label>WarrantyPolicy</rdfs:label>
+    <rdfs:comment>Coverage rules for parts and labor.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#failureModeId">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Failure mode identifier</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#FailureMode">
+    <rdfs:label>FailureMode</rdfs:label>
+    <rdfs:comment>Diagnosed failure mode (FMEA-aligned).</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#hasSymptom">
+    <rdfs:comment>Product can present Symptom</rdfs:comment>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#product_wm001">
+    <wd:hasSymptom rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s04"/>
+    <wd:hasSymptom rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s02"/>
+    <wd:hasSymptom rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s01"/>
+    <wd:hasSymptom rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s03"/>
+    <wd:hasSku rdf:resource="https://example.org/warranty-diagnosis#sku_wm8k_2024"/>
+    <wd:hasSku rdf:resource="https://example.org/warranty-diagnosis#sku_wm8k_2023"/>
+    <wd:hasModel rdf:resource="https://example.org/warranty-diagnosis#model_wm8k"/>
+    <wd:canHave rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm01"/>
+    <wd:canHave rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm02"/>
+    <wd:canHave rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm03"/>
+    <wd:hasDiagnosticStep rdf:resource="https://example.org/warranty-diagnosis#step_wm_ds01"/>
+    <wd:hasDiagnosticStep rdf:resource="https://example.org/warranty-diagnosis#step_wm_ds03"/>
+    <wd:hasDiagnosticStep rdf:resource="https://example.org/warranty-diagnosis#step_wm_ds02"/>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <wd:productId>wm-001</wd:productId>
+    <wd:category>Laundry</wd:category>
+    <wd:name>Front Load Washing Machine 8kg</wd:name>
+    <wd:brand>AquaHome</wd:brand>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Model">
+    <rdfs:comment>Engineering model under a product family.</rdfs:comment>
+    <rdfs:label>Model</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#canHave">
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Product can exhibit FailureMode</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#serialNumber">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Asset serial number</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N609714a2eac74bc38037ad527c0944fe">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedSource rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s03"/>
+    <wd:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.90</wd:confidence>
+    <owl:annotatedTarget rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm02"/>
+    <owl:annotatedProperty rdf:resource="https://example.org/warranty-diagnosis#indicates"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#step_wm_ds01">
+    <wd:instruction>Open back panel, inspect the drive belt for cracks or slack.</wd:instruction>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <wd:confirms rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm01"/>
+    <wd:stepId>wm-ds01</wd:stepId>
+    <wd:nextStep rdf:resource="https://example.org/warranty-diagnosis#step_wm_ds02"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#description">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+    <rdfs:comment>Symptom description text</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#hasModel">
+    <rdfs:comment>Product → Model</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Model"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Symptom">
+    <rdfs:label>Symptom</rdfs:label>
+    <owl:disjointWith rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Customer-observable or technician-observed symptom.</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Asset">
+    <rdfs:comment>Installed unit identified by serial number.</rdfs:comment>
+    <rdfs:label>Asset</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+    <rdfs:subClassOf rdf:nodeID="Ncd27c4659f304404b7aef0e0b8a8f9bc"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#compatibleWith">
+    <rdfs:comment>SKU compatible with Part</rdfs:comment>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#confidence">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+    <rdfs:comment>Link confidence 0.0-1.0 (used on Axiom nodes)</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#nextStep">
+    <rdfs:comment>Step chains to next Step</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#TransitiveProperty"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#stepId">
+    <rdfs:comment>Step identifier</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#coverageMonths">
+    <rdfs:comment>Coverage duration in months</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#WarrantyPolicy"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#impactsComponent">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Component"/>
+    <rdfs:comment>FailureMode → Component</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#estimatedCostUsd">
+    <rdfs:comment>Estimated part cost in USD</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#decimal"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#hasDiagnosticStep">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Product has DiagnosticStep</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#realizedBy">
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Component → service Part</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Component"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#instanceOf">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:comment>Asset is instance of Product</rdfs:comment>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#SKU">
+    <rdfs:comment>Sellable stock-keeping unit / revision.</rdfs:comment>
+    <rdfs:label>SKU</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="N2cb65c2290aa4f629e8ae758ca868318">
+    <wd:confidence rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">0.85</wd:confidence>
+    <owl:annotatedSource rdf:resource="https://example.org/warranty-diagnosis#sym_wm_s02"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Axiom"/>
+    <owl:annotatedProperty rdf:resource="https://example.org/warranty-diagnosis#indicates"/>
+    <owl:annotatedTarget rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm03"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#errorCodeId">
+    <rdfs:comment>Error code string e.g. E21</rdfs:comment>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#ErrorCode"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#model_wm8k">
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Model"/>
+    <rdfs:label>AH-WM8K</rdfs:label>
+    <wd:modelHasSku rdf:resource="https://example.org/warranty-diagnosis#sku_wm8k_2023"/>
+    <wd:modelHasSku rdf:resource="https://example.org/warranty-diagnosis#sku_wm8k_2024"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#asset_SN00123">
+    <wd:instanceOf rdf:resource="https://example.org/warranty-diagnosis#product_wm001"/>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Asset"/>
+    <wd:boundToSku rdf:resource="https://example.org/warranty-diagnosis#sku_wm8k_2024"/>
+    <wd:serialNumber>SN-00123</wd:serialNumber>
+    <wd:coveredBy rdf:resource="https://example.org/warranty-diagnosis#policy_WP001"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#fm_wm_fm03">
+    <rdfs:comment>Suspension rods or shock absorbers degraded, triggering imbalance shutdown.</rdfs:comment>
+    <wd:failureModeId>wm-fm03</wd:failureModeId>
+    <wd:requiresPart rdf:resource="https://example.org/warranty-diagnosis#part_rod_wm8k"/>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:label>Unbalanced Load Sensor Fault</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#part_belt_wm8k">
+    <wd:partNumber>AH-WM8K-BELT-001</wd:partNumber>
+    <rdfs:label>Drive Belt WM8K</rdfs:label>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <wd:estimatedCostUsd rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">28.99</wd:estimatedCostUsd>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#severity">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>low | medium | high | critical</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Symptom"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#hasErrorCode">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#ErrorCode"/>
+    <rdfs:comment>Product can raise ErrorCode</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#Part">
+    <rdfs:comment>Serviceable replacement part.</rdfs:comment>
+    <owl:disjointWith rdf:resource="https://example.org/warranty-diagnosis#Component"/>
+    <rdfs:label>Part</rdfs:label>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Class"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#productId">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>Stable product identifier</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#category">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment>Product category</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Ncd27c4659f304404b7aef0e0b8a8f9bc">
+    <owl:onProperty rdf:resource="https://example.org/warranty-diagnosis#coveredBy"/>
+    <owl:minCardinality rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</owl:minCardinality>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Restriction"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#part_rod_wm8k">
+    <wd:partNumber>AH-WM8K-ROD-003</wd:partNumber>
+    <wd:estimatedCostUsd rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">18.50</wd:estimatedCostUsd>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:label>Suspension Rod WM8K</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#step_wm_ds02">
+    <wd:instruction>Run drain-only cycle and listen for pump motor hum or grinding.</wd:instruction>
+    <wd:confirms rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm02"/>
+    <wd:nextStep rdf:resource="https://example.org/warranty-diagnosis#step_wm_ds03"/>
+    <wd:stepId>wm-ds02</wd:stepId>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis/ontology">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <owl:versionInfo>1.0.0</owl:versionInfo>
+    <rdfs:label>Warranty Diagnosis Ontology</rdfs:label>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#partNumber">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
+    <rdfs:comment>OEM / service part number</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#step_wm_ds03">
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <wd:confirms rdf:resource="https://example.org/warranty-diagnosis#fm_wm_fm03"/>
+    <wd:stepId>wm-ds03</wd:stepId>
+    <wd:instruction>Check suspension rods for wear; push drum and observe rebound.</wd:instruction>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#hasSku">
+    <rdfs:comment>Product → SKU</rdfs:comment>
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#Product"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#requiresPart">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>FailureMode requires Part</rdfs:comment>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#Part"/>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#rulesOut">
+    <rdfs:domain rdf:resource="https://example.org/warranty-diagnosis#DiagnosticStep"/>
+    <rdfs:range rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <rdfs:comment>Step rules out FailureMode</rdfs:comment>
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#isModelOf">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#ObjectProperty"/>
+    <rdfs:label>isModelOf</rdfs:label>
+    <owl:inverseOf rdf:resource="https://example.org/warranty-diagnosis#hasModel"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#fm_wm_fm01">
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#FailureMode"/>
+    <wd:failureModeId>wm-fm01</wd:failureModeId>
+    <rdfs:label>Worn Drive Belt</rdfs:label>
+    <wd:requiresPart rdf:resource="https://example.org/warranty-diagnosis#part_belt_wm8k"/>
+    <rdfs:comment>Drive belt stretched or snapped, preventing drum rotation.</rdfs:comment>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://example.org/warranty-diagnosis#sku_wm8k_2024">
+    <rdfs:label>SKU-WM8K-2024</rdfs:label>
+    <rdf:type rdf:resource="https://example.org/warranty-diagnosis#SKU"/>
+  </rdf:Description>
+</rdf:RDF>

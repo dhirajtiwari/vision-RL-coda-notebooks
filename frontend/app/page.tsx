@@ -5,8 +5,9 @@ import {
   MessageCircle, Users, GitBranch, Activity, FileText, Send, RefreshCw,
   ChevronRight, ChevronDown, Shield, Zap, AlertTriangle, Database, HelpCircle, FolderOpen, Eye,
   Maximize2, ZoomIn, ZoomOut, Search, Crosshair, Layers, CheckCircle2, Circle, ListOrdered,
-  PackagePlus, Play, ClipboardCheck, Rocket
+  PackagePlus, Play, ClipboardCheck, Rocket, GraduationCap
 } from 'lucide-react';
+import Link from 'next/link';
 import { AnimatePresence } from 'framer-motion';
 import { api } from '../lib/api';
 import type { DiagnoseResponse } from '../lib/types';
@@ -2391,6 +2392,17 @@ export default function WarrantyGraphModern() {
               </button>
             );
           })}
+          <Link
+            href="/study"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition hover:bg-emerald-500/10 text-emerald-200/90 border border-emerald-500/20 mt-2"
+          >
+            <GraduationCap className="w-4 h-4 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <div className="font-medium text-[13px]">Study Lab</div>
+              <div className="text-[10px] text-white/40 truncate">RDF · OWL · Cypher · agents</div>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-emerald-400/50" />
+          </Link>
         </div>
 
         <div className="mt-auto p-4 text-[10px] text-white/40 dark:text-white/40 border-t border-white/10 dark:border-white/10">

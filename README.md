@@ -78,6 +78,7 @@ No per-product OWL/schema generation — see [`docs/22-TBox-ABox-Multi-Source-On
 | [`docs/23-…SDD….md`](docs/23-Spec-Driven-Development-Platform-and-Domain.md) | Humans / architects | Full portable SDD: platform vs domain, as-built, gaps |
 | [`docs/24-TBox-Sparse-…Patterns.md`](docs/24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md) | Architects / interview | TBox/DL origin, sparse data, scale, CAP, demo-vs-enterprise (**status-tagged**) |
 | [`docs/interview/Master-This-Codebase.md`](docs/interview/Master-This-Codebase.md) | Interview prep | Story → annotated code → quiz → practice → final boss |
+| [`docs/study-lab.md`](docs/study-lab.md) + **`/study` UI** | Interview drill | Interactive memorize/write/quiz; upload docs → auto modules |
 | [`docs/interview/`](docs/interview/README.md) | Interview prep | Index + persona Q&A guide + PDF |
 | [`docs/sdd/09-PLATFORM-LLMOPS.md`](docs/sdd/09-PLATFORM-LLMOPS.md) | Agents (pull-on-demand) | LLMOps disciplines map (do **not** dump entire handbook) |
 | [`docs/llmops-handbook/`](docs/llmops-handbook/00-index.md) | Humans | Handbook 00–21 + implementation playbook (recipes) |

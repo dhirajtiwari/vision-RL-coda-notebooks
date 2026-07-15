@@ -1,0 +1,142 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix wd: <https://example.org/warranty-diagnosis#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+wd:asset_SN00123 a wd:Asset ;
+    wd:boundToSku wd:sku_wm8k_2024 ;
+    wd:coveredBy wd:policy_WP001 ;
+    wd:instanceOf wd:product_wm001 ;
+    wd:serialNumber "SN-00123" .
+
+wd:model_wm8k a wd:Model ;
+    rdfs:label "AH-WM8K" ;
+    wd:modelHasSku wd:sku_wm8k_2023,
+        wd:sku_wm8k_2024 .
+
+wd:part_belt_wm8k a wd:Part ;
+    rdfs:label "Drive Belt WM8K" ;
+    wd:estimatedCostUsd 28.99 ;
+    wd:partNumber "AH-WM8K-BELT-001" .
+
+wd:part_pump_wm8k a wd:Part ;
+    rdfs:label "Drain Pump WM8K" ;
+    wd:estimatedCostUsd 65.00 ;
+    wd:partNumber "AH-WM8K-PUMP-002" .
+
+wd:part_rod_wm8k a wd:Part ;
+    rdfs:label "Suspension Rod WM8K" ;
+    wd:estimatedCostUsd 18.50 ;
+    wd:partNumber "AH-WM8K-ROD-003" .
+
+wd:policy_WP001 a wd:WarrantyPolicy ;
+    wd:coverageMonths 24 ;
+    wd:policyId "WP-001" .
+
+wd:product_wm001 a wd:Product ;
+    wd:brand "AquaHome" ;
+    wd:canHave wd:fm_wm_fm01,
+        wd:fm_wm_fm02,
+        wd:fm_wm_fm03 ;
+    wd:category "Laundry" ;
+    wd:hasDiagnosticStep wd:step_wm_ds01,
+        wd:step_wm_ds02,
+        wd:step_wm_ds03 ;
+    wd:hasModel wd:model_wm8k ;
+    wd:hasSku wd:sku_wm8k_2023,
+        wd:sku_wm8k_2024 ;
+    wd:hasSymptom wd:sym_wm_s01,
+        wd:sym_wm_s02,
+        wd:sym_wm_s03,
+        wd:sym_wm_s04 ;
+    wd:name "Front Load Washing Machine 8kg" ;
+    wd:productId "wm-001" .
+
+wd:step_wm_ds01 a wd:DiagnosticStep ;
+    wd:confirms wd:fm_wm_fm01 ;
+    wd:instruction "Open back panel, inspect the drive belt for cracks or slack." ;
+    wd:nextStep wd:step_wm_ds02 ;
+    wd:stepId "wm-ds01" .
+
+wd:sku_wm8k_2023 a wd:SKU ;
+    rdfs:label "SKU-WM8K-2023" .
+
+wd:step_wm_ds02 a wd:DiagnosticStep ;
+    wd:confirms wd:fm_wm_fm02 ;
+    wd:instruction "Run drain-only cycle and listen for pump motor hum or grinding." ;
+    wd:nextStep wd:step_wm_ds03 ;
+    wd:stepId "wm-ds02" .
+
+wd:step_wm_ds03 a wd:DiagnosticStep ;
+    wd:confirms wd:fm_wm_fm03 ;
+    wd:instruction "Check suspension rods for wear; push drum and observe rebound." ;
+    wd:stepId "wm-ds03" .
+
+wd:sym_wm_s01 a wd:Symptom ;
+    wd:description "Machine does not spin during final cycle" ;
+    wd:indicates wd:fm_wm_fm01 ;
+    wd:severity "high" ;
+    wd:symptomId "wm-s01" .
+
+wd:sym_wm_s02 a wd:Symptom ;
+    wd:description "Excessive vibration and banging noise" ;
+    wd:indicates wd:fm_wm_fm03 ;
+    wd:severity "medium" ;
+    wd:symptomId "wm-s02" .
+
+wd:sym_wm_s03 a wd:Symptom ;
+    wd:description "Water remains in drum after cycle" ;
+    wd:indicates wd:fm_wm_fm02 ;
+    wd:severity "high" ;
+    wd:symptomId "wm-s03" .
+
+wd:sym_wm_s04 a wd:Symptom ;
+    wd:description "Error code E21 displayed on panel" ;
+    wd:indicates wd:fm_wm_fm01 ;
+    wd:severity "medium" ;
+    wd:symptomId "wm-s04" .
+
+wd:sku_wm8k_2024 a wd:SKU ;
+    rdfs:label "SKU-WM8K-2024" .
+
+wd:fm_wm_fm02 a wd:FailureMode ;
+    rdfs:label "Failed Drain Pump" ;
+    rdfs:comment "Pump impeller blocked or motor burned out, preventing water evacuation." ;
+    wd:failureModeId "wm-fm02" ;
+    wd:requiresPart wd:part_pump_wm8k .
+
+wd:fm_wm_fm03 a wd:FailureMode ;
+    rdfs:label "Unbalanced Load Sensor Fault" ;
+    rdfs:comment "Suspension rods or shock absorbers degraded, triggering imbalance shutdown." ;
+    wd:failureModeId "wm-fm03" ;
+    wd:requiresPart wd:part_rod_wm8k .
+
+wd:fm_wm_fm01 a wd:FailureMode ;
+    rdfs:label "Worn Drive Belt" ;
+    rdfs:comment "Drive belt stretched or snapped, preventing drum rotation." ;
+    wd:failureModeId "wm-fm01" ;
+    wd:requiresPart wd:part_belt_wm8k .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s02 ;
+    owl:annotatedTarget wd:fm_wm_fm03 ;
+    wd:confidence 0.85 .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s04 ;
+    owl:annotatedTarget wd:fm_wm_fm01 ;
+    wd:confidence 0.55 .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s03 ;
+    owl:annotatedTarget wd:fm_wm_fm02 ;
+    wd:confidence 0.90 .
+
+[] a owl:Axiom ;
+    owl:annotatedProperty wd:indicates ;
+    owl:annotatedSource wd:sym_wm_s01 ;
+    owl:annotatedTarget wd:fm_wm_fm01 ;
+    wd:confidence 0.94 .

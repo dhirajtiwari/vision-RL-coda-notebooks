@@ -40,8 +40,10 @@ repos:
       - id: ruff
         name: ruff (lint + auto-fix)
         args: ["--fix"]
+        exclude: ^notebooks/
       - id: ruff-format
         name: ruff (format)
+        exclude: ^notebooks/
 
   # Secret scanning (kickoff prompt §M) runs in CI (.github/workflows/ci.yml
   # `secret-scan` job via gitleaks-action) so it works even on machines that
