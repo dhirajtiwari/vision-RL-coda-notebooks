@@ -1,0 +1,125 @@
+{
+  "id": "13-cicd-github-actions",
+  "title": "13. CI/CD — GitHub Actions, supply chain, CD gate",
+  "description": "ci.yml tests+scans+eval; cd.yml deploy after gates; secret scan, SBOM mindset.",
+  "tags": [
+    "cicd",
+    "github-actions",
+    "supply-chain"
+  ],
+  "track": "cicd",
+  "story": "CI (Continuous Integration): every push/PR runs automated checks.\nCD (Continuous Delivery/Deploy): promote artifacts after gates.\n\nThis repo workflows:\n• ci.yml — gitleaks, ruff, pytest, eval smoke, frontend, images, Trivy/SBOM/sign where configured\n• cd.yml — eval-gate then deploy strategy\n• eval-nightly.yml — fuller eval against graph\n\nSupply chain: don't just test code — scan secrets, deps, container images.",
+  "one_liner": "PR: lint+test+eval smoke; release: stronger gates then deploy.",
+  "why_it_matters": [
+    "Prevents broken GraphRAG or open secrets from shipping.",
+    "Eval gate ties ML/quality to delivery."
+  ],
+  "say_aloud": [
+    "CI runs on main and feature branches.",
+    "Secret scan runs before trust.",
+    "Eval smoke is part of CI.",
+    "CD should not skip the eval gate."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Gitleaks",
+      "meaning": "Secret scanning in CI"
+    },
+    {
+      "term": "SBOM",
+      "meaning": "Software Bill of Materials"
+    },
+    {
+      "term": "Cosign",
+      "meaning": "Image signing (when wired)"
+    },
+    {
+      "term": "Trivy",
+      "meaning": "Container/fs vulnerability scan"
+    },
+    {
+      "term": "Branch filters",
+      "meaning": "main + feature/** triggers"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "ci-jobs",
+      "title": "CI job spine (conceptual)",
+      "language": "yaml",
+      "goal": "Order the mental checklist.",
+      "narrative": "You don't need every YAML line — you need the job story.",
+      "code": "# .github/workflows/ci.yml (mental model)\non: push/PR → main, feature/**\n\njobs:\n  secret-scan:  gitleaks\n  test:\n    - setup Python 3.12\n    - ruff check + format\n    - pytest (multi-source + full)\n    - eval smoke\n    - frontend build checks\n  # image build/scan/sign steps as configured for supply chain",
+      "say_after": "Secrets first, then quality, then artifacts.",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 6,
+          "prompt": "Why secret-scan early?",
+          "answer": "Fail before wasting CI on leaked credentials",
+          "choices": [
+            "Fail before wasting CI on leaked credentials",
+            "Neo4j requires it",
+            "Only for Docker",
+            "Format only"
+          ],
+          "why": "Stop the pipeline if secrets appear."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "CI vs CD",
+      "definition": "CI verifies every change; CD ships verified artifacts.",
+      "analogy": "",
+      "say_aloud": "Integrate continuously; deliver when gates pass."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Name three workflow files.",
+      "a": "ci.yml, cd.yml, eval-nightly.yml",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Which eval suite in PR CI?",
+      "a": "smoke",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Deploying from main without eval gate."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "GitHub Actions documentation",
+      "url": "https://docs.github.com/en/actions",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Workflows, jobs, permissions least privilege.",
+      "why": "",
+      "level": "core"
+    },
+    {
+      "title": "SLSA supply chain levels",
+      "url": "https://slsa.dev/",
+      "author": "",
+      "kind": "standard",
+      "takeaway": "Provenance and integrity of builds.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Whiteboard CI stages for this monorepo."
+  ],
+  "source": "seed",
+  "order": 130,
+  "estimated_minutes": 25,
+  "grounded": true
+}

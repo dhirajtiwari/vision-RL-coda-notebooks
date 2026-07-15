@@ -1,0 +1,131 @@
+{
+  "id": "12-evalops-gates",
+  "title": "12. EvalOps — golden sets, safety, thresholds, CI gates",
+  "description": "evals/run_eval.py, thresholds.yaml, smoke vs full, never lower floors to go green.",
+  "tags": [
+    "evals",
+    "evalops",
+    "ci",
+    "quality"
+  ],
+  "track": "evals",
+  "story": "EvalOps is continuous measurement of system quality under fixed cases.\n\nThis repo:\n• golden/ — expected diagnosis behaviors\n• safety/injection.jsonl — prompt-injection style cases\n• thresholds.yaml — floors that CI enforces\n• smoke suite in PR CI; full suite in eval-nightly.yml\n\nRule from SDD: NEVER lower thresholds to make CI green — fix the regression.",
+  "one_liner": "Smoke on every PR; full nightly; safety_pass = 1.0; fix code not floors.",
+  "why_it_matters": [
+    "Non-determinism and ranking regressions need automated gates.",
+    "Safety cases catch jailbreak/injection patterns early."
+  ],
+  "say_aloud": [
+    "CI runs python evals/run_eval.py --suite smoke.",
+    "Nightly can run the full suite against a live graph.",
+    "Safety pass rate must be 1.0 for smoke.",
+    "I never lower thresholds to go green."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Golden set",
+      "meaning": "Labeled cases with expected outcomes"
+    },
+    {
+      "term": "Safety suite",
+      "meaning": "Adversarial/injection cases"
+    },
+    {
+      "term": "Floor",
+      "meaning": "Minimum metric to pass gate"
+    },
+    {
+      "term": "smoke",
+      "meaning": "Fast CI suite"
+    },
+    {
+      "term": "full",
+      "meaning": "Stricter nightly/release suite"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "eval-cmd",
+      "title": "Commands to memorize",
+      "language": "bash",
+      "goal": "Type the two eval commands from memory.",
+      "narrative": "Smoke always; full when graph available.",
+      "code": "# PR / CI\npython evals/run_eval.py --suite smoke\n\n# Nightly / release (graph up)\npython evals/run_eval.py --suite full --report eval-report.json\n\n# Floors live in evals/thresholds.yaml\n# Workflows: .github/workflows/ci.yml  +  eval-nightly.yml",
+      "say_after": "Smoke in CI, full at night, floors in yaml.",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "Which suite runs in PR CI?",
+          "answer": "smoke",
+          "choices": [
+            "smoke",
+            "full only",
+            "none",
+            "terraform plan"
+          ],
+          "why": "ci.yml eval gate uses smoke."
+        }
+      ],
+      "fill_blanks": {
+        "template": "python evals/run_eval.py --suite {{s}}\n# floors: evals/{{f}}",
+        "blanks": [
+          {
+            "id": "s",
+            "answer": "smoke",
+            "hint": ""
+          },
+          {
+            "id": "f",
+            "answer": "thresholds.yaml",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Eval gate",
+      "definition": "Automated quality check that can block merge/deploy.",
+      "analogy": "",
+      "say_aloud": "Gates turn metrics into release decisions."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Where are floors defined?",
+      "a": "evals/thresholds.yaml",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Safety_pass smoke target?",
+      "a": "1.0 (all safety cases pass)",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Editing thresholds downward to silence a red build."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "LangSmith / eval practices (industry)",
+      "url": "https://docs.smith.langchain.com/evaluation",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Dataset + evaluators + regressions over time.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Explain smoke vs full and name both workflow files."
+  ],
+  "source": "seed",
+  "order": 120,
+  "estimated_minutes": 25,
+  "grounded": true
+}

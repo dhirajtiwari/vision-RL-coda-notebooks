@@ -355,12 +355,19 @@ def generate_module_from_text(
             auto_tags.append(t)
 
     return StudyModule(
-        id=mod_id,
+        id=mod_id if not mod_id.startswith(("01-", "02-", "03-")) else f"u-{mod_id}",
         title=mod_title,
-        description=f"Auto-generated study module from {filename or 'upload'}.",
+        description=f"Upload-generated module from {filename or 'paste'} (not hand-authored).",
         tags=auto_tags[:12],
+        track="foundations",
         story=story,
-        one_liner=f"Memorize, write, and test: {mod_title}.",
+        one_liner=f"Review then rewrite: {mod_title}.",
+        why_it_matters=["You uploaded this — edit say-aloud lines after first pass."],
+        say_aloud=[
+            f"This module is about {mod_title}.",
+            "I will retell the story, then rewrite the main code beat.",
+        ],
+        cheat_sheet=[{"term": c.term, "meaning": c.definition} for c in concepts[:8]],
         beats=beats,
         concepts=concepts,
         self_quiz=quiz,
@@ -369,6 +376,7 @@ def generate_module_from_text(
         source=source,
         order=500,
         estimated_minutes=max(20, min(90, 10 * len(beats))),
+        grounded=False,
     )
 
 

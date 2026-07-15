@@ -1,59 +1,79 @@
-# Study Lab — modular interview trainer
+# Study Lab — grounded interview trainer
 
-**UI:** [http://localhost:3000/study](http://localhost:3000/study)
-**API:** `http://localhost:8080/study/*`
-**Code:** `study/`, `api/study_routes.py`, `frontend/app/study/`
+**URL:** http://localhost:3000/study
+**API:** `/study/*`
 
-## Purpose
+## Honest note on content changes
 
-Learn and **memorize** the warranty-graph stack the same way the “Master This Code” guides work:
+The “grounded” update **replaced** sparse auto/notebook-generated modules with shorter hand-authored lessons (clearer path, denser practice). That removed bulk from mock-derived notebook dumps — not to hide material, but to stop low-signal noise.
 
-| Mode | What you do |
-|------|-------------|
-| Story | Retell the memory anchor |
-| Annotated | Read code with line notes |
-| Line quiz | Multiple choice per critical line |
-| Fill blanks | Recall tokens |
-| Blank write | Type the whole beat from memory |
-| Flashcards | Concept terms |
-| Self-quiz | Q&A without peeking |
-| Final boss | Integrated oral / write checks |
+**Now restored/expanded:** a full **Flashcards master deck** (5W+H + authoritative sources) covering RDF/OWL/SHACL, Cypher, ETL, cache, threads, partition/CAP, Bayes/FMEA, LangGraph, ISO inspiration, and code snippets.
 
-Seed topics (from notebook + platform):
+## Design principles
 
-1. Platform lineage (dual graph / wizard)
-2. RDF/OWL TBox→ABox + Turtle
-3. SPARQL + Cypher create/read + shortestPath
-4. LangGraph smart-Cypher tools **vs** deterministic GraphRAG
-5. Cache / threads / partition
-6. Fast accurate retrieval + Bayes
-7. SHACL / quality gates
-8. Auto module from `notebooks/rdf_owl_langgraph_tutorial.ipynb` (if present)
+1. **Hand-authored lessons + authoritative flashcards** — not mock ETL dumps.
+2. **Flashcards hub:** run every concept one-by-one with What/How/Where/When/Who/Why + citations.
+3. **Lessons hub:** Learn → Say → Code → Quiz → Rewrite → Boss.
+4. **Small code bites** in lessons; **code cards** in the deck.
+5. Upload notes is **advanced** only (`grounded=false`).
 
-## Tomorrow’s topic = new module
+## Curriculum order
 
-1. Open **Study Lab → New module**
-2. Upload `.md` / `.ipynb` / `.ttl` / `.cypher` / `.py` **or** paste markdown with fenced code
-3. Backend **generates** story, beats, annotations, line quizzes, fill-blanks, concepts
-4. Module appears in the sidebar under `data/study_modules/`
+### Graph / knowledge core
+| # | Lesson | Track |
+|---|--------|--------|
+| 1 | TBox vs ABox | Foundations |
+| 2 | Cypher create + read | Graph |
+| 3 | ETL pipeline | Pipeline |
+| 4 | Caching | Runtime |
+| 5 | Multi-threading | Runtime |
+| 6 | Partitioning | Runtime |
+| 7 | Retrieval + Bayes | Graph |
+| 8 | LangGraph agent | Agent |
+| 9 | SHACL gates | Pipeline |
 
-No LLM required (deterministic generator). Optional later: call gateway when `llm_enabled`.
+### Platform / LLMOps / ops expansion
+| # | Lesson | Track |
+|---|--------|--------|
+| 10 | LLMOps disciplines map | LLMOps |
+| 11 | Observability & monitoring | Observability |
+| 12 | EvalOps gates | EvalOps |
+| 13 | CI/CD GitHub Actions | CI/CD |
+| 14 | Docker & Compose | Infra |
+| 15 | Kubernetes, Helm, rollouts | Infra |
+| 16 | Terraform / IaC | Infra |
+| 17 | FinOps & cost estimation | FinOps |
+| 18 | Security & guardrails | Security |
+| 19 | Integrations (CRM/claims) | Integrations |
+| 20 | Synthetic data, MLOps, images, AIOps | MLOps |
 
-## API
+Flashcards hub expands the same topics with **5W+H + citations** (W3C, Neo4j, SRE, OWASP LLM, Helm, Terraform, FinOps Foundation, DDPM, etc.).
 
-| Method | Path | Role |
-|--------|------|------|
-| GET | `/study/modules` | List summaries |
-| GET | `/study/modules/{id}` | Full module |
-| POST | `/study/modules/generate` | JSON text → module |
-| POST | `/study/modules/upload` | multipart file → module |
-| POST | `/study/grade/fill-blanks` | Score fill practice |
-| POST | `/study/grade/line-quiz` | Score line MCQ |
-| POST | `/study/reseed` | Rewrite seed JSON files |
+## How to practice (20–30 min per lesson)
 
-## Reseed CLI
+1. **Learn** — read story + cheat sheet once.
+2. **Say** — check every spoken line without peeking.
+3. **Code** — read one bite; do fill-blanks.
+4. **Quiz** — line MCQ + concept Q.
+5. **Rewrite** — type beat from memory (≥70% token overlap as a guide).
+6. **Boss** — oral/paper checklist; mark complete.
+
+## Reset curriculum
 
 ```bash
-source venv/bin/activate
 python -m study.seed_curriculum
+# or UI: Reset curriculum
+# or POST /study/reseed
 ```
+
+Wipes non-upload seed JSON and rewrites the 9 grounded modules.
+
+## Code map
+
+| Path | Role |
+|------|------|
+| `study/seed_curriculum.py` | Hand-authored modules |
+| `study/generator.py` | Optional upload parser |
+| `api/study_routes.py` | REST |
+| `frontend/app/study/page.tsx` | Linear UI |
+| `data/study_modules/` | JSON on disk |

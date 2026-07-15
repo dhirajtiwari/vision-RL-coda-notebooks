@@ -1,0 +1,199 @@
+{
+  "id": "01-tbox-abox-simple",
+  "title": "1. TBox vs ABox (the only schema rule you need)",
+  "description": "Schema vs data — warehouse rule book vs boxes on shelves.",
+  "tags": [
+    "tbox",
+    "abox",
+    "owl",
+    "rdf"
+  ],
+  "track": "foundations",
+  "story": "The warehouse has ONE rule book on the wall. That book lists allowed shelf labels: Product, Symptom, FailureMode, Part. That book is the TBox — it almost never changes.\n\nTrucks deliver boxes: 'washer wm-001 has symptom will-not-drain'. Those boxes are the ABox. A new product is new boxes, never a new rule book.\n\nIf you remember only one sentence: TBox = kinds of things; ABox = actual things.",
+  "one_liner": "TBox = rule book (classes). ABox = boxes (instances). New SKU = new ABox only.",
+  "why_it_matters": [
+    "Stops you inventing a new ontology file per product.",
+    "Lets validation check instances against a shared schema.",
+    "Interview trap: people say 'ontology' for both — separate them."
+  ],
+  "say_aloud": [
+    "TBox is the terminological box: shared classes and relationships.",
+    "ABox is the assertional box: facts about specific products.",
+    "Adding espresso machine esp-001 is ABox under the same TBox.",
+    "TBox changes only when we need a new kind of entity, not a new SKU."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "TBox",
+      "meaning": "Schema / vocabulary / classes + properties"
+    },
+    {
+      "term": "ABox",
+      "meaning": "Instances / data rows / product packs"
+    },
+    {
+      "term": "OWL",
+      "meaning": "Formal language for TBox (+ logic)"
+    },
+    {
+      "term": "RDF triple",
+      "meaning": "subject–predicate–object fact"
+    },
+    {
+      "term": "Our runtime",
+      "meaning": "Neo4j holds operational ABox; OWL is export/interchange"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "triple-pattern",
+      "title": "One triple pattern (memorize)",
+      "language": "python",
+      "goal": "Every RDF fact is three parts.",
+      "narrative": "Do not memorize all of rdflib. Memorize: add((subject, predicate, object)).",
+      "code": "from rdflib import Graph, Namespace, RDF, OWL, Literal, RDFS\n\nWD = Namespace(\"https://example.org/wd#\")\ng = Graph()\n\n# TBox: Product is a class\ng.add((WD.Product, RDF.type, OWL.Class))\ng.add((WD.Product, RDFS.label, Literal(\"Product\")))\n\n# ABox: this washer is a Product\ng.add((WD[\"wm-001\"], RDF.type, WD.Product))\ng.add((WD[\"wm-001\"], RDFS.label, Literal(\"Front Load Washer\")))",
+      "say_after": "Class line uses OWL.Class. Instance line uses WD.Product as the type.",
+      "annotations": [
+        {
+          "line": 6,
+          "note": "TBox: declare a class."
+        },
+        {
+          "line": 10,
+          "note": "ABox: individual typed as that class."
+        },
+        {
+          "line": 7,
+          "note": "Human label — not required for logic, useful for people."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 6,
+          "prompt": "Is this TBox or ABox?",
+          "answer": "TBox — declaring a class",
+          "choices": [
+            "TBox — declaring a class",
+            "ABox — a real washer",
+            "Cypher MERGE",
+            "Cache key"
+          ],
+          "why": "OWL.Class means vocabulary, not a product instance."
+        },
+        {
+          "line": 10,
+          "prompt": "Is this TBox or ABox?",
+          "answer": "ABox — a product individual",
+          "choices": [
+            "ABox — a product individual",
+            "TBox class definition",
+            "SPARQL PREFIX",
+            "Redis TTL"
+          ],
+          "why": "RDF.type WD.Product means this URI is an instance."
+        }
+      ],
+      "fill_blanks": {
+        "template": "g.add((WD.Product, RDF.type, {{a}}))\ng.add((WD['wm-001'], RDF.type, {{b}}))",
+        "blanks": [
+          {
+            "id": "a",
+            "answer": "OWL.Class",
+            "hint": "class marker"
+          },
+          {
+            "id": "b",
+            "answer": "WD.Product",
+            "hint": "your domain class"
+          }
+        ]
+      },
+      "pro_tips": [
+        "TRICK: in Turtle `a` is exactly rdf:type — 'wm-001 a Product' reads like English (W3C RDF Primer §5.1).",
+        "GOTCHA: literals (strings/numbers) may only sit in the OBJECT position — never subject or predicate.",
+        "TRICK: reuse an existing IRI/vocabulary instead of minting your own — shared IRIs are what let graphs merge."
+      ]
+    },
+    {
+      "id": "turtle-mini",
+      "title": "Same idea in Turtle (read-only)",
+      "language": "turtle",
+      "goal": "Read three lines of Turtle without panic.",
+      "narrative": "Turtle is just a compact way to write triples.",
+      "code": "@prefix wd:  <https://example.org/wd#> .\n@prefix owl: <http://www.w3.org/2002/07/owl#> .\n\nwd:Product a owl:Class .\nwd:wm-001  a wd:Product .",
+      "say_after": "`a` means rdf:type. First line class, second line instance.",
+      "annotations": [
+        {
+          "line": 4,
+          "note": "TBox class."
+        },
+        {
+          "line": 5,
+          "note": "ABox individual."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 4,
+          "prompt": "What does `a owl:Class` mean?",
+          "answer": "rdf:type owl:Class",
+          "choices": [
+            "rdf:type owl:Class",
+            "Creates Neo4j node",
+            "Deletes class",
+            "Runs SPARQL"
+          ],
+          "why": "Turtle sugar for type assertion."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "TBox",
+      "definition": "Shared schema: what kinds of nodes/edges are allowed.",
+      "analogy": "CREATE TABLE",
+      "say_aloud": "TBox is the rule book on the wall."
+    },
+    {
+      "term": "ABox",
+      "definition": "Instance data: this product, this symptom, this edge.",
+      "analogy": "INSERT rows",
+      "say_aloud": "ABox is the boxes of facts on the shelves."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "New product SKU — TBox or ABox?",
+      "a": "ABox under existing TBox.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "When does TBox change?",
+      "a": "Only when you need a new kind of entity/relationship.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "SQL analogy?",
+      "a": "TBox ≈ schema, ABox ≈ rows.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Making one OWL file per product.",
+    "Calling Neo4j data 'the ontology' without distinguishing schema vs instances."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "45s: warehouse story for TBox vs ABox.",
+    "From memory: write 4 rdflib lines — class Product + instance wm-001."
+  ],
+  "source": "seed",
+  "order": 10,
+  "estimated_minutes": 15,
+  "grounded": true
+}

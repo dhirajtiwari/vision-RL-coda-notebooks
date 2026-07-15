@@ -1,0 +1,149 @@
+{
+  "id": "06-partitioning",
+  "title": "6. Partitioning — split work and keys on purpose",
+  "description": "Logical keys today; physical shards later. Same key shape everywhere.",
+  "tags": [
+    "partition",
+    "tenant",
+    "scale",
+    "sharding"
+  ],
+  "track": "runtime",
+  "story": "Partitioning means: do not treat the whole world as one pile.\n\n• Data partition: only this tenant / product line's knowledge.\n• Work partition: ETL one product_ids slice at a time.\n• Key partition: cache and rate-limit keys include tenant|product so customers never share a bucket.\n\nToday this repo mostly uses LOGICAL keys (strings). Physical Neo4j Fabric shards are a later scale step — same keys, different storage.",
+  "one_liner": "Same key language for cache, rate limit, and future shards: tenant|product|…",
+  "why_it_matters": [
+    "Prevents one noisy tenant from exhausting everyone's rate limit.",
+    "Keeps ETL batches small and reviewable.",
+    "Prepares for multi-region without renaming everything later."
+  ],
+  "say_aloud": [
+    "A partition key names the slice of the world we are working on.",
+    "Rate limits and caches must use the same key dimensions.",
+    "Selection-scoped promote is work partitioning by product_id.",
+    "Logical keys now; physical Fabric or multi-DB later if needed."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Logical partition",
+      "meaning": "Key design only — one DB still"
+    },
+    {
+      "term": "Physical partition",
+      "meaning": "Data lives on different servers/shards"
+    },
+    {
+      "term": "tenant_id",
+      "meaning": "Who owns the data (customer org)"
+    },
+    {
+      "term": "product_id slice",
+      "meaning": "ETL/query limited to listed products"
+    },
+    {
+      "term": "Key agreement",
+      "meaning": "Cache + rate-limit + logs share shape"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "key-shape",
+      "title": "Canonical key shape",
+      "language": "python",
+      "goal": "Build partition strings from memory.",
+      "narrative": "Boring strings prevent subtle multi-tenant bugs.",
+      "code": "def partition_key(tenant_id: str, product_id: str | None = None) -> str:\n    parts = [f\"tenant={tenant_id or 'default'}\"]\n    if product_id:\n        parts.append(f\"product={product_id}\")\n    return \"|\".join(parts)\n\n# Uses\nrate_key  = partition_key(\"acme\", None) + \"|route=/diagnose\"\ncache_key = partition_key(\"acme\", \"wm-001\") + \"|res=subgraph\"\n\n# Work partition (ETL)\nproduct_ids = [\"wm-001\", \"esp-001\"]   # only these this run",
+      "say_after": "tenant always; product when the data is product-scoped.",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Stable prefix."
+        },
+        {
+          "line": 6,
+          "note": "Rate limit per tenant (and route)."
+        },
+        {
+          "line": 7,
+          "note": "Cache per tenant+product resource."
+        },
+        {
+          "line": 10,
+          "note": "ETL selection list = work partition."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 7,
+          "prompt": "Why product in subgraph cache key?",
+          "answer": "Different products have different neighborhoods",
+          "choices": [
+            "Different products have different neighborhoods",
+            "Redis requires product",
+            "Cypher ignores product",
+            "UI color theme"
+          ],
+          "why": "Otherwise wm data could be served for esp."
+        }
+      ],
+      "fill_blanks": {
+        "template": "parts = [f\"tenant={{t}}\"]\nif product_id:\n    parts.append(f\"product={{p}}\")\nreturn \"|\".join(parts)",
+        "blanks": [
+          {
+            "id": "t",
+            "answer": "{tenant_id}",
+            "hint": ""
+          },
+          {
+            "id": "p",
+            "answer": "{product_id}",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": [
+        "TRICK: partition by a key (tenant/product) to spread load; always scope queries by that key (Kleppmann, DDIA Ch.6).",
+        "GOTCHA: watch for hot keys/skew — one huge tenant can unbalance an otherwise even partition scheme."
+      ]
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Work partition",
+      "definition": "Process a subset (product_ids) per pipeline run.",
+      "analogy": "",
+      "say_aloud": "Selection-scoped materialize is work partitioning."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Logical vs physical partition?",
+      "a": "Logical=keys; physical=separate storage.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Why same key shape for cache and rate limit?",
+      "a": "One vocabulary; no cross-tenant bleed.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Example work partition?",
+      "a": "Promote only product_ids=['esp-001'].",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Global rate limit key for all tenants.",
+    "Cache key missing tenant in multi-tenant SaaS."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Write partition_key() from memory.",
+    "Give one logical and one physical partition example."
+  ],
+  "source": "seed",
+  "order": 60,
+  "estimated_minutes": 20,
+  "grounded": true
+}

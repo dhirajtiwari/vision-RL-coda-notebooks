@@ -1,0 +1,99 @@
+{
+  "id": "19-integrations",
+  "title": "19. Integrations — CRM, claims, eligibility, mock SoR",
+  "description": "integrations/* anti-corruption; simulation mock apps; never block core graph on mock outage patterns.",
+  "tags": [
+    "integrations",
+    "crm",
+    "claims",
+    "api"
+  ],
+  "track": "integrations",
+  "story": "Enterprise diagnosis sits beside systems of record:\nCRM assets, claims, warranty eligibility, case management.\n\nThis repo:\n• integrations/crm_enrichment.py\n• integrations/claims_workflow.py\n• integrations/warranty_eligibility.py\n• integrations/case_management.py\n• simulation/mock_enterprise_apps.py for local demos\n\nPattern: adapters translate foreign models into our domain; graph remains source of diagnostic truth.",
+  "one_liner": "Adapters for CRM/claims/eligibility; mocks for demo; graph owns diagnosis evidence.",
+  "why_it_matters": [
+    "Real orgs will not replace SAP/Salesforce overnight.",
+    "Mocks prove UX without prod credentials."
+  ],
+  "say_aloud": [
+    "Integrations are adapters, not the diagnosis brain.",
+    "Mock enterprise apps stand in for SoR locally.",
+    "Claims and eligibility are side paths around GraphRAG ranking."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "SoR",
+      "meaning": "System of record"
+    },
+    {
+      "term": "Adapter",
+      "meaning": "Translate external API ↔ domain"
+    },
+    {
+      "term": "Idempotent submit",
+      "meaning": "Safe retries for claims"
+    },
+    {
+      "term": "Enrichment",
+      "meaning": "Add CRM context to session"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "integration-map",
+      "title": "Package map",
+      "language": "text",
+      "goal": "Name four integration modules.",
+      "narrative": "",
+      "code": "integrations/\n  crm_enrichment.py        # customer/asset context\n  claims_workflow.py       # submit/list/status claims\n  warranty_eligibility.py  # policy / coverage checks\n  case_management.py       # escalation cases\n\nsimulation/mock_enterprise_apps.py  # local HTTP stand-ins\n# Live SAP/SFDC connectors = roadmap (fixtures today)",
+      "say_after": "Four adapters + mock simulator.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Anti-corruption layer",
+      "definition": "Protect domain model from external schema mess.",
+      "analogy": "",
+      "say_aloud": "Adapters translate; domain stays clean."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Where is claims workflow?",
+      "a": "integrations/claims_workflow.py",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Are live SAP connectors productized?",
+      "a": "No — fixtures/mocks pattern.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Putting ranking logic inside CRM adapters."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "Enterprise Integration Patterns (Hohpe & Woolf)",
+      "url": "https://www.enterpriseintegrationpatterns.com/",
+      "author": "",
+      "kind": "book",
+      "takeaway": "Adapters, messaging, canonical data models.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Draw CRM → API → GraphRAG → claims sequence."
+  ],
+  "source": "seed",
+  "order": 190,
+  "estimated_minutes": 20,
+  "grounded": true
+}

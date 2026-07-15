@@ -1,0 +1,161 @@
+{
+  "id": "15-k8s-helm-rollouts",
+  "title": "15. Kubernetes, Helm concepts, progressive delivery",
+  "description": "k8s/base manifests, overlays, monitoring CRs; Helm as package; Argo/Flagger rollouts.",
+  "tags": [
+    "kubernetes",
+    "helm",
+    "canary",
+    "gitops"
+  ],
+  "track": "infra",
+  "story": "Kubernetes schedules containers on a cluster using declarative YAML (desired state).\n\nThis repo:\n• k8s/base/ — Deployments, Services for API etc.\n• k8s/overlays/ — env-specific patches\n• k8s/monitoring/ — ServiceMonitor / PrometheusRule style wiring\n• deploy/rollouts/ — Argo Rollouts / Flagger canary skeletons\n• deploy/policy/verify-images.yaml — image verification policy\n\nHelm packages K8s YAML as charts with values — reusable templates.\nThis repo leans raw kustomize-style overlays + rollout YAMLs more than a full chart tree,\nbut you must know Helm vocabulary for interviews.",
+  "one_liner": "Declarative k8s manifests + overlays; Helm packages charts; canaries need metrics+eval.",
+  "why_it_matters": [
+    "Production scale ≠ docker compose.",
+    "Canary needs quality signals from evals/metrics."
+  ],
+  "say_aloud": [
+    "Pods run containers; Deployments manage replicas; Services expose them.",
+    "Overlays patch base manifests per environment.",
+    "Helm charts parameterize installs with values.yaml.",
+    "Progressive delivery uses canary analysis before full traffic."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Pod",
+      "meaning": "Smallest deployable unit"
+    },
+    {
+      "term": "Deployment",
+      "meaning": "Replica + rolling update controller"
+    },
+    {
+      "term": "Service",
+      "meaning": "Stable virtual IP / DNS"
+    },
+    {
+      "term": "ConfigMap/Secret",
+      "meaning": "Config vs sensitive config"
+    },
+    {
+      "term": "Helm chart",
+      "meaning": "Templated package of manifests"
+    },
+    {
+      "term": "values.yaml",
+      "meaning": "Chart parameters"
+    },
+    {
+      "term": "Canary",
+      "meaning": "Send small traffic %, analyze, promote/rollback"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "k8s-objects",
+      "title": "Core objects (text)",
+      "language": "text",
+      "goal": "Define Pod, Deployment, Service in one line each.",
+      "narrative": "",
+      "code": "Pod         = running container(s) + volumes\nDeployment  = desired replicas + rolling update of Pod template\nService     = stable network endpoint to Pods\nIngress     = HTTP routing into cluster\nConfigMap   = non-secret config\nSecret      = sensitive config (still need external secret mgmt in prod)\n\nRepo paths:\n  k8s/base/*.yaml\n  k8s/overlays/*\n  deploy/rollouts/argo-rollout.yaml\n  deploy/rollouts/flagger-canary.yaml",
+      "say_after": "Base + overlay; rollouts for canary.",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 3,
+          "prompt": "What does a Service provide?",
+          "answer": "Stable network access to Pods",
+          "choices": [
+            "Stable network access to Pods",
+            "Builds Docker images",
+            "Runs pytest",
+            "Stores Neo4j only"
+          ],
+          "why": "Pods are ephemeral; Service DNS stays."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    },
+    {
+      "id": "helm-mini",
+      "title": "Helm mental model",
+      "language": "bash",
+      "goal": "Know install/upgrade/rollback verbs.",
+      "narrative": "",
+      "code": "# Helm is the package manager for Kubernetes\nhelm install diagnostics ./charts/diagnostics -f values-prod.yaml\nhelm upgrade diagnostics ./charts/diagnostics -f values-prod.yaml\nhelm rollback diagnostics 1\n\n# Chart layout (typical)\n# charts/diagnostics/\n#   Chart.yaml\n#   values.yaml\n#   templates/deployment.yaml\n#   templates/service.yaml",
+      "say_after": "install, upgrade, rollback — values select env.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": {
+        "template": "helm {{a}} myrel ./chart -f values.yaml\nhelm {{b}} myrel 1",
+        "blanks": [
+          {
+            "id": "a",
+            "answer": "upgrade",
+            "hint": ""
+          },
+          {
+            "id": "b",
+            "answer": "rollback",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Progressive delivery",
+      "definition": "Ship gradually with automated analysis and fast rollback.",
+      "analogy": "",
+      "say_aloud": "Canary uses metrics and evals, not hope."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Where are base k8s manifests?",
+      "a": "k8s/base/",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Helm values file role?",
+      "a": "Parameterize chart templates per env.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Canary without a success metric or eval gate."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "Kubernetes documentation",
+      "url": "https://kubernetes.io/docs/home/",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Objects, controllers, desired state.",
+      "why": "",
+      "level": "core"
+    },
+    {
+      "title": "Helm docs",
+      "url": "https://helm.sh/docs/",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Charts, values, releases.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Explain base vs overlay vs Helm chart in 45 seconds."
+  ],
+  "source": "seed",
+  "order": 150,
+  "estimated_minutes": 30,
+  "grounded": true
+}

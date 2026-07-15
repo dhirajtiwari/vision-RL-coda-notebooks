@@ -1,0 +1,116 @@
+{
+  "id": "18-security-guardrails",
+  "title": "18. Security — threat model, OWASP LLM, guardrails",
+  "description": "security/threat-model, owasp-llm-mapping, input/output/action guardrails, redaction.",
+  "tags": [
+    "security",
+    "owasp",
+    "guardrails",
+    "pii"
+  ],
+  "track": "security",
+  "story": "Security for this system spans classic web/API threats and LLM-specific threats.\n\nRepo anchors:\n• security/threat-model.md\n• security/owasp-llm-mapping.md\n• guardrails/input.py, output.py, action.py, rate_limit.py, pipeline.py\n• observability redaction for PII in logs\n• evals/safety for injection cases\n\nPrinciple: enforce in code and infra; prompts alone are not controls.",
+  "one_liner": "Threat model + OWASP LLM map + guardrails pipeline + safety evals.",
+  "why_it_matters": [
+    "Injection, data leak, over-agent actions, budget abuse."
+  ],
+  "say_aloud": [
+    "Guardrails run on the way in and out of the API.",
+    "Rate limits reduce abuse.",
+    "PII redaction protects logs and telemetry.",
+    "Safety eval suite must stay at full pass."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "LLM01",
+      "meaning": "Prompt injection (OWASP LLM Top 10 family)"
+    },
+    {
+      "term": "Input guard",
+      "meaning": "Block/transform unsafe user text"
+    },
+    {
+      "term": "Output guard",
+      "meaning": "Filter model/app outputs"
+    },
+    {
+      "term": "Action guard",
+      "meaning": "Block dangerous side effects"
+    },
+    {
+      "term": "ZDR",
+      "meaning": "Zero data retention with providers"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "guard-pipeline",
+      "title": "Guard pipeline order (conceptual)",
+      "language": "text",
+      "goal": "Order the layers.",
+      "narrative": "",
+      "code": "Request\n  → rate_limit (abuse)\n  → input guardrails (injection, length, PII patterns)\n  → business logic / GraphRAG / optional LLM gateway\n  → output guardrails (leakage, length)\n  → action guardrails (claims/escalation side effects)\n  → response + redacted logs\n\nArtifacts:\n  guardrails/*\n  security/threat-model.md\n  security/owasp-llm-mapping.md\n  evals/safety/injection.jsonl",
+      "say_after": "Rate, input, core, output, action.",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 3,
+          "prompt": "Why input guards before GraphRAG?",
+          "answer": "Stop abusive payloads early",
+          "choices": [
+            "Stop abusive payloads early",
+            "Neo4j syntax",
+            "Helm only",
+            "Terraform state"
+          ],
+          "why": "Cheap reject before expensive work."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Defense in depth",
+      "definition": "Multiple independent controls.",
+      "analogy": "",
+      "say_aloud": "No single control is enough."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Where is OWASP mapping?",
+      "a": "security/owasp-llm-mapping.md",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Safety eval path?",
+      "a": "evals/safety/",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Relying only on system prompt for security."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "OWASP Top 10 for LLM Applications",
+      "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "author": "",
+      "kind": "standard",
+      "takeaway": "LLM-specific risk categories.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Map one OWASP LLM risk to a repo control."
+  ],
+  "source": "seed",
+  "order": 180,
+  "estimated_minutes": 25,
+  "grounded": true
+}

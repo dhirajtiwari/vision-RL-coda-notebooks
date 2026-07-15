@@ -1,0 +1,323 @@
+{
+  "id": "03-etl-pipeline",
+  "title": "3. ETL pipeline — extract, build ABox, validate, promote",
+  "description": "How knowledge gets into Neo4j safely. Memorize the chant and why each gate exists.",
+  "tags": [
+    "etl",
+    "pipeline",
+    "promote",
+    "abox",
+    "control-plane"
+  ],
+  "track": "pipeline",
+  "story": "Knowledge does not appear magically in chat. It is loaded through a pipeline:\n\n1. EXTRACT sources (PIM catalog, FSM work orders, claims, CRM assets, files).\n2. TRANSFORM into one catalog shaped like our ABox (OntologyBuilder).\n3. VALIDATE against TBox shapes (min symptoms, links must point to real ids).\n4. LOAD into staging Neo4j (:7688) with MERGE.\n5. SMOKE test a few diagnosis phrases.\n6. PROMOTE to production Neo4j (:7687) — only then does chat see it.\n7. INVALIDATE caches so old subgraphs die.\n\nOperator chant (memorize order):\nSources → Fetch → Select → Validate ABox → Materialize → Smoke → Approve → Promote staging → Promote production.",
+  "one_liner": "Extract → ABox build → validate → staging → smoke → production → drop caches.",
+  "why_it_matters": [
+    "Chat must never read half-baked knowledge (staging exists for that).",
+    "Validation before promote = fail-closed quality.",
+    "Selection-scoped runs let you onboard one SKU without rewriting the fleet."
+  ],
+  "say_aloud": [
+    "Extract pulls from source systems; transform maps fields into shared TBox classes as ABox.",
+    "We validate shapes before materialize and promote.",
+    "Staging is bolt 7688; production is bolt 7687; chat reads production only.",
+    "After load we invalidate named caches so readers see fresh graph data.",
+    "A pipeline run can be dry-run to preview without writing Neo4j."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Extract",
+      "meaning": "Read sources (connectors / files)"
+    },
+    {
+      "term": "Transform",
+      "meaning": "OntologyBuilder → catalog JSON ABox"
+    },
+    {
+      "term": "Validate",
+      "meaning": "Shapes: required lists + link integrity"
+    },
+    {
+      "term": "Materialize",
+      "meaning": "Write selected products into catalog"
+    },
+    {
+      "term": "Promote",
+      "meaning": "MERGE catalog into Neo4j env"
+    },
+    {
+      "term": "Staging :7688",
+      "meaning": "Safe write/test graph"
+    },
+    {
+      "term": "Production :7687",
+      "meaning": "What diagnose/chat reads"
+    },
+    {
+      "term": "Dry-run",
+      "meaning": "Run without side-effect load"
+    },
+    {
+      "term": "Selection",
+      "meaning": "product_ids scope for one batch"
+    }
+  ],
+  "change_table": [
+    {
+      "stage": "Extract",
+      "input": "PIM/FSM/Claims/CRM/files",
+      "output": "raw records"
+    },
+    {
+      "stage": "Transform",
+      "input": "raw records",
+      "output": "catalog ABox JSON"
+    },
+    {
+      "stage": "Validate",
+      "input": "catalog slice",
+      "output": "ok / errors"
+    },
+    {
+      "stage": "Load staging",
+      "input": "valid ABox",
+      "output": "Neo4j :7688"
+    },
+    {
+      "stage": "Promote prod",
+      "input": "approved staging",
+      "output": "Neo4j :7687"
+    }
+  ],
+  "beats": [
+    {
+      "id": "chant",
+      "title": "Memorize the operator sequence",
+      "language": "text",
+      "goal": "Recite the 9 steps without looking.",
+      "narrative": "If you can chant this, you understand the control plane.",
+      "code": "Sources\n  → Fetch          (preview delta / dry extract)\n  → Select         (which product_ids this batch)\n  → Validate ABox  (shapes vs TBox)\n  → Materialize    (upsert catalog for selection)\n  → Smoke          (run known diagnosis phrases)\n  → Approve\n  → Promote staging   (:7688)\n  → Promote production (:7687)\n  → Invalidate caches",
+      "say_after": "Chat never reads staging. Promote is the door.",
+      "annotations": [
+        {
+          "line": 4,
+          "note": "Fail here = no bad data later."
+        },
+        {
+          "line": 9,
+          "note": "Production only after smoke."
+        },
+        {
+          "line": 11,
+          "note": "Stale cache is a silent bug."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 9,
+          "prompt": "Which port does chat use?",
+          "answer": "Production :7687",
+          "choices": [
+            "Production :7687",
+            "Staging :7688",
+            "Redis :6379",
+            "Frontend :3000"
+          ],
+          "why": "Diagnose path is production-only by design."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": [
+        "TRICK: keep stages idempotent & replayable — a failed promote can be re-run without double-writing (Kleppmann, DDIA).",
+        "GOTCHA: chat must read only the PROMOTED graph, never staging — promotion is the single gate.",
+        "TRICK: tag facts with a named graph / source so you can promote or roll back a whole source atomically."
+      ]
+    },
+    {
+      "id": "pipeline-ids",
+      "title": "Pipeline registry ids (as-built names)",
+      "language": "text",
+      "goal": "Know the real pipeline names in this repo.",
+      "narrative": "These ids show up in Admin / control plane.",
+      "code": "structured_extract      # PIM / FSM / Claims / CRM connectors\nsemi_structured_ingest   # CSV / JSONL\nunstructured_extract     # manuals / notes patterns\npreprocess_normalize     # clean / provisional notes\nknowledge_materialize    # OntologyBuilder → catalog (selection)\nsmoke_validate           # diagnosis scenarios\npromote_graph            # MERGE Neo4j staging | production\nbootstrap_all            # chain for first build\nincremental_sync         # chain for ongoing updates",
+      "say_after": "Materialize builds ABox; promote_graph writes Neo4j.",
+      "annotations": [
+        {
+          "line": 5,
+          "note": "This is where ABox is assembled."
+        },
+        {
+          "line": 7,
+          "note": "This is the graph load step."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 5,
+          "prompt": "Which step builds the ABox catalog?",
+          "answer": "knowledge_materialize",
+          "choices": [
+            "knowledge_materialize",
+            "promote_graph",
+            "smoke_validate",
+            "structured_extract only"
+          ],
+          "why": "OntologyBuilder runs in materialize."
+        }
+      ],
+      "fill_blanks": {
+        "template": "{{a}} builds catalog ABox\n{{b}} MERGEs into Neo4j",
+        "blanks": [
+          {
+            "id": "a",
+            "answer": "knowledge_materialize",
+            "hint": ""
+          },
+          {
+            "id": "b",
+            "answer": "promote_graph",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": []
+    },
+    {
+      "id": "etl-code-spine",
+      "title": "Code spine (tiny mental model)",
+      "language": "python",
+      "goal": "Map words to functions — not every file.",
+      "narrative": "Extract can be parallel (I/O). Transform stays serial (deterministic merges).",
+      "code": "# conceptual spine (names match the platform idea)\nrecords = extract_sources(product_ids)          # I/O — may use thread pool\ncatalog = ontology_builder.build(records)       # serial transform → ABox\nerrors  = validate_shapes(catalog)              # fail-closed\nif errors:\n    raise ValueError(errors)\nif not dry_run:\n    populate_graph(catalog, env=\"staging\")      # MERGE :7688\n    run_smoke(product_ids)\n    populate_graph(catalog, env=\"production\")   # MERGE :7687\n    invalidate_all_named_caches()",
+      "say_after": "Parallel extract is OK. Parallel transform is usually not.",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Connectors wait on network — threads help."
+        },
+        {
+          "line": 3,
+          "note": "One deterministic builder for ABox."
+        },
+        {
+          "line": 4,
+          "note": "Shapes before any graph write."
+        },
+        {
+          "line": 10,
+          "note": "Caches must die after graph changes."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 2,
+          "prompt": "Why may extract use threads?",
+          "answer": "I/O bound waits on network",
+          "choices": [
+            "I/O bound waits on network",
+            "CPU ranking needs 100 threads",
+            "Neo4j forbids serial",
+            "Only for CSS"
+          ],
+          "why": "Waiting on HTTP/files benefits from concurrency."
+        },
+        {
+          "line": 10,
+          "prompt": "Why invalidate caches after promote?",
+          "answer": "Readers must not see stale subgraphs",
+          "choices": [
+            "Readers must not see stale subgraphs",
+            "Redis license expires daily",
+            "Cypher syntax requires it",
+            "UI theme refresh"
+          ],
+          "why": "Otherwise diagnose returns old neighborhoods."
+        }
+      ],
+      "fill_blanks": {
+        "template": "catalog = ontology_builder.{{fn}}(records)\nif not dry_run:\n    populate_graph(catalog, env=\"{{env}}\")\n    {{inv}}()",
+        "blanks": [
+          {
+            "id": "fn",
+            "answer": "build",
+            "hint": "or build_catalog_payload"
+          },
+          {
+            "id": "env",
+            "answer": "staging",
+            "hint": "first load env"
+          },
+          {
+            "id": "inv",
+            "answer": "invalidate_all_named_caches",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Dual graph",
+      "definition": "Staging for safe MERGE; production for diagnose reads.",
+      "analogy": "",
+      "say_aloud": "7688 then 7687; chat only sees production."
+    },
+    {
+      "term": "Fail-closed validate",
+      "definition": "Bad ABox never promotes.",
+      "analogy": "",
+      "say_aloud": "Shapes run before materialize and promote."
+    },
+    {
+      "term": "Selection scope",
+      "definition": "Run pipeline for chosen product_ids only.",
+      "analogy": "",
+      "say_aloud": "One SKU batch without rewriting the fleet."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Order: validate vs promote?",
+      "a": "Validate before promote.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Does chat read staging?",
+      "a": "No — production only.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "What does OntologyBuilder produce?",
+      "a": "Catalog ABox under shared TBox.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "What happens after promote?",
+      "a": "Invalidate caches.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Dry-run means?",
+      "a": "Preview/extract without writing Neo4j.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Calling 'Fetch' an ontology build — Fetch previews sources/delta.",
+    "Promoting without smoke.",
+    "Forgetting cache invalidation."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Recite the operator chant start to finish.",
+    "Draw Extract → Transform → Validate → Stage → Prod on paper.",
+    "Name three pipeline registry ids and what they do."
+  ],
+  "source": "seed",
+  "order": 30,
+  "estimated_minutes": 30,
+  "grounded": true
+}

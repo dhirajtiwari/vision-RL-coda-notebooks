@@ -1,0 +1,135 @@
+{
+  "id": "16-iac-terraform",
+  "title": "16. Infrastructure as Code — Terraform patterns",
+  "description": "infra/terraform scaffold; plan/apply; state; modules; estimate costs separately.",
+  "tags": [
+    "terraform",
+    "iac",
+    "cloud"
+  ],
+  "track": "infra",
+  "story": "IaC means infrastructure is declared in code, reviewed in PRs, and applied by automation.\n\nTerraform language (HCL): providers, resources, modules, state backend.\nThis repo: infra/terraform/ is a SCAFFOLD — placeholders for cloud landing zones,\nnot a full multi-account production estate. Runtime demo is Docker-first.\n\nWorkflow: write .tf → terraform init → plan → apply (with approval) → destroy carefully.",
+  "one_liner": "Declare cloud resources in HCL; plan before apply; remote state for teams.",
+  "why_it_matters": [
+    "Reproducible environments.",
+    "Audit trail of infra changes."
+  ],
+  "say_aloud": [
+    "Terraform plan shows the diff before apply.",
+    "State maps resources to real cloud objects.",
+    "Modules package reusable infrastructure.",
+    "Our terraform tree is scaffold; compose is the local runtime."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "provider",
+      "meaning": "Cloud/API plugin (aws, azurerm, …)"
+    },
+    {
+      "term": "resource",
+      "meaning": "One managed object"
+    },
+    {
+      "term": "state",
+      "meaning": "Terraform's memory of real resources"
+    },
+    {
+      "term": "plan",
+      "meaning": "Dry-run execution plan"
+    },
+    {
+      "term": "apply",
+      "meaning": "Execute plan"
+    },
+    {
+      "term": "module",
+      "meaning": "Reusable composition of resources"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "tf-workflow",
+      "title": "Workflow commands",
+      "language": "bash",
+      "goal": "Recite init/plan/apply.",
+      "narrative": "",
+      "code": "cd infra/terraform\nterraform init          # providers + modules\nterraform fmt -check\nterraform validate\nterraform plan -out tf.plan\nterraform apply tf.plan # only after review\n\n# NEVER commit secrets; use env vars / secret managers\n# Cost: use plan + cloud pricing calculator / Infracost — not guesswork",
+      "say_after": "init, validate, plan, apply — with human review.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": {
+        "template": "terraform {{a}}\nterraform {{b}} -out tf.plan\nterraform {{c}} tf.plan",
+        "blanks": [
+          {
+            "id": "a",
+            "answer": "init",
+            "hint": ""
+          },
+          {
+            "id": "b",
+            "answer": "plan",
+            "hint": ""
+          },
+          {
+            "id": "c",
+            "answer": "apply",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Desired state",
+      "definition": "You declare end state; tool converges reality.",
+      "analogy": "",
+      "say_aloud": "IaC converges to the declared configuration."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "What does terraform plan do?",
+      "a": "Shows changes without applying.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Is this repo's Terraform production-complete?",
+      "a": "No — scaffold; Docker is demo runtime.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Applying from a laptop without remote state locks."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "Terraform documentation",
+      "url": "https://developer.hashicorp.com/terraform/docs",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Core workflow and state.",
+      "why": "",
+      "level": "core"
+    },
+    {
+      "title": "Infracost (IaC cost estimate)",
+      "url": "https://www.infracost.io/",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Diff cost on terraform plan.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Write a 4-line story of init→plan→apply and where state lives."
+  ],
+  "source": "seed",
+  "order": 160,
+  "estimated_minutes": 25,
+  "grounded": true
+}

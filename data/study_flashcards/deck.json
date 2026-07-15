@@ -1,0 +1,2944 @@
+[
+  {
+    "id": "fc-rdf-triple",
+    "front": "RDF triple",
+    "track": "foundations",
+    "tags": [
+      "rdf",
+      "graph",
+      "data-model"
+    ],
+    "kind": "concept",
+    "what": "The atomic fact in RDF: subject\u2013predicate\u2013object (s, p, o).",
+    "how": "Assert with rdflib Graph.add((s,p,o)) or write Turtle; store as a directed labeled edge.",
+    "where": "Semantic web stacks, ontology exports (docs/ontology/*.ttl), knowledge interchange.",
+    "when": "When you need a formal, mergeable, schema-aware graph of facts across systems.",
+    "who": "Knowledge engineers, data stewards; W3C RDF Working Group defines the model.",
+    "why": "One shared data model for meaning + facts; tools can reason and validate over it.",
+    "analogy": "One spreadsheet cell relation, but globally named with IRIs.",
+    "code": "g.add((WD.Symptom, WD.indicates, WD.FailureMode))",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "An RDF triple is one subject-predicate-object fact.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Concepts and Abstract Syntax",
+        "url": "https://www.w3.org/TR/rdf11-concepts/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-tbox",
+    "front": "TBox (Terminological Box)",
+    "track": "foundations",
+    "tags": [
+      "tbox",
+      "owl",
+      "schema",
+      "dl"
+    ],
+    "kind": "theory",
+    "what": "The schema layer in Description Logic / OWL: classes, properties, axioms (the vocabulary).",
+    "how": "Declare owl:Class, ObjectProperty/DatatypeProperty, domain/range, optional restrictions.",
+    "where": "Shared domain ontology (rdf_ontology_export, warranty-diagnosis-schema.ttl) \u2014 not per product.",
+    "when": "Once per domain; change only when new kinds of entities/relations appear.",
+    "who": "Ontology/governance owners; formalized in Baader et al. Description Logic handbook tradition.",
+    "why": "One rule book scales; new products become ABox without inventing new languages.",
+    "analogy": "SQL CREATE TABLE / ER schema.",
+    "code": "g.add((WD.Product, RDF.type, OWL.Class))",
+    "language": "python",
+    "pitfalls": [
+      "Creating a new TBox file per SKU",
+      "Confusing Neo4j labels with a governed TBox"
+    ],
+    "say_aloud": "TBox is the rule book of classes and relationships.",
+    "sources": [
+      {
+        "title": "W3C OWL 2 Primer",
+        "url": "https://www.w3.org/TR/owl2-primer/",
+        "kind": "standard"
+      },
+      {
+        "title": "Baader et al., The Description Logic Handbook (Cambridge)",
+        "url": "https://www.cambridge.org/core/books/description-logic-handbook/",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-abox",
+    "front": "ABox (Assertional Box)",
+    "track": "foundations",
+    "tags": [
+      "abox",
+      "instances",
+      "owl"
+    ],
+    "kind": "theory",
+    "what": "Instance facts: this individual is a Product; this Symptom INDICATES that FailureMode.",
+    "how": "Create individuals typed by TBox classes; assert property links between them.",
+    "where": "Product packs, catalog JSON, Neo4j operational graph after promote.",
+    "when": "Every new product, bulletin, claim precedent, or asset registration.",
+    "who": "Data pipelines / OntologyBuilder / field knowledge stewards.",
+    "why": "High-volume change lives in ABox; TBox stays stable.",
+    "analogy": "SQL INSERT rows under fixed tables.",
+    "code": "g.add((WD[\"wm-001\"], RDF.type, WD.Product))",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "ABox is the boxes of facts on the shelves.",
+    "sources": [
+      {
+        "title": "W3C OWL 2 Primer (TBox vs ABox)",
+        "url": "https://www.w3.org/TR/owl2-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-owl",
+    "front": "OWL (Web Ontology Language)",
+    "track": "foundations",
+    "tags": [
+      "owl",
+      "w3c",
+      "ontology"
+    ],
+    "kind": "concept",
+    "what": "W3C language for ontologies on top of RDF, grounded in Description Logic fragments.",
+    "how": "Classes, properties, axioms (disjoint, equivalentClass, restrictions); serialize Turtle/RDF/XML.",
+    "where": "Formal export/interchange; optional offline reasoners \u2014 not required on our diagnose path.",
+    "when": "When you need shared meaning across tools or regulatory/semantic interoperability.",
+    "who": "W3C OWL Working Group; enterprise knowledge teams.",
+    "why": "Machine-interpretable meaning beyond ad-hoc JSON keys.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [
+      "Assuming HermiT runs in every API request",
+      "Open-world surprises vs closed-world apps"
+    ],
+    "say_aloud": "OWL formalizes the schema; our chat still reads Neo4j ABox at runtime.",
+    "sources": [
+      {
+        "title": "W3C OWL 2 Overview",
+        "url": "https://www.w3.org/TR/owl2-overview/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple",
+      "09-shacl-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-shacl",
+    "front": "SHACL",
+    "track": "pipeline",
+    "tags": [
+      "shacl",
+      "validation",
+      "quality"
+    ],
+    "kind": "concept",
+    "what": "Shapes Constraint Language \u2014 closed-world validation of RDF/instance graphs.",
+    "how": "NodeShapes/PropertyShapes with minCount, datatype, class; engines like pyshacl validate data graphs.",
+    "where": "Before materialize/promote (our lite Python shapes mirror this job).",
+    "when": "On every ABox pack before it can affect production diagnosis.",
+    "who": "Data quality / knowledge platform owners.",
+    "why": "OWL open-world inference \u2260 'is this pack complete enough to ship?'",
+    "analogy": "",
+    "code": "MIN_SYMPTOMS = 1\nMIN_INDICATES_LINKS = 1",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "SHACL is the clipboard at the loading dock before promote.",
+    "sources": [
+      {
+        "title": "W3C SHACL",
+        "url": "https://www.w3.org/TR/shacl/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "09-shacl-gates",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-property-graph",
+    "front": "Property graph (Neo4j)",
+    "track": "graph",
+    "tags": [
+      "neo4j",
+      "cypher",
+      "graph"
+    ],
+    "kind": "concept",
+    "what": "Graph model of labeled nodes and typed relationships, both with properties.",
+    "how": "Query with Cypher MATCH/MERGE; index by business keys (product_id, \u2026).",
+    "where": "Operational ABox for GraphRAG diagnosis (prod :7687, staging :7688).",
+    "when": "Runtime multi-hop diagnostic retrieval and load after ETL.",
+    "who": "Platform engineers; model inspired by Labeled Property Graph practice (Neo4j).",
+    "why": "Fast typed path queries for explainable diagnosis.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Neo4j Cypher Manual",
+        "url": "https://neo4j.com/docs/cypher-manual/current/",
+        "kind": "docs"
+      },
+      {
+        "title": "Angles & Gutierrez, Survey of Graph Database Models (ACM CSUR)",
+        "url": "https://dl.acm.org/doi/10.1145/1322432.1322433",
+        "kind": "paper"
+      }
+    ],
+    "related_module_ids": [
+      "02-cypher-create-read"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cypher-merge",
+    "front": "Cypher MERGE",
+    "track": "graph",
+    "tags": [
+      "cypher",
+      "write",
+      "upsert"
+    ],
+    "kind": "command",
+    "what": "Idempotent create-if-missing for nodes/patterns.",
+    "how": "MERGE (n:Label {key: $id}) ON CREATE SET \u2026 then MERGE relationships.",
+    "where": "populate_graph / promote path when loading ABox.",
+    "when": "ETL load and any upsert of business entities.",
+    "who": "Pipeline loaders.",
+    "why": "Re-running loads must not duplicate the world.",
+    "analogy": "",
+    "code": "MERGE (p:Product {product_id: $product_id})\n  ON CREATE SET p.name = $name",
+    "language": "cypher",
+    "pitfalls": [
+      "MERGE without a unique key",
+      "String-building ids into Cypher"
+    ],
+    "say_aloud": "MERGE upserts by business key using $parameters.",
+    "sources": [
+      {
+        "title": "Neo4j Cypher Manual \u2014 MERGE",
+        "url": "https://neo4j.com/docs/cypher-manual/current/clauses/merge/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "02-cypher-create-read",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cypher-params",
+    "front": "Parameterized Cypher ($params)",
+    "track": "graph",
+    "tags": [
+      "cypher",
+      "security",
+      "performance"
+    ],
+    "kind": "pattern",
+    "what": "Bind values separately from query text.",
+    "how": "session.run(query, product_id=\u2026); never f-string user input into Cypher.",
+    "where": "All production GraphRAG queries.",
+    "when": "Always for user or external input.",
+    "who": "Every developer writing Cypher.",
+    "why": "Injection safety + query plan cache reuse.",
+    "analogy": "",
+    "code": "session.run(\"MATCH (p:Product {product_id: $id}) RETURN p\", id=pid)",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Neo4j Driver Manual \u2014 queries and parameters",
+        "url": "https://neo4j.com/docs/python-manual/current/query-simple/",
+        "kind": "docs"
+      },
+      {
+        "title": "OWASP Query Parameterization Cheat Sheet",
+        "url": "https://cheatsheetseries.owasp.org/cheatsheets/Query_Parameterization_Cheat_Sheet.html",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "02-cypher-create-read"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-shortestpath",
+    "front": "shortestPath (Cypher)",
+    "track": "graph",
+    "tags": [
+      "cypher",
+      "retrieval",
+      "path"
+    ],
+    "kind": "command",
+    "what": "Find a minimum-hop path between two nodes under relationship constraints.",
+    "how": "MATCH path = shortestPath((a)-[:REL*1..N]-(b)) RETURN path \u2014 always bound N.",
+    "where": "Explainable trails symptom\u2192FM\u2192part when needed.",
+    "when": "Compact diagnostic explanation, not unbounded exploration.",
+    "who": "GraphRAG / analytics queries.",
+    "why": "Bounded hops keep latency predictable.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [
+      "Unbounded [*] variable length on large graphs"
+    ],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Neo4j Cypher Manual \u2014 shortestPath",
+        "url": "https://neo4j.com/docs/cypher-manual/current/patterns/shortest-paths/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "02-cypher-create-read",
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-etl",
+    "front": "ETL (Extract\u2013Transform\u2013Load)",
+    "track": "pipeline",
+    "tags": [
+      "etl",
+      "pipeline",
+      "data"
+    ],
+    "kind": "process",
+    "what": "Classic data integration pattern: pull sources, map to target model, load store.",
+    "how": "Extract connectors \u2192 OntologyBuilder ABox \u2192 validate \u2192 MERGE Neo4j.",
+    "where": "graph/enterprise_pipeline control plane + Admin wizard.",
+    "when": "Bootstrap, incremental sync, product onboard, bulletin packs.",
+    "who": "Data platform / knowledge ops.",
+    "why": "Chat must not invent knowledge; it must be governed and loaded.",
+    "analogy": "Warehouse receiving dock \u2192 resticker \u2192 shelf.",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "Extract sources, transform to ABox, validate, load staging, promote production.",
+    "sources": [
+      {
+        "title": "Kimball & Ross, The Data Warehouse Toolkit (ETL themes)",
+        "url": "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/books/data-warehouse-dw-toolkit/",
+        "kind": "book"
+      },
+      {
+        "title": "Inmon, Building the Data Warehouse (integration discipline)",
+        "url": "",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-dual-graph",
+    "front": "Dual graph (staging vs production)",
+    "track": "pipeline",
+    "tags": [
+      "neo4j",
+      "promote",
+      "safety"
+    ],
+    "kind": "pattern",
+    "what": "Two Neo4j environments: staging for safe MERGE, production for diagnose reads.",
+    "how": "Promote staging (:7688) first; after smoke, promote production (:7687).",
+    "where": "docker dual Neo4j; promote_graph pipeline.",
+    "when": "Every knowledge change that will affect chat.",
+    "who": "Admin operators / CI promote jobs.",
+    "why": "Blast-radius control \u2014 bad ABox never hits customer chat first.",
+    "analogy": "",
+    "code": "staging :7688  \u2192  smoke  \u2192  production :7687",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "Chat reads production only; staging is the back room.",
+    "sources": [
+      {
+        "title": "Continuous Delivery (Humble & Farley) \u2014 staged releases",
+        "url": "",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-operator-chant",
+    "front": "Operator chant (knowledge promote)",
+    "track": "pipeline",
+    "tags": [
+      "etl",
+      "ops",
+      "memorize"
+    ],
+    "kind": "process",
+    "what": "Fixed order of Admin steps for safe onboard.",
+    "how": "Sources\u2192Fetch\u2192Select\u2192Validate ABox\u2192Materialize\u2192Smoke\u2192Approve\u2192Promote staging\u2192Promote production\u2192Invalidate caches.",
+    "where": "Admin Control Room UI + control plane APIs.",
+    "when": "Every NEW/UPDATE knowledge batch.",
+    "who": "Knowledge operator.",
+    "why": "Skipping validate/smoke is how bad packs reach diagnosis.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "Fetch select validate materialize smoke approve stage prod invalidate.",
+    "sources": [
+      {
+        "title": "Project docs: 22-TBox-ABox-Multi-Source-Onboard-Mechanism",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "03-etl-pipeline"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-ontology-builder",
+    "front": "OntologyBuilder",
+    "track": "pipeline",
+    "tags": [
+      "abox",
+      "transform",
+      "etl"
+    ],
+    "kind": "pattern",
+    "what": "Anti-corruption transform: source records \u2192 catalog ABox under shared TBox.",
+    "how": "Map PIM/FSM/Claims/CRM fields into ProductKnowledge structures + links.",
+    "where": "graph/enterprise_pipeline/transformers/ontology_builder.py",
+    "when": "knowledge_materialize pipeline stage.",
+    "who": "Platform transform layer (not per-product OWL authors).",
+    "why": "Sources stay ugly; canonical ABox stays clean.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Evans, Domain-Driven Design \u2014 anti-corruption layer",
+        "url": "",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "03-etl-pipeline",
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cache-ttl",
+    "front": "TTL cache",
+    "track": "runtime",
+    "tags": [
+      "cache",
+      "ttl",
+      "performance"
+    ],
+    "kind": "concept",
+    "what": "Store computed results with a maximum age (time-to-live).",
+    "how": "get \u2192 if miss compute \u2192 set(key, value, ttl); expire automatically.",
+    "where": "runtime/cache.py named caches (ontology ~300s, subgraph ~60s, diagnose ~90s).",
+    "when": "Hot stable reads; not forever for changing graph data.",
+    "who": "API runtime.",
+    "why": "Cut Neo4j load and latency on repeated reads.",
+    "analogy": "",
+    "code": "hit = cache.get(key)\nif hit is None:\n    hit = compute()\n    cache.set(key, hit, ttl_seconds=60)",
+    "language": "python",
+    "pitfalls": [
+      "Key missing a dimension",
+      "No invalidation after promote"
+    ],
+    "say_aloud": "TTL caps how old a cached answer may be.",
+    "sources": [
+      {
+        "title": "Redis docs \u2014 Expiration / TTL",
+        "url": "https://redis.io/docs/latest/develop/use/keyspace/",
+        "kind": "docs"
+      },
+      {
+        "title": "MDN HTTP Caching (conceptual TTL)",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "04-caching"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cache-key",
+    "front": "Cache key design",
+    "track": "runtime",
+    "tags": [
+      "cache",
+      "key",
+      "correctness"
+    ],
+    "kind": "pattern",
+    "what": "The string that uniquely identifies a cached result.",
+    "how": "Include every input that changes the answer (tenant, product, symptoms, \u2026).",
+    "where": "All named caches and rate-limit keys.",
+    "when": "Designing any memoization.",
+    "who": "API engineers.",
+    "why": "Wrong keys cause silent wrong answers or cross-tenant bleed.",
+    "analogy": "",
+    "code": "key = f\"subgraph:{tenant}:{product_id}\"",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "The key must include every input that changes the answer.",
+    "sources": [
+      {
+        "title": "Redis best practices \u2014 key naming",
+        "url": "https://redis.io/docs/latest/develop/use/keyspace/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "04-caching",
+      "06-partitioning"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-redis-shared",
+    "front": "Redis as shared cache / limits",
+    "track": "runtime",
+    "tags": [
+      "redis",
+      "multi-pod",
+      "cache"
+    ],
+    "kind": "concept",
+    "what": "In-memory data store used as shared cache, rate-limit windows, admission counters.",
+    "how": "Set REDIS_URL; same API falls back to process memory if empty.",
+    "where": "Multi-replica API fleets.",
+    "when": "More than one API process/pod.",
+    "who": "Platform / SRE.",
+    "why": "Otherwise each pod has a different notepad for limits and caches.",
+    "analogy": "One whiteboard for ten cashiers.",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Redis documentation",
+        "url": "https://redis.io/docs/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "04-caching",
+      "05-multithreading"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cache-invalidation",
+    "front": "Cache invalidation after promote",
+    "track": "runtime",
+    "tags": [
+      "cache",
+      "etl",
+      "correctness"
+    ],
+    "kind": "process",
+    "what": "Delete or expire cache entries when underlying graph data changes.",
+    "how": "invalidate_all_named_caches() after successful load/promote.",
+    "where": "End of ETL/promote pipelines.",
+    "when": "Every graph write that affects reads.",
+    "who": "Pipeline runner.",
+    "why": "Stale subgraphs are silent production bugs.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "After promote I invalidate named caches.",
+    "sources": [
+      {
+        "title": "Phil Karlton (attrib.): cache invalidation is hard \u2014 industry lore; pair with explicit invalidation APIs",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "04-caching",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-io-vs-cpu",
+    "front": "I/O-bound vs CPU-bound work",
+    "track": "runtime",
+    "tags": [
+      "threading",
+      "performance"
+    ],
+    "kind": "theory",
+    "what": "I/O-bound waits on network/disk; CPU-bound burns cores on computation.",
+    "how": "Parallelize independent I/O with a thread pool; keep heavy deterministic ranking serial.",
+    "where": "ETL extract vs Bayes ranking.",
+    "when": "Designing concurrency for pipelines and APIs.",
+    "who": "Backend engineers.",
+    "why": "Threads help waits; pure-Python CPU parallelism is limited by the GIL.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Python docs \u2014 concurrent.futures",
+        "url": "https://docs.python.org/3/library/concurrent.futures.html",
+        "kind": "docs"
+      },
+      {
+        "title": "Beazley \u2014 Understanding the Python GIL (talk/notes)",
+        "url": "https://www.dabeaz.com/python/UnderstandingGIL.pdf",
+        "kind": "paper"
+      }
+    ],
+    "related_module_ids": [
+      "05-multithreading"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-threadpool",
+    "front": "ThreadPoolExecutor (bounded)",
+    "track": "runtime",
+    "tags": [
+      "threading",
+      "python"
+    ],
+    "kind": "code",
+    "what": "Pool of worker threads with a max concurrency ceiling.",
+    "how": "with ThreadPoolExecutor(max_workers=4) as pool: pool.map(fn, items)",
+    "where": "Parallel connector extract.",
+    "when": "Multiple independent network fetches.",
+    "who": "ETL runners.",
+    "why": "Bound protects file descriptors and source systems.",
+    "analogy": "",
+    "code": "with ThreadPoolExecutor(max_workers=4) as pool:\n    return list(pool.map(lambda f: f(), fetch_fns))",
+    "language": "python",
+    "pitfalls": [
+      "Unbounded thread-per-request"
+    ],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Python concurrent.futures.ThreadPoolExecutor",
+        "url": "https://docs.python.org/3/library/concurrent.futures.html#threadpoolexecutor",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "05-multithreading",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-admission",
+    "front": "Admission control (in-flight limit)",
+    "track": "runtime",
+    "tags": [
+      "concurrency",
+      "reliability"
+    ],
+    "kind": "pattern",
+    "what": "Cap how many expensive requests run at once.",
+    "how": "Semaphore / Redis INCR with max_in_flight; reject with 429/503 when full; always release in finally.",
+    "where": "Diagnose path ConcurrencyLimiter.",
+    "when": "Traffic spikes that would crush Neo4j.",
+    "who": "API gateway/runtime.",
+    "why": "Protect p99 latency and downstream pools (bulkhead idea).",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Nygard, Release It! \u2014 bulkheads / load shedding",
+        "url": "",
+        "kind": "book"
+      },
+      {
+        "title": "Google SRE Book \u2014 handling overload",
+        "url": "https://sre.google/sre-book/handling-overload/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "05-multithreading"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-partition-logical",
+    "front": "Logical partitioning keys",
+    "track": "runtime",
+    "tags": [
+      "partition",
+      "tenant",
+      "scale"
+    ],
+    "kind": "pattern",
+    "what": "String keys that name a slice of the world (tenant|product|\u2026).",
+    "how": "partition_key(tenant, product); reuse for cache and rate limits.",
+    "where": "runtime/partitioning.py; ETL product_ids selection.",
+    "when": "Multi-tenant SaaS and multi-product catalogs.",
+    "who": "Platform engineers.",
+    "why": "Prevent cross-tenant bleed; prepare for physical shards later.",
+    "analogy": "",
+    "code": "\"|\".join([f\"tenant={t}\", f\"product={p}\"])",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Kafka docs \u2014 partitions (work division analogy)",
+        "url": "https://kafka.apache.org/documentation/#intro_topics",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "06-partitioning"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cap",
+    "front": "CAP theorem (for diagnosis knowledge)",
+    "track": "runtime",
+    "tags": [
+      "cap",
+      "consistency",
+      "distributed"
+    ],
+    "kind": "theory",
+    "what": "In a partition, a system cannot simultaneously guarantee perfect Consistency and Availability.",
+    "how": "Choose tradeoffs: we prefer consistent diagnostic knowledge (promote fail-closed) over serving stale/wrong ABox.",
+    "where": "Dual-graph promote design; not multi-region active-active without conflict design.",
+    "when": "Discussing HA vs correctness for warranty answers.",
+    "who": "Architects (Brewer\u2019s conjecture; formalized by Gilbert & Lynch).",
+    "why": "Wrong diagnosis is worse than a slow or unavailable answer.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Gilbert & Lynch, Brewer\u2019s Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web Services (ACM SIGACT 2002)",
+        "url": "https://dl.acm.org/doi/10.1145/564585.564601",
+        "kind": "paper"
+      },
+      {
+        "title": "Brewer, CAP Twelve Years Later (IEEE Computer)",
+        "url": "https://www.infoq.com/articles/cap-twelve-years-later-how-the-rules-have-changed/",
+        "kind": "paper"
+      }
+    ],
+    "related_module_ids": [
+      "06-partitioning",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": "fc-graphrag",
+    "front": "GraphRAG (this product)",
+    "track": "graph",
+    "tags": [
+      "graphrag",
+      "retrieval",
+      "rag"
+    ],
+    "kind": "pattern",
+    "what": "Retrieve typed multi-hop evidence from a knowledge graph, then ground the answer (LLM optional).",
+    "how": "Scope product \u2192 match symptoms \u2192 Cypher INDICATES \u2192 rank \u2192 format with provenance.",
+    "where": "graph/graph_rag.py + LangGraph run_diagnosis node.",
+    "when": "Every customer/agent diagnosis request.",
+    "who": "Diagnosis service.",
+    "why": "Explainable paths beat opaque vector-only answers for warranty.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Lewis et al., Retrieval-Augmented Generation (NeurIPS 2020)",
+        "url": "https://arxiv.org/abs/2005.11401",
+        "kind": "paper"
+      },
+      {
+        "title": "Microsoft GraphRAG (research blog/docs) \u2014 graph-augmented RAG patterns",
+        "url": "https://www.microsoft.com/en-us/research/project/graphrag/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes",
+      "08-langgraph-agent"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-naive-bayes",
+    "front": "Naive Bayes diagnostic ranking",
+    "track": "graph",
+    "tags": [
+      "bayes",
+      "ranking",
+      "ml-classic"
+    ],
+    "kind": "theory",
+    "what": "Posterior \u221d prior \u00d7 \u220f likelihoods under conditional independence assumption.",
+    "how": "prior from occurrence; likelihood from INDICATES.confidence; miss likelihood if edge absent; normalize.",
+    "where": "graph/reliability.py bayesian_posteriors.",
+    "when": "Ranking failure modes given observed symptoms.",
+    "who": "Reliability / GraphRAG ranking.",
+    "why": "Principled combination of soft evidence; well-known baseline in probabilistic IR/diagnosis.",
+    "analogy": "",
+    "code": "score = prior\nfor s in observed:\n    score *= likelihoods.get((s, fm), miss)\n# normalize across fm",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Russell & Norvig, AIMA \u2014 Bayesian networks / naive Bayes",
+        "url": "",
+        "kind": "book"
+      },
+      {
+        "title": "Manning et al., Introduction to Information Retrieval \u2014 text classification / NB",
+        "url": "https://nlp.stanford.edu/IR-book/",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-fmea",
+    "front": "FMEA S/O/D & Action Priority",
+    "track": "graph",
+    "tags": [
+      "fmea",
+      "reliability",
+      "iso"
+    ],
+    "kind": "concept",
+    "what": "Failure Mode and Effects Analysis signals: Severity, Occurrence, Detection (AIAG-VDA emphasizes Action Priority over raw RPN).",
+    "how": "Map graph evidence to S/O/D ratings; use for risk context while ranking primarily by posterior.",
+    "where": "reliability.py + ranked failure mode payload.",
+    "when": "Presenting risk alongside probabilistic rank.",
+    "who": "Reliability engineering practice (AIAG/VDA).",
+    "why": "Industry-common language for service/engineering stakeholders.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [
+      "Treating RPN as a probability"
+    ],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "AIAG & VDA FMEA Handbook (Action Priority)",
+        "url": "https://www.aiag.org/",
+        "kind": "standard"
+      },
+      {
+        "title": "IEC 60812 \u2014 FMEA procedures (family of reliability standards)",
+        "url": "https://webstore.iec.ch/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-miss-likelihood",
+    "front": "Miss likelihood (sparse edges)",
+    "track": "graph",
+    "tags": [
+      "sparse",
+      "bayes",
+      "graphrag"
+    ],
+    "kind": "pattern",
+    "what": "Default P(s|fm) when INDICATES edge is absent.",
+    "how": "likelihoods.get((s, fm), miss) with small miss (e.g. 0.05).",
+    "where": "bayesian_posteriors.",
+    "when": "Sparse warranty graphs \u2014 normal in the real world.",
+    "who": "Ranking code.",
+    "why": "Avoid zeroing candidates harshly; still prefer growing real ABox edges over silent KGE invention in v1.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Naive Bayes smoothing / missing features \u2014 classic ML practice (AIMA / IR book)",
+        "url": "https://nlp.stanford.edu/IR-book/",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-langgraph",
+    "front": "LangGraph StateGraph",
+    "track": "agent",
+    "tags": [
+      "langgraph",
+      "agent",
+      "orchestration"
+    ],
+    "kind": "concept",
+    "what": "Library for stateful agent workflows as graphs of nodes and edges.",
+    "how": "StateGraph \u2192 add_node \u2192 add_edge / conditional_edges \u2192 compile().",
+    "where": "agents/diagnosis_graph.py",
+    "when": "Orchestrating multi-step diagnose flows.",
+    "who": "Agent application developers (LangChain ecosystem).",
+    "why": "Explicit control flow beats ad-hoc call stacks for tools and branching.",
+    "analogy": "",
+    "code": "g = StateGraph(State)\ng.add_node(...)\ng.set_entry_point(...)\napp = g.compile()",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "LangGraph documentation",
+        "url": "https://langchain-ai.github.io/langgraph/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "08-langgraph-agent"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-four-nodes",
+    "front": "Production four-node diagnose belt",
+    "track": "agent",
+    "tags": [
+      "langgraph",
+      "diagnose"
+    ],
+    "kind": "process",
+    "what": "detect_product \u2192 run_diagnosis \u2192 format_response \u2192 handle_escalation",
+    "how": "Fixed edges; run_diagnosis calls GraphRAG tools with parameterized Cypher.",
+    "where": "agents/diagnosis_graph.py",
+    "when": "Every diagnose request.",
+    "who": "API/agent runtime.",
+    "why": "Deterministic, auditable path for warranty.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "Detect, diagnose, format, escalate \u2014 LLM optional for wording only.",
+    "sources": [
+      {
+        "title": "Project agents/diagnosis_graph.py",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "08-langgraph-agent"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-smart-cypher",
+    "front": "Smart Cypher tool pattern (interview alt)",
+    "track": "agent",
+    "tags": [
+      "llm",
+      "cypher",
+      "tools"
+    ],
+    "kind": "pattern",
+    "what": "Outer LLM routes to a tool; inner LLM writes Cypher; tool executes with try/except.",
+    "how": "Prompt includes schema labels; strip fences; catch query errors; return string error not crash.",
+    "where": "Tutorials / flexible analytics \u2014 NOT our default diagnose path.",
+    "when": "Interview discussions of flexibility vs determinism.",
+    "who": "Agent demos; researchers.",
+    "why": "High flexibility; medium determinism; risk of invented labels.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [
+      "No schema in prompt",
+      "No try/except",
+      "Confusing with this product"
+    ],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "LangChain tools / agents docs",
+        "url": "https://python.langchain.com/docs/concepts/tools/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "08-langgraph-agent"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-iso-14224",
+    "front": "ISO 14224 (modeling inspiration)",
+    "track": "foundations",
+    "tags": [
+      "iso",
+      "reliability",
+      "industry"
+    ],
+    "kind": "concept",
+    "what": "Standard for reliability/maintenance data collection: equipment hierarchy + failure taxonomy.",
+    "how": "We map hierarchy ideas to Product\u2192Component and failures to FailureMode \u2014 not a certified implementation claim.",
+    "where": "Ontology design rationale (docs/15, industry alignment).",
+    "when": "Explaining industrial alignment in interviews.",
+    "who": "Oil & gas / reliability data community; ISO.",
+    "why": "Shared vocabulary with asset-intensive industries.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "ISO 14224 \u2014 Petroleum, petrochemical and natural gas industries \u2014 Collection and exchange of reliability and maintenance data",
+        "url": "https://www.iso.org/standard/64076.html",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-iso-81346",
+    "front": "IEC 81346 product aspect (inspiration)",
+    "track": "foundations",
+    "tags": [
+      "iec",
+      "structure",
+      "bom"
+    ],
+    "kind": "concept",
+    "what": "Reference designation: function / product / location aspects of system structure.",
+    "how": "We emphasize product/BOM structure as Component and parts links.",
+    "where": "Ontology product structure edges.",
+    "when": "Discussing topology vs ontology (product structure is in-ontology).",
+    "who": "IEC systems engineering standards community.",
+    "why": "Separates plant location topology from product diagnostic structure.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "IEC 81346 series \u2014 Industrial systems reference designation",
+        "url": "https://www.iso.org/standard/82229.html",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-code-triple-add",
+    "front": "rdflib: add a triple",
+    "track": "foundations",
+    "tags": [
+      "code",
+      "rdf",
+      "python"
+    ],
+    "kind": "code",
+    "what": "Assert one RDF fact into a Graph.",
+    "how": "Graph.add((subject, predicate, object))",
+    "where": "Ontology export / tutorials.",
+    "when": "Building TBox or ABox programmatically.",
+    "who": "Knowledge engineer scripting.",
+    "why": "Atomic unit of RDF construction.",
+    "analogy": "",
+    "code": "from rdflib import Graph, RDF, OWL\ng = Graph()\ng.add((WD.Product, RDF.type, OWL.Class))",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "rdflib documentation",
+        "url": "https://rdflib.readthedocs.io/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-code-bayes",
+    "front": "Code: naive Bayes loop",
+    "track": "graph",
+    "tags": [
+      "code",
+      "bayes",
+      "python"
+    ],
+    "kind": "code",
+    "what": "Multiply prior by likelihoods; normalize.",
+    "how": "See snippet; use miss default.",
+    "where": "reliability.bayesian_posteriors",
+    "when": "Ranking FMs.",
+    "who": "GraphRAG ranking.",
+    "why": "Core whiteboard skill.",
+    "analogy": "",
+    "code": "score = max(priors.get(fm, 0.0), 0.0)\nfor s in observed:\n    score *= likelihoods.get((s, fm), miss)\nscores[fm] = score\n# then divide by sum(scores.values())",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Russell & Norvig AIMA",
+        "url": "",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-code-cache",
+    "front": "Code: cache get-or-set",
+    "track": "runtime",
+    "tags": [
+      "code",
+      "cache",
+      "python"
+    ],
+    "kind": "code",
+    "what": "Standard memoization control flow.",
+    "how": "get; on miss compute; set with TTL.",
+    "where": "runtime caches.",
+    "when": "Hot reads.",
+    "who": "API runtime.",
+    "why": "Latency + load.",
+    "analogy": "",
+    "code": "v = cache.get(key)\nif v is None:\n    v = compute()\n    cache.set(key, v, ttl_seconds=60)\nreturn v",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Redis TTL docs",
+        "url": "https://redis.io/docs/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "04-caching"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-code-threadpool",
+    "front": "Code: ThreadPoolExecutor map",
+    "track": "runtime",
+    "tags": [
+      "code",
+      "threading",
+      "python"
+    ],
+    "kind": "code",
+    "what": "Bounded parallel map over callables.",
+    "how": "max_workers ceiling + map.",
+    "where": "ETL extract.",
+    "when": "Independent I/O.",
+    "who": "Pipeline.",
+    "why": "Faster waits.",
+    "analogy": "",
+    "code": "with ThreadPoolExecutor(max_workers=4) as pool:\n    return list(pool.map(lambda fn: fn(), fetch_fns))",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Python concurrent.futures",
+        "url": "https://docs.python.org/3/library/concurrent.futures.html",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "05-multithreading"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-code-cypher-scope",
+    "front": "Code: product-scoped MATCH",
+    "track": "graph",
+    "tags": [
+      "code",
+      "cypher"
+    ],
+    "kind": "code",
+    "what": "Always bind Product first.",
+    "how": "MATCH (p:Product {product_id: $product_id})-\u2026",
+    "where": "GraphRAG ranking queries.",
+    "when": "Every diagnose retrieval.",
+    "who": "graph_rag.",
+    "why": "Scope = speed + accuracy.",
+    "analogy": "",
+    "code": "MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)\nOPTIONAL MATCH (s:Symptom)-[ind:INDICATES]->(fm)\nWHERE s.symptom_id IN $symptom_ids\nRETURN fm, sum(coalesce(ind.confidence,0)) AS score\nORDER BY score DESC",
+    "language": "cypher",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Neo4j Cypher Manual",
+        "url": "https://neo4j.com/docs/cypher-manual/current/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "02-cypher-create-read",
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-iri",
+    "front": "IRI (Internationalized Resource Identifier)",
+    "track": "foundations",
+    "tags": [
+      "rdf",
+      "iri",
+      "identity"
+    ],
+    "kind": "concept",
+    "what": "A global identifier for a resource; a generalization of URI allowing non-ASCII characters.",
+    "how": "Use a namespaced IRI (e.g. wd:FailureMode -> http://.../FailureMode); can sit in subject, predicate, OR object position.",
+    "where": "Every RDF triple; ontology exports; linked-data joins across datasets.",
+    "when": "Whenever you name a thing you want other systems to reference unambiguously.",
+    "who": "W3C RDF WG; knowledge engineers assigning stable identifiers.",
+    "why": "Global scope means the same IRI denotes the same thing everywhere - the basis of mergeable data.",
+    "analogy": "A phone number for a concept: dial it from anywhere and reach the same entity.",
+    "code": "WD = Namespace('http://example.org/warranty#')\ng.add((WD.Pump, RDF.type, OWL.Class))  # WD.Pump is an IRI",
+    "language": "python",
+    "pitfalls": [
+      "TRICK: prefer REUSING an existing IRI (FOAF, schema.org, Dublin Core) over minting a new one - reuse creates the network effect.",
+      "Literals may NOT appear in the subject or predicate position - only IRIs (and blank nodes for subject).",
+      "A relative IRI like 'bob#me' resolves against the document BASE - forgetting BASE breaks merges."
+    ],
+    "say_aloud": "An IRI is a globally unique name so the same identifier means the same thing everywhere.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Primer section 3.2",
+        "url": "https://www.w3.org/TR/rdf11-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-blank-node",
+    "front": "Blank node",
+    "track": "foundations",
+    "tags": [
+      "rdf",
+      "blank-node"
+    ],
+    "kind": "concept",
+    "what": "A resource with no global IRI - 'some thing exists' without naming it (like a variable in algebra).",
+    "how": "Turtle uses _:x or [ ... ]; may appear only in subject or object position, never as a predicate.",
+    "where": "Modeling an intermediate/anonymous node (e.g. an address, a reified statement).",
+    "when": "When a value has structure but doesn't deserve a stable public identifier.",
+    "who": "RDF authors; SHACL uses blank nodes heavily for property shapes.",
+    "why": "Lets you attach structure locally without polluting the global namespace.",
+    "analogy": "An unnamed cypress tree 'in the background of the Mona Lisa' - you know it exists without giving it an ID.",
+    "code": "_:x a wd:Address ; wd:city wd:Berlin .   # Turtle blank node",
+    "language": "turtle",
+    "pitfalls": [
+      "GOTCHA: blank node ids are LOCAL to a document - _:x in file A != _:x in file B, so they don't merge across graphs.",
+      "TRICK: if a node might be referenced or deactivated later (e.g. a SHACL shape), give it an IRI instead of a blank node."
+    ],
+    "say_aloud": "A blank node says 'a thing exists here' without giving it a global name.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Primer section 3.4",
+        "url": "https://www.w3.org/TR/rdf11-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple",
+      "09-shacl-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-named-graph",
+    "front": "Named graph / RDF dataset",
+    "track": "foundations",
+    "tags": [
+      "rdf",
+      "named-graph",
+      "provenance"
+    ],
+    "kind": "concept",
+    "what": "A set of triples grouped under a graph-name IRI; a dataset = one default graph + zero-or-more named graphs.",
+    "how": "TriG {} blocks or N-Quads (4th element = graph IRI); query per-graph with SPARQL GRAPH.",
+    "where": "Provenance / lineage: keep 'who said this' with the facts (your provenance_manifest).",
+    "when": "When the SOURCE of a fact matters as much as the fact - staging vs promoted, vendor A vs vendor B.",
+    "who": "Data stewards; SPARQL introduced named graphs, RDF 1.1 standardized them.",
+    "why": "Lets you attribute, version, and selectively trust subsets of triples.",
+    "analogy": "Folders for triples: same statements, but you know which drawer they came from.",
+    "code": "GRAPH <http://ex.org/vendorA> { wd:Pump wd:mtbf 5000 . }",
+    "language": "turtle",
+    "pitfalls": [
+      "GOTCHA: RDF gives graph-names NO built-in meaning - 'the name = the source' is a convention you must document (out-of-band).",
+      "TRICK: use named graphs to promote/rollback a whole source atomically instead of per-triple bookkeeping."
+    ],
+    "say_aloud": "A named graph tags a bundle of triples with where they came from.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Primer section 3.5",
+        "url": "https://www.w3.org/TR/rdf11-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-rdfs-entailment",
+    "front": "RDFS entailment (inference)",
+    "track": "foundations",
+    "tags": [
+      "rdfs",
+      "reasoning",
+      "entailment"
+    ],
+    "kind": "theory",
+    "what": "Deriving new true triples from stated ones using RDFS semantics (domain/range/subClassOf).",
+    "how": "Declare rdfs:domain/range; a reasoner adds the implied rdf:type triples.",
+    "where": "TBox reasoning; SHACL can run over pre-entailed graphs.",
+    "when": "When you want types/relationships inferred instead of asserted everywhere.",
+    "who": "Reasoners (e.g. owlrl, GraphDB); the W3C RDF Semantics doc defines it.",
+    "why": "Less redundant data: state the rule once, derive the consequences.",
+    "analogy": "'X knows Y' + 'knows requires People' => X and Y are People, automatically.",
+    "code": "# ex:bob ex:knows ex:alice .\n# ex:knows rdfs:domain ex:Person .\n# => entails: ex:bob rdf:type ex:Person .",
+    "language": "turtle",
+    "pitfalls": [
+      "GOTCHA: 'ex:age \"forty\"^^xsd:integer' is a logical INCONSISTENCY - the literal violates the integer datatype.",
+      "TRICK: RDFS lets the SAME entity be both a class and an instance (e.g. Elephant) - freedom SQL doesn't allow.",
+      "Some entailment regimes are cheap; full reasoning can be expensive - pick the regime deliberately."
+    ],
+    "say_aloud": "RDFS entailment derives new facts from domain, range, and subclass rules.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Primer section 6 (Semantics)",
+        "url": "https://www.w3.org/TR/rdf11-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": "fc-turtle-sugar",
+    "front": "Turtle syntactic sugar",
+    "track": "foundations",
+    "tags": [
+      "turtle",
+      "syntax",
+      "rdf"
+    ],
+    "kind": "code",
+    "what": "Turtle = N-Triples + shorthands: prefixes, 'a', ';' and ',' groupers, [] blank nodes.",
+    "how": "Use @prefix / PREFIX; 'a' = rdf:type; ';' repeats the subject; ',' repeats subject+predicate.",
+    "where": "Reading/writing ontologies (.ttl) by hand.",
+    "when": "Any hand-authored RDF - Turtle is the readable default of the family.",
+    "who": "Ontology authors; Prud'hommeaux & Carothers (Turtle spec).",
+    "why": "Far less repetition than N-Triples while producing the exact same triples.",
+    "analogy": "Abbreviations in shorthand writing - same sentence, fewer keystrokes.",
+    "code": "wd:bob a foaf:Person ;\n       foaf:knows wd:alice ;\n       schema:birthDate \"1990-07-04\"^^xsd:date .",
+    "language": "turtle",
+    "pitfalls": [
+      "TRICK: 'a' is literally rdf:type - it reads like English ('bob a Person') and is the #1 time-saver.",
+      "GOTCHA: the '.' ends a statement; a stray ';' vs '.' changes which subject the next line attaches to.",
+      "\"Mona Lisa\" with no datatype defaults to xsd:string; \"x\"@fr adds a language tag (type rdf:langString)."
+    ],
+    "say_aloud": "In Turtle, 'a' means type, semicolon repeats the subject, comma repeats subject and predicate.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Primer section 5.1 (Turtle)",
+        "url": "https://www.w3.org/TR/rdf11-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-owl-sameas",
+    "front": "owl:sameAs (entity linking)",
+    "track": "foundations",
+    "tags": [
+      "owl",
+      "linked-data",
+      "identity"
+    ],
+    "kind": "concept",
+    "what": "Asserts two different IRIs denote the SAME real-world resource.",
+    "how": "dbpedia:Leonardo_da_Vinci owl:sameAs viaf:24604287 - merge/compare their facts.",
+    "where": "Reconciling entities across vendors/datasets (dedup in ingestion).",
+    "when": "When two sources use different IDs for the same thing.",
+    "who": "Linked-data publishers; OWL vocabulary.",
+    "why": "Bridges siloed identifiers so downstream queries see one entity.",
+    "analogy": "Telling the system 'these two customer records are the same person'.",
+    "code": "wd:PumpA owl:sameAs vendorX:pump_00042 .",
+    "language": "turtle",
+    "pitfalls": [
+      "GOTCHA: owl:sameAs is transitive and symmetric - over-asserting it can wrongly merge distinct entities ('sameAs explosion').",
+      "TRICK: for weaker links prefer skos:closeMatch / rdfs:seeAlso instead of the hard owl:sameAs."
+    ],
+    "say_aloud": "owl:sameAs says two IRIs are the same thing, so their facts merge.",
+    "sources": [
+      {
+        "title": "W3C RDF 1.1 Primer section 7 (RDF Data)",
+        "url": "https://www.w3.org/TR/rdf11-primer/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "01-tbox-abox-simple",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-shacl-shapes-graph",
+    "front": "SHACL: shapes graph vs data graph",
+    "track": "foundations",
+    "tags": [
+      "shacl",
+      "validation"
+    ],
+    "kind": "concept",
+    "what": "SHACL validates a DATA graph against a SHAPES graph (conditions written as RDF).",
+    "how": "Run processor(data_graph, shapes_graph) -> ValidationReport; both graphs stay immutable.",
+    "where": "Quality gates before promoting ingested data (your 09-shacl-gates).",
+    "when": "Every promotion/ingest - block malformed data from reaching the served graph.",
+    "who": "W3C Data Shapes WG (Knublauch & Kontokostas).",
+    "why": "Declarative, reusable data contracts instead of scattered imperative checks.",
+    "analogy": "A JSON-Schema / linter, but the rules are themselves RDF.",
+    "code": "report = validate(data_graph, shacl_graph=shapes)\nassert report.conforms  # bool",
+    "language": "python",
+    "pitfalls": [
+      "TRICK: shapes are shareable modules - pull them in via owl:imports and disable unwanted ones with sh:deactivated true.",
+      "GOTCHA: validation is idempotent - the processor must NOT mutate the data or shapes graph.",
+      "The data graph must include the rdfs:subClassOf triples for sh:targetClass to walk the hierarchy."
+    ],
+    "say_aloud": "SHACL checks a data graph against a shapes graph and returns a conformance report.",
+    "sources": [
+      {
+        "title": "W3C SHACL Recommendation section 1",
+        "url": "https://www.w3.org/TR/shacl/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "09-shacl-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-shacl-node-property",
+    "front": "SHACL: node shape, property shape & targets",
+    "track": "foundations",
+    "tags": [
+      "shacl",
+      "shapes",
+      "targets"
+    ],
+    "kind": "concept",
+    "what": "Node shape constrains the focus node; property shape (sh:path) constrains its values. Targets pick focus nodes.",
+    "how": "sh:targetClass/targetNode/targetSubjectsOf/targetObjectsOf select focus nodes; sh:property adds property shapes.",
+    "where": "Defining what 'valid' means for each class in the domain.",
+    "when": "Per class/relationship you want to enforce.",
+    "who": "Shape authors.",
+    "why": "Separates 'which nodes' (targets) from 'what must hold' (constraints).",
+    "analogy": "targetClass = the WHERE clause; property shapes = the column checks.",
+    "code": "ex:PersonShape a sh:NodeShape ;\n  sh:targetClass ex:Person ;\n  sh:property [ sh:path ex:ssn ; sh:maxCount 1 ] .",
+    "language": "turtle",
+    "pitfalls": [
+      "GOTCHA: a node shape must NOT have sh:path; a property shape MUST have exactly one - mixing them makes an ill-formed shape.",
+      "TRICK: sh:targetObjectsOf ex:knows targets everything on the OBJECT side of that predicate - great for range checks."
+    ],
+    "say_aloud": "Node shapes check the node; property shapes check its values; targets choose which nodes.",
+    "sources": [
+      {
+        "title": "W3C SHACL Recommendation section 2",
+        "url": "https://www.w3.org/TR/shacl/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "09-shacl-gates"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": "fc-shacl-report",
+    "front": "SHACL: validation report",
+    "track": "foundations",
+    "tags": [
+      "shacl",
+      "report",
+      "conformance"
+    ],
+    "kind": "concept",
+    "what": "Output RDF graph with one sh:conforms (bool) + one sh:ValidationResult per violation.",
+    "how": "Each result carries sh:focusNode, sh:resultPath, sh:value, sh:sourceConstraintComponent, sh:resultSeverity.",
+    "where": "CI gate output; surfaced to operators fixing bad data.",
+    "when": "After every validation run.",
+    "who": "SHACL processors (pySHACL, TopBraid).",
+    "why": "Machine-readable, precise pinpointing of WHAT failed and WHY.",
+    "analogy": "A compiler error list: file, line, rule that fired.",
+    "code": "# report.conforms == False\n# result: focusNode=ex:Alice path=ex:ssn\n#   sourceConstraintComponent=sh:PatternConstraintComponent",
+    "language": "turtle",
+    "pitfalls": [
+      "TRICK: read sh:sourceConstraintComponent to know EXACTLY which constraint fired (MaxCount vs Pattern vs Class).",
+      "GOTCHA: sh:conforms is true iff there are ZERO results - a single Warning-severity result still makes conforms=false."
+    ],
+    "say_aloud": "A SHACL report says conforms true or false, plus one detailed result per violation.",
+    "sources": [
+      {
+        "title": "W3C SHACL Recommendation section 3.6",
+        "url": "https://www.w3.org/TR/shacl/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "09-shacl-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-shacl-severity",
+    "front": "SHACL: sh:severity",
+    "track": "foundations",
+    "tags": [
+      "shacl",
+      "severity",
+      "governance"
+    ],
+    "kind": "concept",
+    "what": "Per-shape severity label: sh:Info, sh:Warning, or sh:Violation (default).",
+    "how": "Add sh:severity sh:Warning to a shape; it flows into each result's sh:resultSeverity.",
+    "where": "Tiering gate rules: hard-fail vs advisory.",
+    "when": "When some rules should block and others only warn.",
+    "who": "Governance owners tuning strictness.",
+    "why": "Lets one shapes graph express 'must fix' vs 'should fix' without separate pipelines.",
+    "analogy": "Compiler error vs warning vs info/lint note.",
+    "code": "sh:property [ sh:path ex:x ; sh:minCount 1 ; sh:severity sh:Warning ] .",
+    "language": "turtle",
+    "pitfalls": [
+      "GOTCHA: severity does NOT change conformance - even sh:Info results make sh:conforms false; you must filter by severity yourself.",
+      "TRICK: default (no sh:severity) = sh:Violation, so advisory rules must set Warning/Info explicitly."
+    ],
+    "say_aloud": "Severity tags a result Info, Warning, or Violation - but any result still fails conformance.",
+    "sources": [
+      {
+        "title": "W3C SHACL Recommendation section 2.1.4",
+        "url": "https://www.w3.org/TR/shacl/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "09-shacl-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-rag-three-phases",
+    "front": "RAG: retrieve -> augment -> generate",
+    "track": "agent",
+    "tags": [
+      "rag",
+      "llm",
+      "grounding"
+    ],
+    "kind": "process",
+    "what": "Retrieve relevant context, augment the prompt with it, generate an answer from ONLY that context.",
+    "how": "Similarity/DB search -> concat context+question+instructions -> LLM answers using provided context.",
+    "where": "The diagnosis chatbot's answer path.",
+    "when": "Whenever answers must be grounded in trusted, current data (not model memory).",
+    "who": "Neo4j/Microsoft GraphRAG guidance; RAG literature.",
+    "why": "Cuts hallucination and lets you cite sources - models optimize for helpfulness over factuality.",
+    "analogy": "Open-book exam: answer only from the page you were handed.",
+    "code": "prompt = f'Answer ONLY from Context.\\nQuestion: {q}\\nContext: {ctx}\\nAnswer:'",
+    "language": "python",
+    "pitfalls": [
+      "TRICK: the grounding instruction matters - 'Only respond with information mentioned in the Context. Do not inject speculation.'",
+      "GOTCHA: retrieval quality dominates answer quality - improving the retriever usually beats prompt tweaking."
+    ],
+    "say_aloud": "RAG retrieves context, augments the prompt, and generates an answer only from that context.",
+    "sources": [
+      {
+        "title": "Neo4j - What is GraphRAG?",
+        "url": "https://neo4j.com/blog/genai/what-is-graphrag/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes",
+      "08-langgraph-agent"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-vector-rag-limits",
+    "front": "Why vector-only RAG falls short",
+    "track": "agent",
+    "tags": [
+      "rag",
+      "vector",
+      "graphrag"
+    ],
+    "kind": "theory",
+    "what": "Vector-only RAG returns isolated text chunks - fragmented, unexplainable, weak on multi-hop.",
+    "how": "Chunk -> embed -> similarity search -> hand top-k chunks to the LLM (no relationships).",
+    "where": "Baseline RAG before adding a knowledge graph.",
+    "when": "Understanding WHY GraphRAG exists.",
+    "who": "Neo4j GraphRAG guide.",
+    "why": "Answers are confined to retrieved fragments and can't explain WHY a chunk was chosen (black box).",
+    "analogy": "Photocopied page scraps with no idea how they connect.",
+    "code": "# vector search -> 5 chunks -> LLM\n# but: no edges, no provenance, no multi-hop join",
+    "language": "text",
+    "pitfalls": [
+      "GOTCHA: a question needing info spread across sections gets INCOMPLETE answers from vector-only retrieval.",
+      "TRICK: GraphRAG fixes this - vector/fulltext finds STARTING points, then you TRAVERSE relationships for context.",
+      "Explainability matters in healthcare/finance - graph edges give you the 'why', embeddings don't."
+    ],
+    "say_aloud": "Vector-only RAG returns disconnected chunks with no relationships and no explainability.",
+    "sources": [
+      {
+        "title": "Neo4j - What is GraphRAG?",
+        "url": "https://neo4j.com/blog/genai/what-is-graphrag/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-graphrag-retrievers",
+    "front": "GraphRAG retriever types",
+    "track": "agent",
+    "tags": [
+      "graphrag",
+      "retrieval",
+      "neo4j"
+    ],
+    "kind": "pattern",
+    "what": "Find entry points (vector/fulltext/spatial), then follow relationships to gather connected context.",
+    "how": "Index search -> neighborhood/path traversal, query templates, Text2Cypher, or agentic tool selection.",
+    "where": "graph_rag retrieval in this codebase.",
+    "when": "When answers depend on connected, multi-hop facts.",
+    "who": "Neo4j GraphRAG (VectorCypherRetriever).",
+    "why": "Combines fuzzy entry (embeddings) with precise expansion (graph) for accurate, traceable answers.",
+    "analogy": "Search the index for a page, then follow the cross-references.",
+    "code": "CALL db.index.vector.queryNodes('docs',5,$emb) YIELD node AS doc\nRETURN doc, COLLECT { MATCH p=(doc)-[r]-(nb) RETURN p } AS paths",
+    "language": "cypher",
+    "pitfalls": [
+      "TRICK: neighborhood traversal (1-2 hops) after a vector hit is the highest-ROI GraphRAG pattern.",
+      "GOTCHA: Text2Cypher (LLM writes Cypher) is powerful but needs the schema in the prompt + guardrails against bad queries.",
+      "In agentic setups, retrievers become TOOLS the LLM selects and chains until it has enough context."
+    ],
+    "say_aloud": "GraphRAG finds entry nodes by vector search, then traverses relationships for connected context.",
+    "sources": [
+      {
+        "title": "Neo4j - What is GraphRAG?",
+        "url": "https://neo4j.com/blog/genai/what-is-graphrag/",
+        "kind": "docs"
+      },
+      {
+        "title": "neo4j-graphrag Python package",
+        "url": "https://neo4j.com/blog/news/graphrag-python-package/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "07-retrieval-bayes",
+      "02-cypher-create-read"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": "fc-sm2",
+    "front": "SM-2 spaced repetition",
+    "track": "foundations",
+    "tags": [
+      "study-method",
+      "sm2",
+      "memory"
+    ],
+    "kind": "theory",
+    "what": "SuperMemo's algorithm: schedule reviews at growing intervals based on an ease factor (EF) per item.",
+    "how": "I(1)=1, I(2)=6, I(n)=round(I(n-1)*EF); after grade q(0-5): EF += 0.1-(5-q)(0.08+(5-q)*0.02), floor 1.3; q<3 resets.",
+    "where": "This Study Lab's Today tab (Again/Hard/Good/Easy -> q).",
+    "when": "Reviewing anything you must retain long-term.",
+    "who": "P. A. Wozniak (1990); basis of Anki.",
+    "why": "Reviews items just before you'd forget - Wozniak measured ~92% retention at far less total time.",
+    "analogy": "Watering a plant right before it wilts, not on a fixed calendar.",
+    "code": "if q < 3: reps, interval = 0, 1        # lapse resets\nelse: interval = 1 if reps==1 else 6 if reps==2 else round(interval*ef)",
+    "language": "python",
+    "pitfalls": [
+      "GOTCHA: q=4 leaves EF unchanged; only q<4 (hesitation/harder) lowers it, q=5 raises it slightly.",
+      "TRICK: an EF stuck near the 1.3 floor signals a badly written CARD - split it (minimum-information principle).",
+      "After a lapse (q<3) restart intervals from 1 but you still relearn fast because EF is retained."
+    ],
+    "say_aloud": "SM-2 grows review intervals by an ease factor and resets when you fail a card.",
+    "sources": [
+      {
+        "title": "Wozniak - SuperMemo SM-2 (1990)",
+        "url": "https://super-memory.com/english/ol/sm2.htm",
+        "kind": "paper"
+      }
+    ],
+    "related_module_ids": [],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cypher-profile",
+    "front": "Cypher: EXPLAIN vs PROFILE (tuning)",
+    "track": "graph",
+    "tags": [
+      "cypher",
+      "performance",
+      "neo4j"
+    ],
+    "kind": "code",
+    "what": "EXPLAIN shows the planned query plan (no run); PROFILE runs it and shows real rows/db-hits per operator.",
+    "how": "Prefix a query with EXPLAIN or PROFILE in the browser/driver; read db-hits to find the costly step.",
+    "where": "Optimizing GraphRAG retrieval queries.",
+    "when": "When a diagnose query is slow or scans too much.",
+    "who": "Neo4j Cypher Manual.",
+    "why": "Turns 'it's slow' into 'this NodeByLabelScan should be an index seek'.",
+    "analogy": "SQL EXPLAIN ANALYZE for graphs.",
+    "code": "PROFILE MATCH (p:Product {product_id:$id})-[:CAN_HAVE]->(fm) RETURN fm",
+    "language": "cypher",
+    "pitfalls": [
+      "TRICK: high 'db hits' on a NodeByLabelScan means you're missing an index - add one on the lookup property.",
+      "GOTCHA: always bind the most selective anchor first ($product_id) so the planner starts from few nodes.",
+      "PROFILE actually executes the query - don't PROFILE destructive writes on real data."
+    ],
+    "say_aloud": "EXPLAIN plans without running; PROFILE runs and shows real db-hits so you can index the hot step.",
+    "sources": [
+      {
+        "title": "Neo4j Cypher Manual - Query tuning",
+        "url": "https://neo4j.com/docs/cypher-manual/current/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "02-cypher-create-read",
+      "07-retrieval-bayes"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-llmops-map",
+    "front": "LLMOps discipline map (this app)",
+    "track": "llmops",
+    "tags": [
+      "llmops",
+      "as-built"
+    ],
+    "kind": "process",
+    "what": "Operating model for LLM features: registry, prompts, guardrails, evals, budgets, obs, CI.",
+    "how": "Keep GraphRAG core deterministic; optional LLM via gateway; enforce outside the model.",
+    "where": "docs/sdd/09-PLATFORM-LLMOPS.md + packages guardrails/, evals/, gateway/, finops/, observability/.",
+    "when": "Any time LLM wording or tools are considered for production.",
+    "who": "Platform + app engineers; ADR 0001.",
+    "why": "Auditability and cost control for warranty answers.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "GraphRAG primary; LLM optional; gates outside the model.",
+    "sources": [
+      {
+        "title": "Project SDD 09-PLATFORM-LLMOPS",
+        "url": "",
+        "kind": "docs"
+      },
+      {
+        "title": "Google \u2014 Practitioners guide to MLOps",
+        "url": "https://cloud.google.com/resources/mlops-whitepaper",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "10-llmops-disciplines"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-llm-enabled",
+    "front": "llm_enabled flag",
+    "track": "llmops",
+    "tags": [
+      "config",
+      "gateway"
+    ],
+    "kind": "concept",
+    "what": "Feature flag that turns on the LLM gateway path.",
+    "how": "settings.llm_enabled default false; when true, gateway routes with registry aliases.",
+    "where": "config/settings.py, gateway/",
+    "when": "Only when product wants LLM rewrite/help \u2014 not required for GraphRAG diagnose.",
+    "who": "Operators via env/config.",
+    "why": "Default-off protects cost and determinism.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project config/settings.py",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "10-llmops-disciplines"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-model-registry",
+    "front": "Model registry pin",
+    "track": "llmops",
+    "tags": [
+      "modelops",
+      "registry"
+    ],
+    "kind": "pattern",
+    "what": "Alias \u2192 pinned provider model id mapping in git.",
+    "how": "Edit models/registry.yaml deliberately; re-eval after bumps.",
+    "where": "models/registry.yaml",
+    "when": "Changing models or adding aliases.",
+    "who": "ModelOps owner.",
+    "why": "Unpinned 'latest' models silently change behavior.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "MLflow Model Registry concepts",
+        "url": "https://mlflow.org/docs/latest/model-registry.html",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "10-llmops-disciplines",
+      "20-synthetic-mlops-images"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-promptops",
+    "front": "PromptOps",
+    "track": "llmops",
+    "tags": [
+      "prompts",
+      "versioning"
+    ],
+    "kind": "concept",
+    "what": "Treat prompts as versioned artifacts with owners and changelogs.",
+    "how": "prompts/diagnosis-rewriter/v1.yaml + CHANGELOG; schema in prompts/_schema.json.",
+    "where": "prompts/, promptops/",
+    "when": "Any LLM wording path enabled.",
+    "who": "Prompt owners.",
+    "why": "Prompt drift is a production regression class.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project prompts/",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "10-llmops-disciplines"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-three-pillars",
+    "front": "Observability three pillars",
+    "track": "observability",
+    "tags": [
+      "logs",
+      "metrics",
+      "traces"
+    ],
+    "kind": "theory",
+    "what": "Logs (events), metrics (aggregates), traces (request paths).",
+    "how": "JSON logs + request_id; Prometheus /metrics; OTEL traces when enabled.",
+    "where": "observability/*, monitoring/*, docker-compose.observability.yaml",
+    "when": "Always for API health; OTEL opt-in for deep latency debug.",
+    "who": "SRE / platform.",
+    "why": "Cannot operate what you cannot measure.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "OpenTelemetry docs",
+        "url": "https://opentelemetry.io/docs/",
+        "kind": "docs"
+      },
+      {
+        "title": "Google SRE Book \u2014 monitoring",
+        "url": "https://sre.google/sre-book/monitoring-distributed-systems/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "11-observability-monitoring"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-prometheus",
+    "front": "Prometheus scrape model",
+    "track": "observability",
+    "tags": [
+      "prometheus",
+      "metrics"
+    ],
+    "kind": "concept",
+    "what": "Pull-based metrics collector that scrapes HTTP /metrics endpoints.",
+    "how": "prometheus.yml lists jobs/targets; rules evaluate alerts.",
+    "where": "monitoring/prometheus/prometheus.yml + rules/",
+    "when": "Continuous in staging/prod monitoring stacks.",
+    "who": "Observability owners.",
+    "why": "Standard cloud-native metrics backbone.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Prometheus docs",
+        "url": "https://prometheus.io/docs/introduction/overview/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "11-observability-monitoring"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-sli-slo",
+    "front": "SLI / SLO / error budget",
+    "track": "observability",
+    "tags": [
+      "sre",
+      "slo"
+    ],
+    "kind": "theory",
+    "what": "SLI measures user-visible reliability; SLO is target; error budget is allowed unreliability.",
+    "how": "Define diagnose latency/error SLIs; alert on burn; use for canary analysis.",
+    "where": "monitoring rules + progressive delivery analysis.",
+    "when": "Production reliability management.",
+    "who": "SRE + product.",
+    "why": "Turns 'is it up?' into objective policy.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Google SRE Book \u2014 Service Level Objectives",
+        "url": "https://sre.google/sre-book/service-level-objectives/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "11-observability-monitoring",
+      "15-k8s-helm-rollouts"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-eval-smoke",
+    "front": "Eval smoke suite",
+    "track": "evals",
+    "tags": [
+      "evals",
+      "ci"
+    ],
+    "kind": "process",
+    "what": "Fast quality/safety check run on every PR.",
+    "how": "python evals/run_eval.py --suite smoke in ci.yml",
+    "where": "evals/ + .github/workflows/ci.yml",
+    "when": "Every PR/push to main or feature/**",
+    "who": "CI.",
+    "why": "Catch ranking/safety regressions before merge.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project evals/README.md",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "12-evalops-gates"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-eval-thresholds",
+    "front": "Eval thresholds (floors)",
+    "track": "evals",
+    "tags": [
+      "evals",
+      "quality"
+    ],
+    "kind": "pattern",
+    "what": "Minimum metric values required to pass a gate.",
+    "how": "Configured in evals/thresholds.yaml; CI fails if below.",
+    "where": "evals/thresholds.yaml",
+    "when": "Every gated eval run.",
+    "who": "Quality owners.",
+    "why": "Without floors, evals are dashboards not gates.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [
+      "Lowering floors to go green"
+    ],
+    "say_aloud": "Never lower thresholds to silence a red build \u2014 fix the regression.",
+    "sources": [
+      {
+        "title": "Project docs/sdd/09-PLATFORM-LLMOPS.md",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "12-evalops-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-safety-eval",
+    "front": "Safety eval suite",
+    "track": "evals",
+    "tags": [
+      "security",
+      "evals",
+      "injection"
+    ],
+    "kind": "process",
+    "what": "Adversarial cases (injection/jailbreak style) that must pass 100% in smoke.",
+    "how": "evals/safety/injection.jsonl exercised by run_eval.",
+    "where": "evals/safety/",
+    "when": "Every smoke run.",
+    "who": "Security + quality.",
+    "why": "Guardrails need regression tests, not vibes.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "OWASP LLM Top 10",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "12-evalops-gates",
+      "18-security-guardrails"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-gha-ci",
+    "front": "GitHub Actions CI workflow",
+    "track": "cicd",
+    "tags": [
+      "github-actions",
+      "ci"
+    ],
+    "kind": "process",
+    "what": "Automated checks on push/PR.",
+    "how": ".github/workflows/ci.yml \u2014 secrets, ruff, pytest, eval smoke, frontend, images.",
+    "where": ".github/workflows/",
+    "when": "Every PR to main/feature/**",
+    "who": "All contributors via CI.",
+    "why": "Integrate continuously with evidence.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "GitHub Actions docs",
+        "url": "https://docs.github.com/en/actions",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "13-cicd-github-actions"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-supply-chain",
+    "front": "Software supply chain controls",
+    "track": "cicd",
+    "tags": [
+      "sbom",
+      "trivy",
+      "signing"
+    ],
+    "kind": "pattern",
+    "what": "Prove what you built and that artifacts are safe to run.",
+    "how": "Secret scan, dep audit, image scan, SBOM, sign/verify policy (as configured).",
+    "where": "ci.yml, deploy/policy/verify-images.yaml",
+    "when": "Building and deploying container images.",
+    "who": "Platform security.",
+    "why": "Compromised deps/images are production incidents.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "SLSA framework",
+        "url": "https://slsa.dev/",
+        "kind": "standard"
+      },
+      {
+        "title": "Sigstore / cosign",
+        "url": "https://docs.sigstore.dev/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "13-cicd-github-actions"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-cd-eval-gate",
+    "front": "CD eval-gate before deploy",
+    "track": "cicd",
+    "tags": [
+      "cd",
+      "evals"
+    ],
+    "kind": "process",
+    "what": "Deployment pipeline step that fails if quality floors fail.",
+    "how": "cd.yml runs eval-gate then deploy strategy (including optional canary).",
+    "where": ".github/workflows/cd.yml",
+    "when": "Release/deploy.",
+    "who": "Release automation.",
+    "why": "Don't ship silent quality regressions.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project cd.yml",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "13-cicd-github-actions",
+      "12-evalops-gates"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-dockerfile",
+    "front": "Dockerfile",
+    "track": "infra",
+    "tags": [
+      "docker",
+      "containers"
+    ],
+    "kind": "concept",
+    "what": "Recipe to build a container image.",
+    "how": "FROM base, COPY, RUN, ENTRYPOINT; prefer multi-stage for slim runtime.",
+    "where": "docker/Dockerfile.api|frontend|etl|mock",
+    "when": "Packaging services for CI and deploy.",
+    "who": "App/platform engineers.",
+    "why": "Reproducible runtime.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Docker docs \u2014 Dockerfile",
+        "url": "https://docs.docker.com/reference/dockerfile/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "14-docker-compose"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-compose-dual-neo4j",
+    "front": "Compose dual Neo4j",
+    "track": "infra",
+    "tags": [
+      "docker",
+      "neo4j"
+    ],
+    "kind": "pattern",
+    "what": "Two Neo4j services for staging and production locally.",
+    "how": "docker-compose.infra.yaml maps 7687 prod and 7688 staging.",
+    "where": "docker/docker-compose.infra.yaml",
+    "when": "Local dual-graph demos and promote tests.",
+    "who": "Developers.",
+    "why": "Matches promote safety model.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Docker Compose docs",
+        "url": "https://docs.docker.com/compose/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "14-docker-compose",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-k8s-deployment",
+    "front": "Kubernetes Deployment",
+    "track": "infra",
+    "tags": [
+      "kubernetes"
+    ],
+    "kind": "concept",
+    "what": "Controller maintaining desired Pod replicas and rolling updates.",
+    "how": "Declare template + replicas; kubectl apply / GitOps.",
+    "where": "k8s/base/*-deployment.yaml",
+    "when": "Running API on a cluster.",
+    "who": "Platform engineers.",
+    "why": "Self-heal and roll out versions safely.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Kubernetes Deployments",
+        "url": "https://kubernetes.io/docs/concepts/workloads/controllers/deployment/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "15-k8s-helm-rollouts"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-helm-chart",
+    "front": "Helm chart",
+    "track": "infra",
+    "tags": [
+      "helm",
+      "kubernetes"
+    ],
+    "kind": "concept",
+    "what": "Versioned package of Kubernetes templates + default values.",
+    "how": "helm install/upgrade with -f values-ENV.yaml; templates render manifests.",
+    "where": "Interview skill; repo uses overlays/rollouts more than full charts.",
+    "when": "Packaging repeatable installs across envs.",
+    "who": "Platform engineers.",
+    "why": "Parameterize without copy-paste YAML sprawl.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Helm docs",
+        "url": "https://helm.sh/docs/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "15-k8s-helm-rollouts"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-canary",
+    "front": "Canary release",
+    "track": "infra",
+    "tags": [
+      "progressive-delivery",
+      "canary"
+    ],
+    "kind": "pattern",
+    "what": "Send a small % of traffic to new version; analyze; promote or rollback.",
+    "how": "Argo Rollouts / Flagger with metrics analysis; pair with eval quality.",
+    "where": "deploy/rollouts/",
+    "when": "Risky changes (model alias, ranking, API).",
+    "who": "Release engineering.",
+    "why": "Limit blast radius.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Argo Rollouts docs",
+        "url": "https://argo-rollouts.readthedocs.io/",
+        "kind": "docs"
+      },
+      {
+        "title": "Flagger docs",
+        "url": "https://docs.flagger.app/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "15-k8s-helm-rollouts",
+      "13-cicd-github-actions"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-terraform-plan",
+    "front": "terraform plan / apply",
+    "track": "infra",
+    "tags": [
+      "terraform",
+      "iac"
+    ],
+    "kind": "command",
+    "what": "Plan previews resource diffs; apply executes them.",
+    "how": "terraform init && plan -out && apply (reviewed).",
+    "where": "infra/terraform/ (scaffold in this repo).",
+    "when": "Provisioning cloud resources.",
+    "who": "Infra engineers.",
+    "why": "No surprise cloud changes.",
+    "analogy": "",
+    "code": "terraform init\nterraform plan -out tf.plan\nterraform apply tf.plan",
+    "language": "bash",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Terraform docs",
+        "url": "https://developer.hashicorp.com/terraform/docs",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "16-iac-terraform"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-tf-state",
+    "front": "Terraform state",
+    "track": "infra",
+    "tags": [
+      "terraform",
+      "state"
+    ],
+    "kind": "concept",
+    "what": "Mapping between config addresses and real cloud object IDs.",
+    "how": "Remote backend + locking for teams; never hand-edit casually.",
+    "where": "Backend config (org standard); not committed secrets.",
+    "when": "Any shared Terraform workspace.",
+    "who": "Infra team.",
+    "why": "Without state, Terraform cannot manage updates safely.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Terraform state",
+        "url": "https://developer.hashicorp.com/terraform/language/state",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "16-iac-terraform"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-daily-budget",
+    "front": "DailyCostBudget (LLM)",
+    "track": "finops",
+    "tags": [
+      "finops",
+      "budget"
+    ],
+    "kind": "code",
+    "what": "Circuit breaker that stops LLM spend after a daily USD ceiling.",
+    "how": "finops/budget.py; settings.llm_cost_budget_usd_per_day; Redis-shared optional.",
+    "where": "Gateway path when LLM calls happen.",
+    "when": "Always when llm_enabled.",
+    "who": "Platform FinOps.",
+    "why": "Unbounded tokens = unbounded invoices.",
+    "analogy": "",
+    "code": "if not budget.allow(est): raise BudgetExceeded\n# after call: budget.record(actual)",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "FinOps Foundation",
+        "url": "https://www.finops.org/",
+        "kind": "standard"
+      },
+      {
+        "title": "Project finops/budget.py",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "17-finops-cost"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-token-cost",
+    "front": "Token cost formula",
+    "track": "finops",
+    "tags": [
+      "finops",
+      "llm"
+    ],
+    "kind": "theory",
+    "what": "Cost estimate for a completion from token counts and $/1M prices.",
+    "how": "(in_tokens*price_in + out_tokens*price_out)/1e6",
+    "where": "Pre-call estimates and post-call accounting.",
+    "when": "Every billable model call.",
+    "who": "FinOps + gateway.",
+    "why": "Unit economics for AI features.",
+    "analogy": "",
+    "code": "usd = (in_tok * p_in + out_tok * p_out) / 1_000_000",
+    "language": "python",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Provider pricing pages (OpenAI/Anthropic/etc.)",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "17-finops-cost"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-infra-cost-worksheet",
+    "front": "Infra cost worksheet",
+    "track": "finops",
+    "tags": [
+      "finops",
+      "infra",
+      "estimate"
+    ],
+    "kind": "process",
+    "what": "Structured inventory\u00d7price estimate for a stack.",
+    "how": "List API, Neo4j, Redis, LB, obs, egress; price; divide by diagnoses/month.",
+    "where": "Architecture reviews / capacity planning.",
+    "when": "Before production scale commitments.",
+    "who": "Architects + FinOps.",
+    "why": "Avoid surprise cloud bills.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Infracost",
+        "url": "https://www.infracost.io/",
+        "kind": "docs"
+      },
+      {
+        "title": "AWS Pricing Calculator (example)",
+        "url": "https://calculator.aws/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "17-finops-cost",
+      "16-iac-terraform"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-owasp-llm",
+    "front": "OWASP LLM Top 10",
+    "track": "security",
+    "tags": [
+      "owasp",
+      "llm",
+      "security"
+    ],
+    "kind": "theory",
+    "what": "Catalog of LLM application risks (injection, data leak, supply chain, etc.).",
+    "how": "Map each risk to a control in security/owasp-llm-mapping.md + guardrails/evals.",
+    "where": "security/",
+    "when": "Threat modeling LLM features.",
+    "who": "Security + app owners.",
+    "why": "Shared language for LLM threats.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "OWASP Top 10 for LLM Applications",
+        "url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "18-security-guardrails"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-guardrails-pipeline",
+    "front": "Guardrails pipeline",
+    "track": "security",
+    "tags": [
+      "guardrails",
+      "security"
+    ],
+    "kind": "process",
+    "what": "Layered checks: rate \u2192 input \u2192 core \u2192 output \u2192 action.",
+    "how": "guardrails/* wired in API middleware/pipeline.",
+    "where": "guardrails/, api/main.py",
+    "when": "Every request on protected paths.",
+    "who": "API platform.",
+    "why": "Defense in depth.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project guardrails/",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "18-security-guardrails"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-pii-redaction",
+    "front": "PII redaction in telemetry",
+    "track": "security",
+    "tags": [
+      "pii",
+      "privacy",
+      "logs"
+    ],
+    "kind": "pattern",
+    "what": "Strip/mask personal data before logs/metrics export.",
+    "how": "observability redaction when enable_pii_redaction=true.",
+    "where": "observability/redaction.py",
+    "when": "Always in production logging.",
+    "who": "Security + platform.",
+    "why": "Logs are a common leak channel.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "NIST Privacy Framework (overview)",
+        "url": "https://www.nist.gov/privacy-framework",
+        "kind": "standard"
+      }
+    ],
+    "related_module_ids": [
+      "18-security-guardrails",
+      "11-observability-monitoring"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-anti-corruption",
+    "front": "Anti-corruption layer (integrations)",
+    "track": "integrations",
+    "tags": [
+      "ddd",
+      "integrations"
+    ],
+    "kind": "pattern",
+    "what": "Translate external SoR models into the domain without polluting it.",
+    "how": "integrations/* adapters; OntologyBuilder for knowledge.",
+    "where": "integrations/, enterprise_pipeline transformers.",
+    "when": "Connecting CRM/claims/PIM.",
+    "who": "Integration engineers.",
+    "why": "External schemas change; domain must stay stable.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Evans \u2014 Domain-Driven Design (anti-corruption layer)",
+        "url": "",
+        "kind": "book"
+      }
+    ],
+    "related_module_ids": [
+      "19-integrations",
+      "03-etl-pipeline"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-mock-sor",
+    "front": "Mock systems of record",
+    "track": "integrations",
+    "tags": [
+      "mocks",
+      "demo"
+    ],
+    "kind": "pattern",
+    "what": "Local fake enterprise apps for demos without prod credentials.",
+    "how": "simulation/mock_enterprise_apps.py + fixtures under data/enterprise_sources/",
+    "where": "simulation/, data/enterprise_sources/",
+    "when": "Local/demo/CI without live SAP/SFDC.",
+    "who": "Developers.",
+    "why": "Unblock development; still validate adapter contracts.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project simulation/",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "19-integrations"
+    ],
+    "difficulty": "easy"
+  },
+  {
+    "id": "fc-mlops-loop",
+    "front": "MLOps lifecycle loop",
+    "track": "mlops",
+    "tags": [
+      "mlops",
+      "lifecycle"
+    ],
+    "kind": "process",
+    "what": "Data\u2192train\u2192eval\u2192registry\u2192deploy\u2192monitor\u2192retrain/rollback.",
+    "how": "Map to registry.yaml, evals/, gateway/, finops/ in this repo.",
+    "where": "models/, evals/, gateway/",
+    "when": "Any model-backed feature.",
+    "who": "ML/platform engineers.",
+    "why": "Models drift; lifecycle must be gated.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Google MLOps whitepaper",
+        "url": "https://cloud.google.com/resources/mlops-whitepaper",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "20-synthetic-mlops-images",
+      "10-llmops-disciplines"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-synthetic-data",
+    "front": "Synthetic diagnostic catalog data",
+    "track": "mlops",
+    "tags": [
+      "synthetic-data",
+      "privacy"
+    ],
+    "kind": "pattern",
+    "what": "Generated demo knowledge (products/symptoms/FMs) without real customer PII.",
+    "how": "graph/synthetic_data_generator.py \u2192 catalog JSON; label simulated provenance.",
+    "where": "graph/synthetic_data_generator.py, data/*synthetic*",
+    "when": "Demos, tests, bootstrapping graphs.",
+    "who": "Knowledge engineers.",
+    "why": "Safe demos; still not a substitute for validated field knowledge.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project graph/synthetic_data_generator.py",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "20-synthetic-mlops-images"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-diffusion-images",
+    "front": "Diffusion image generation (concept)",
+    "track": "mlops",
+    "tags": [
+      "images",
+      "diffusion",
+      "genai"
+    ],
+    "kind": "theory",
+    "what": "Generative method that denoises noise into images conditioned on prompts.",
+    "how": "Train/infer diffusion models; ops need safety filters, rate limits, cost/image, retention.",
+    "where": "Not core GraphRAG path; relevant if product adds multimodal features.",
+    "when": "Designing image features.",
+    "who": "GenAI engineers + platform security/finops.",
+    "why": "Images change cost, abuse, and content-risk profile.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Ho et al., DDPM",
+        "url": "https://arxiv.org/abs/2006.11239",
+        "kind": "paper"
+      }
+    ],
+    "related_module_ids": [
+      "20-synthetic-mlops-images",
+      "17-finops-cost"
+    ],
+    "difficulty": "hard"
+  },
+  {
+    "id": "fc-aiops",
+    "front": "AIOps",
+    "track": "aiops",
+    "tags": [
+      "aiops",
+      "ops",
+      "ml"
+    ],
+    "kind": "concept",
+    "what": "Using analytics/ML on ops telemetry to detect, correlate, and sometimes remediate incidents.",
+    "how": "Start with Prometheus rules + runbooks; add anomaly models when data volume justifies.",
+    "where": "monitoring/alerts + future detectors on metrics/logs.",
+    "when": "After basic observability is trustworthy.",
+    "who": "SRE/AIOps teams.",
+    "why": "Reduce MTTR; avoid alert fatigue.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Gartner AIOps (concept overview \u2014 vendor-neutral intro via industry defs)",
+        "url": "",
+        "kind": "docs"
+      },
+      {
+        "title": "Google SRE Book \u2014 practical alerting",
+        "url": "https://sre.google/sre-book/monitoring-distributed-systems/",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "20-synthetic-mlops-images",
+      "11-observability-monitoring"
+    ],
+    "difficulty": "medium"
+  },
+  {
+    "id": "fc-finetune-gate",
+    "front": "Fine-tune promotion gate",
+    "track": "mlops",
+    "tags": [
+      "finetune",
+      "evals"
+    ],
+    "kind": "pattern",
+    "what": "Do not ship a fine-tune without baseline eval comparison.",
+    "how": "Train \u2192 eval vs baseline \u2192 record eval_baseline \u2192 pin registry alias.",
+    "where": "models/finetunes/ README + evals/",
+    "when": "Domain adaptation projects.",
+    "who": "ML engineers.",
+    "why": "Fine-tunes can regress safety or accuracy silently.",
+    "analogy": "",
+    "code": "",
+    "language": "text",
+    "pitfalls": [],
+    "say_aloud": "",
+    "sources": [
+      {
+        "title": "Project models/finetunes/README.md",
+        "url": "",
+        "kind": "docs"
+      }
+    ],
+    "related_module_ids": [
+      "20-synthetic-mlops-images",
+      "12-evalops-gates"
+    ],
+    "difficulty": "medium"
+  }
+]

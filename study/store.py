@@ -6,10 +6,22 @@ import json
 from pathlib import Path
 
 from study.models import StudyModule
+from study.python_cheats import cheats_for
+from study.references import reading_for
 
 ROOT = Path(__file__).resolve().parent.parent
 MODULES_DIR = ROOT / "data" / "study_modules"
 PROGRESS_DIR = ROOT / "data" / "study_progress"
+
+
+def _attach_cheats(m: StudyModule) -> StudyModule:
+    """Attach Python cheat-codes and curated further-reading for this module id
+    if it doesn't already carry its own."""
+    if not m.python_cheatsheet:
+        m.python_cheatsheet = cheats_for(m.id)
+    if not m.further_reading:
+        m.further_reading = reading_for(m.id)
+    return m
 
 
 def modules_dir() -> Path:
@@ -27,7 +39,7 @@ def list_modules() -> list[dict]:
     items: list[StudyModule] = []
     for path in sorted(modules_dir().glob("*.json")):
         try:
-            items.append(StudyModule.model_validate_json(path.read_text(encoding="utf-8")))
+            items.append(_attach_cheats(StudyModule.model_validate_json(path.read_text(encoding="utf-8"))))
         except Exception:
             continue
     items.sort(key=lambda m: (m.order, m.title.lower()))
@@ -45,12 +57,12 @@ def load_module(module_id: str) -> StudyModule:
                 break
     if not path.exists():
         raise FileNotFoundError(module_id)
-    return StudyModule.model_validate_json(path.read_text(encoding="utf-8"))
+    return _attach_cheats(StudyModule.model_validate_json(path.read_text(encoding="utf-8")))
 
 
 def save_module(module: StudyModule) -> Path:
     path = modules_dir() / f"{module.id}.json"
-    path.write_text(module.model_dump_json(indent=2), encoding="utf-8")
+    path.write_text(module.model_dump_json(indent=2) + "\n", encoding="utf-8")
     return path
 
 
@@ -93,18 +105,18 @@ def load_progress(client_key: str) -> dict:
         return {"modules": {}}
 
 
-_SEED_DONE = False
-
-
 def ensure_seeded() -> None:
-    """Write seed curriculum once if directory empty or missing core module."""
-    global _SEED_DONE
-    if _SEED_DONE:
-        return
-    d = modules_dir()
-    core = d / "01-rdf-owl-tbox-abox.json"
-    if not core.exists():
-        from study.seed_curriculum import write_all_seeds
+    """Write seed curriculum if the core module is missing.
 
-        write_all_seeds()
-    _SEED_DONE = True
+    The check is stateless (a cheap ``core.exists()`` stat) rather than a cached
+    global, so seeds are re-created if the modules directory is emptied mid-run
+    (e.g. by a git stash of untracked files during a pre-push hook). A module
+    global that assumed "seeded once, seeded forever" caused intermittent 404s.
+    """
+    d = modules_dir()
+    core = d / "01-tbox-abox-simple.json"
+    if core.exists():
+        return
+    from study.seed_curriculum import write_all_seeds
+
+    write_all_seeds(wipe_old=True)

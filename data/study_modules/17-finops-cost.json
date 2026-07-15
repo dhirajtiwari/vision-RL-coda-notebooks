@@ -1,0 +1,138 @@
+{
+  "id": "17-finops-cost",
+  "title": "17. FinOps & cost estimation — LLM budget + infra costing",
+  "description": "DailyCostBudget circuit breaker; estimate infra/service cost; unit economics.",
+  "tags": [
+    "finops",
+    "cost",
+    "budget"
+  ],
+  "track": "finops",
+  "story": "FinOps is the practice of bringing financial accountability to cloud/variable spend.\n\nIn THIS app (LLM path):\n• finops/budget.py DailyCostBudget with llm_cost_budget_usd_per_day (default $5)\n• Gateway records spend; BudgetExceeded trips circuit when ceiling hit\n• Redis shares budget across replicas when configured\n\nInfra costing (general method):\n1) Inventory services (API pods, Neo4j, Redis, load balancer, egress, observability).\n2) Price each with cloud calculator or committed rates.\n3) Add LLM tokens: cost ≈ (input_tokens·p_in + output_tokens·p_out) / 1e6.\n4) Unit cost = monthly_spend / successful_diagnoses.\n5) Alerts on budget burn rate — not only absolute ceiling.",
+  "one_liner": "Budget breaker for LLM $; inventory+price for infra; track cost per diagnosis.",
+  "why_it_matters": [
+    "LLM spend is spiky.",
+    "Graphs and observability clusters are not free."
+  ],
+  "say_aloud": [
+    "DailyCostBudget is a circuit breaker on LLM spend.",
+    "Default demo ceiling is five dollars per day.",
+    "I estimate infra from inventory times unit prices.",
+    "Token cost is priced per million tokens in and out."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Circuit breaker",
+      "meaning": "Stop calls when budget exceeded"
+    },
+    {
+      "term": "Unit economics",
+      "meaning": "Cost per successful business action"
+    },
+    {
+      "term": "Egress",
+      "meaning": "Data transfer out — often surprising cost"
+    },
+    {
+      "term": "Commitment discount",
+      "meaning": "Reserved/savings plans lower unit price"
+    },
+    {
+      "term": "Burn rate",
+      "meaning": "Spend per day vs budget"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "budget-idea",
+      "title": "Budget breaker idea",
+      "language": "python",
+      "goal": "Explain record + trip.",
+      "narrative": "",
+      "code": "# finops/budget.py — conceptual\nclass DailyCostBudget:\n    def __init__(self, ceiling_usd: float):\n        self.ceiling_usd = ceiling_usd\n        self._spent = 0.0\n\n    def allow(self, estimated_usd: float) -> bool:\n        return (self._spent + estimated_usd) <= self.ceiling_usd\n\n    def record(self, actual_usd: float) -> None:\n        self._spent += actual_usd\n        if self._spent > self.ceiling_usd:\n            raise BudgetExceeded(\"daily LLM budget exceeded\")\n\n# settings.llm_cost_budget_usd_per_day = 5.0\n# token estimate: (in_tok * price_in + out_tok * price_out) / 1_000_000",
+      "say_after": "Allow before call; record after; trip when over.",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 10,
+          "prompt": "What happens when spent exceeds ceiling?",
+          "answer": "Raise BudgetExceeded / open circuit",
+          "choices": [
+            "Raise BudgetExceeded / open circuit",
+            "Delete Neo4j",
+            "Lower eval floors",
+            "Disable Docker"
+          ],
+          "why": "Circuit breaker pattern for cost."
+        }
+      ],
+      "fill_blanks": {
+        "template": "cost = (in_tok * p_in + out_tok * p_out) / {{d}}\nif not budget.allow(cost): raise BudgetExceeded",
+        "blanks": [
+          {
+            "id": "d",
+            "answer": "1_000_000",
+            "hint": "per million tokens"
+          }
+        ]
+      },
+      "pro_tips": []
+    },
+    {
+      "id": "infra-estimate",
+      "title": "Infra estimate worksheet (text)",
+      "language": "text",
+      "goal": "List cost lines for this architecture.",
+      "narrative": "",
+      "code": "Monthly rough model (worksheet — fill with real prices):\nAPI compute     = replicas * vCPU_price * hours\nNeo4j           = managed graph tier OR VMs + disk + backup\nRedis           = managed cache tier\nLoad balancer   = fixed + LCU/egress\nObservability   = metrics samples + log GB + trace spans\nLLM (if on)     = tokens * $/1M + image gen units\nData transfer   = egress GB * rate\n----------------\nTotal / diagnoses_per_month = $ per diagnosis\n\nTools: cloud pricing calculator, Infracost on terraform plan,\nprovider token price pages, Prometheus cost metrics if exported.",
+      "say_after": "Inventory, price, divide by business volume.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "FinOps",
+      "definition": "Cloud financial operations — visibility, optimization, accountability.",
+      "analogy": "",
+      "say_aloud": "Engineers and finance share ownership of spend."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Which setting caps daily LLM $?",
+      "a": "llm_cost_budget_usd_per_day",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Where is budget code?",
+      "a": "finops/budget.py",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Forgetting egress and observability in estimates."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "FinOps Foundation Framework",
+      "url": "https://www.finops.org/",
+      "author": "",
+      "kind": "standard",
+      "takeaway": "Inform, optimize, operate.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Estimate $ per diagnosis with 3 infra lines + tokens (symbolic)."
+  ],
+  "source": "seed",
+  "order": 170,
+  "estimated_minutes": 25,
+  "grounded": true
+}

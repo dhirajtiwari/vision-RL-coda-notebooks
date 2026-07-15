@@ -1,0 +1,134 @@
+{
+  "id": "08-langgraph-agent",
+  "title": "8. LangGraph agent — fixed belt vs smart Cypher tool",
+  "description": "Memorize the production four-node belt; know the interview alternate.",
+  "tags": [
+    "langgraph",
+    "agent",
+    "tools"
+  ],
+  "track": "agent",
+  "story": "LangGraph is a flowchart that holds state.\n\nTHIS PRODUCT (deterministic):\ndetect_product → run_diagnosis → format_response → handle_escalation\nDiagnosis guts = fixed Cypher + Bayes. LLM is optional wording only.\n\nINTERVIEW ALTERNATE (smart Cypher tool):\nOuter model decides to call a tool; inside the tool a second model writes Cypher; try/except runs it. Flexible, less deterministic.\n\nSame skeleton idea: State → nodes → edges → compile. Different guts.",
+  "one_liner": "Production: four fixed nodes + GraphRAG. Interview alt: tool that generates Cypher.",
+  "why_it_matters": [
+    "Warranty needs auditability — fixed queries help.",
+    "Interviewers often teach LLM-written Cypher — you must contrast."
+  ],
+  "say_aloud": [
+    "Our diagnose path is detect, diagnose, format, escalate.",
+    "tool_diagnose calls GraphRAG with parameterized Cypher.",
+    "Smart Cypher agents use two LLM jobs: route and write query.",
+    "I always try/except untrusted generated Cypher."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "StateGraph",
+      "meaning": "Blueprint of nodes and edges"
+    },
+    {
+      "term": "compile()",
+      "meaning": "Runnable app"
+    },
+    {
+      "term": "Tool",
+      "meaning": "Function the agent may call"
+    },
+    {
+      "term": "Deterministic path",
+      "meaning": "Fixed Cypher + scores"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "four-nodes",
+      "title": "Production four-node belt",
+      "language": "python",
+      "goal": "Write build_diagnosis_graph wiring from memory.",
+      "narrative": "Thin nodes; intelligence in graph_rag.",
+      "code": "from langgraph.graph import StateGraph, END\n\ndef build_diagnosis_graph():\n    g = StateGraph(AgentState)\n    g.add_node(\"detect_product\", node_detect_product)\n    g.add_node(\"run_diagnosis\", node_run_graph_diagnosis)\n    g.add_node(\"format_response\", node_format_response)\n    g.add_node(\"handle_escalation\", node_handle_escalation)\n    g.set_entry_point(\"detect_product\")\n    g.add_edge(\"detect_product\", \"run_diagnosis\")\n    g.add_edge(\"run_diagnosis\", \"format_response\")\n    g.add_edge(\"format_response\", \"handle_escalation\")\n    g.add_edge(\"handle_escalation\", END)\n    return g.compile()",
+      "say_after": "Entry detect_product; end after escalation handler.",
+      "annotations": [
+        {
+          "line": 5,
+          "note": "Resolve product/asset first."
+        },
+        {
+          "line": 6,
+          "note": "GraphRAG + Bayes here."
+        },
+        {
+          "line": 10,
+          "note": "Linear happy path."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 6,
+          "prompt": "Where does ranking run?",
+          "answer": "Inside run_diagnosis / GraphRAG",
+          "choices": [
+            "Inside run_diagnosis / GraphRAG",
+            "Only in CSS",
+            "Inside Redis",
+            "In the browser only"
+          ],
+          "why": "Node calls tool_diagnose → graph_rag."
+        }
+      ],
+      "fill_blanks": {
+        "template": "g.set_entry_point(\"{{e}}\")\ng.add_edge(\"run_diagnosis\", \"{{n}}\")",
+        "blanks": [
+          {
+            "id": "e",
+            "answer": "detect_product",
+            "hint": ""
+          },
+          {
+            "id": "n",
+            "answer": "format_response",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": [
+        "TRICK: model the agent as a state graph — nodes mutate a typed state, conditional edges route control (LangGraph).",
+        "GOTCHA: give the graph a clear END after the escalation handler so it can't loop forever.",
+        "TRICK: ReAct pattern = thought → action(tool) → observation, repeated until there's enough context (Yao et al., 2022)."
+      ]
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Two-LLM smart tool",
+      "definition": "Router LLM + Cypher-writer LLM inside the tool.",
+      "analogy": "",
+      "say_aloud": "Flexible; must sandbox and try/except."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Four production nodes?",
+      "a": "detect_product, run_diagnosis, format_response, handle_escalation.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Is LLM required for diagnosis here?",
+      "a": "No — GraphRAG primary.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Describing this product as LLM-written Cypher."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Draw both agent styles side by side.",
+    "Write the four add_edge lines from memory."
+  ],
+  "source": "seed",
+  "order": 80,
+  "estimated_minutes": 20,
+  "grounded": true
+}

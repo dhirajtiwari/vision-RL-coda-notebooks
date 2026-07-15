@@ -1,0 +1,173 @@
+{
+  "id": "20-synthetic-mlops-images",
+  "title": "20. Synthetic data, MLOps, image generation concepts",
+  "description": "synthetic_data_generator; model registry/finetunes; image gen cost/safety concepts.",
+  "tags": [
+    "synthetic-data",
+    "mlops",
+    "images",
+    "training"
+  ],
+  "track": "mlops",
+  "story": "Synthetic data: generate realistic-but-fake catalogs for demos and tests without customer PII.\nThis repo: graph/synthetic_data_generator.py + data/synthetic_diagnosis_data.json paths.\n\nMLOps: train/eval/deploy/monitor models as products.\nHere: models/registry.yaml pins aliases; models/finetunes/ README for future fine-tunes;\nevals gate quality; LLM path optional.\n\nImage generation (concept): diffusion/autoregressive models turn prompts into pixels;\nops concerns = content safety, cost per image, latency, prompt versioning, abuse rate limits.\nNot the core warranty engine — but FinOps/security still apply if you add it.\n\nAIOps: apply ML/automation to ops signals (anomaly detection on metrics, auto-remediation).\nPair with Prometheus rules today; smarter detectors later.",
+  "one_liner": "Synthetic ABox for safe demos; MLOps = registry+eval+deploy; images need safety+cost controls.",
+  "why_it_matters": [
+    "Demos must not leak real customer data.",
+    "Fine-tunes without eval gates are reckless.",
+    "Image/LLM features change cost and abuse surface."
+  ],
+  "say_aloud": [
+    "Synthetic generators build demo catalogs without production PII.",
+    "Model aliases are pinned in registry.yaml.",
+    "Fine-tunes need baseline evals before promotion.",
+    "Image generation needs safety filters and unit cost tracking.",
+    "AIOps automates ops using telemetry — start with alerts, then models."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Synthetic data",
+      "meaning": "Artificially generated training/demo data"
+    },
+    {
+      "term": "Data drift",
+      "meaning": "Input distribution shifts over time"
+    },
+    {
+      "term": "Model registry",
+      "meaning": "Catalog of model versions/aliases"
+    },
+    {
+      "term": "Fine-tune",
+      "meaning": "Adapt base model on domain data"
+    },
+    {
+      "term": "Diffusion",
+      "meaning": "Common modern image gen paradigm"
+    },
+    {
+      "term": "AIOps",
+      "meaning": "ML-assisted IT operations"
+    },
+    {
+      "term": "MLOps",
+      "meaning": "Lifecycle for ML systems"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "synthetic-role",
+      "title": "Synthetic data role in this monorepo",
+      "language": "text",
+      "goal": "Separate synthetic demo data from production SoR truth.",
+      "narrative": "",
+      "code": "graph/synthetic_data_generator.py\n  → builds demo Product/Symptom/FM structures\ndata/synthetic_diagnosis_data.json (path via settings)\n  → offline catalog for local graphs\n\nRules:\n  • Label simulated provenance so analysts know it is not live SAP\n  • Never train production models on unreviewed synthetic-only data without validation\n  • Prefer multi-source ABox promote path for \"real\" knowledge growth",
+      "say_after": "Synthetic is for safe demos; governed ABox for truth.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": null,
+      "pro_tips": []
+    },
+    {
+      "id": "mlops-loop",
+      "title": "MLOps loop (memorize)",
+      "language": "text",
+      "goal": "Recite the lifecycle.",
+      "narrative": "",
+      "code": "Data → Train/Fine-tune → Eval gates → Registry pin → Deploy (flag/alias)\n  → Monitor quality/cost/latency → Rollback or retrain\n\nRepo hooks:\n  models/registry.yaml     pin alias → provider model id\n  models/finetunes/        future fine-tune artifacts + eval_baseline note\n  evals/                   quality/safety floors\n  gateway/                 runtime routing when llm_enabled\n  finops/budget.py         cost circuit breaker",
+      "say_after": "Eval before pin; monitor after deploy; budget always.",
+      "annotations": [],
+      "line_quiz": [
+        {
+          "line": 1,
+          "prompt": "What gates promotion of a new model alias?",
+          "answer": "Eval floors / quality gates",
+          "choices": [
+            "Eval floors / quality gates",
+            "Faster Docker build only",
+            "Higher Redis TTL",
+            "More Turtle files"
+          ],
+          "why": "Non-determinism needs measurement."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    },
+    {
+      "id": "image-gen-ops",
+      "title": "Image generation ops checklist",
+      "language": "text",
+      "goal": "List ops controls for image features.",
+      "narrative": "",
+      "code": "If adding image generation to a product:\n  1. Content safety filters (NSFW, brand abuse)\n  2. Rate limits + authz (who can generate)\n  3. Cost per image metric + FinOps budget\n  4. Prompt/version logging (PromptOps)\n  5. Retention policy for outputs\n  6. Latency SLO separate from diagnose p99\n  7. Red-team prompts (indirect injection via images/docs if multimodal)\n\nNot required for core warranty GraphRAG path.",
+      "say_after": "Safety, cost, rate, retention, SLO — then model choice.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "MLOps",
+      "definition": "Engineering culture/tools for production ML lifecycle.",
+      "analogy": "",
+      "say_aloud": "Treat models like versioned products with gates."
+    },
+    {
+      "term": "AIOps",
+      "definition": "Automating operations using analytics/ML on telemetry.",
+      "analogy": "",
+      "say_aloud": "Alerts first; smarter detection when data matures."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Where is model registry?",
+      "a": "models/registry.yaml",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Synthetic generator module?",
+      "a": "graph/synthetic_data_generator.py",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Why not train only on synthetic?",
+      "a": "May not match real distributions; need validation.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Shipping fine-tunes without eval baselines."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "Google — Practitioners guide to MLOps",
+      "url": "https://cloud.google.com/resources/mlops-whitepaper",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Continuous training, delivery, monitoring.",
+      "why": "",
+      "level": "core"
+    },
+    {
+      "title": "Ho et al., Denoising Diffusion Probabilistic Models (image gen)",
+      "url": "https://arxiv.org/abs/2006.11239",
+      "author": "",
+      "kind": "paper",
+      "takeaway": "Foundational diffusion training objective.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Draw MLOps loop and map each step to a repo path."
+  ],
+  "source": "seed",
+  "order": 200,
+  "estimated_minutes": 30,
+  "grounded": true
+}

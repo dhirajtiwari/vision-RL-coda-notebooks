@@ -1,0 +1,112 @@
+{
+  "id": "09-shacl-gates",
+  "title": "9. SHACL-style gates — clipboard before promote",
+  "description": "Closed-world checks vs open-world OWL. Min evidence rules.",
+  "tags": [
+    "shacl",
+    "validation",
+    "quality"
+  ],
+  "track": "pipeline",
+  "story": "OWL can describe meaning in an open world (missing fact ≠ false). SHACL is the clipboard at the dock: before promote, required fields and links must exist.\n\nThis app uses a Python lite validator with the same job: min symptoms, min failure modes, min INDICATES links, every link id must exist in the pack.",
+  "one_liner": "Shapes fail-closed before promote; reasoner is optional offline, not diagnose-path.",
+  "why_it_matters": [
+    "Bad ABox in production = wrong diagnosis at scale."
+  ],
+  "say_aloud": [
+    "We shape-check ABox before materialize and promote.",
+    "Minimum evidence: at least one symptom, failure mode, and INDICATES link.",
+    "OWL open world is not the same as SHACL closed world."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "SHACL",
+      "meaning": "Shapes Constraint Language — data quality"
+    },
+    {
+      "term": "Open world",
+      "meaning": "OWL: unknown ≠ false"
+    },
+    {
+      "term": "Closed world",
+      "meaning": "Shapes: missing required = invalid"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "min-evidence",
+      "title": "Min evidence rules",
+      "language": "python",
+      "goal": "Recite the three mins.",
+      "narrative": "If you ship empty products, ranking has nothing to stand on.",
+      "code": "MIN_SYMPTOMS = 1\nMIN_FAILURE_MODES = 1\nMIN_INDICATES_LINKS = 1\n\ndef validate_bundle(bundle: dict) -> list[str]:\n    errors = []\n    if len(bundle.get(\"symptoms\") or []) < MIN_SYMPTOMS:\n        errors.append(\"need ≥1 symptom\")\n    if len(bundle.get(\"failure_modes\") or []) < MIN_FAILURE_MODES:\n        errors.append(\"need ≥1 failure mode\")\n    if len(bundle.get(\"symptom_failure_links\") or []) < MIN_INDICATES_LINKS:\n        errors.append(\"need ≥1 INDICATES link\")\n    return errors  # empty list => ok",
+      "say_after": "Three mins; non-empty errors means block promote.",
+      "annotations": [
+        {
+          "line": 8,
+          "note": "Block empty evidence packs."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 11,
+          "prompt": "Why require INDICATES links?",
+          "answer": "Ranking needs symptom→FM evidence edges",
+          "choices": [
+            "Ranking needs symptom→FM evidence edges",
+            "Neo4j license",
+            "Redis cluster",
+            "CSS grid"
+          ],
+          "why": "Without links GraphRAG cannot score."
+        }
+      ],
+      "fill_blanks": {
+        "template": "MIN_SYMPTOMS = {{a}}\nMIN_INDICATES_LINKS = {{b}}",
+        "blanks": [
+          {
+            "id": "a",
+            "answer": "1",
+            "hint": ""
+          },
+          {
+            "id": "b",
+            "answer": "1",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": [
+        "GOTCHA: sh:conforms is true ONLY if there are zero results — even a Warning-severity result fails conformance (W3C SHACL §3.6).",
+        "TRICK: non-empty results = block promote; read sh:sourceConstraintComponent to see exactly which rule fired.",
+        "TRICK: tier rules with sh:severity (Info/Warning/Violation); the default is Violation."
+      ]
+    }
+  ],
+  "concepts": [],
+  "self_quiz": [
+    {
+      "q": "OWL vs SHACL one-liner?",
+      "a": "OWL meaning; SHACL instance quality.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "When validate?",
+      "a": "Before materialize/promote.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Validating only after production load."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Write validate_bundle mins from memory."
+  ],
+  "source": "seed",
+  "order": 90,
+  "estimated_minutes": 15,
+  "grounded": true
+}

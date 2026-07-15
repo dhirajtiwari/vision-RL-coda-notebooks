@@ -1,0 +1,179 @@
+{
+  "id": "02-cypher-create-read",
+  "title": "2. Cypher: write graph, read graph (always $params)",
+  "description": "MERGE to create; MATCH to retrieve; never f-string user input.",
+  "tags": [
+    "cypher",
+    "neo4j",
+    "retrieval"
+  ],
+  "track": "graph",
+  "story": "Cypher is how we talk to Neo4j. Two verbs matter most:\n• MERGE — put this pattern in the graph if missing (upsert).\n• MATCH — find this pattern and return it.\n\nGolden rule: always pass values as $parameters. Never glue user text into the query string. That is safer and lets Neo4j cache the plan.",
+  "one_liner": "MERGE to write, MATCH to read, $params always, scope by product_id.",
+  "why_it_matters": [
+    "Diagnosis is multi-hop graph lookup, not a document search.",
+    "Parameterization = security + speed.",
+    "Product scope keeps queries small and accurate."
+  ],
+  "say_aloud": [
+    "MERGE upserts a node or relationship by key.",
+    "MATCH finds patterns; RETURN projects columns.",
+    "I always bind product_id first so search stays scoped.",
+    "User input goes in $params, never in an f-string."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "MERGE",
+      "meaning": "Create if not exists (idempotent write)"
+    },
+    {
+      "term": "MATCH",
+      "meaning": "Read / pattern search"
+    },
+    {
+      "term": "$param",
+      "meaning": "Bound value — safe + plan cache"
+    },
+    {
+      "term": "INDICATES",
+      "meaning": "Symptom → FailureMode edge with confidence"
+    },
+    {
+      "term": "Scope",
+      "meaning": "Start from Product {product_id: $id}"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "merge-path",
+      "title": "Write: MERGE a tiny diagnostic path",
+      "language": "cypher",
+      "goal": "Memorize the MERGEs for product → symptom → failure mode.",
+      "narrative": "Three nodes, two relationships. Confidence lives on INDICATES.",
+      "code": "MERGE (p:Product {product_id: $product_id})\n  ON CREATE SET p.name = $name\nMERGE (s:Symptom {symptom_id: $symptom_id})\n  ON CREATE SET s.description = $description\nMERGE (fm:FailureMode {failure_mode_id: $fm_id})\n  ON CREATE SET fm.name = $fm_name\nMERGE (p)-[:HAS_SYMPTOM]->(s)\nMERGE (s)-[:INDICATES {confidence: $confidence}]->(fm)\nRETURN p, s, fm",
+      "say_after": "Keys are business ids. confidence is a relationship property.",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "Upsert Product by business key."
+        },
+        {
+          "line": 8,
+          "note": "INDICATES edge carries likelihood."
+        },
+        {
+          "line": 1,
+          "note": "$product_id is a parameter — not string concat."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 8,
+          "prompt": "Where is confidence stored?",
+          "answer": "On the INDICATES relationship",
+          "choices": [
+            "On the INDICATES relationship",
+            "Only on Product node",
+            "In Redis",
+            "In the LLM prompt"
+          ],
+          "why": "Edge property = P(symptom|failure)-style weight."
+        }
+      ],
+      "fill_blanks": {
+        "template": "MERGE (s)-[:{{r}} {{confidence: $confidence}}]->(fm)",
+        "blanks": [
+          {
+            "id": "r",
+            "answer": "INDICATES",
+            "hint": "symptom→FM rel type"
+          }
+        ]
+      },
+      "pro_tips": [
+        "TRICK: MERGE = get-or-create; it keeps re-ingest idempotent (no duplicate nodes).",
+        "GOTCHA: never f-string user input into Cypher — pass $params (injection-safe + lets Neo4j cache the plan).",
+        "TRICK: bind the most selective anchor first ($product_id); PROFILE the query to confirm db-hits use an index."
+      ]
+    },
+    {
+      "id": "match-rank",
+      "title": "Read: MATCH candidates for one product",
+      "language": "cypher",
+      "goal": "Always start at Product; never scan the whole graph first.",
+      "narrative": "This is the spine of GraphRAG retrieval.",
+      "code": "MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)\nOPTIONAL MATCH (s:Symptom)-[ind:INDICATES]->(fm)\nWHERE s.symptom_id IN $symptom_ids\nWITH fm, sum(coalesce(ind.confidence, 0)) AS score\nRETURN fm.failure_mode_id AS id, fm.name AS name, score\nORDER BY score DESC",
+      "say_after": "Product first, then optional symptom links, then order by score.",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "Scope: one product only."
+        },
+        {
+          "line": 3,
+          "note": "Only observed symptoms participate."
+        },
+        {
+          "line": 6,
+          "note": "Highest link score first — Python may refine with Bayes later."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 1,
+          "prompt": "Why product_id in the first MATCH?",
+          "answer": "Scope search for speed and accuracy",
+          "choices": [
+            "Scope search for speed and accuracy",
+            "Neo4j forbids global MATCH",
+            "It disables indexes",
+            "Only for SPARQL"
+          ],
+          "why": "Partition the problem to one product neighborhood."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Parameterized Cypher",
+      "definition": "Values via $name so the query text is stable.",
+      "analogy": "",
+      "say_aloud": "Parameters prevent injection and enable plan cache."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "MERGE vs MATCH?",
+      "a": "MERGE writes/upserts; MATCH reads.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Why not f-string Cypher?",
+      "a": "Injection risk + no plan reuse.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "First node in diagnosis MATCH?",
+      "a": "Product with $product_id.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Global MATCH (s:Symptom) on large graphs.",
+    "Hardcoding ids into the query string."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Write MERGE Product+Symptom+INDICATES+FailureMode with $params from memory.",
+    "Explain product-scoped MATCH in 20 seconds."
+  ],
+  "source": "seed",
+  "order": 20,
+  "estimated_minutes": 20,
+  "grounded": true
+}

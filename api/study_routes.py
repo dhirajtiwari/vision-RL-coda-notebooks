@@ -2,11 +2,21 @@
 
 from __future__ import annotations
 
+import re
+
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
 from pydantic import BaseModel, Field
 
+from study.flashcards_deck import list_flashcards, load_deck, write_deck
 from study.generator import generate_from_bytes, generate_module_from_text
+from study.masterclass_cards import cards_for as mc_cards_for
+from study.masterclass_cards import sections_for as mc_sections_for
+from study.masterclasses import get_masterclass, list_masterclasses
 from study.models import ProgressPayload
+from study.references import library as reading_library
+from study.review import dashboard as review_dashboard
+from study.review import due_items
+from study.review import grade as review_grade
 from study.store import (
     delete_module,
     ensure_seeded,
@@ -40,10 +50,84 @@ class GradeLineBody(BaseModel):
     choice: str
 
 
+class ReviewGradeBody(BaseModel):
+    client_key: str = "local"
+    item_key: str
+    quality: str  # again | hard | good | easy
+
+
 @router.get("/health")
 def study_health() -> dict:
     ensure_seeded()
-    return {"status": "ok", "modules": len(list_modules())}
+    write_deck()
+    return {
+        "status": "ok",
+        "modules": len(list_modules()),
+        "flashcards": len(load_deck()),
+    }
+
+
+@router.get("/flashcards")
+def get_flashcards(
+    track: str | None = None,
+    tag: str | None = None,
+    kind: str | None = None,
+    q: str | None = None,
+) -> dict:
+    """Full curriculum flashcard deck with 5W+H + authoritative sources."""
+    ensure_seeded()
+    write_deck()
+    cards = list_flashcards(track=track, tag=tag, kind=kind, q=q)
+    tracks = sorted({c.track for c in load_deck()})
+    tags = sorted({t for c in load_deck() for t in c.tags})
+    kinds = sorted({c.kind for c in load_deck()})
+    return {
+        "count": len(cards),
+        "filters": {"tracks": tracks, "tags": tags, "kinds": kinds},
+        "cards": [c.model_dump() for c in cards],
+    }
+
+
+@router.get("/flashcards/{card_id}")
+def get_flashcard(card_id: str) -> dict:
+    ensure_seeded()
+    write_deck()
+    for c in load_deck():
+        if c.id == card_id:
+            return c.model_dump()
+    raise HTTPException(status_code=404, detail=f"flashcard not found: {card_id}")
+
+
+@router.get("/review/due")
+def review_due(client_key: str = "local", limit: int = 40) -> dict:
+    """Today's spaced-repetition session: due cards first, then a capped set of
+    new cards. This is what a learner should open every day."""
+    ensure_seeded()
+    write_deck()
+    cards = load_deck()
+    plan = due_items(client_key, [c.id for c in cards], limit=limit)
+    by_id = {c.id: c for c in cards}
+    session = [by_id[i].model_dump() for i in plan["session"] if i in by_id]
+    return {**plan, "cards": session}
+
+
+@router.post("/review/grade")
+def review_grade_ep(body: ReviewGradeBody) -> dict:
+    """Record a recall attempt (again|hard|good|easy) and schedule the next review (SM-2)."""
+    try:
+        return review_grade(body.client_key, body.item_key, body.quality)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+
+@router.get("/dashboard")
+def study_dashboard(client_key: str = "local") -> dict:
+    """Streak, due-today count, and mastery % per track — the motivation layer."""
+    ensure_seeded()
+    write_deck()
+    cards = load_deck()
+    item_to_track = {c.id: c.track for c in cards}
+    return review_dashboard(client_key, item_to_track)
 
 
 @router.get("/modules")
@@ -116,6 +200,69 @@ def remove_module(module_id: str) -> dict:
     return {"deleted": module_id}
 
 
+def _normalize_blank(text: str) -> str:
+    """Structure-aware normalisation for fill-in answers: lowercase, collapse
+    whitespace, and drop surrounding quotes/backticks/parentheses/trailing
+    punctuation so `Rdf:type`, `rdf:type ;` and '"rdf:type"' all match."""
+    t = (text or "").strip().lower()
+    t = t.strip("`'\"()[]{} ;,.")
+    t = re.sub(r"\s+", " ", t)
+    return t
+
+
+def _blank_matches(given: str, expected: str) -> bool:
+    """A blank is correct if the normalised strings match, or (for multi-token
+    answers) if the token *sets* match — order- and spacing-insensitive."""
+    g, e = _normalize_blank(given), _normalize_blank(expected)
+    if not e:
+        return not g
+    if g == e:
+        return True
+    g_tokens, e_tokens = set(g.split()), set(e.split())
+    return len(e_tokens) > 1 and g_tokens == e_tokens
+
+
+@router.get("/library")
+def study_library() -> dict:
+    """All curated further-reading sources (standards, papers, docs, books)
+    grouped by module — the 'go deeper' library."""
+    return {"library": reading_library()}
+
+
+@router.get("/masterclasses")
+def study_masterclasses() -> dict:
+    """List the verbatim 'Master This Code' guides to memorize word-for-word."""
+    return {"masterclasses": list_masterclasses()}
+
+
+@router.get("/masterclasses/{mc_id}")
+def study_masterclass(mc_id: str) -> dict:
+    """Full verbatim body of one masterclass guide."""
+    mc = get_masterclass(mc_id)
+    if mc is None:
+        raise HTTPException(status_code=404, detail=f"masterclass not found: {mc_id}")
+    return {**mc.model_dump(), "char_count": len(mc.body)}
+
+
+@router.get("/masterclasses/{mc_id}/cards")
+def study_masterclass_cards(mc_id: str) -> dict:
+    """Line-by-line + concept memory cards for a masterclass, grouped for drills
+    (read, fill-in-the-blank, write-a-snippet, write-a-section)."""
+    cards = mc_cards_for(mc_id)
+    if not cards:
+        raise HTTPException(status_code=404, detail=f"no cards for masterclass: {mc_id}")
+    return {
+        "masterclass_id": mc_id,
+        "cards": [c.model_dump() for c in cards],
+        "sections": mc_sections_for(mc_id),
+        "counts": {
+            "total": len(cards),
+            "blanks": sum(1 for c in cards if c.blank),
+            "writable": sum(1 for c in cards if c.code),
+        },
+    }
+
+
 @router.post("/grade/fill-blanks")
 def grade_fill(body: GradeFillBody) -> dict:
     try:
@@ -128,17 +275,16 @@ def grade_fill(body: GradeFillBody) -> dict:
     results = []
     correct = 0
     for blank in beat.fill_blanks.blanks:
-        given = (body.answers.get(blank.id) or "").strip()
-        exp = blank.answer.strip()
-        ok = given.lower() == exp.lower()
+        given = body.answers.get(blank.id) or ""
+        ok = _blank_matches(given, blank.answer)
         if ok:
             correct += 1
         results.append(
             {
                 "id": blank.id,
                 "ok": ok,
-                "expected": exp,
-                "given": given,
+                "expected": blank.answer.strip(),
+                "given": given.strip(),
                 "hint": blank.hint,
             }
         )
@@ -185,7 +331,14 @@ def post_progress(body: ProgressPayload, client_key: str = "local") -> dict:
 
 @router.post("/reseed")
 def reseed() -> dict:
+    """Replace seed modules + flashcard deck (keeps u-* uploads)."""
     from study.seed_curriculum import write_all_seeds
 
-    ids = write_all_seeds()
-    return {"seeded": ids}
+    ids = write_all_seeds(wipe_old=True)
+    path = write_deck()
+    return {
+        "seeded": ids,
+        "grounded": True,
+        "flashcards": len(load_deck()),
+        "flashcards_path": str(path),
+    }

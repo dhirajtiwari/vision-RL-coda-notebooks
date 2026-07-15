@@ -34,6 +34,7 @@ data/lineage/
 data/pipeline_staging/run-*.json
 data/simulated_cases.json
 data/study_progress/
+data/study_review/
 docs/graphviz/rendered/
 eval-report.json
 htmlcov/

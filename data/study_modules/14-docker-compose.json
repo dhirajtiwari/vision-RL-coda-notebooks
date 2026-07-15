@@ -1,0 +1,111 @@
+{
+  "id": "14-docker-compose",
+  "title": "14. Docker — images, compose, dual Neo4j, observability stack",
+  "description": "Dockerfiles for api/frontend/etl; compose for infra, redis, observability.",
+  "tags": [
+    "docker",
+    "compose",
+    "containers"
+  ],
+  "track": "infra",
+  "story": "Containers package app + runtime so 'works on my machine' becomes 'works on this image.'\n\nThis repo:\n• docker/Dockerfile.api, .frontend, .etl, .mock\n• docker-compose.infra.yaml — Neo4j prod :7687 + staging :7688\n• docker-compose.redis.yaml — optional shared state\n• docker-compose.observability.yaml — Prometheus/Grafana/OTEL stack\n\nImage = layers + entrypoint. Compose = multi-service local (or simple) topology.",
+  "one_liner": "Build images with Dockerfiles; run multi-service stacks with Compose.",
+  "why_it_matters": [
+    "Reproducible demo and CI images.",
+    "Dual graph needs two Neo4j services."
+  ],
+  "say_aloud": [
+    "Infra compose starts dual Neo4j for staging and production.",
+    "API image is built from docker/Dockerfile.api.",
+    "Redis compose is optional for multi-replica shared state."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Image",
+      "meaning": "Immutable filesystem + metadata"
+    },
+    {
+      "term": "Container",
+      "meaning": "Running instance of an image"
+    },
+    {
+      "term": "Compose",
+      "meaning": "YAML multi-service definition"
+    },
+    {
+      "term": "Volume",
+      "meaning": "Persisted data outside container lifecycle"
+    },
+    {
+      "term": "Port map",
+      "meaning": "host:container networking"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "compose-cmd",
+      "title": "Commands",
+      "language": "bash",
+      "goal": "Start infra from memory.",
+      "narrative": "",
+      "code": "docker compose -f docker/docker-compose.infra.yaml up -d\n# optional\ndocker compose -f docker/docker-compose.redis.yaml up -d\ndocker compose -f docker/docker-compose.observability.yaml up -d\n\n# build API image (CI/local)\ndocker build -f docker/Dockerfile.api -t diagnostics-api:local .",
+      "say_after": "Infra first, then API, then optional obs/redis.",
+      "annotations": [],
+      "line_quiz": [],
+      "fill_blanks": {
+        "template": "docker compose -f docker/{{f}} up -d",
+        "blanks": [
+          {
+            "id": "f",
+            "answer": "docker-compose.infra.yaml",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Multi-stage build",
+      "definition": "Build in one stage, copy artifacts to slim runtime stage.",
+      "analogy": "",
+      "say_aloud": "Smaller final images, better security surface."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Staging Neo4j host port?",
+      "a": "7688 (prod 7687)",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Where are Dockerfiles?",
+      "a": "docker/",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "One Neo4j for both stage and prod in demos that claim dual graph."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "Docker docs — Compose",
+      "url": "https://docs.docker.com/compose/",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Services, networks, volumes.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Name three compose files and what each starts."
+  ],
+  "source": "seed",
+  "order": 140,
+  "estimated_minutes": 20,
+  "grounded": true
+}

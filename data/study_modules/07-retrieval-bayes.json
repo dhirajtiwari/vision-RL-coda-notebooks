@@ -1,0 +1,130 @@
+{
+  "id": "07-retrieval-bayes",
+  "title": "7. Accurate retrieval — scope, match, rank, escalate",
+  "description": "Four steps only. Miss likelihood for sparse edges. No magic.",
+  "tags": [
+    "graphrag",
+    "bayes",
+    "accuracy"
+  ],
+  "track": "graph",
+  "story": "Fast is useless if wrong. Accurate diagnosis retrieval is four steps:\n1. SCOPE — know the product/asset.\n2. MATCH — map customer words to symptom ids (lexical/TF-IDF hybrid).\n3. RANK — walk INDICATES; Bayes: posterior ∝ prior × ∏ likelihoods.\n4. GATE — if evidence is weak, escalate; do not fake confidence.\n\nSparse data: missing edge uses a small miss likelihood — we do not invent edges.",
+  "one_liner": "Scope → match → Bayes on INDICATES → escalate if weak.",
+  "why_it_matters": [
+    "Wrong part costs money and trust.",
+    "Sparse warranty graphs are normal — gates matter."
+  ],
+  "say_aloud": [
+    "I resolve product before ranking failure modes.",
+    "Likelihoods come from INDICATES.confidence.",
+    "Posterior is proportional to prior times product of likelihoods.",
+    "If the top posterior is weak I escalate."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Prior P(fm)",
+      "meaning": "How common is this failure (e.g. from occurrence)"
+    },
+    {
+      "term": "Likelihood P(s|fm)",
+      "meaning": "INDICATES.confidence"
+    },
+    {
+      "term": "Posterior",
+      "meaning": "Belief in fm after seeing symptoms"
+    },
+    {
+      "term": "Miss likelihood",
+      "meaning": "Default when edge absent (soft, not zero panic)"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "bayes-loop",
+      "title": "Naive Bayes in 12 lines",
+      "language": "python",
+      "goal": "Write the multiply-and-normalize loop.",
+      "narrative": "This is the math interview whiteboard.",
+      "code": "def bayesian_posteriors(priors, likelihoods, observed, candidates, miss=0.05):\n    scores = {}\n    for fm in candidates:\n        score = max(priors.get(fm, 0.0), 0.0)\n        for s in observed:\n            score *= likelihoods.get((s, fm), miss)\n        scores[fm] = score\n    total = sum(scores.values()) or 1.0\n    return {fm: v / total for fm, v in scores.items()}\n\n# then: if max(posteriors.values()) < THRESHOLD: escalate()",
+      "say_after": "Multiply likelihoods; normalize so they sum to one.",
+      "annotations": [
+        {
+          "line": 4,
+          "note": "Start from prior."
+        },
+        {
+          "line": 6,
+          "note": "Missing edge → miss, not crash."
+        },
+        {
+          "line": 9,
+          "note": "Normalize to a probability distribution."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 6,
+          "prompt": "What is miss for?",
+          "answer": "Default likelihood when INDICATES edge is absent",
+          "choices": [
+            "Default likelihood when INDICATES edge is absent",
+            "Delete the failure mode",
+            "Redis TTL",
+            "HTTP status"
+          ],
+          "why": "Sparse graphs need a soft default."
+        }
+      ],
+      "fill_blanks": {
+        "template": "score *= likelihoods.get((s, fm), {{m}})\ntotal = sum(scores.values()) or 1.0\nreturn {fm: v / total for fm, v in scores.items()}",
+        "blanks": [
+          {
+            "id": "m",
+            "answer": "miss",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": [
+        "TRICK: multiply prior × likelihoods, then normalize so posteriors sum to 1.",
+        "GOTCHA: use a small 'miss' default for unseen (symptom, failure) pairs so one gap doesn't zero the whole score.",
+        "TRICK: GraphRAG = vector/fulltext to find entry nodes, then traverse 1–2 hops for connected, explainable context (Neo4j GraphRAG)."
+      ]
+    }
+  ],
+  "concepts": [
+    {
+      "term": "GraphRAG (here)",
+      "definition": "Retrieve typed graph evidence, then format the answer.",
+      "analogy": "",
+      "say_aloud": "Evidence from Neo4j first; LLM wording optional."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Four retrieval steps?",
+      "a": "Scope, match, rank, gate/escalate.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Where is P(s|fm)?",
+      "a": "INDICATES.confidence.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Ranking without product scope.",
+    "Treating RPN as a probability."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Write bayesian_posteriors from memory.",
+    "Trace 'won't drain E21 on wm-001' through four steps aloud."
+  ],
+  "source": "seed",
+  "order": 70,
+  "estimated_minutes": 20,
+  "grounded": true
+}

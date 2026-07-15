@@ -1,0 +1,192 @@
+{
+  "id": "05-multithreading",
+  "title": "5. Multi-threading — when parallel helps (and when it hurts)",
+  "description": "I/O fan-out with a bound; keep ranking serial; admit only N diagnoses at once.",
+  "tags": [
+    "threading",
+    "concurrency",
+    "parallel",
+    "admission"
+  ],
+  "track": "runtime",
+  "story": "Threads are workers. If four workers each wait on a slow connector, total time is about the slowest wait — not four times one wait. That is I/O parallelism.\n\nIf four workers all thrash the same CPU-heavy ranking with shared mutable state, you get bugs and little speedup (Python GIL + race conditions).\n\nRules for this platform:\n• EXTRACT connectors: parallel OK (bound the pool, e.g. max_workers=4).\n• TRANSFORM / Bayes ranking: serial, deterministic.\n• ADMISSION: only N diagnoses in flight (semaphore / Redis counter) so Neo4j is not crushed.",
+  "one_liner": "Parallel I/O with a bound; serial transform; limit in-flight diagnoses.",
+  "why_it_matters": [
+    "Connector fan-out is mostly waiting on network.",
+    "Unbounded threads open too many DB sessions under load.",
+    "Admission control protects p99 latency."
+  ],
+  "say_aloud": [
+    "I parallelize independent I/O, not the core ranking math.",
+    "ThreadPoolExecutor needs max_workers — never unbounded.",
+    "Admission control caps concurrent expensive diagnose calls.",
+    "Shared mutable state across threads needs locks or immutability."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "I/O bound",
+      "meaning": "Time spent waiting (network/disk) — threads help"
+    },
+    {
+      "term": "CPU bound",
+      "meaning": "Heavy compute — threads help less in CPython"
+    },
+    {
+      "term": "max_workers",
+      "meaning": "Ceiling on parallel tasks"
+    },
+    {
+      "term": "Admission control",
+      "meaning": "Max in-flight expensive requests"
+    },
+    {
+      "term": "Semaphore",
+      "meaning": "Counter that blocks when full"
+    },
+    {
+      "term": "GIL",
+      "meaning": "CPython lock — pure-Python CPU parallelism limited"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "thread-pool",
+      "title": "Parallel extract with a bound",
+      "language": "python",
+      "goal": "Write ThreadPoolExecutor map with max_workers.",
+      "narrative": "Four connectors fetch at once; results collected; then serial build.",
+      "code": "from concurrent.futures import ThreadPoolExecutor\n\ndef fetch_all(fetch_fns: list, max_workers: int = 4) -> list:\n    # Bound the pool — protects sockets and the source systems\n    with ThreadPoolExecutor(max_workers=max_workers) as pool:\n        return list(pool.map(lambda fn: fn(), fetch_fns))\n\nrecords = fetch_all([fetch_pim, fetch_fsm, fetch_claims, fetch_crm])\ncatalog = build_abox_serial(records)   # serial on purpose",
+      "say_after": "map runs functions concurrently; build stays single-threaded.",
+      "annotations": [
+        {
+          "line": 5,
+          "note": "Context manager shuts workers down cleanly."
+        },
+        {
+          "line": 6,
+          "note": "max_workers is the safety rail."
+        },
+        {
+          "line": 9,
+          "note": "Deterministic merge after all I/O returns."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 6,
+          "prompt": "Why set max_workers?",
+          "answer": "Bound concurrency — avoid storms",
+          "choices": [
+            "Bound concurrency — avoid storms",
+            "Python requires exactly 4",
+            "Disables the GIL",
+            "Only for Cypher"
+          ],
+          "why": "Unbounded pools exhaust FDs and backends."
+        }
+      ],
+      "fill_blanks": {
+        "template": "with ThreadPoolExecutor(max_workers={{n}}) as pool:\n    return list(pool.{{m}}(lambda fn: fn(), fetch_fns))",
+        "blanks": [
+          {
+            "id": "n",
+            "answer": "4",
+            "hint": "small integer bound"
+          },
+          {
+            "id": "m",
+            "answer": "map",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": [
+        "GOTCHA: CPython's GIL means threads help I/O-bound waits, NOT CPU-bound work — use processes for CPU parallelism (Python docs).",
+        "TRICK: parallel EXTRACT (I/O) is safe; parallel TRANSFORM often isn't — shared mutable state races.",
+        "TRICK: prefer concurrent.futures ThreadPoolExecutor.map over manual threads; always cap max_workers."
+      ]
+    },
+    {
+      "id": "admission",
+      "title": "Admission: only N diagnoses at once",
+      "language": "python",
+      "goal": "Explain acquire/release around expensive work.",
+      "narrative": "Like a nightclub bouncer: capacity 32.",
+      "code": "# conceptual — matches ConcurrencyLimiter idea\nclass Admission:\n    def __init__(self, max_in_flight=32):\n        self.max_in_flight = max_in_flight\n        self._in_flight = 0\n\n    def run(self, fn):\n        if self._in_flight >= self.max_in_flight:\n            raise RuntimeError(\"busy — retry later\")  # HTTP 429/503\n        self._in_flight += 1\n        try:\n            return fn()\n        finally:\n            self._in_flight -= 1  # always release",
+      "say_after": "Always release in finally so a crash does not leak a slot.",
+      "annotations": [
+        {
+          "line": 7,
+          "note": "Reject when full — backpressure."
+        },
+        {
+          "line": 11,
+          "note": "finally releases even on exception."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 11,
+          "prompt": "Why finally?",
+          "answer": "Release slot even if fn raises",
+          "choices": [
+            "Release slot even if fn raises",
+            "Faster CPU",
+            "Required by Neo4j",
+            "Disables cache"
+          ],
+          "why": "Otherwise in_flight leaks and system stays 'full'."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Parallel extract",
+      "definition": "Fetch independent sources concurrently.",
+      "analogy": "",
+      "say_aloud": "I/O fan-out with a worker ceiling."
+    },
+    {
+      "term": "Serial transform",
+      "definition": "Build ABox and rank deterministically in one flow.",
+      "analogy": "",
+      "say_aloud": "No race conditions in confidence merges."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Parallelize extract or Bayes?",
+      "a": "Extract (I/O). Keep Bayes/transform serial.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "What is admission control?",
+      "a": "Cap in-flight expensive requests.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Why max_workers?",
+      "a": "Bound resource use.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Spawning a thread per HTTP request without a pool.",
+    "Sharing a non-thread-safe dict across workers without locks."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Write ThreadPoolExecutor fetch_all from memory.",
+    "Explain GIL in one honest sentence.",
+    "Describe diagnose admission in 15 seconds."
+  ],
+  "source": "seed",
+  "order": 50,
+  "estimated_minutes": 25,
+  "grounded": true
+}

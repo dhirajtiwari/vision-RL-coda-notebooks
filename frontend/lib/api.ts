@@ -103,4 +103,31 @@ export const api = {
       body: JSON.stringify(body),
     }),
   studyReseed: () => fetchJson<any>("/study/reseed", { method: "POST" }),
+  studyFlashcards: (params?: { track?: string; tag?: string; kind?: string; q?: string }) => {
+    const sp = new URLSearchParams();
+    if (params?.track) sp.set("track", params.track);
+    if (params?.tag) sp.set("tag", params.tag);
+    if (params?.kind) sp.set("kind", params.kind);
+    if (params?.q) sp.set("q", params.q);
+    const qs = sp.toString();
+    return fetchJson<{ count: number; filters: any; cards: any[] }>(
+      `/study/flashcards${qs ? `?${qs}` : ""}`,
+    );
+  },
+  studyFlashcard: (id: string) => fetchJson<any>(`/study/flashcards/${encodeURIComponent(id)}`),
+  // Spaced repetition (SM-2) + progress dashboard
+  studyReviewDue: (clientKey = "local", limit = 40) =>
+    fetchJson<any>(
+      `/study/review/due?client_key=${encodeURIComponent(clientKey)}&limit=${limit}`,
+    ),
+  studyReviewGrade: (body: { client_key?: string; item_key: string; quality: string }) =>
+    fetchJson<any>("/study/review/grade", { method: "POST", body: JSON.stringify(body) }),
+  studyDashboard: (clientKey = "local") =>
+    fetchJson<any>(`/study/dashboard?client_key=${encodeURIComponent(clientKey)}`),
+  studyLibrary: () => fetchJson<any>("/study/library"),
+  studyMasterclasses: () => fetchJson<any>("/study/masterclasses"),
+  studyMasterclass: (id: string) =>
+    fetchJson<any>(`/study/masterclasses/${encodeURIComponent(id)}`),
+  studyMasterclassCards: (id: string) =>
+    fetchJson<any>(`/study/masterclasses/${encodeURIComponent(id)}/cards`),
 };

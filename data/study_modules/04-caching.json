@@ -1,0 +1,210 @@
+{
+  "id": "04-caching",
+  "title": "4. Caching — remember the answer for a short time",
+  "description": "What to cache, how to key it, when to kill it. Memory vs Redis.",
+  "tags": [
+    "cache",
+    "redis",
+    "ttl",
+    "performance"
+  ],
+  "track": "runtime",
+  "story": "Caching means: if we already computed something expensive and nothing important changed, return the saved answer instead of hitting Neo4j again.\n\nThree rules:\n1. KEY must include every input that changes the answer.\n2. TTL (time-to-live) limits how old the answer can be.\n3. INVALIDATE when the graph is reloaded — otherwise users see ghosts.\n\nOne cashier: a notepad (in-process memory) is enough.\nTen cashiers (API replicas): they need one shared whiteboard (Redis), or each has a different notepad and rate limits lie.",
+  "one_liner": "Key correctly, expire with TTL, invalidate on promote; Redis when multi-pod.",
+  "why_it_matters": [
+    "Ontology and product subgraphs are hot reads.",
+    "Wrong keys cause silent wrong answers or privacy leaks.",
+    "Multi-replica without Redis = divergent limits and caches."
+  ],
+  "say_aloud": [
+    "A cache key must include every input that changes the result.",
+    "TTL is how long we trust a cached value.",
+    "After promote or graph load I invalidate named caches.",
+    "Empty REDIS_URL means in-process memory; multi-pod needs Redis.",
+    "I do not blindly cache free-text diagnosis without a strong key."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "Hit",
+      "meaning": "Answer found in cache"
+    },
+    {
+      "term": "Miss",
+      "meaning": "Must compute + set"
+    },
+    {
+      "term": "TTL",
+      "meaning": "Seconds until entry expires"
+    },
+    {
+      "term": "Named cache",
+      "meaning": "e.g. ontology, subgraph, diagnose"
+    },
+    {
+      "term": "Invalidate",
+      "meaning": "Delete entries after data change"
+    },
+    {
+      "term": "Memory backend",
+      "meaning": "Per process — demo/single node"
+    },
+    {
+      "term": "Redis backend",
+      "meaning": "Shared across API pods"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "get-or-set",
+      "title": "Pattern: get → compute → set",
+      "language": "python",
+      "goal": "Write the 6-line cache pattern from memory.",
+      "narrative": "This is the entire idea.",
+      "code": "def cached_get(cache, key, compute, ttl_seconds=60):\n    hit = cache.get(key)\n    if hit is not None:\n        return hit                  # HIT\n    value = compute()               # MISS — do the real work\n    cache.set(key, value, ttl_seconds=ttl_seconds)\n    return value\n\n# Good key: every input that changes the answer\nkey = f\"subgraph:{tenant}:{product_id}\"\n\n# After ETL / promote\n# invalidate_all_named_caches()",
+      "say_after": "Hit returns early. Miss computes once then stores.",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Look up first."
+        },
+        {
+          "line": 5,
+          "note": "Only on miss do we pay Neo4j cost."
+        },
+        {
+          "line": 6,
+          "note": "Store with TTL."
+        },
+        {
+          "line": 10,
+          "note": "Key composition is the hard part."
+        },
+        {
+          "line": 13,
+          "note": "Invalidation is mandatory after graph writes."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 10,
+          "prompt": "What must a good cache key include?",
+          "answer": "Every input that changes the answer",
+          "choices": [
+            "Every input that changes the answer",
+            "Only the current hour",
+            "A random UUID always",
+            "Just the word cache"
+          ],
+          "why": "Missing product_id ⇒ wrong product subgraph."
+        }
+      ],
+      "fill_blanks": {
+        "template": "hit = cache.{{g}}(key)\nif hit is not None:\n    return hit\nvalue = compute()\ncache.{{s}}(key, value, ttl_seconds=60)",
+        "blanks": [
+          {
+            "id": "g",
+            "answer": "get",
+            "hint": ""
+          },
+          {
+            "id": "s",
+            "answer": "set",
+            "hint": ""
+          }
+        ]
+      },
+      "pro_tips": [
+        "TRICK: cache-aside = get → miss → compute → set with a TTL; the hard part is invalidation, not lookup.",
+        "GOTCHA: only cache DETERMINISTIC, non-personalized reads — caching per-user results can leak data.",
+        "TRICK: for a pure function in-process, @lru_cache(maxsize=N) is the simplest correct cache (Python docs)."
+      ]
+    },
+    {
+      "id": "what-we-cache",
+      "title": "What this platform caches (as-built idea)",
+      "language": "text",
+      "goal": "Know three named hot paths.",
+      "narrative": "Concrete numbers help interviews.",
+      "code": "ontology schema     TTL ~ 300s   (changes rarely)\nproduct subgraph    TTL ~ 60s    (explorer / neighborhood)\ndiagnose result     TTL ~ 90s    (optional; key must be strong)\n\nNOT a free lunch:\n  - free-text diagnosis without product+symptoms+tenant in the key\n  - caching across promote without invalidation",
+      "say_after": "Stable reads yes; careless personalization no.",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "Schema is hot and stable."
+        },
+        {
+          "line": 6,
+          "note": "Danger zone."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 3,
+          "prompt": "Approx diagnose cache TTL in this platform?",
+          "answer": "~90 seconds",
+          "choices": [
+            "~90 seconds",
+            "90 days",
+            "Never expires",
+            "1 millisecond"
+          ],
+          "why": "Short TTL limits staleness."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "TTL",
+      "definition": "Max age of a cached value.",
+      "analogy": "",
+      "say_aloud": "Time-to-live caps staleness."
+    },
+    {
+      "term": "Shared Redis cache",
+      "definition": "All API pods read/write the same keys.",
+      "analogy": "",
+      "say_aloud": "Multi-replica needs Redis for one truth."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Hit vs miss?",
+      "a": "Hit returns stored value; miss computes and sets.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "When invalidate?",
+      "a": "After graph load / promote / ETL that changes data.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Is Redis required for laptop demo?",
+      "a": "No — memory backend is fine single-node.",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Bad key example?",
+      "a": "key='diagnose' with no product/symptoms.",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Caching forever with no invalidation.",
+    "Different key formats for rate-limit vs cache (partition module fixes that)."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [],
+  "final_boss": [
+    "Write get/set cache function from blank page.",
+    "Design a diagnose cache key for tenant+product+symptoms.",
+    "Explain memory vs Redis in one sentence each."
+  ],
+  "source": "seed",
+  "order": 40,
+  "estimated_minutes": 25,
+  "grounded": true
+}

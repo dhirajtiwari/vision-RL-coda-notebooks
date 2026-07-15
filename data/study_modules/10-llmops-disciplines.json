@@ -1,0 +1,141 @@
+{
+  "id": "10-llmops-disciplines",
+  "title": "10. LLMOps — disciplines map (this repo)",
+  "description": "Deterministic GraphRAG core + optional LLM path; enforce quality outside the model.",
+  "tags": [
+    "llmops",
+    "gateway",
+    "guardrails",
+    "promptops"
+  ],
+  "track": "llmops",
+  "story": "LLMOps is not 'call OpenAI from a script.' It is the operating system around models:\nversioned prompts, model registry, guardrails, evals, budgets, observability, and CI gates.\n\nTHIS APP (ADR 0001):\n• Core diagnosis is deterministic GraphRAG + FMEA/Bayes — NOT free-form LLM reasoning.\n• LLM path is READY-BUT-INACTIVE (llm_enabled=false by default) for wording/gateway.\n• Security and quality live in code (guardrails/, evals/, finops/), not in 'please be safe' prompts alone.\n\nPackages: guardrails/, evals/, observability/, gateway/, prompts/, finops/, docs/sdd/09-PLATFORM-LLMOPS.md",
+  "one_liner": "GraphRAG primary; LLM optional; enforce outside the model; version artifacts; gate with evals.",
+  "why_it_matters": [
+    "Warranty answers must be auditable and reproducible.",
+    "Optional LLM still needs budgets, rate limits, and redaction.",
+    "Interviews: know discipline map + as-built status ACTIVE vs READY."
+  ],
+  "say_aloud": [
+    "Primary diagnose path does not require an LLM.",
+    "LLM_ENABLED defaults to false; gateway and PromptOps are ready-but-inactive.",
+    "Guardrails and evals enforce quality outside the model.",
+    "Prompts and model aliases are versioned git artifacts."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "ACTIVE",
+      "meaning": "Wired and on by default (obs, guardrails, eval smoke)"
+    },
+    {
+      "term": "READY inactive",
+      "meaning": "Code present; off until flag (gateway, PromptOps)"
+    },
+    {
+      "term": "PromptOps",
+      "meaning": "Versioned prompts under prompts/ + schema"
+    },
+    {
+      "term": "Model registry",
+      "meaning": "models/registry.yaml pinned aliases"
+    },
+    {
+      "term": "Guardrails",
+      "meaning": "input/output/action/rate — guardrails/"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "discipline-map",
+      "title": "Discipline → package (memorize)",
+      "language": "text",
+      "goal": "Map each discipline to a folder.",
+      "narrative": "Interview gold: status + path.",
+      "code": "Observability   ACTIVE     observability/ + /metrics + OTEL opt-in\nGuardrails      ACTIVE     guardrails/\nEvalOps         ACTIVE     evals/ + thresholds.yaml\nSecurity docs   ACTIVE     security/ + OWASP LLM mapping\nGateway/ModelOps READY     gateway/ + models/registry.yaml\nPromptOps       READY      prompts/ + promptops/\nFinOps          READY path finops/budget.py (trips when LLM spends)\nRAGOps (graph)  ACTIVE     graph/ GraphRAG (not vector-only RAG)\nCI/CD           ACTIVE     .github/workflows/ci.yml + cd.yml\nProgressive del WIRED      deploy/rollouts/ + eval-gate\nIaC             SCAFFOLD   infra/terraform/",
+      "say_after": "ACTIVE vs READY is the honesty test.",
+      "annotations": [
+        {
+          "line": 1,
+          "note": "Always-on telemetry path."
+        },
+        {
+          "line": 5,
+          "note": "Off until llm_enabled."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 5,
+          "prompt": "Is the model gateway on by default?",
+          "answer": "No — READY but inactive until llm_enabled",
+          "choices": [
+            "No — READY but inactive until llm_enabled",
+            "Always on",
+            "Only in Neo4j",
+            "Only in Redis"
+          ],
+          "why": "Defaults protect cost and determinism."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Enforce outside the model",
+      "definition": "Filters, budgets, auth, and evals in software — not prompt-only hope.",
+      "analogy": "",
+      "say_aloud": "Never rely on the model alone for safety or budget."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Default llm_enabled?",
+      "a": "false",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Where are eval floors?",
+      "a": "evals/thresholds.yaml",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Primary diagnosis engine?",
+      "a": "Neo4j GraphRAG + FMEA/Bayes",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Calling this product an LLM chatbot as the core engine."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "docs/sdd/09-PLATFORM-LLMOPS.md (code-true map)",
+      "url": "",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Use SDD 09 + AS_BUILT, not the whole handbook every session.",
+      "why": "",
+      "level": "core"
+    },
+    {
+      "title": "ADR 0001 adopt LLMOps disciplines",
+      "url": "",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Deterministic core + optional LLM + gate non-determinism.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Recite ACTIVE vs READY disciplines with paths."
+  ],
+  "source": "seed",
+  "order": 100,
+  "estimated_minutes": 25,
+  "grounded": true
+}

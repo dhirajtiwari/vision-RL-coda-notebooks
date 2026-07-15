@@ -1,0 +1,135 @@
+{
+  "id": "11-observability-monitoring",
+  "title": "11. Observability & monitoring — logs, metrics, traces",
+  "description": "JSON logs, Prometheus /metrics, OTEL opt-in, Grafana/Prometheus compose.",
+  "tags": [
+    "observability",
+    "prometheus",
+    "otel",
+    "sre"
+  ],
+  "track": "observability",
+  "story": "Observability answers: what is broken, where, and why — from signals the system emits.\n\nThree pillars (industry):\n• LOGS — structured JSON events with request_id (observability/logging_setup.py)\n• METRICS — counters/histograms on /metrics when enable_prometheus_metrics=true\n• TRACES — OpenTelemetry spans when otel_enabled=true (default false in demo)\n\nConfigs: monitoring/prometheus/, grafana provisioning, docker-compose.observability.yaml, k8s/monitoring/.\nClaim 'observability is done' only when scrape + dashboard + alerts are real.",
+  "one_liner": "Logs + Prometheus metrics + optional OTEL; prove with scrape targets and alerts.",
+  "why_it_matters": [
+    "Diagnose/promote latency and error rates need numbers.",
+    "PII redaction in logs is a security requirement."
+  ],
+  "say_aloud": [
+    "We emit JSON logs with request correlation ids.",
+    "Prometheus scrapes /metrics when metrics are enabled.",
+    "OTEL is opt-in via otel_enabled.",
+    "A metrics endpoint without scrape config is only a stub."
+  ],
+  "cheat_sheet": [
+    {
+      "term": "RED",
+      "meaning": "Rate, Errors, Duration — service metrics"
+    },
+    {
+      "term": "USE",
+      "meaning": "Utilization, Saturation, Errors — resources"
+    },
+    {
+      "term": "SLI/SLO",
+      "meaning": "Indicator / objective for reliability"
+    },
+    {
+      "term": "request_id",
+      "meaning": "Correlation across log lines"
+    },
+    {
+      "term": "otlp",
+      "meaning": "OpenTelemetry protocol export"
+    }
+  ],
+  "change_table": [],
+  "beats": [
+    {
+      "id": "metrics-path",
+      "title": "Metrics endpoint pattern",
+      "language": "python",
+      "goal": "Know where metrics live.",
+      "narrative": "FastAPI exposes /metrics when enabled.",
+      "code": "# conceptual — api/main.py + observability/metrics.py\n@app.get(\"/metrics\")\ndef metrics():\n    if not settings.enable_prometheus_metrics:\n        return Response(status_code=404)\n    return Response(render_latest_metrics(), media_type=METRICS_CONTENT_TYPE)\n\n# Compose: monitoring/prometheus/prometheus.yml scrapes diagnostics-api:8080\n# Alerts: monitoring/prometheus/rules/slo-alerts.yaml",
+      "say_after": "Enable metrics, scrape them, alert on SLOs.",
+      "annotations": [
+        {
+          "line": 2,
+          "note": "Feature flag."
+        },
+        {
+          "line": 7,
+          "note": "Scrape config is the proof."
+        }
+      ],
+      "line_quiz": [
+        {
+          "line": 3,
+          "prompt": "What if metrics disabled?",
+          "answer": "Return 404 / no metrics",
+          "choices": [
+            "Return 404 / no metrics",
+            "Crash Neo4j",
+            "Always 200 empty",
+            "Write Turtle"
+          ],
+          "why": "Flag controls export surface."
+        }
+      ],
+      "fill_blanks": null,
+      "pro_tips": []
+    }
+  ],
+  "concepts": [
+    {
+      "term": "Three pillars",
+      "definition": "Logs, metrics, traces.",
+      "analogy": "",
+      "say_aloud": "Logs for events, metrics for aggregates, traces for request paths."
+    }
+  ],
+  "self_quiz": [
+    {
+      "q": "Default otel_enabled?",
+      "a": "false (opt-in)",
+      "difficulty": "medium"
+    },
+    {
+      "q": "Where are alert rules?",
+      "a": "monitoring/prometheus/rules/ or alerts.yaml",
+      "difficulty": "medium"
+    }
+  ],
+  "common_mistakes": [
+    "Assuming /metrics alone means production monitoring."
+  ],
+  "python_cheatsheet": [],
+  "further_reading": [
+    {
+      "title": "OpenTelemetry docs",
+      "url": "https://opentelemetry.io/docs/",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Vendor-neutral traces/metrics/logs.",
+      "why": "",
+      "level": "core"
+    },
+    {
+      "title": "Google SRE Book — Monitoring Distributed Systems",
+      "url": "https://sre.google/sre-book/monitoring-distributed-systems/",
+      "author": "",
+      "kind": "docs",
+      "takeaway": "Four golden signals / practical monitoring.",
+      "why": "",
+      "level": "core"
+    }
+  ],
+  "final_boss": [
+    "Draw log → metrics → trace path for one /diagnose request."
+  ],
+  "source": "seed",
+  "order": 110,
+  "estimated_minutes": 25,
+  "grounded": true
+}
