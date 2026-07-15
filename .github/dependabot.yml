@@ -1,0 +1,29 @@
+# Dependabot — keeps GitHub Actions, Python, npm, and Docker base images current
+# and is the managed path toward SHA-pinning actions (kickoff prompt §M). Enable
+# `pin` reviews here rather than hand-editing 40-char SHAs across workflows.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: "/docker"
+    schedule:
+      interval: weekly

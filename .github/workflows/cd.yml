@@ -15,6 +15,14 @@ on:
         options:
           - staging
           - production
+      deploy_strategy:
+        description: Delivery strategy for production
+        required: false
+        default: rolling
+        type: choice
+        options:
+          - rolling
+          - canary   # Argo Rollouts progressive delivery with auto-rollback
 
 permissions:
   contents: read
@@ -24,7 +32,26 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
+  eval-gate:
+    # Re-run the DB-free safety + smoke eval gate before ANY deploy so a red
+    # eval never ships, even on a re-triggered CD (kickoff prompt §D/§N).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: Eval gate (safety always; golden auto-skips without a graph)
+        run: python evals/run_eval.py --suite smoke
+
   deploy-staging:
+    needs: [eval-gate]
     if: >
       (github.event_name == 'workflow_dispatch' && inputs.environment == 'staging') ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
@@ -85,6 +112,7 @@ jobs:
             curl -sf http://diagnostics-api:8080/health
 
   deploy-production:
+    needs: [eval-gate]
     if: github.event_name == 'workflow_dispatch' && inputs.environment == 'production'
     runs-on: ubuntu-latest
     environment: production
@@ -119,8 +147,23 @@ jobs:
             --from-literal=NEO4J_AUTH="neo4j/$NEO4J_PASSWORD" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Deploy production
+      - name: Deploy production (rolling)
+        if: ${{ inputs.deploy_strategy != 'canary' }}
         run: kubectl apply -k k8s/overlays/prod
+
+      - name: Deploy production (Argo Rollouts canary)
+        # Opt-in progressive delivery: the controller shifts 20%→50%→100% while
+        # the AnalysisTemplate gates on error rate, p95 latency, AND median
+        # diagnosis confidence, auto-rolling-back on any breach (kickoff §N).
+        # Requires the Argo Rollouts controller + kube-prometheus-stack.
+        if: ${{ inputs.deploy_strategy == 'canary' }}
+        run: |
+          # Point the canary Rollout at this build's image tag and the prod namespace.
+          sed -i "s|@sha256:REPLACE_WITH_DIGEST|:${{ github.sha }}|" deploy/rollouts/argo-rollout.yaml
+          sed -i "s|namespace: diagnostics$|namespace: diagnostics-prod|" deploy/rollouts/argo-rollout.yaml
+          kubectl apply -f deploy/rollouts/argo-rollout.yaml
+          # Enforce that only cosign-signed images can run (admission policy).
+          kubectl apply -f deploy/policy/verify-images.yaml || echo "::warning::image-verify policy needs Kyverno/Gatekeeper installed"
 
       - name: Wait for rollouts
         run: |

@@ -1,0 +1,13 @@
+{"message": "Washing machine does not spin during the final cycle", "expected_product": "wm-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "medium", "expected_escalated": false}
+{"message": "Washer will not drain and water stays in the drum", "expected_product": "wm-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "medium", "expected_escalated": false}
+{"message": "Washer makes a loud banging noise and will not spin", "expected_product": "wm-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "medium", "expected_escalated": false}
+{"message": "Dishwasher leaves dishes wet and cold after the cycle", "expected_product": "dw-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "low", "expected_escalated": false}
+{"message": "Dishwasher is not draining and water pools at the bottom", "expected_product": "dw-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "medium", "expected_escalated": false}
+{"message": "Microwave runs but food stays cold with arcing inside", "expected_product": "mw-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "critical", "expected_escalated": false}
+{"message": "Microwave hums loudly but does not heat the food", "expected_product": "mw-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "medium", "expected_escalated": false}
+{"message": "Ice maker has stopped producing any ice", "expected_product": "ice-001", "min_confidence": 0.40, "capability": "diagnosis", "risk": "low", "expected_escalated": false}
+{"message": "Ice cubes come out small and hollow from the ice maker", "expected_product": "ice-001", "min_confidence": 0.60, "capability": "diagnosis", "risk": "low", "expected_escalated": false}
+{"message": "FrostBite ice maker is leaking water onto the floor", "expected_product": "ice-001", "min_confidence": 0.50, "capability": "diagnosis", "risk": "medium", "expected_escalated": false}
+{"message": "Washing machine leaks water from the bottom near the door", "expected_product": "wm-001", "min_confidence": 0.0, "capability": "product_routing", "risk": "low", "expected_escalated": true}
+{"message": "Dishwasher does not clean the dishes properly", "expected_product": "dw-001", "min_confidence": 0.0, "capability": "product_routing", "risk": "low", "expected_escalated": true}
+{"message": "Microwave sparks and arcs when heating food", "expected_product": "mw-001", "min_confidence": 0.0, "capability": "product_routing", "risk": "critical", "expected_escalated": true}

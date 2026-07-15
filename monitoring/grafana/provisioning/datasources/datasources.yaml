@@ -1,0 +1,22 @@
+# Grafana datasource provisioning (kickoff prompt §H).
+# Auto-wires Prometheus (metrics) and Tempo (traces) so dashboards work on first
+# boot with no manual clicks.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    jsonData:
+      timeInterval: 15s
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    jsonData:
+      httpMethod: GET
+      # Correlate traces <-> metrics/logs when exemplars are present.
+      tracesToMetrics:
+        datasourceUid: prometheus

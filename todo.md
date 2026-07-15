@@ -92,16 +92,38 @@ Use these as **defensible** design choices, not magic constants.
 - [x] ETL batch lineage JSONL (`utils/lineage_store.py`)
 - [x] Honest demo labeling (simulated fixtures, not fake live SAP)
 
-### 1.7 LLMOps disciplines (platform) `[x]` / `[~]`
+### 1.7 LLMOps disciplines (platform) `[x]` / `[~]` / `[ ]`
+
+**Built (deterministic-core LLMOps shape):**
 
 - [x] PromptOps — versioned prompts under `prompts/`
 - [x] EvalOps — golden + safety suites + thresholds (`evals/`)
 - [x] Guardrails — input/output/action/rate limit
 - [x] FinOps — daily budget circuit breaker
-- [x] Model gateway — alias → provider, retry/fallback (inactive by default)
+- [x] Model gateway — alias → provider, retry/fallback, budget-check + metering (inactive by default)
 - [x] Observability — JSON logs, Prometheus metrics, optional OTEL
 - [x] ADR + handbook + runbooks + model card
 - [~] Full production OIDC multi-tenant SaaS auth — **not** productized
+
+**Critical gaps vs 2025/2026 authoritative practice (honest `[ ]` — mostly relevant only when `LLM_ENABLED=true` or the agent path is exercised):**
+
+- [ ] **EvalOps — LLM output quality.** No groundedness/faithfulness gate on the LLM rewriter output (answer must be supported by graph evidence) — the eval gate only tests the deterministic engine. Add when LLM formatting is on. *(kickoff §D; handbook ch04)*
+- [ ] **EvalOps — judge calibration.** No LLM-as-judge meta-eval (agreement vs human labels, position/verbosity/self-preference bias, variance). An uncalibrated judge is not a gate. *(§D)*
+- [ ] **EvalOps — agent trajectory evals.** LangGraph agent has no tool-selection / argument / step-count / goal-completion evals — only end-state is tested. *(§D)*
+- [ ] **EvalOps — determinism & contamination controls.** Pin judge/model version + temperature 0 / fixed seed for reproducible gates; assert hold-out cases never leak into prompts/few-shot. *(§D)*
+- [ ] **EvalOps — fairness/bias per segment.** No per-tenant/locale quality slicing (NIST AI RMF: valid, reliable, fair with harmful bias managed). *(§I/§K)*
+- [ ] **EvalOps — online eval loop.** No production sampling + user-feedback → quality dashboard → rollback gate; incidents don't yet auto-feed the golden set. *(§D/§O)*
+- [ ] **Guardrails — injection defense-in-depth.** Regex/token blocks only; missing spotlighting/delimiting of untrusted content, planner/data privilege separation (dual-LLM), and output-side injection detection. Retrieved docs + tool outputs must be treated as untrusted. *(§E; OWASP LLM01)*
+- [ ] **Guardrails — structured output.** No constrained-decoding / JSON-schema enforcement on LLM output. *(§E)*
+- [ ] **Red-team depth.** `evals/safety/injection.jsonl` is ~5 cases; expand to multi-turn, indirect (RAG-borne) injection, system-prompt-leak (LLM07), and data-exfil attempts. *(§D/§J)*
+- [ ] **Security — OWASP LLM Top 10 (2025) re-map.** Threat model references generic LLM01–10; re-map to the 2025 list (LLM07 System-Prompt Leakage, LLM08 Vector/Embedding Weaknesses, LLM09 Misinformation, LLM10 Unbounded Consumption). *(§J)*
+- [ ] **Security — agentic threats.** No OWASP Agentic AI Threats & Mitigations / MITRE ATLAS mapping for the LangGraph agent (memory poisoning, tool misuse, excessive-agency cascade). *(§J)*
+- [ ] **Security — provider data controls.** No documented zero-retention / no-train + residency + sub-processor list for the OpenAI/Azure path. *(§J)*
+- [ ] **Governance — AI-BOM.** No AI Bill of Materials inventorying every model, embedding model, prompt, dataset, and judge with owner/version/provenance (anti "shadow AI"). *(§K)*
+- [ ] **Governance — EU AI Act specifics.** Human-oversight design (Art. 14: override/stop + automation-bias countermeasures) and serious-incident reporting procedure (Art. 73 timelines) not yet documented as owned procedures. *(§K)*
+- [ ] **Governance — content provenance.** No AI-generated-content labeling / provenance credential (C2PA-style) on LLM-authored text. *(§K)*
+- [ ] **Runtime — cache trust boundary.** Confirm diagnose/retrieval cache keys include tenant + ACL scope so completions never leak across tenants. *(§C; runtime/diagnose_cache.py)*
+- [ ] **Metric catalog.** Add groundedness, retrieval recall@k / context precision, injection-block rate, cost-per-resolved-request, and per-segment quality as first-class metrics reused across eval gates + SLOs + canary. *(§I)*
 
 ### 1.8 Systems theory (scale) `[x]`
 

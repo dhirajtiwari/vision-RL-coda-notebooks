@@ -11,12 +11,39 @@ spec:
     metadata:
       labels:
         app: diagnostics-api
+      annotations:
+        # Fallback scraping for annotation-based Prometheus setups. With the
+        # Prometheus Operator, the ServiceMonitor in k8s/monitoring/ is preferred.
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: /metrics
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: diagnostics-api
           image: ghcr.io/OWNER/REPO-diagnostics-api:latest
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+              ephemeral-storage: 256Mi
+            limits:
+              memory: 512Mi
+              ephemeral-storage: 1Gi
           envFrom:
             - configMapRef:
                 name: diagnostics-config
@@ -29,6 +56,8 @@ spec:
           volumeMounts:
             - name: enterprise-data
               mountPath: /app/data
+            - name: tmp
+              mountPath: /tmp
           readinessProbe:
             httpGet:
               path: /health
@@ -45,3 +74,5 @@ spec:
         - name: enterprise-data
           persistentVolumeClaim:
             claimName: enterprise-data
+        - name: tmp
+          emptyDir: {}

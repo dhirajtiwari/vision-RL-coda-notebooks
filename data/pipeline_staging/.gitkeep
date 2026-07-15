@@ -1,0 +1,3 @@
+# Keep the pipeline_staging directory in git while ignoring volatile run-*.json
+# outputs (see .gitignore). The control plane recreates this dir at runtime, but
+# committing .gitkeep keeps the path present on a fresh clone.

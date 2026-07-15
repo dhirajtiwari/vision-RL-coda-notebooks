@@ -1,0 +1,20 @@
+# Kustomize bundle for the production monitoring layer (kickoff §H/§I/§O).
+#
+#   kubectl apply -k k8s/monitoring
+#
+# Prereqs: kube-prometheus-stack installed in the `monitoring` namespace (see the
+# comment in servicemonitor.yaml). The Grafana sidecar auto-imports any ConfigMap
+# labelled grafana_dashboard=1, so the existing dashboard JSON is loaded without
+# manual steps — mirroring the local Grafana provisioning in docker/.
+namespace: monitoring
+resources:
+  - servicemonitor.yaml
+  - prometheusrule.yaml
+configMapGenerator:
+  - name: diagnostics-grafana-dashboards
+    files:
+      - ../../monitoring/grafana/dashboards/diagnostics-overview.json
+generatorOptions:
+  labels:
+    grafana_dashboard: "1"
+  disableNameSuffixHash: true

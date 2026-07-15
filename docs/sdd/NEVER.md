@@ -50,3 +50,7 @@ Keep this file short. New paid lessons → add a bullet **the same week**.
 - NEVER activate production LLM path without FinOps budget breaker + metering wired.
 - NEVER dump the entire `docs/llmops-handbook/` into agent context — load `09-PLATFORM-LLMOPS.md` + one chapter if needed.
 - NEVER treat progressive-delivery / Terraform scaffolds as “live multi-cluster prod” without evidence.
+- NEVER call a `/metrics` endpoint “observability” — it is not done until a **scrape config** collects it and a **dashboard** shows it with targets `up`. Prove it (targets healthy), don’t assume it.
+- NEVER author eval floors (`min_confidence` / thresholds) by guessing — **calibrate** against the real engine’s measured output, set the floor **below** measured, keep `safety_pass = 1.0`.
+- NEVER add a red-team safety case you have not verified the guardrail actually blocks; NEVER add a guardrail pattern without re-checking benign inputs still pass (**zero false positives**).
+- NEVER `docker push` / publish a container image without a **vulnerability scan** (fail HIGH/CRITICAL), an **SBOM + provenance**, and a **signature** (cosign) — unscanned/unsigned images are a supply-chain defect.

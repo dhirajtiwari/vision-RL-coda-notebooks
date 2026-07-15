@@ -20,12 +20,14 @@
 - [ ] Env separates `NEO4J_URI` (prod) vs `NEO4J_STAGING_URI` (staging)
 - [ ] API `/health` green when graphs up
 - [ ] Secrets not hardcoded for shared deploys (local demo passwords OK only if labeled)
+- [ ] **Observability stack wired + proven** (if observability is claimed active): `docker-compose.observability.yaml` brings up a collector + Prometheus (with a real `prometheus.yml` scrape config) + Grafana (provisioned datasources + dashboards). Verify targets `up` and rules load — an exposed `/metrics` is not enough (see `NEVER.md`, `09-PLATFORM-LLMOPS.md`).
 
 ## As-built map (this repo)
 
 - `docker/docker-compose.infra.yaml`
 - `docker/Dockerfile.api`, `Dockerfile.frontend`, `Dockerfile.etl`, `Dockerfile.mock`
-- Optional: `docker-compose.redis.yaml`, `docker-compose.observability.yaml`
+- Optional: `docker-compose.redis.yaml`, `docker-compose.observability.yaml` (Prometheus + Grafana + Tempo, provisioned)
+- Monitoring assets: `monitoring/prometheus/prometheus.yml` (+ `rules/`), `monitoring/grafana/provisioning/`, `monitoring/tempo/`
 - Settings: `config/settings.py`
 
 ## Exit (P0)

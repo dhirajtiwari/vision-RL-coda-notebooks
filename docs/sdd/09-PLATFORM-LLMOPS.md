@@ -29,8 +29,8 @@ Handbook is **project-agnostic**. Playbook is the **sequence**. **This SDD modul
 | PromptOps | ch02 | **READY** (inactive) | `promptops/`, `prompts/` (+ `_schema.json`) |
 | FinOps | ch06 | **READY** (inactive path) | `finops/budget.py` — wired when LLM calls happen |
 | RAGOps (graph) | ch03 adapted | **ACTIVE** as GraphRAG | `graph/`, dual Neo4j, provenance — not classic vector-only RAG |
-| CI/CD supply chain | ch13 | **PARTIAL→ACTIVE** | `.github/workflows/ci.yml`, `cd.yml`, `eval-nightly.yml` |
-| Progressive delivery | ch14 | **SCAFFOLD** | `deploy/rollouts/`, Flagger/Argo manifests (config-ready) |
+| CI/CD supply chain | ch13 | **ACTIVE** | `ci.yml` (secret scan, CodeQL, Trivy fs+image, SBOM+provenance, cosign sign), `cd.yml` (eval-gate → deploy), `.github/dependabot.yml` |
+| Progressive delivery | ch14 | **WIRED (needs cluster)** | `cd.yml` eval-gate + opt-in `deploy_strategy: canary` → `deploy/rollouts/` Argo analysis on quality metric + `deploy/policy/verify-images.yaml` |
 | Platform / IaC | ch12 | **SCAFFOLD** | `infra/terraform/` placeholders; runtime = Docker |
 
 ## Settings knobs (as-built defaults)
@@ -63,6 +63,27 @@ python evals/run_eval.py --suite full --report eval-report.json  # nightly / rel
 **NEVER** lower thresholds to go green — fix the regression.
 
 CI: `.github/workflows/ci.yml` runs eval smoke; `eval-nightly.yml` full gate.
+
+## Prove it, don't assume it (paid lessons)
+
+| Claim | Not done until… |
+|-------|----------------|
+| “Observability is active” | a **scrape config** collects `/metrics`, a **dashboard** renders it, and alert **rules load** — verify targets `up`. A `/metrics` endpoint alone is a stub. As-built: `monitoring/prometheus/prometheus.yml`, `monitoring/grafana/provisioning/`, `docker/docker-compose.observability.yaml`; prod: `k8s/monitoring/` (ServiceMonitor + PrometheusRule). |
+| “Eval floors are set” | floors are **calibrated** against the real engine (measure per-case confidence, floor **below** measured). Guessed floors are flaky or meaningless. |
+| “Guardrails block attacks” | you **red-teamed** them: probe with candidate attacks, close the gaps found, and confirm benign inputs still pass (**zero false positives**). Add each verified attack to `evals/safety/` by class. |
+| “Images are shippable” | scanned (fail HIGH/CRITICAL) + SBOM + signed (see `04-PLATFORM-CI.md`). |
+
+## 2025 authoritative deltas (greenfield must-consider)
+
+The kickoff contract (`docs/llmops-handbook/20-project-kickoff-prompt.md`) and `todo.md` §1.7 carry the current-standard items. When the LLM path or an agent is in scope, do **not** ship without deciding on each:
+
+- **Security:** map **OWASP LLM Top 10 (2025)** explicitly; for tool-using agents add **OWASP Agentic AI Threats** + **MITRE ATLAS**; document provider **zero-retention / no-train** + residency.
+- **EvalOps:** **groundedness/faithfulness** gate on any LLM output; **LLM-as-judge calibration** (agreement/bias/variance) before trusting a judge; **agent-trajectory** evals (tool choice/args/steps); contamination + determinism controls; per-segment fairness.
+- **Guardrails:** injection **defense-in-depth** (delimit/spotlight untrusted content, planner/data privilege separation, treat tool + retrieval output as untrusted); **structured/constrained output**.
+- **Governance:** maintain an **AI-BOM** (models, embeddings, prompts, datasets, judges); **EU AI Act Art. 14** human-oversight design + **Art. 73** serious-incident reporting procedure; content-provenance labeling (C2PA) where applicable.
+- **Runtime:** cache keys include **tenant + ACL scope** (no cross-tenant completion leakage).
+
+These are tracked as honest `[ ]` gaps in `todo.md` §1.7 — a greenfield fork inherits the checklist, not a false “done”.
 
 ## Tests that lock LLMOps
 
@@ -112,12 +133,14 @@ Do **not** claim live multi-cluster progressive delivery unless a real cluster i
 
 ## Exit gates
 
-- [ ] Guardrails block injection/jailbreak in tests
-- [ ] Eval smoke in CI; safety floor 1.0
+- [ ] Guardrails block injection/jailbreak in tests **and** were red-teamed (attacks blocked, benign pass, zero false positives)
+- [ ] Eval smoke in CI; safety floor 1.0; floors **calibrated** against the real engine
 - [ ] PII redaction on by default
-- [ ] Rate limit + metrics path live
+- [ ] Rate limit + metrics path live **and observability proven** (scrape + dashboard + rules load, targets up)
+- [ ] CI hardened: SAST + dep/IaC scan + image scan (fail HIGH/CRITICAL) + SBOM/provenance + cosign sign
+- [ ] CD gated by the eval gate; progressive-delivery path present (canary on a quality metric) — not claimed “live” without a cluster
 - [ ] LLM path off by default unless OVERRIDES says otherwise
 - [ ] Model registry rejects `latest` if gateway used
-- [ ] Threat model + OWASP map + system card present
+- [ ] Threat model + OWASP map + system card present; 2025 deltas (agentic/AI-BOM/EU AI Act/groundedness) triaged in `todo.md` §1.7
 - [ ] One runbook per alert class
 - [ ] Residual risks listed honestly (no fake compliance)

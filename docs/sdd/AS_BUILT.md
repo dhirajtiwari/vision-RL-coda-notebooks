@@ -16,7 +16,10 @@
 | Multi-source CI (`test_multi_source_tbox_abox`) | Implemented |
 | LLMOps Tier 1 (obs, guardrails, evals, security, runbooks) | Implemented |
 | LLMOps Tier 3 (gateway, PromptOps, FinOps) | **Ready-but-inactive** (`llm_enabled=false`) |
-| Progressive delivery / Terraform | Scaffold manifests/placeholders |
+| Observability stack (Prometheus scrape + Grafana + Tempo) | Implemented + **proven** (targets up, rules load) |
+| CI supply chain (Trivy scan + SBOM/provenance + cosign sign + CodeQL) | Implemented |
+| Progressive delivery | Eval-gate in CD + opt-in Argo canary manifests (needs cluster for live) |
+| Terraform / cloud landing zone | Scaffold placeholders |
 | OIDC / tenant ACL | **Not** productized |
 | Live enterprise SoR connectors | Fixtures + mock pattern only |
 | Async job queue | Not built (sync in API) |
@@ -64,7 +67,9 @@ Prove via `GET /health` → `runtime`.
 
 ## CI (as-built)
 
-- `.github/workflows/ci.yml` — secret scan, ruff, multi-source/TBox tests, pytest, eval smoke, frontend build, images
+- `.github/workflows/ci.yml` — secret scan (gitleaks), ruff, multi-source/TBox tests, pytest+coverage, eval smoke, frontend build; **CodeQL** SAST + **Trivy** fs/config scan; image build with **SBOM + provenance**, **Trivy image scan** (fail HIGH/CRITICAL), **cosign** keyless signing
+- `.github/dependabot.yml` — managed actions/pip/npm/docker updates
+- `.github/workflows/cd.yml` — **eval-gate** job before any deploy; rolling default, opt-in `deploy_strategy: canary` (Argo Rollouts + `deploy/policy/verify-images.yaml`)
 - Triggers: `main` and `feature/**`
 - Gate file: `tests/test_multi_source_tbox_abox.py`
 - Eval: `python evals/run_eval.py --suite smoke` in CI; full in `eval-nightly.yml`
@@ -74,16 +79,16 @@ Prove via `GET /health` → `runtime`.
 | Discipline | State | Path |
 |------------|-------|------|
 | Observability | ACTIVE | `observability/` — JSON logs, Prometheus, OTEL opt-in, redaction |
-| Guardrails | ACTIVE | `guardrails/` — input/output/action/rate; wired in `api/main.py` |
-| EvalOps | ACTIVE | `evals/` — golden smoke + safety injection; `thresholds.yaml` |
+| Guardrails | ACTIVE + **red-teamed** | `guardrails/` — input/output/action/rate; injection covers ignore/forget-instructions, role-injection, data/secret exfil, cypher; wired in `api/main.py` |
+| EvalOps | ACTIVE | `evals/` — golden smoke + **calibrated** `golden/diagnosis.jsonl` (13 cases) + safety injection (8 attack classes); `thresholds.yaml` |
 | FinOps | READY | `finops/budget.py` — daily USD budget when LLM called |
 | Gateway | READY inactive | `gateway/` + `models/registry.yaml` |
 | PromptOps | READY inactive | `promptops/` + `prompts/` |
 | Security docs | ACTIVE | `security/threat-model.md`, `owasp-llm-mapping.md` |
 | Governance | ACTIVE docs | `docs/governance/`, `docs/model-cards/system-card.md` |
 | Runbooks | ACTIVE | `docs/runbooks/*` (7) |
-| Monitoring configs | ACTIVE | `monitoring/` prometheus/grafana/otel-collector |
-| Handbook / playbook | Reference | `docs/llmops-handbook/` 00–21 + playbook |
+| Monitoring stack | ACTIVE + **wired** | `monitoring/prometheus/prometheus.yml` (scrape) + `rules/`, `monitoring/grafana/provisioning/` + dashboards, `monitoring/tempo/`, `otel-collector.yaml`; prod: `k8s/monitoring/` (ServiceMonitor + PrometheusRule) |
+| Handbook / playbook | Reference | `docs/llmops-handbook/` 00–21 + playbook (kickoff §A–O updated to OWASP 2025 / agentic / AI-BOM / EU AI Act) |
 | ADR | Accepted | `docs/adr/0001-adopt-llmops-disciplines.md` |
 
 **Defaults:** `llm_enabled=false`, `otel_enabled=false`, `enable_prometheus_metrics=true`, `enable_pii_redaction=true`, `rate_limit_per_minute=60`, `llm_cost_budget_usd_per_day=5.0`.
@@ -109,3 +114,6 @@ Do not tell buyers or agents these are done: OIDC multi-tenant ACL, live SAP/SFD
 | 2026-07 | Multi-source TBox/ABox packs, selection/promote UX, runtime health | feature branch LLMOps remote diagnostics |
 | 2026-07-11 | LLMOps disciplines folded into SDD kit (`09-PLATFORM-LLMOPS.md`) | Handbook/playbook/ADR/code inventory |
 | 2026-07-15 | Docs: patterns doc 24 + Master-This-Codebase interview narrative; non-claims expanded | docs-only alignment pass |
+| 2026-07-15 | Observability wired + proven (prometheus.yml scrape, Grafana provisioning, Tempo, `k8s/monitoring/`); CI hardened (CodeQL, Trivy fs+image, SBOM/provenance, cosign, dependabot); CD eval-gate + opt-in Argo canary | ci.yml, cd.yml, docker/compose obs, monitoring/, k8s/monitoring/ |
+| 2026-07-15 | Eval ground-truth: calibrated `golden/diagnosis.jsonl` + expanded `safety/injection.jsonl`; guardrail red-team closed forget-instructions/role-injection/exfil gaps (0 false positives) | evals/, guardrails/input.py |
+| 2026-07-15 | SDD kit updated for greenfield replication (NEVER/MUST/01/04/09/README); kickoff prompt + todo §1.7 aligned to 2025 authoritative practice | docs/sdd/, docs/llmops-handbook/20, todo.md |

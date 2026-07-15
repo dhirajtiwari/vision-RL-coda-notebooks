@@ -1,0 +1,28 @@
+# Minimal Grafana Tempo config for LOCAL traces (kickoff prompt §H).
+# Receives OTLP from the OTel Collector and stores traces on local disk so the
+# Grafana "Tempo" datasource can query them. Not for production (use a managed
+# Tempo/Jaeger there).
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+
+ingester:
+  max_block_duration: 5m
+
+compactor:
+  compaction:
+    block_retention: 1h
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/blocks
+    wal:
+      path: /var/tempo/wal

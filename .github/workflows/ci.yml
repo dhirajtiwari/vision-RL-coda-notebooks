@@ -135,9 +135,62 @@ jobs:
           path: docs/graphviz/rendered/
           retention-days: 14
 
+  codeql:
+    # SAST for application code (kickoff prompt §M). Results in the Security tab.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+      - name: Analyze
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  vuln-scan:
+    # Repo/dependency + IaC misconfiguration scan on every PR (reports to Security
+    # tab; the blocking image scan lives in build-images). Kickoff prompt §M.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trivy filesystem + config scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+      - name: Upload Trivy fs SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-fs
+
   build-images:
     runs-on: ubuntu-latest
     needs: [test, frontend, graphviz]
+    permissions:
+      contents: read
+      packages: write        # push to GHCR
+      id-token: write        # cosign keyless (OIDC) signing
+      security-events: write # upload Trivy SARIF to the Security tab
     strategy:
       matrix:
         include:
@@ -169,6 +222,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build image
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -179,3 +233,38 @@ jobs:
             ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LC }}-diagnostics-${{ matrix.name }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # BuildKit attaches an SPDX SBOM + SLSA provenance attestation to the
+          # pushed image (kickoff §M). Verify later with `cosign verify-attestation`.
+          sbom: true
+          provenance: mode=max
+
+      - name: Scan image for vulnerabilities (Trivy — fail on HIGH/CRITICAL)
+        if: github.event_name != 'pull_request'
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LC }}-diagnostics-${{ matrix.name }}@${{ steps.build.outputs.digest }}
+          format: sarif
+          output: trivy-image-${{ matrix.name }}.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true   # base-image CVEs with no fix don't block; app CVEs do
+          exit-code: "1"
+
+      - name: Upload Trivy image SARIF
+        if: always() && github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-image-${{ matrix.name }}.sarif
+          category: trivy-image-${{ matrix.name }}
+
+      - name: Install cosign
+        if: github.event_name != 'pull_request'
+        uses: sigstore/cosign-installer@v3.7.0
+
+      - name: Sign image (keyless, OIDC — no long-lived keys)
+        if: github.event_name != 'pull_request'
+        env:
+          COSIGN_YES: "true"
+        run: |
+          IMG="${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX_LC }}-diagnostics-${{ matrix.name }}@${{ steps.build.outputs.digest }}"
+          cosign sign "$IMG"
+          echo "Signed $IMG"

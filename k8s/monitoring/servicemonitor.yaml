@@ -1,0 +1,33 @@
+# Production metric scraping via the Prometheus Operator (kube-prometheus-stack).
+# The canary AnalysisTemplates (deploy/rollouts/*) query prometheus.monitoring:9090,
+# so install the stack in the `monitoring` namespace, e.g.:
+#
+#   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#   helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
+#     -n monitoring --create-namespace
+#
+# Then apply this ServiceMonitor. It selects the diagnostics-api Service (labelled
+# app: diagnostics-api) in the diagnostics namespace and scrapes its named `http`
+# port at /metrics.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: diagnostics-api
+  namespace: monitoring
+  labels:
+    # Match the Prometheus Operator's serviceMonitorSelector (kube-prometheus-stack
+    # default release label). Adjust to your Prometheus CR's selector if different.
+    release: kube-prometheus-stack
+spec:
+  namespaceSelector:
+    matchNames:
+      - diagnostics
+      - diagnostics-staging
+      - diagnostics-prod
+  selector:
+    matchLabels:
+      app: diagnostics-api
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

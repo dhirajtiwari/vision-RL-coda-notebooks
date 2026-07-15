@@ -2,9 +2,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: diagnostics-api
+  labels:
+    app: diagnostics-api
 spec:
   selector:
     app: diagnostics-api
   ports:
-    - port: 8080
+    - name: http           # named port so the ServiceMonitor can target it
+      port: 8080
       targetPort: 8080

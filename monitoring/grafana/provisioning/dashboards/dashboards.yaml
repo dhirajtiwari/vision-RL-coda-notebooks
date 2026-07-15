@@ -1,0 +1,15 @@
+# Grafana dashboard provider (kickoff prompt §H).
+# Loads every dashboard JSON mounted at /var/lib/grafana/dashboards so the
+# existing monitoring/grafana/dashboards/*.json show up automatically.
+apiVersion: 1
+providers:
+  - name: diagnostics
+    orgId: 1
+    folder: Diagnostics
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

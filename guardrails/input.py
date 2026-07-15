@@ -26,10 +26,27 @@ class GuardrailViolation(Exception):
 
 # Injection / jailbreak heuristics (regex layer; a classifier can be added later).
 _INJECTION_PATTERNS = [
-    re.compile(r"ignore (all|any|previous|prior) (instruction|prompt)", re.IGNORECASE),
+    re.compile(r"ignore (all|any|previous|prior|the above) (instruction|prompt)", re.IGNORECASE),
+    re.compile(r"forget (your|the|all|previous|prior) (instruction|prompt|rule)", re.IGNORECASE),
     re.compile(r"disregard (the|all|previous)", re.IGNORECASE),
     re.compile(r"you are now|act as (an?|the) (admin|root|system)", re.IGNORECASE),
+    re.compile(r"act as (an?|the) [\w\s]{0,20}(unrestricted|jailbroken|uncensored|developer)", re.IGNORECASE),
+    re.compile(r"(no|without) (restrictions|rules|filters|guardrails|safety)", re.IGNORECASE),
     re.compile(r"reveal (your|the) (system )?prompt", re.IGNORECASE),
+    # Role-header injection (fake system/assistant/developer turn in user text).
+    re.compile(r"(?:^|\n)\s*(system|assistant|developer)\s*:", re.IGNORECASE),
+    # Data-exfiltration intent: an exfil verb over bulk sensitive objects.
+    re.compile(
+        r"(output|print|list|show|dump|reveal|send|email|exfiltrate|leak)\b[\w\s,'\"-]{0,40}"
+        r"\b(all|every|entire|each)\b[\w\s,'\"-]{0,40}"
+        r"\b(record|records|customer|customers|account|accounts|user data)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(reveal|show|print|dump|leak|send|email|exfiltrate)\b[\w\s,'\"-]{0,30}"
+        r"(password|secret|token|credential|api[- ]?key|system prompt|instructions)",
+        re.IGNORECASE,
+    ),
 ]
 
 # Cypher/SQL injection tokens — defence in depth (queries are parameterised).

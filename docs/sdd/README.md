@@ -47,3 +47,4 @@ Root [`../../AGENTS.md`](../../AGENTS.md) points here so Claude Code / Codex dis
 2. Rewrite `OVERRIDES.md` and domain modules (`05`, `06`).
 3. Reset `AS_BUILT.md` and phase checkboxes.
 4. Keep `NEVER.md` / `MUST.md` unless you have an explicit reason (record in OVERRIDES).
+5. Carry the **hardened platform posture** they encode — supply-chain CI (scan + SBOM + sign, `04`), **proven** observability (scrape + dashboard, `01`/`09`), calibrated eval floors + red-teamed guardrails, and the 2025 LLMOps deltas triaged in `todo.md` §1.7. These are non-negotiables, not this repo's incidental extras.

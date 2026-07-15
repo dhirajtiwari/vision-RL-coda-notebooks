@@ -35,6 +35,7 @@ Unless `OVERRIDES.md` **explicitly** changes a line, agents implement these.
 - MUST have CI gates for pack-under-TBox discipline (no inventing unknown shapes silently).
 - MUST label demo/fixture data vs live paths honestly.
 - MUST keep `AS_BUILT.md` code-true after each completed phase.
+- MUST harden the image supply chain before publish: **vulnerability scan** (fail HIGH/CRITICAL), **SBOM + provenance** attestation, and a keyless **signature** (cosign/OIDC); plus **SAST** (e.g. CodeQL) and managed dependency updates (e.g. Dependabot). See `04-PLATFORM-CI.md`.
 
 ## LLMOps (platform — ADR 0001)
 
@@ -44,7 +45,9 @@ Unless `OVERRIDES.md` **explicitly** changes a line, agents implement these.
 - MUST rate-limit the public diagnose path; default memory backend, Redis for multi-replica.
 - MUST redaction-enable PII for logs/telemetry/responses by default (`enable_pii_redaction`).
 - MUST keep eval suites versioned (`evals/golden`, `evals/safety`) with floors in `thresholds.yaml`; **safety_pass = 1.0**.
+- MUST **calibrate** eval floors against the real engine (measure, floor below measured) and **red-team the guardrails** (verify each attack blocks; verify benign inputs pass with zero false positives).
 - MUST run eval smoke in CI; full suite when graph available (nightly or release).
+- MUST **prove observability end-to-end** when claimed active: a scrape config collects `/metrics`, a dashboard renders it, and alert rules load — not just an exposed endpoint.
 - MUST keep LLM gateway **ready-but-inactive** by default (`llm_enabled=false`) for deterministic-core archetypes — activation is a config flip.
 - MUST pin model aliases in `models/registry.yaml` when LLM is used (no `latest`).
 - MUST meter token/cost and enforce daily budget when LLM path is active.
@@ -66,6 +69,7 @@ Unless `OVERRIDES.md` **explicitly** changes a line, agents implement these.
 10. CI pack-under-TBox tests
 11. Guardrails + rate limit + PII redaction
 12. Eval + safety gate in CI
-13. Observability (JSON logs, metrics; OTEL opt-in)
+13. Observability (JSON logs, metrics; OTEL opt-in) — **proven** (scrape + dashboard + rules), not just a `/metrics` endpoint
 14. Ready-but-inactive model gateway / PromptOps / FinOps
 15. Security docs + system card + runbooks
+16. Hardened CI supply chain (scan + SBOM + sign + SAST) and calibrated eval floors + red-teamed guardrails

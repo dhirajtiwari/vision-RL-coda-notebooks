@@ -1,0 +1,45 @@
+# Prometheus scrape config for the LOCAL observability stack (kickoff prompt §H/§I).
+#
+# This is the file that was missing: without a main config Prometheus only
+# scrapes itself and never loads the SLO rules. It wires:
+#   - the FastAPI /metrics endpoint (uvicorn runs on the HOST, not in this compose)
+#   - the OTel Collector's Prometheus exporter (metrics pipeline)
+#   - Prometheus itself
+# and loads the SLO alert/recording rules under rules/.
+#
+# In Kubernetes you do NOT use this file — scraping is done by a ServiceMonitor /
+# PodMonitor (see k8s/monitoring/). This config is for `docker compose -f
+# docker/docker-compose.observability.yaml up` on a developer machine.
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    env: local
+    service: diagnostics
+
+rule_files:
+  - /etc/prometheus/rules/*.yaml
+
+scrape_configs:
+  # Prometheus self-monitoring.
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # FastAPI app metrics. The API runs on the host via uvicorn (:8080); from
+  # inside the Prometheus container the host is reachable as host.docker.internal
+  # (Docker Desktop) or via the host-gateway alias added in the compose file.
+  - job_name: diagnostics-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8080"]
+        labels:
+          component: api
+
+  # OTel Collector -> Prometheus exporter (metrics forwarded from the app via OTLP).
+  - job_name: otel-collector
+    static_configs:
+      - targets: ["otel-collector:8889"]
+        labels:
+          component: otel-collector

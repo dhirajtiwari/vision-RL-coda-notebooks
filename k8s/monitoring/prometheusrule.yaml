@@ -1,0 +1,64 @@
+# Production SLO alerts as a Prometheus Operator PrometheusRule (kickoff §I/§O).
+# Mirrors monitoring/prometheus/rules/slo-alerts.yaml (used by the local compose)
+# so the SAME alert definitions run in-cluster. kube-prometheus-stack picks this
+# up via its ruleSelector (release label).
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: diagnostics-slo
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+spec:
+  groups:
+    - name: diagnostics-slo
+      rules:
+        - alert: DiagnoseHighErrorRate
+          expr: |
+            sum(rate(diagnostics_requests_total{route="/diagnose",status=~"5.."}[5m]))
+            / sum(rate(diagnostics_requests_total{route="/diagnose"}[5m])) > 0.05
+          for: 10m
+          labels: {severity: critical}
+          annotations:
+            summary: "/diagnose 5xx error rate > 5% (10m)"
+            runbook: docs/runbooks/provider-outage.md
+
+        - alert: DiagnoseLatencyP95High
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(diagnostics_request_latency_seconds_bucket{route="/diagnose"}[5m])) by (le)
+            ) > 2
+          for: 10m
+          labels: {severity: warning}
+          annotations:
+            summary: "/diagnose p95 latency > 2s (10m)"
+            runbook: docs/runbooks/latency-regression.md
+
+        - alert: DiagnosisConfidenceDrop
+          expr: |
+            histogram_quantile(0.5,
+              sum(rate(diagnostics_diagnosis_confidence_bucket[30m])) by (le)
+            ) < 0.4
+          for: 30m
+          labels: {severity: warning}
+          annotations:
+            summary: "Median diagnosis confidence < 0.40 (30m) — possible model/graph drift"
+            runbook: docs/runbooks/quality-regression.md
+
+        - alert: EscalationSurge
+          expr: |
+            sum(rate(diagnostics_escalations_total[15m]))
+            / sum(rate(diagnostics_requests_total{route="/diagnose"}[15m])) > 0.5
+          for: 15m
+          labels: {severity: warning}
+          annotations:
+            summary: ">50% of diagnoses escalating (15m) — check graph freshness"
+            runbook: docs/runbooks/rag-stale.md
+
+        - alert: LLMCostSpike
+          expr: increase(diagnostics_llm_cost_usd_total[1h]) > 2
+          for: 5m
+          labels: {severity: warning}
+          annotations:
+            summary: "LLM spend > $2/hour — check for runaway loop"
+            runbook: docs/runbooks/cost-spike.md
