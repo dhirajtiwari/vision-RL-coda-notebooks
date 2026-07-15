@@ -52,6 +52,9 @@ Sources (SoR names): ________________
 - Ontology export: `docs/ontology/`, graph export helpers
 - Packs: `data/pipeline_sources/`
 - Tests: `tests/test_multi_source_tbox_abox.py`
+- Patterns (DL origin, sparse, scale): `docs/24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`
+- Operator mechanism: `docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`
+- Interview narrative: `docs/interview/Master-This-Codebase.md`
 
 ## Exit (P1 / pack work)
 

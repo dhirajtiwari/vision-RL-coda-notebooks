@@ -15,6 +15,8 @@
 
 **We do not use (today):** Neo4j full-text indexes, vector indexes, or explicit `CREATE INDEX` beyond uniqueness constraints.
 
+**Industry “must have” list vs us (honest):** see [`24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md) §4.1 — uniqueness **AS-BUILT**; fulltext / vector **ROADMAP**.
+
 ---
 
 ## 2. Neo4j uniqueness constraints

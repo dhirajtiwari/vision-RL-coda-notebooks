@@ -32,6 +32,8 @@ Thin, progressive files so Claude Code / Codex / humans avoid **lost-in-the-midd
 - Canonical long form: [`../23-Spec-Driven-Development-Platform-and-Domain.md`](../23-Spec-Driven-Development-Platform-and-Domain.md)
 - Pointer: [`REFERENCE-FULL.md`](./REFERENCE-FULL.md)
 - LLMOps recipes (not always-on): [`../llmops-handbook/`](../llmops-handbook/00-index.md) + playbook
+- TBox origin / sparse data / enterprise scale: [`../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md)
+- Interview (story → quiz → practice): [`../interview/Master-This-Codebase.md`](../interview/Master-This-Codebase.md) · [`../interview/README.md`](../interview/README.md)
 
 **Agents:** do **not** attach the full reference or entire handbook every turn.
 

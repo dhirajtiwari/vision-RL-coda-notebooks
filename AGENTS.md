@@ -27,5 +27,8 @@ For LLMOps (guardrails, evals, gateway, observability): use [`docs/sdd/09-PLATFO
 
 - Kit index: [`docs/sdd/README.md`](docs/sdd/README.md)
 - Full SDD: [`docs/23-Spec-Driven-Development-Platform-and-Domain.md`](docs/23-Spec-Driven-Development-Platform-and-Domain.md)
+- Patterns (TBox origin, sparse, scale): [`docs/24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](docs/24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md)
+- Interview mastery (story style): [`docs/interview/Master-This-Codebase.md`](docs/interview/Master-This-Codebase.md)
+- Doc reading order: [`docs/00-DOC-READING-ORDER.md`](docs/00-DOC-READING-ORDER.md)
 - LLMOps handbook + playbook: [`docs/llmops-handbook/`](docs/llmops-handbook/00-index.md)
 - Product README: [`README.md`](README.md)

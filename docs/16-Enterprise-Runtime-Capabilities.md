@@ -246,6 +246,16 @@ Also already covered elsewhere (keep investing): **eval gates, guardrails, obser
 
 ---
 
+## 9.1 CAP for diagnostic knowledge (interview one-liner)
+
+| Priority | Why |
+|----------|-----|
+| **Consistency first** | Wrong diagnosis worse than slow diagnosis; promote is fail-closed; chat never reads staging |
+| Availability | Improve via read replicas / multi-pod API (**replicas ROADMAP**; multi-pod needs Redis) |
+| Partition tolerance | Multi-region not as-built |
+
+Canonical sparse/scale/CAP write-up: [`24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md).
+
 ## 10. Related docs
 
 - `docs/15-Ontology-Build-Pipeline-RDF-and-Topology-Decision.md` — knowledge model (not runtime)

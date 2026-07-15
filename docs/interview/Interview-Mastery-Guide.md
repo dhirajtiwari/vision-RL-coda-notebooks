@@ -8,7 +8,7 @@ title: "Remote Diagnostics Graph — Interview Mastery Guide"
 
 ## Interview Mastery Guide
 
-<p class="subtitle">Explain everything end-to-end — product, theory, code, architecture, tools</p>
+<p class="subtitle">Persona Q&amp;A appendix — product, theory, code, architecture, tools</p>
 
 <span class="badge">Beginner-friendly language</span>
 <span class="badge">Senior-level depth</span>
@@ -24,18 +24,28 @@ ETL · Neo4j · LangGraph · LLMOps · Redis · Runtime scale<br/><br/>
 
 </div>
 
+> **Primary study path (story → annotated code → quiz → practice → final boss):**
+> [`Master-This-Codebase.md`](Master-This-Codebase.md)
+> **Theory + sparse data + enterprise scale (status-tagged):**
+> [`../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md)
+> **Index:** [`README.md`](README.md)
+
 # How to use this guide
 
 | Interviewer type | Read first | Practice |
 |------------------|------------|----------|
-| **Anyone (opening)** | §1 Elevator pitch + §2 What we built | 90-second story out loud |
-| **Academic / research** | §5 Theory + Academic Q&A | Derive Bayes & RPN on whiteboard |
-| **Senior developer** | §4 Tools + §6 Code spine + Dev Q&A | Walk one Cypher path + one Python file |
-| **Senior architect** | §3 Architecture + §7 Topology + Arch Q&A | Draw boxes: ETL → Neo4j → API → UI |
+| **Anyone (opening)** | Master-This-Codebase Module 0–1, then §1–2 here | 90-second story out loud |
+| **Academic / research** | Doc 24 §1–2 + §5 Theory + Academic Q&A | Derive Bayes & RPN on whiteboard |
+| **Senior developer** | Master Modules 4–5 + §4 Tools + §6 Code spine | Walk one Cypher path + one Python file |
+| **Senior architect** | Doc 24 §3–5 + §3 Architecture + Arch Q&A | Draw boxes: ETL → Neo4j → API → UI |
 | **Industry / domain** | §2 Domain chain + Industry Q&A | Asset → symptom → FM → part → claim |
 
 <div class="pointer">
 <strong>Golden rule:</strong> Always answer in this order — <em>(1) plain English meaning</em> → <em>(2) why it matters</em> → <em>(3) how our app does it</em> → <em>(4) tool/file name</em>. That pattern works for every persona.
+</div>
+
+<div class="pointer">
+<strong>Critical contrast:</strong> Tutorial “smart Cypher” agents let an LLM write MATCH clauses. <strong>This repo does not</strong> — fixed parameterized Cypher + FMEA/Bayes. See Master-This-Codebase Module 0 lineage table.
 </div>
 
 ---

@@ -90,7 +90,16 @@ Prove via `GET /health` → `runtime`.
 
 ## Explicit non-claims
 
-Do not tell buyers or agents these are done: OIDC multi-tenant ACL, live SAP/SFDC, Neo4j HA, async ETL queue, external SHACL engine, per-product OWL generation (by design not done), LLM as primary reasoner, live multi-cluster canary, full cloud Terraform landing zone, formal regulatory certification.
+Do not tell buyers or agents these are done: OIDC multi-tenant ACL, live SAP/SFDC, Neo4j HA, async ETL queue, external SHACL engine, per-product OWL generation (by design not done), LLM as primary reasoner, live multi-cluster canary, full cloud Terraform landing zone, formal regulatory certification, OWL reasoner (HermiT/Pellet) on diagnose path, KGE/pykeen edge imputation, Neo4j Fabric multi-shard, Kafka streaming write path, vector-index-first retrieval.
+
+## Documentation map (patterns + interview)
+
+| Doc | Role |
+|-----|------|
+| [`../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md) | Canonical **AS-BUILT / LITE / ROADMAP / OUT-OF-SCOPE** for TBox origin, sparse data, scale, CAP, demo-vs-enterprise |
+| [`../22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](../22-TBox-ABox-Multi-Source-Onboard-Mechanism.md) | Operator TBox/ABox mechanism |
+| [`../interview/Master-This-Codebase.md`](../interview/Master-This-Codebase.md) | Memorize/write/explain narrative for whole repo |
+| [`../interview/Interview-Mastery-Guide.md`](../interview/Interview-Mastery-Guide.md) | Persona Q&A appendix |
 
 ## Change log (agent append-only)
 
@@ -99,3 +108,4 @@ Do not tell buyers or agents these are done: OIDC multi-tenant ACL, live SAP/SFD
 | 2026-07-11 | Initial AS_BUILT from live tree + SDD §1 | `docs/sdd/` kit scaffolded |
 | 2026-07 | Multi-source TBox/ABox packs, selection/promote UX, runtime health | feature branch LLMOps remote diagnostics |
 | 2026-07-11 | LLMOps disciplines folded into SDD kit (`09-PLATFORM-LLMOPS.md`) | Handbook/playbook/ADR/code inventory |
+| 2026-07-15 | Docs: patterns doc 24 + Master-This-Codebase interview narrative; non-claims expanded | docs-only alignment pass |

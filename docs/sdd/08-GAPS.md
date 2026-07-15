@@ -49,6 +49,8 @@ P3  Multi-region, vector indexes         → only when scale forces it
 
 External SHACL/OWL reasoner in CI; RDF import; closed-loop learning; supersession chains; richer procedure trees; full NER; multi-language; less hardcoded product keywords; vector indexes at scale (**P3**).
 
+**Documented with status tags (not “missing docs”):** full sparse-data strategy matrix, CAP, demo-vs-enterprise, and industry patterns live in [`../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md). Interview coverage: [`../interview/Master-This-Codebase.md`](../interview/Master-This-Codebase.md).
+
 **Not a gap:** generating new OWL schema per product pack. Correct design = shared TBox + pipeline ABox.
 
 ### Runtime / scale (P1–P2)

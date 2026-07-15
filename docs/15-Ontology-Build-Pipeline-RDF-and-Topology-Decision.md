@@ -4,6 +4,12 @@
 **Scope:** how the warranty-diagnosis ontology is authored, transformed, loaded, and optionally exported as RDF/OWL
 **Related:** `docs/PIPELINE-AND-MODULE-GUIDE.md`, `docs/14-Enterprise-Warranty-Diagnosis-Ontology-and-Industry-Alignment.docx`, `graph/rdf_ontology_export.py`
 
+**Canonical patterns (TBox origin, sparse data, scale honesty):** [`24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md)
+**Operator multi-source mechanism:** [`22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](22-TBox-ABox-Multi-Source-Onboard-Mechanism.md)
+**Interview mastery (story style):** [`interview/Master-This-Codebase.md`](interview/Master-This-Codebase.md)
+
+> **Note on older `.docx` (01–14):** some predate explicit TBox/ABox wording. Prefer this MD series + doc 22/24 + `docs/sdd/` for current truth. Doc 14 remains useful for the **operational chain** (asset→part→claim) but may not use TBox/ABox terms.
+
 ---
 
 ## 1. Executive summary

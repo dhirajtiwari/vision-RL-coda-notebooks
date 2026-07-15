@@ -4,6 +4,9 @@
 **Audience:** Operators, engineers, reviewers
 **Related:** `15-Ontology-Build-Pipeline-RDF-and-Topology-Decision.md`, `20-Enterprise-KG-Ingestion-Pipeline-Architecture.md`, `21-KG-Ingestion-Step-by-Step-Runbook.md`, `graph/enterprise_pipeline/ontology_validate.py`, `graph/rdf_ontology_export.py`
 
+**Theory + sparse data + enterprise scale (canonical):** [`24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md)
+**Interview narrative (story / quiz / practice):** [`interview/Master-This-Codebase.md`](interview/Master-This-Codebase.md)
+
 ---
 
 ## 1. Purpose
@@ -18,6 +21,15 @@ This document records **how ontology and multi-source product onboarding work in
 | **Demo shortcuts** | Hand-authored fixtures and keyword maps that stand in for real enterprise systems |
 
 **Rule of thumb:** A **new product** is almost always **new ABox under an existing TBox**. A **new ontology class** is a rare **TBox extension** and is governance-owned, not auto-generated per SKU.
+
+### 1.1 Formal origin (why these names) — short form
+
+| Term | Origin | Everyday analogy |
+|------|--------|------------------|
+| **TBox** (Terminological Box) | Description Logic (1980s) → W3C **OWL** | `CREATE TABLE` / schema |
+| **ABox** (Assertional Box) | Same tradition: individuals + facts | `INSERT` rows / data |
+
+This split is **not project-specific slang**. Every formal knowledge graph (Wikidata, clinical KGs, manufacturing reliability models) separates **what kinds of things exist** from **which things exist**. Deep dive, sparse-data strategies, and demo-vs-enterprise tables: **doc 24**.
 
 ---
 
