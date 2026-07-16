@@ -17,6 +17,7 @@
 | **P7c** | LLMOps Tier 3 ready-but-inactive (gateway/prompts/finops) | `09-PLATFORM-LLMOPS.md` | `LLM_ENABLED=false`; registry pinned; budget module present |
 | **P8** | Second multi-source pack + session reset | `02` + `05` | Fleet story works |
 | **P9** | Production hardening — scoped §6 P0/P1 only | `08-GAPS.md` + `09` | Beyond demo as scoped |
+| **P9b** | Scale & populate depth — weighted route, strong/weak resolve, ontology CI gate, page-cache/NetworkPolicy, cluster reference | `10-SCALING-POPULATING-KG.md` | Route endpoint answers; ontology gate green; cluster manifests tagged REFERENCE |
 
 ## This repo status (WarrantyGraph baseline 2026-07)
 

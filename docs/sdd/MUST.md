@@ -30,6 +30,17 @@ Unless `OVERRIDES.md` **explicitly** changes a line, agents implement these.
 - MUST apply rate limit + concurrent diagnose admission (defaults may vary; knobs exist).
 - MUST scope diagnose cache keys by identity + catalog/version, not message text alone.
 
+## Scaling & populating the KG (module `10`)
+
+- MUST choose **weighted vs unweighted** traversal on purpose (cheapest route vs reachability); MUST create a **GDS projection before any GDS call**; keep the diagnose hot path a bounded, product-scoped MATCH (not a path search).
+- MUST scale in order: **page cache → read replicas → 3 caching layers → sharding last**; MUST size page cache before clustering/sharding; MUST NOT shard before vertical + replicas are exhausted.
+- MUST map every source to the 5-step pipeline (structured MERGE → semi APOC → unstructured) and **bind any LLM extractor to the shared TBox** (`allowed_nodes`/`allowed_relationships`), never free-form.
+- MUST run **strong/weak node resolution** (system-of-record strong; LLM/unstructured weak) and shape-validate ABox before promote; **flag near-duplicates for review, never auto-merge**.
+- MUST keep any **LLM extractor off by default** (`LLM_ENABLED=false`), key **from env only**, bound to the TBox via structured output **and** a code-side allow-list filter, on the **cheapest model**, and **budget-checked** (`DailyCostBudget.check()` before spend, `record()` after) — exposed only via an admin-gated endpoint.
+- MUST run a **merge-blocking ontology gate** (`scripts/validate_ontology_ci.py` → `ontology-validation.yml`): Turtle syntax + TBox consistency + ABox shapes.
+- MUST deploy core Neo4j as a **StatefulSet** (Raft needs stable identity + per-pod PVC) and scheduled ingestion as a **CronJob**; SHOULD isolate the graph tier with a **NetworkPolicy**.
+- MUST keep the weighted-route feature on the already-installed **APOC** (`apoc.algo.dijkstra`) with a native `shortestPath()` fallback unless GDS is genuinely provisioned.
+
 ## CI / honesty
 
 - MUST have CI gates for pack-under-TBox discipline (no inventing unknown shapes silently).

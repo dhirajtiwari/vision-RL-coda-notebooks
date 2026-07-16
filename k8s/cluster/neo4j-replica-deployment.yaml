@@ -1,0 +1,82 @@
+# Neo4j READ REPLICAS (secondaries) — elastic read pool.
+# Secondaries do not join write consensus, so unlike cores they can scale
+# up/down freely (HorizontalPodAutoscaler-friendly). REFERENCE — Enterprise.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neo4j-replica
+  labels:
+    app: neo4j
+    role: replica
+spec:
+  replicas: 2 # scale with read load (HPA below)
+  selector:
+    matchLabels:
+      app: neo4j
+      role: replica
+  template:
+    metadata:
+      labels:
+        app: neo4j
+        role: replica
+    spec:
+      automountServiceAccountToken: false
+      containers:
+        - name: neo4j
+          image: neo4j:5-enterprise
+          ports:
+            - { containerPort: 7474, name: http }
+            - { containerPort: 7687, name: bolt }
+          env:
+            - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
+              value: "yes"
+            - name: NEO4J_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: diagnostics-secrets
+                  key: NEO4J_AUTH
+            - name: NEO4J_PLUGINS
+              value: '["apoc"]'
+            # Secondary (read replica) role — reads only, async replication.
+            - name: NEO4J_initial_server_mode__constraint
+              value: "SECONDARY"
+            - name: NEO4J_server_discovery_type
+              value: "K8S"
+            # Page cache still matters for replicas (they are read caches).
+            - name: NEO4J_server_memory_pagecache_size
+              value: "4G"
+            - name: NEO4J_server_memory_heap_max__size
+              value: "4G"
+          resources:
+            requests:
+              cpu: "1"
+              memory: "6Gi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "8Gi"
+              ephemeral-storage: "2Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 7687
+            initialDelaySeconds: 60
+            periodSeconds: 10
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: neo4j-replica
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: neo4j-replica
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

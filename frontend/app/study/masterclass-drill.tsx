@@ -1,8 +1,26 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Check, ChevronLeft, ChevronRight, Eye, RotateCcw, Shuffle, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ExternalLink,
+  Eye,
+  RotateCcw,
+  Shuffle,
+  X,
+} from "lucide-react";
 import type { MemoryCard } from "@/lib/study/types";
+
+const W_FIELDS: { key: keyof MemoryCard; label: string }[] = [
+  { key: "what", label: "What" },
+  { key: "how", label: "How" },
+  { key: "where", label: "Where" },
+  { key: "when", label: "When" },
+  { key: "who", label: "Who" },
+  { key: "why", label: "Why" },
+];
 
 /* ---------------- grading helpers (mirror the backend) ---------------- */
 function norm(s: string): string {
@@ -146,7 +164,9 @@ export function FlashcardsDrill({ cards, mcId }: Readonly<{ cards: MemoryCard[];
         <div className="text-[15px] font-medium text-white">{card.front}</div>
 
         {!flipped ? (
-          <div className="mt-6 text-xs text-white/40">Click to reveal ↵</div>
+          <div className="mt-6 text-xs text-white/40">
+            Click to reveal code, 5W+H, pitfalls & sources ↵
+          </div>
         ) : (
           <div className="mt-3 space-y-3">
             {card.code && (
@@ -160,6 +180,92 @@ export function FlashcardsDrill({ cards, mcId }: Readonly<{ cards: MemoryCard[];
             )}
             {card.memory_hook && (
               <p className="text-[13px] text-amber-200/90">🔑 Memory hook: {card.memory_hook}</p>
+            )}
+            {W_FIELDS.some(({ key }) => {
+              const v = card[key];
+              return typeof v === "string" && v.length > 0;
+            }) && (
+              <div className="space-y-2 pt-1 border-t border-white/10">
+                <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">
+                  5W + H
+                </div>
+                {W_FIELDS.map(({ key, label }) => {
+                  const val = card[key];
+                  if (!val || typeof val !== "string") return null;
+                  return (
+                    <div key={key}>
+                      <div className="text-[11px] font-semibold text-emerald-300/90 uppercase tracking-wide">
+                        {label}
+                      </div>
+                      <div className="text-[13px] text-white/80 leading-relaxed">{val}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {!!card.pitfalls?.length && (
+              <div>
+                <div className="text-[11px] font-semibold text-rose-300/90 uppercase">Pitfalls</div>
+                <ul className="list-disc pl-5 text-[13px] text-white/70">
+                  {card.pitfalls.map((p) => (
+                    <li key={p}>{p}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {card.run_hint && (
+              <div className="text-[13px] border border-amber-500/20 bg-amber-500/5 rounded-lg px-3 py-2 text-amber-100/90">
+                <strong className="text-amber-200">Run it:</strong> {card.run_hint}
+              </div>
+            )}
+            {!!card.sources?.length && (
+              <div>
+                <div className="text-[11px] font-semibold text-sky-300/90 uppercase mb-1">
+                  Authoritative sources
+                </div>
+                <ul className="space-y-1">
+                  {card.sources.map((s) => (
+                    <li key={s.title} className="text-xs text-white/65 flex items-start gap-1">
+                      <span className="text-white/35 shrink-0">[{s.kind || "ref"}]</span>
+                      {s.url ? (
+                        <a
+                          href={s.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sky-300/90 hover:underline inline-flex items-center gap-0.5"
+                        >
+                          {s.title} <ExternalLink size={10} />
+                        </a>
+                      ) : (
+                        <span>{s.title}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {(card.python || card.cypher || card.shacl) && (
+              <div className="space-y-2 pt-1 border-t border-white/10">
+                <div className="text-[11px] uppercase tracking-wide text-white/40">
+                  Same idea in other languages
+                </div>
+                {(
+                  [
+                    ["Python (rdflib)", card.python, "text-emerald-300"],
+                    ["Cypher (Neo4j)", card.cypher, "text-sky-300"],
+                    ["SHACL", card.shacl, "text-fuchsia-300"],
+                  ] as const
+                )
+                  .filter(([, v]) => v)
+                  .map(([lbl, v, col]) => (
+                    <div key={lbl}>
+                      <div className={`text-[10px] uppercase tracking-wide ${col}`}>{lbl}</div>
+                      <pre className="rounded-lg bg-[#0a0a0f] border border-white/10 p-2.5 text-[11.5px] font-mono text-white/85 whitespace-pre overflow-x-auto">
+                        {v}
+                      </pre>
+                    </div>
+                  ))}
+              </div>
             )}
           </div>
         )}
@@ -252,13 +358,35 @@ function FillBlanks({ cards }: Readonly<{ cards: MemoryCard[] }>) {
       </div>
 
       {checked && (
-        <div className="text-[13px] space-y-1">
+        <div className="text-[13px] space-y-2">
           <div className={correct === answers.length ? "text-emerald-300" : "text-amber-300"}>
             {correct}/{answers.length} correct
           </div>
           {correct < answers.length && (
             <div className="text-white/60">
               Answer: <span className="font-mono text-emerald-200">{answers.join("  ·  ")}</span>
+            </div>
+          )}
+          {card.code && (
+            <pre className="rounded-lg bg-[#0a0a0f] border border-white/10 p-2.5 text-[11.5px] font-mono text-emerald-100/90 whitespace-pre overflow-x-auto">
+              {card.code}
+            </pre>
+          )}
+          {card.explain && <p className="text-white/70">{card.explain}</p>}
+          {(card.what || card.why) && (
+            <div className="text-white/65 space-y-1 border-t border-white/10 pt-2">
+              {card.what && (
+                <div>
+                  <span className="text-emerald-300/90 font-semibold text-[11px] uppercase">What </span>
+                  {card.what}
+                </div>
+              )}
+              {card.why && (
+                <div>
+                  <span className="text-emerald-300/90 font-semibold text-[11px] uppercase">Why </span>
+                  {card.why}
+                </div>
+              )}
             </div>
           )}
         </div>

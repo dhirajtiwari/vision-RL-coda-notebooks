@@ -131,6 +131,12 @@ export interface Masterclass extends MasterclassSummary {
   body: string;
 }
 
+export interface MemoryCardSource {
+  title: string;
+  url?: string;
+  kind?: string;
+}
+
 export interface MemoryCard {
   id: string;
   masterclass_id: string;
@@ -145,6 +151,19 @@ export interface MemoryCard {
   memory_hook?: string;
   blank?: string;
   answers?: string[];
+  python?: string;
+  cypher?: string;
+  shacl?: string;
+  /** Optional 5W+H (same design as Flashcards hub; empty on older cards). */
+  what?: string;
+  how?: string;
+  where?: string;
+  when?: string;
+  who?: string;
+  why?: string;
+  pitfalls?: string[];
+  sources?: MemoryCardSource[];
+  run_hint?: string;
 }
 
 export interface PyNuance {

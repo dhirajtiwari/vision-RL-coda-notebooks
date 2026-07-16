@@ -14,6 +14,12 @@
 | Shared TBox + pipeline ABox (multi-source packs) | Implemented |
 | Runtime: parallel extract, caches, rate, admission | Implemented |
 | Multi-source CI (`test_multi_source_tbox_abox`) | Implemented |
+| Weighted diagnostic route (APOC `apoc.algo.dijkstra` + native `shortestPath` fallback) | Implemented (`graph/diagnostic_path.py`, `GET /graph/diagnostic-route`) |
+| Strong/weak node resolution (difflib token-sort + stem; near-dup review) | Implemented (`graph/enterprise_pipeline/entity_resolution.py`, wired into `ontology_validate`) |
+| Schema-bound LLM unstructured extractor (TBox-bound, off by default) | Implemented ready-but-inactive (`extractors/llm_graph_extract.py` — ChatOpenAI structured output, cheapest `LLM_EXTRACT_MODEL`=gpt-4o-mini, key from env, FinOps budget check/record, `POST /admin/pipeline/llm-extract`; `LLM_ENABLED=false` default) |
+| Ontology/SHACL merge-block CI gate | Implemented (`scripts/validate_ontology_ci.py`, `.github/workflows/ontology-validation.yml`) |
+| Page-cache tuning + Neo4j NetworkPolicy | Implemented (`k8s/base/neo4j-networkpolicy.yaml`, StatefulSet + compose page cache) |
+| Neo4j Core-Replica cluster manifests | **Reference-only** (`k8s/cluster/` — Enterprise license + multi-node blockers) |
 | LLMOps Tier 1 (obs, guardrails, evals, security, runbooks) | Implemented |
 | LLMOps Tier 3 (gateway, PromptOps, FinOps) | **Ready-but-inactive** (`llm_enabled=false`) |
 | Observability stack (Prometheus scrape + Grafana + Tempo) | Implemented + **proven** (targets up, rules load) |
@@ -97,10 +103,13 @@ Prove via `GET /health` → `runtime`.
 
 Do not tell buyers or agents these are done: OIDC multi-tenant ACL, live SAP/SFDC, Neo4j HA, async ETL queue, external SHACL engine, per-product OWL generation (by design not done), LLM as primary reasoner, live multi-cluster canary, full cloud Terraform landing zone, formal regulatory certification, OWL reasoner (HermiT/Pellet) on diagnose path, KGE/pykeen edge imputation, Neo4j Fabric multi-shard, Kafka streaming write path, vector-index-first retrieval.
 
+**Scale & populate (module `10`) status nuance:** the **weighted diagnostic route** is real via **APOC** (`apoc.algo.dijkstra`) with a native `shortestPath()` fallback — but **GDS** (Dijkstra/Delta-Stepping/A*/Yen's) is **not installed**; do not claim GDS shortest-path. **Strong/weak resolution** is real via stdlib fuzzy matching — but **embedding-similarity** merge is `[REFERENCE]`. **SHACL-style** validation is a lightweight in-code validator — an **external SHACL/OWL reasoner** is not wired. The **Core-Replica cluster / read-replica pool / Helm-Operator** manifests under `k8s/cluster/` are `[REFERENCE]` (Neo4j **Enterprise license** + multi-node required); the demo runs a single-node StatefulSet + separate staging (environment partition, not HA).
+
 ## Documentation map (patterns + interview)
 
 | Doc | Role |
 |-----|------|
+| [`../25-Delta-Partitioning-Concurrency-Sharding-Implementation.md`](../25-Delta-Partitioning-Concurrency-Sharding-Implementation.md) | **Delta stepping, partitioning, concurrency, sharding** — as-built vs gaps + step-by-step implement/run |
 | [`../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](../24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md) | Canonical **AS-BUILT / LITE / ROADMAP / OUT-OF-SCOPE** for TBox origin, sparse data, scale, CAP, demo-vs-enterprise |
 | [`../22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](../22-TBox-ABox-Multi-Source-Onboard-Mechanism.md) | Operator TBox/ABox mechanism |
 | [`../interview/Master-This-Codebase.md`](../interview/Master-This-Codebase.md) | Memorize/write/explain narrative for whole repo |
@@ -117,3 +126,7 @@ Do not tell buyers or agents these are done: OIDC multi-tenant ACL, live SAP/SFD
 | 2026-07-15 | Observability wired + proven (prometheus.yml scrape, Grafana provisioning, Tempo, `k8s/monitoring/`); CI hardened (CodeQL, Trivy fs+image, SBOM/provenance, cosign, dependabot); CD eval-gate + opt-in Argo canary | ci.yml, cd.yml, docker/compose obs, monitoring/, k8s/monitoring/ |
 | 2026-07-15 | Eval ground-truth: calibrated `golden/diagnosis.jsonl` + expanded `safety/injection.jsonl`; guardrail red-team closed forget-instructions/role-injection/exfil gaps (0 false positives) | evals/, guardrails/input.py |
 | 2026-07-15 | SDD kit updated for greenfield replication (NEVER/MUST/01/04/09/README); kickoff prompt + todo §1.7 aligned to 2025 authoritative practice | docs/sdd/, docs/llmops-handbook/20, todo.md |
+| 2026-07-15 | Doc 25: delta/partition/concurrency/sharding as-built + implementation steps (authoritative Neo4j sources) | docs/25-… |
+| 2026-07-16 | Doc 25 §1.5 indexing code/run; Study Lab Masters mc-03 graph ops (indexes/delta/partition/concurrency); Turtle mc-01 unchanged; flashcards 5W+H for unique constraints + entity delta | docs/25 §1.5, study/masterclasses.py, study/masterclass_cards.py, study/flashcards_deck.py |
+| 2026-07-16 | Scale & populate implementation: weighted diagnostic route (APOC dijkstra + shortestPath fallback, `/graph/diagnostic-route`); strong/weak entity resolver + near-dup review; schema-bound LLM extractor (off by default); ontology CI gate; Neo4j page-cache + NetworkPolicy; reference Enterprise cluster manifests; SDD module `10` + MUST/NEVER/PHASES/README + kickoff prompt | graph/diagnostic_path.py, graph/enterprise_pipeline/entity_resolution.py, extractors/llm_graph_extract.py, scripts/validate_ontology_ci.py, .github/workflows/ontology-validation.yml, k8s/base+cluster, docs/sdd/10 + kit, study mc-04 |
+| 2026-07-16 | LLM extractor activated opt-in: ChatOpenAI structured-output bound to TBox + code allow-list filter, cheapest `LLM_EXTRACT_MODEL`=gpt-4o-mini, key from env, **FinOps budget check/record**, admin endpoint `POST /admin/pipeline/llm-extract`; SDD module 10 + MUST/NEVER + kickoff §P updated | extractors/llm_graph_extract.py, config/settings.py, api/main.py, .env.example, docs/sdd/10+MUST+NEVER+AS_BUILT, docs/llmops-handbook/20 |

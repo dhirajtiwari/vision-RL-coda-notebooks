@@ -336,7 +336,8 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MATCH (ec:ErrorCode {error_code_id: $error_code_id})
                     MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})
                     MERGE (ec)-[r:INDICATES]->(fm)
-                    SET r.confidence = $confidence
+                    SET r.confidence = $confidence,
+                        r.cost = round(1.0 - $confidence, 4)
                     """,
                     {
                         "error_code_id": link["error_code_id"],
@@ -351,7 +352,8 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MATCH (a:DiagnosticStep {step_id: $from_step_id})
                     MATCH (b:DiagnosticStep {step_id: $to_step_id})
                     MERGE (a)-[r:NEXT_STEP]->(b)
-                    SET r.condition = $condition
+                    SET r.condition = $condition,
+                        r.cost = 1.0
                     """,
                     {
                         "from_step_id": link["from_step_id"],
@@ -369,7 +371,8 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MATCH (ds:DiagnosticStep {{step_id: $step_id}})
                     MATCH (fm:FailureMode {{failure_mode_id: $failure_mode_id}})
                     MERGE (ds)-[r:{rel}]->(fm)
-                    SET r.confidence = $confidence
+                    SET r.confidence = $confidence,
+                        r.cost = round(1.0 - $confidence, 4)
                     """,
                     {
                         "step_id": link["step_id"],
@@ -384,7 +387,8 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})
                     MATCH (pt:Part {part_id: $part_id})
                     MERGE (fm)-[r:REQUIRES_PART]->(pt)
-                    SET r.quantity = $quantity, r.probability = $probability, r.is_primary = $is_primary
+                    SET r.quantity = $quantity, r.probability = $probability, r.is_primary = $is_primary,
+                        r.cost = round(1.0 - $probability, 4)
                     """,
                     {
                         **link,
@@ -410,7 +414,8 @@ def populate_graph(driver, data: dict[str, Any], *, etl_batch_id: str | None = N
                     MATCH (s:Symptom {symptom_id: $symptom_id})
                     MATCH (fm:FailureMode {failure_mode_id: $failure_mode_id})
                     MERGE (s)-[r:INDICATES]->(fm)
-                    SET r.confidence = $confidence, r.etl_batch_id = $etl_batch_id
+                    SET r.confidence = $confidence, r.etl_batch_id = $etl_batch_id,
+                        r.cost = round(1.0 - $confidence, 4)
                     """,
                     {**link, "etl_batch_id": batch_id},
                 )

@@ -1,0 +1,34 @@
+# Headless service: stable per-pod DNS for cluster discovery (Raft).
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j-core
+  labels:
+    app: neo4j
+    role: core
+spec:
+  clusterIP: None # headless → neo4j-core-0.neo4j-core, neo4j-core-1.neo4j-core, ...
+  selector:
+    app: neo4j
+    role: core
+  ports:
+    - { name: bolt, port: 7687 }
+    - { name: http, port: 7474 }
+    - { name: discovery, port: 5000 }
+    - { name: tx, port: 6000 }
+    - { name: raft, port: 7000 }
+---
+# Routing service the app points NEO4J_URI=neo4j://neo4j-cluster:7687 at.
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j-cluster
+  labels:
+    app: neo4j
+spec:
+  selector:
+    app: neo4j
+    role: core
+  ports:
+    - { name: bolt, port: 7687 }
+    - { name: http, port: 7474 }

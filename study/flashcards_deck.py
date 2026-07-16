@@ -195,6 +195,162 @@ def build_deck() -> list[FlashCard]:
             related_module_ids=["02-cypher-create-read", "03-etl-pipeline"],
         ),
         FlashCard(
+            id="fc-unique-constraint-index",
+            front="Unique constraint → unique index (Neo4j 5)",
+            track="graph",
+            tags=["index", "constraint", "neo4j", "performance"],
+            kind="pattern",
+            what="A uniqueness rule on a property that also creates a unique index for fast seeks.",
+            how="CREATE CONSTRAINT IF NOT EXISTS FOR (p:Product) REQUIRE p.product_id IS UNIQUE",
+            where="graph/populate_graph.py create_constraints(tx) — runs before every MERGE load.",
+            when="Bootstrap populate and every promote materialize path.",
+            who="ETL loader creates; GraphRAG MATCH/MERGE consumers use on every diagnose.",
+            why="Identity seeks without NodeByLabelScan; prevents duplicate business ids.",
+            analogy="Phone book for every business noun (product, symptom, failure mode, …).",
+            code=(
+                "def create_constraints(tx) -> None:\n"
+                "    tx.run(\n"
+                '        "CREATE CONSTRAINT IF NOT EXISTS FOR (p:Product) "\n'
+                '        "REQUIRE p.product_id IS UNIQUE"\n'
+                "    )"
+            ),
+            language="python",
+            pitfalls=[
+                "Creating the constraint after duplicate data already exists (create fails)",
+                "Indexing every property (write amplification)",
+                "Assuming full-text/vector indexes replace unique business keys",
+            ],
+            say_aloud="Unique constraint builds the unique index; MERGE and MATCH seek on product_id.",
+            sources=[
+                _s(
+                    "Neo4j Cypher Manual — Constraints",
+                    "https://neo4j.com/docs/cypher-manual/current/constraints/",
+                    "docs",
+                ),
+                _s(
+                    "docs/19-Indexes-Constraints-and-Lookup-Performance.md",
+                    "",
+                    "docs",
+                ),
+                _s(
+                    "docs/25-Delta-Partitioning-Concurrency-Sharding-Implementation.md",
+                    "",
+                    "docs",
+                ),
+            ],
+            related_module_ids=["02-cypher-create-read", "03-etl-pipeline"],
+            difficulty="medium",
+        ),
+        FlashCard(
+            id="fc-show-indexes-profile",
+            front="SHOW INDEXES + PROFILE seek proof",
+            track="graph",
+            tags=["index", "profile", "tuning", "neo4j"],
+            kind="command",
+            what="Operational proof that constraints exist and the planner uses them.",
+            how="SHOW CONSTRAINTS; SHOW INDEXES; then PROFILE MATCH (p:Product {product_id:$id})…",
+            where="Neo4j Browser prod :7474 / staging :7475 after load.",
+            when="After populate/promote or when diagnose feels slow.",
+            who="Engineers verifying load and query plans.",
+            why="Turns 'it should be indexed' into 'NodeUniqueIndexSeek on Product'.",
+            code=(
+                "SHOW CONSTRAINTS;\nSHOW INDEXES;\n\n"
+                "PROFILE\n"
+                "MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)\n"
+                "RETURN fm LIMIT 5"
+            ),
+            language="cypher",
+            pitfalls=[
+                "Reading EXPLAIN only when you need real db-hits (use PROFILE)",
+                "Ignoring NodeByLabelScan on the product step after a schema change",
+            ],
+            say_aloud="SHOW INDEXES lists the phone books; PROFILE proves the seek.",
+            sources=[
+                _s(
+                    "Neo4j query tuning",
+                    "https://neo4j.com/docs/cypher-manual/current/query-tuning/",
+                    "docs",
+                ),
+            ],
+            related_module_ids=["02-cypher-create-read"],
+            difficulty="medium",
+        ),
+        FlashCard(
+            id="fc-entity-delta",
+            front="Entity delta (catalog ↔ Neo4j)",
+            track="pipeline",
+            tags=["delta", "abox", "etl", "promote"],
+            kind="pattern",
+            what="Per-product comparison of catalog ABox entities vs live Neo4j (NEW / needs work / in_sync).",
+            how="compute_product_entity_delta / build_selection_entity_deltas; Admin entity-delta API.",
+            where="graph/enterprise_pipeline/entity_delta.py; Admin control plane.",
+            when="After Fetch / before selection-scoped promote — not on every chat message.",
+            who="Knowledge operator + control plane.",
+            why="Apply only changed products; avoid full fleet rewrite.",
+            code='delta = compute_product_entity_delta("esp-001", compare_env="production")',
+            language="python",
+            pitfalls=[
+                "Confusing product delta with the parallel SSSP delta-stepping algorithm",
+                "Promoting without selection when only a subset is NEW",
+            ],
+            say_aloud="Entity delta is the ABox diff that drives selection-scoped promote.",
+            sources=[
+                _s("docs/25-Delta-Partitioning-Concurrency-Sharding-Implementation.md", "", "docs"),
+                _s("docs/20-Enterprise-KG-Ingestion-Pipeline-Architecture.md", "", "docs"),
+            ],
+            related_module_ids=["03-etl-pipeline"],
+            difficulty="medium",
+        ),
+        FlashCard(
+            id="fc-delta-promote-chant",
+            front="Delta promote operator chant",
+            track="pipeline",
+            tags=["delta", "promote", "ops"],
+            kind="concept",
+            what="Ordered fail-closed steps to apply ABox change into staging then production.",
+            how="Fetch → Select → Validate → Materialize → Smoke → Approve → Stage → Prod → Invalidate caches.",
+            where="Admin wizard; dual Neo4j :7688 then :7687.",
+            when="Every NEW/UPDATE knowledge pack.",
+            who="Knowledge operator.",
+            why="Chat never reads staging; wrong pack must not poison production diagnosis.",
+            say_aloud="Fetch Select Validate Materialize Smoke Approve Stage Prod Invalidate.",
+            sources=[
+                _s("docs/21-KG-Ingestion-Step-by-Step-Runbook.md", "", "docs"),
+                _s("docs/25-Delta-Partitioning-Concurrency-Sharding-Implementation.md", "", "docs"),
+            ],
+            related_module_ids=["03-etl-pipeline", "09-shacl-gates"],
+            difficulty="easy",
+        ),
+        FlashCard(
+            id="fc-fabric-nonclaim",
+            front="Neo4j Fabric / composite sharding status",
+            track="runtime",
+            tags=["sharding", "fabric", "scale", "as-built"],
+            kind="theory",
+            what="Physical multi-database graph shards with composite/Fabric query routing.",
+            how="Would route by product line map to separate DBs; edges typically do not cross shards.",
+            where="Not in docker compose; documented as AS_BUILT non-claim + docs/25 roadmap.",
+            when="Only if a single Neo4j cannot meet storage/CPU SLOs.",
+            who="Platform architects (not demo operators inventing claims).",
+            why="Wrong shard key destroys multi-hop INDICATES/CONFIRMS diagnosis queries.",
+            analogy="Separate warehouses vs labeled shelves in one warehouse (logical partition today).",
+            pitfalls=[
+                "Saying 'we have Fabric' in a demo of this product",
+                "Sharding before operating delta + indexes + admission correctly",
+            ],
+            say_aloud="Logical product scope now; Fabric shards later if one DB cannot scale.",
+            sources=[
+                _s(
+                    "Neo4j composite databases concepts",
+                    "https://neo4j.com/docs/operations-manual/current/scalability/composite-databases/concepts/",
+                    "docs",
+                ),
+                _s("docs/sdd/AS_BUILT.md", "", "docs"),
+            ],
+            related_module_ids=["06-partitioning"],
+            difficulty="hard",
+        ),
+        FlashCard(
             id="fc-cypher-params",
             front="Parameterized Cypher ($params)",
             track="graph",

@@ -260,6 +260,9 @@ class MemoryCard(BaseModel):
     """One atomic thing to memorize from a Masterclass: a single line of code,
     a code block, a concept, or a reusable pattern. Rich enough to drill by
     reading (front -> reveal), by fill-in-the-blank, and by writing from memory.
+
+    Optional 5W+H + sources enrich the flip side without replacing `explain` /
+    `mental_model` / `memory_hook` (legacy cards keep working with empty fields).
     """
 
     id: str
@@ -275,3 +278,17 @@ class MemoryCard(BaseModel):
     memory_hook: str = ""  # a mnemonic / trick to recall it
     blank: str = ""  # fill-in-the-blank template using ____ for each gap
     answers: list[str] = Field(default_factory=list)  # ordered fill-in answers
+    # Cross-language "Rosetta" correlations (how the same idea is written elsewhere)
+    python: str = ""  # rdflib equivalent
+    cypher: str = ""  # Neo4j / Cypher equivalent
+    shacl: str = ""  # SHACL shape equivalent (for constraints)
+    # Optional 5W+H (shown on flip when non-empty; does not override legacy fields)
+    what: str = ""
+    how: str = ""
+    where: str = ""
+    when: str = ""
+    who: str = ""
+    why: str = ""
+    pitfalls: list[str] = Field(default_factory=list)
+    sources: list[SourceRef] = Field(default_factory=list)
+    run_hint: str = ""  # how to try this in Browser / CLI / Study Lab

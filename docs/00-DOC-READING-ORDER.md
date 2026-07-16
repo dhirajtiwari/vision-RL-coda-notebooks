@@ -9,6 +9,7 @@ Use this so older and newer docs do not fight each other.
 | 1 | [`sdd/`](sdd/README.md) | Agent + platform contract (AS_BUILT, NEVER, MUST) |
 | 2 | [`22-TBox-ABox-Multi-Source-Onboard-Mechanism.md`](22-TBox-ABox-Multi-Source-Onboard-Mechanism.md) | How onboarding works day-to-day |
 | 3 | [`24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md`](24-TBox-Sparse-Data-and-Enterprise-Scale-Patterns.md) | **Canonical** TBox origin, sparse data, scale, CAP, demo-vs-enterprise |
+| 3b | [`25-Delta-Partitioning-Concurrency-Sharding-Implementation.md`](25-Delta-Partitioning-Concurrency-Sharding-Implementation.md) | Delta stepping, partition, threads, sharding — **as-built + how to implement** |
 | 4 | [`15`](15-Ontology-Build-Pipeline-RDF-and-Topology-Decision.md)–[`21`](21-KG-Ingestion-Step-by-Step-Runbook.md) MD series | Build, runtime, landscape, indexes, ingest |
 | 5 | [`interview/Master-This-Codebase.md`](interview/Master-This-Codebase.md) | Memorize / write / explain narrative |
 | 6 | [`interview/Interview-Mastery-Guide.md`](interview/Interview-Mastery-Guide.md) | Persona Q&A appendix |

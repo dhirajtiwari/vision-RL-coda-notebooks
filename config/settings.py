@@ -138,6 +138,10 @@ class Settings(BaseSettings):
     azure_openai_api_key: str | None = None
     azure_openai_endpoint: str | None = None
     azure_openai_api_version: str = "2024-10-21"
+    # Cheapest model for the optional schema-bound unstructured extractor
+    # (graph/enterprise_pipeline/extractors/llm_graph_extract.py). Kept cheap on
+    # purpose — extraction is a bulk/offline enrichment, not the diagnose path.
+    llm_extract_model: str = "gpt-4o-mini"
 
     # --- FinOps (§F) ---
     llm_cost_budget_usd_per_day: float = 5.00

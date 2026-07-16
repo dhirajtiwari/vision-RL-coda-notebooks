@@ -1,0 +1,98 @@
+# Neo4j Enterprise CORE servers — write path + Raft consensus.
+# REFERENCE topology (see k8s/cluster/README.md). Enterprise license required.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: neo4j-core
+  labels:
+    app: neo4j
+    role: core
+spec:
+  serviceName: neo4j-core
+  # Odd number for Raft quorum (survives 1 core failure). 3 is the minimum.
+  replicas: 3
+  podManagementPolicy: Parallel
+  selector:
+    matchLabels:
+      app: neo4j
+      role: core
+  template:
+    metadata:
+      labels:
+        app: neo4j
+        role: core
+    spec:
+      # Spread cores across nodes so one node loss ≠ quorum loss.
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: neo4j
+                  role: core
+              topologyKey: kubernetes.io/hostname
+      automountServiceAccountToken: false
+      containers:
+        - name: neo4j
+          image: neo4j:5-enterprise
+          ports:
+            - { containerPort: 7474, name: http }
+            - { containerPort: 7687, name: bolt }
+            - { containerPort: 5000, name: discovery }
+            - { containerPort: 6000, name: tx }
+            - { containerPort: 7000, name: raft }
+          env:
+            - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
+              value: "yes" # REQUIRES a valid Neo4j Enterprise license
+            - name: NEO4J_AUTH
+              valueFrom:
+                secretKeyRef:
+                  name: diagnostics-secrets
+                  key: NEO4J_AUTH
+            - name: NEO4J_PLUGINS
+              value: '["apoc"]'
+            # --- Clustering (Neo4j 5) ---
+            - name: NEO4J_server_cluster_system__database__mode
+              value: "PRIMARY"
+            - name: NEO4J_initial_server_mode__constraint
+              value: "PRIMARY"
+            - name: NEO4J_dbms_cluster_minimum__initial__system__primaries__count
+              value: "3"
+            - name: NEO4J_server_discovery_type
+              value: "K8S"
+            - name: NEO4J_server_discovery_advertised__address
+              value: "$(POD_NAME).neo4j-core:5000"
+            # --- Page cache: size to the working set (Part 2 §1) ---
+            - name: NEO4J_server_memory_pagecache_size
+              value: "4G"
+            - name: NEO4J_server_memory_heap_max__size
+              value: "4G"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          volumeMounts:
+            - name: neo4j-core-data
+              mountPath: /data
+          resources:
+            requests:
+              cpu: "1"
+              memory: "6Gi"
+              ephemeral-storage: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "8Gi"
+              ephemeral-storage: "2Gi"
+          readinessProbe:
+            tcpSocket:
+              port: 7687
+            initialDelaySeconds: 60
+            periodSeconds: 10
+  volumeClaimTemplates:
+    - metadata:
+        name: neo4j-core-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 50Gi

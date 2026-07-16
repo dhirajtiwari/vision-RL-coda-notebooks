@@ -37,10 +37,21 @@ Keep this file short. New paid lessons → add a bullet **the same week**.
 - NEVER rewrite seed fixtures mid-suite without restore — keep CI hermetic.
 - NEVER depend on another machine’s monorepo docs to rebuild — SDD kit must travel alone.
 
+## Scaling & populating the KG (module `10` — paid lessons)
+
+- NEVER call a GDS algorithm without first creating a **graph projection** — GDS runs on projections, not the live store.
+- NEVER say “Dijkstra by default” — decide **weighted (cheapest route)** vs **unweighted (`shortestPath()` reachability)** on purpose.
+- NEVER reach for **sharding / Fabric / composite DBs** before vertical (page cache) + read replicas are genuinely exhausted.
+- NEVER claim **causal-cluster HA** or **Fabric multi-shard** on the community single node — those are Enterprise + multi-node; keep them `[REFERENCE]`.
+- NEVER let an LLM extractor invent node/relationship types — **bind it to the shared TBox** (`allowed_nodes`/`allowed_relationships`); keep it OFF unless `LLM_ENABLED`.
+- NEVER silently auto-merge near-duplicate (strong/weak) nodes — emit review suggestions; a human/pipeline gate merges.
+- NEVER call an LLM extractor without a **budget check before spend** (`DailyCostBudget.check()`), and never leave it on by default or read its key from anywhere but the environment.
+- NEVER deploy core Neo4j as a **Deployment** — Raft needs stable identity + per-pod PVC, i.e. a **StatefulSet**.
+- NEVER claim a **NetworkPolicy** isolates the graph tier without an **enforcing CNI** (Calico/Cilium) — otherwise it is a no-op.
+
 ## LLMOps (handbook / playbook — paid lessons)
 
-- NEVER put security controls “only in the prompt” — enforce in `guardrails/` / redaction / infra and **test** them.
-- NEVER embed prompts or model IDs as unversioned string literals — use `prompts/` + `models/registry.yaml`.
+- NEVER put security controls “only in the prompt” — enforce in `guardrails/` / redaction / infra and **test** them.- NEVER embed prompts or model IDs as unversioned string literals — use `prompts/` + `models/registry.yaml`.
 - NEVER pin models to `latest` — registry must pin versions; silent drift is a defect.
 - NEVER ship without an eval + safety gate (`evals/run_eval.py` + thresholds) when changing diagnose quality/safety.
 - NEVER loosen `thresholds.yaml` floors to make CI green — fix the regression.

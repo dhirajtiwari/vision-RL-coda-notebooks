@@ -107,6 +107,16 @@ def ingest_unstructured_dir(root: Path) -> dict[str, Any]:
             product_hint = stem.split("_")[0]
         extracted = extract_from_text(text, doc_id=path.name, product_hint=product_hint)
         extracted["path"] = str(path)
+        # Optional schema-bound LLM enrichment (OFF unless settings.llm_enabled).
+        # Fails open to the deterministic extraction above.
+        try:
+            from graph.enterprise_pipeline.extractors.llm_graph_extract import extract_graph_from_text
+
+            llm_result = extract_graph_from_text(text, doc_id=path.name)
+            if llm_result.get("enabled"):
+                extracted["llm_graph"] = llm_result
+        except Exception:  # pragma: no cover - never block deterministic path
+            pass
         docs.append(extracted)
         artifacts.append(str(path))
     return {

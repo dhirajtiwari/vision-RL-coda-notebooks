@@ -1,0 +1,33 @@
+# Reference values for the OFFICIAL Neo4j Helm chart (neo4j/neo4j).
+# Prefer the chart/Operator over raw manifests for production: they handle
+# cluster formation (stable identity, Raft) correctly.
+#   helm repo add neo4j https://helm.neo4j.com/neo4j
+#   helm install core neo4j/neo4j -f k8s/cluster/values-neo4j-helm.yaml
+#
+# REFERENCE — requires a Neo4j Enterprise license (see README.md blockers).
+neo4j:
+  name: warrantygraph
+  edition: enterprise
+  acceptLicenseAgreement: "yes"
+  # 3 primaries (cores) for Raft quorum; deploy this release 3× or use the
+  # chart's clustering mode with minimumClusterSize: 3.
+  minimumClusterSize: 3
+  resources:
+    cpu: "2"
+    memory: "8Gi"
+
+# Page cache = the working set in RAM (Part 2 §1).
+config:
+  server.memory.pagecache.size: "4G"
+  server.memory.heap.max_size: "4G"
+  server.bolt.enabled: "true"
+
+volumes:
+  data:
+    mode: "defaultStorageClass"
+    defaultStorageClass:
+      requests:
+        storage: 50Gi
+
+# Read replicas (secondaries) are a separate release/pool for elastic read scale.
+# See the chart docs for `readReplica` / secondary configuration.

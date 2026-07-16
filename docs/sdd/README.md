@@ -26,6 +26,7 @@ Thin, progressive files so Claude Code / Codex / humans avoid **lost-in-the-midd
 | [`07-ACCEPTANCE.md`](./07-ACCEPTANCE.md) | Parity checklists |
 | [`08-GAPS.md`](./08-GAPS.md) | Roadmap beyond parity (planning) |
 | [`09-PLATFORM-LLMOPS.md`](./09-PLATFORM-LLMOPS.md) | Guardrails, evals, obs, gateway, FinOps, security, runbooks |
+| [`10-SCALING-POPULATING-KG.md`](./10-SCALING-POPULATING-KG.md) | Traversal/shortest-path, scale (cache/cluster/shard), ingest (strong/weak, SHACL), Docker/CI/K8s |
 
 ## Human full reference
 

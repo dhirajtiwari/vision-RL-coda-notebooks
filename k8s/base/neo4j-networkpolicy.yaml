@@ -1,0 +1,46 @@
+# NetworkPolicy: isolate Neo4j so only the API and ETL pods can reach Bolt/HTTP,
+# and (for a future Core-Replica cluster) keep causal-clustering heartbeat traffic
+# on the graph tier only. Applies the "dedicated network path for cluster traffic"
+# principle from the Scaling & Populating KG guide (Part 2 §6 / Part 4 §3) as a
+# Kubernetes NetworkPolicy.
+#
+# Requires a CNI that enforces NetworkPolicy (Calico, Cilium, etc.). On a CNI
+# without enforcement this is a no-op (documented in docs/sdd/10-...).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: neo4j-isolation
+spec:
+  podSelector:
+    matchLabels:
+      app: neo4j
+  policyTypes:
+    - Ingress
+  ingress:
+    # Application clients: only the diagnostics API and the ETL job may talk Bolt.
+    - from:
+        - podSelector:
+            matchLabels:
+              app: diagnostics-api
+        - podSelector:
+            matchLabels:
+              app: etl-pipeline
+      ports:
+        - protocol: TCP
+          port: 7687 # Bolt
+    # Cluster-internal: Neo4j pods (cores/replicas) may reach each other for
+    # Raft consensus + replication heartbeat (REFERENCE — used once the cluster
+    # overlay in k8s/cluster/ is deployed on Neo4j Enterprise).
+    - from:
+        - podSelector:
+            matchLabels:
+              app: neo4j
+      ports:
+        - protocol: TCP
+          port: 7687 # Bolt / routing
+        - protocol: TCP
+          port: 5000 # discovery
+        - protocol: TCP
+          port: 6000 # transaction
+        - protocol: TCP
+          port: 7000 # raft

@@ -265,6 +265,27 @@ def graph_diagnosis_subgraph(
     return GraphSubgraphResponse(**get_diagnosis_subgraph(product_id, symptom_ids=ids, failure_mode_id=failure_mode_id))
 
 
+@app.get("/graph/diagnostic-route")
+def graph_diagnostic_route(
+    product_id: str,
+    symptom_id: str,
+    target: str = "step",
+) -> dict:
+    """Cheapest weighted diagnostic route from a Symptom to a confirming step/part.
+
+    Weighted APOC Dijkstra (``apoc.algo.dijkstra`` over a derived ``cost``) with
+    an automatic native ``shortestPath()`` fallback. See
+    ``docs/sdd/10-SCALING-POPULATING-KG.md`` §1.
+    """
+    if not verify_connection():
+        raise HTTPException(503, "Neo4j unavailable")
+    if target not in ("step", "part"):
+        raise HTTPException(422, "target must be 'step' or 'part'")
+    from graph.diagnostic_path import cheapest_diagnostic_route
+
+    return cheapest_diagnostic_route(product_id, symptom_id, target_kind=target)  # type: ignore[arg-type]
+
+
 @app.get("/graph/rdf/schema")
 def graph_rdf_schema() -> dict:
     """
@@ -1254,8 +1275,30 @@ def admin_validate() -> dict:
     }
 
 
-@app.get("/admin/pipeline/review", dependencies=[Depends(require_admin)])
-def admin_review() -> dict:
+@app.post("/admin/pipeline/llm-extract", dependencies=[Depends(require_admin)])
+def admin_llm_extract(payload: dict) -> dict:
+    """Schema-bound LLM extraction of graph triples from unstructured text.
+
+    OFF unless `LLM_ENABLED=true` + `OPENAI_API_KEY` set. Uses the cheapest model
+    (`LLM_EXTRACT_MODEL`, default gpt-4o-mini), binds output to the shared TBox,
+    and checks the daily FinOps budget before spending. Returns **weak nodes** —
+    resolve + shape-validate before promote. See `docs/sdd/10-SCALING-POPULATING-KG.md`.
+    """
+    text = str((payload or {}).get("text", "")).strip()
+    if not text:
+        raise HTTPException(400, "text required")
+    if len(text) > 8000:
+        raise HTTPException(422, "text too long (max 8000 chars)")
+    from graph.enterprise_pipeline.extractors.llm_graph_extract import (
+        extract_graph_from_text,
+        is_available,
+    )
+
+    ok, reason = is_available()
+    if not ok:
+        raise HTTPException(400, f"LLM extractor unavailable: {reason}")
+    return extract_graph_from_text(text, doc_id=str((payload or {}).get("doc_id", "")))
+
     """Stage 3: Human review gate. Shows what is staged and requires explicit approval."""
     last = ADMIN_REVIEW_STATE.get("last_report") or {}
     smoke_ok = ADMIN_REVIEW_STATE.get("last_smoke_ok", False)

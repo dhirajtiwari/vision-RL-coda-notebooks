@@ -91,6 +91,12 @@ def test_flashcards_deck_has_5wh_and_sources():
     assert any(c.id == "fc-llmops-map" for c in deck)
     assert any(c.track == "finops" for c in deck)
     assert any(c.track == "cicd" for c in deck)
+    # indexing + delta scale cards
+    assert any(c.id == "fc-unique-constraint-index" for c in deck)
+    assert any(c.id == "fc-entity-delta" for c in deck)
+    idx = next(c for c in deck if c.id == "fc-unique-constraint-index")
+    assert idx.what and idx.how and idx.where and idx.code
+    assert idx.sources
 
     client = TestClient(app)
     r = client.get("/study/flashcards?track=foundations")
@@ -98,3 +104,41 @@ def test_flashcards_deck_has_5wh_and_sources():
     body = r.json()
     assert body["count"] >= 1
     assert body["cards"][0]["what"]
+
+
+def test_masterclasses_include_turtle_and_graph_ops():
+    """Turtle guide must stay registered; graph ops is a sibling masterclass."""
+    client = TestClient(app)
+    r = client.get("/study/masterclasses")
+    assert r.status_code == 200
+    ids = {m["id"] for m in r.json()["masterclasses"]}
+    assert "mc-01-rdf-owl-ontology-turtle" in ids
+    assert "mc-02-smart-cypher-agent" in ids
+    assert "mc-03-graph-ops-index-delta-scale" in ids
+
+    turtle = client.get("/study/masterclasses/mc-01-rdf-owl-ontology-turtle")
+    assert turtle.status_code == 200
+    body = turtle.json()["body"]
+    assert "Car Diagnostics RDF/OWL Ontology" in body
+    assert "Prefixes" in body or "prefixes" in body.lower() or "TBox" in body
+
+    ops = client.get("/study/masterclasses/mc-03-graph-ops-index-delta-scale")
+    assert ops.status_code == 200
+    assert "create_constraints" in ops.json()["body"]
+    assert "Seek" in ops.json()["body"]
+
+    cards = client.get("/study/masterclasses/mc-03-graph-ops-index-delta-scale/cards")
+    assert cards.status_code == 200
+    payload = cards.json()
+    assert payload["counts"]["total"] >= 10
+    assert payload["counts"]["blanks"] >= 1
+    sample = payload["cards"][0]
+    assert sample["front"]
+    assert sample.get("what")  # 5W+H on graph ops cards
+    # Turtle cards still load; enrichment must not wipe fronts
+    t_cards = client.get("/study/masterclasses/mc-01-rdf-owl-ontology-turtle/cards")
+    assert t_cards.status_code == 200
+    fronts = [c["front"] for c in t_cards.json()["cards"]]
+    assert any("7-beat" in f or "TBox" in f for f in fronts)
+    enriched = [c for c in t_cards.json()["cards"] if c.get("what")]
+    assert len(enriched) >= 5

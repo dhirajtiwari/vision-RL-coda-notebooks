@@ -1,0 +1,16 @@
+# REFERENCE cluster overlay (Neo4j Enterprise). NOT part of k8s/base.
+# Deploy only after resolving the blockers in README.md.
+#   kubectl apply -k k8s/cluster/
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - neo4j-core-statefulset.yaml
+  - neo4j-core-service.yaml
+  - neo4j-replica-deployment.yaml
+  - neo4j-read-service.yaml
+  - neo4j-cluster-networkpolicy.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: diagnostics-platform
+  app.kubernetes.io/component: neo4j-cluster

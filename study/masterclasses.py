@@ -521,6 +521,738 @@ If you can reconstruct this table from memory, you understand not just three ver
 '''
 
 
+# ── Guide 3: Indexing, delta, partition, concurrency, sharding ─────────────
+_GRAPH_OPS_BODY = """# Master This Code: Graph Ops — Indexes, Delta, Partition, Concurrency, Sharding
+
+### A Memorize-It, Write-It, Explain-It Guide — scale the knowledge graph without lying about Fabric
+
+## HOW TO USE THIS GUIDE
+
+Same method as the Turtle ontology guide: read the Story until you can retell it, read the annotated code once, drill **Flashcards** (5W+H + code + pitfalls + sources), run **Test** (fill blanks → write a snippet → write a section), then the Final Boss. Space across sessions.
+
+**How this relates to the Turtle guide (do not replace it):** the Turtle masterclass defines the **rulebook** (TBox) and sample facts. This guide is what happens **after** facts land in Neo4j: **indexes for identity**, **delta for incremental ABox**, **logical partitions**, **bounded concurrency**, and honest **non-claims** about sharding/HA. Keep the Turtle chapter untouched; this is a sibling track.
+
+**Authoritative product docs:** `docs/25-Delta-Partitioning-Concurrency-Sharding-Implementation.md`, `docs/19-Indexes-Constraints-and-Lookup-Performance.md`, `docs/sdd/AS_BUILT.md`.
+
+## PART 0 — THE STORY (your memory anchor)
+
+> **"I do not invent a Fabric cluster on day one. First I put phone books on every business key — unique constraints so Product and Symptom can be found by id without scanning the warehouse. Then I load with MERGE so re-runs do not duplicate the world. When new bulletins arrive, I do not rebuild the fleet: I preview change, compute entity delta, select products, validate, materialize, promote staging, then production, and invalidate caches. Multi-tenant limits and caches share one language of keys: tenant|product. Connector fetches may fan out on a few threads; one diagnosis ranks serially under an admission bouncer so Neo4j does not melt. Only if one database cannot hold the SLO do I plan product-line shards — relationships stay inside a shard, and I never claim Fabric is live in this demo."**
+
+The one-sentence chant: **Seek → Delta → Key → Cap → Shard-later.**
+
+| Beat | Name | What you memorize |
+|------|------|-------------------|
+| 1 | Unique constraints (indexes) | `create_constraints` + MERGE + PROFILE |
+| 2 | Delta stepping (ABox) | change_preview → entity_delta → promote |
+| 3 | Partition & concurrency | partition keys, parallel_map, admission |
+| 4 | Retrieval + honesty | index-backed MATCH; Fabric = not as-built |
+
+## PART 1 — BEAT 1: INDEXING (as-built code)
+
+### Why indexes first
+
+Without uniqueness, `MERGE (p:Product {product_id: $id})` can create duplicates under race, and `MATCH (p:Product {product_id: $id})` becomes a label scan. Neo4j 5: `CREATE CONSTRAINT … REQUIRE prop IS UNIQUE` builds a **unique index**.
+
+### The function you must be able to write
+
+```python
+def create_constraints(tx) -> None:
+    for query in [
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (p:Product) REQUIRE p.product_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (s:Symptom) REQUIRE s.symptom_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (fm:FailureMode) REQUIRE fm.failure_mode_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (ds:DiagnosticStep) REQUIRE ds.step_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (p:Part) REQUIRE p.part_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (r:HistoricalResolution) REQUIRE r.resolution_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (m:Model) REQUIRE m.model_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (sku:SKU) REQUIRE sku.sku_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (c:Component) REQUIRE c.component_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (ec:ErrorCode) REQUIRE ec.error_code_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (a:Asset) REQUIRE a.asset_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (wp:WarrantyPolicy) REQUIRE wp.policy_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (cl:Claim) REQUIRE cl.claim_id IS UNIQUE",
+    ]:
+        tx.run(query)
+```
+
+**File:** `graph/populate_graph.py` — called **before** MERGEs:
+
+```python
+with driver.session() as session:
+    session.execute_write(create_constraints)
+    # then MERGE products, symptoms, …
+```
+
+### MERGE paired with the index
+
+```cypher
+MERGE (p:Product {product_id: $product_id})
+SET p.name = $name
+```
+
+### Prove the planner seeks
+
+```cypher
+SHOW CONSTRAINTS;
+SHOW INDEXES;
+
+PROFILE
+MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)
+RETURN fm LIMIT 5
+```
+
+Look for **NodeUniqueIndexSeek** (or similar) on Product — not NodeByLabelScan for that step.
+
+### 5W+H (Beat 1)
+
+| W/H | Answer |
+|-----|--------|
+| **What** | Unique constraints that materialize unique indexes on business keys |
+| **How** | `CREATE CONSTRAINT IF NOT EXISTS … REQUIRE … IS UNIQUE` then MERGE/MATCH on that property |
+| **Where** | `graph/populate_graph.py` `create_constraints`; Browser `SHOW INDEXES` |
+| **When** | Every populate/promote load; used on every diagnose seek |
+| **Who** | ETL creates; GraphRAG uses |
+| **Why** | Fast identity + no duplicate products/symptoms |
+
+**Sources:** [Neo4j constraints](https://neo4j.com/docs/cypher-manual/current/constraints/), [MERGE](https://neo4j.com/docs/cypher-manual/current/clauses/merge/), [query tuning](https://neo4j.com/docs/cypher-manual/current/query-tuning/), repo `docs/19-…`, `docs/25-…`.
+
+**Pitfalls:** Index every property (write tax); full-text/vector ≠ unique key; create constraint only after cleaning duplicate data.
+
+**Run:** `python -m graph.populate_graph` → open http://localhost:7474 → `SHOW CONSTRAINTS;`
+
+## PART 2 — BEAT 2: DELTA STEPPING (ABox, not the shortest-path algorithm)
+
+### Two meanings (do not mix)
+
+| Term | Meaning | Here? |
+|------|---------|-------|
+| Delta-stepping **algorithm** | Parallel SSSP (Meyer/Sanders) | **No** |
+| Delta **data** stepping | Apply only NEW/UPDATE knowledge packs | **Yes** |
+
+### Operator chant
+
+**Fetch → Select → Validate ABox → Materialize → Smoke → Approve → Promote staging → Promote production → Invalidate caches.**
+
+### Code anchors
+
+- `graph/enterprise_pipeline/change_preview.py` — NEW / UPDATE / IN_SYNC vs production
+- `graph/enterprise_pipeline/entity_delta.py` — per-product entity diffs
+- Promote path uses **MERGE** into staging (:7688) then production (:7687)
+- Chat **never** reads staging
+
+```python
+# Conceptual
+delta = compute_product_entity_delta("esp-001", compare_env="production")
+# Admin: select product_ids → validate → materialize → promote
+```
+
+### 5W+H (Beat 2)
+
+| W/H | Answer |
+|-----|--------|
+| **What** | Incremental ABox change application by product selection |
+| **How** | change_preview → entity_delta → validate → MERGE promote |
+| **Where** | Admin wizard + enterprise_pipeline modules |
+| **When** | Bulletin/onboard updates — not every chat turn |
+| **Who** | Knowledge operator / control plane |
+| **Why** | Avoid full fleet rewrite; fail-closed promote |
+
+**Sources:** `docs/25`, `docs/20`, `docs/22`; industry CDC/delta ETL practice (not fully wired as live SAP CDC here).
+
+## PART 3 — BEAT 3: PARTITIONING & CONCURRENCY
+
+### Logical partition keys (as-built)
+
+```python
+# runtime/partitioning.py
+def partition_for_request(*, tenant_id="default", product_id=None, ... ) -> str:
+    bits = [f"tenant={tenant_id or 'default'}"]
+    if product_id:
+        bits.append(f"product={product_id}")
+    ...
+    return "|".join(bits)
+```
+
+Same key language for rate limits and cache namespaces. Work partition = **selection `product_ids`** lists in promote.
+
+**Not as-built:** hard multi-tenant ACL, Neo4j Fabric multi-DB shards.
+
+### Bounded parallel I/O
+
+```python
+# runtime/concurrency.py
+from concurrent.futures import ThreadPoolExecutor
+
+def parallel_map(items, fn, max_workers=4, preserve_order=True):
+    ...
+```
+
+Use for connector fetch fan-out. **Do not** parallelize Bayes ranking inside one diagnosis.
+
+### Admission control (bulkhead)
+
+Cap in-flight `/diagnose` (default 32). Acquire → work → **always** release in `finally`. Redis-backed when `REDIS_URL` is set for multi-pod.
+
+### 5W+H (Beat 3)
+
+| W/H | Answer |
+|-----|--------|
+| **What** | Logical keys + bounded threads + diagnose admission |
+| **How** | `partition_*` helpers; ThreadPoolExecutor max_workers; ConcurrencyLimiter |
+| **Where** | `runtime/partitioning.py`, `concurrency.py`, `concurrency_limit.py` |
+| **When** | Every multi-tenant request; every extract fan-out; every diagnose under load |
+| **Who** | API platform + ETL |
+| **Why** | No cross-tenant bleed in limits/cache; protect p99 and Bolt pool |
+
+**Sources:** [Python concurrent.futures](https://docs.python.org/3/library/concurrent.futures.html), [Google SRE — overload](https://sre.google/sre-book/handling-overload/).
+
+## PART 4 — BEAT 4: RETRIEVAL PATH + SHARDING HONESTY
+
+### Hot path (index + product scope)
+
+```cypher
+MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)
+OPTIONAL MATCH (s:Symptom)-[ind:INDICATES]->(fm)
+WHERE s.symptom_id IN $symptom_ids
+RETURN fm.failure_mode_id AS id, sum(coalesce(ind.confidence, 0)) AS score
+ORDER BY score DESC
+```
+
+Request path: rate-limit key → admission → optional cache → **unique index seek** → expand product-local edges → hybrid match + Bayes (serial) → release admission.
+
+### Sharding (roadmap only)
+
+Neo4j **composite databases / Fabric**: separate graphs; relationships typically **do not cross shards**. Natural shard key for this domain: **product line / brand / region**. Demo: **not deployed** (`AS_BUILT` non-claim). Cluster HA (primaries/secondaries) also **not** as-built — single prod + staging containers.
+
+### Non-claims (say these only if you want to fail the demo)
+
+- “We have Neo4j Fabric sharding.”
+- “We have full CDC from SAP.”
+- “We have causal cluster HA.”
+- “Delta-stepping shortest-path is in the product.”
+- “Multi-threading speeds up Bayes ranking.”
+
+**Say instead:** selection-scoped ABox deltas with MERGE, logical tenant/product keys, bounded concurrency; Fabric/HA designed against official Neo4j docs but not live here.
+
+## PART 5 — SELF-QUIZ (no peeking)
+
+1. Write `create_constraints` for Product and Symptom.
+2. What runs first in `populate_graph`: constraints or MERGEs?
+3. PROFILE shows NodeByLabelScan on Product — what is wrong?
+4. Delta-stepping algorithm vs product delta — which do we implement?
+5. Recite the promote chant.
+6. Write `partition_for_request` key shape for tenant + product.
+7. Why is ranking serial inside one diagnose?
+8. Is Fabric multi-shard as-built?
+
+## PART 6 — PRACTICE LEVELS
+
+**Level 1 — Flashcards:** Masters → this guide → Flashcards. Flip for 5W+H, code, pitfalls, sources, run hints. Mark known.
+
+**Level 2 — Fill blanks:** Test → Fill blanks (product_id, run, CONSTRAINTS, …).
+
+**Level 3 — Write snippet / section:** Write `create_constraints`, `parallel_map`, PROFILE block, retrieval MATCH from memory.
+
+**Level 4 — Run it:** `python -m graph.populate_graph`; Browser SHOW INDEXES; PROFILE a product MATCH; Admin delta path for one product.
+
+## PART 7 — FINAL BOSS TEST
+
+1. Explain Seek → Delta → Key → Cap → Shard-later in under 90 seconds.
+2. Write create_constraints + one MERGE + PROFILE from a blank page.
+3. Narrate entity_delta for `esp-001` from catalog vs production to promote.
+4. Draw request path with admission + index seek.
+5. State three non-claims without notes.
+
+## PART 8 — CODE & DOC MAP
+
+| Concern | Location |
+|---------|----------|
+| Unique indexes | `graph/populate_graph.py` `create_constraints` |
+| Entity delta | `graph/enterprise_pipeline/entity_delta.py` |
+| Change preview | `graph/enterprise_pipeline/change_preview.py` |
+| Parallel extract | `runtime/concurrency.py` |
+| Admission | `runtime/concurrency_limit.py` |
+| Partition keys | `runtime/partitioning.py` |
+| Implementation guide | `docs/25-Delta-Partitioning-Concurrency-Sharding-Implementation.md` |
+| Index deep dive | `docs/19-Indexes-Constraints-and-Lookup-Performance.md` |
+| As-built / gaps | `docs/sdd/AS_BUILT.md`, `08-GAPS.md` |
+
+If you can reconstruct the chant and the constraint+MERGE pair from memory, you understand how this product scales **truthfully**.
+"""
+
+
+# ── Guide 4: Scaling & populating the KG (traversal, scale, pipeline, infra) ─
+_SCALING_POPULATE_BODY = """# Master This Code: Scaling & Populating the Diagnostics Knowledge Graph
+
+### A Memorize-It, Write-It, Explain-It Guide — traversal, high-volume scale, the full data pipeline, and where Docker / GitHub Actions / Kubernetes fit
+
+## HOW TO USE THIS GUIDE
+
+Same method as the other masterclasses: read the Story until you can retell it, read each Part's annotated code once, drill **Flashcards** (5W+H + code + pitfalls + sources), run **Test** (fill blanks → write a snippet → write a section), then the Final Boss. Space across sessions.
+
+**Where this sits in the series.** The Turtle guide (`mc-01`) defines the **rulebook** (TBox). The Cypher-agent guide (`mc-02`) **queries** the graph. The Graph-Ops guide (`mc-03`) covers **indexes / delta / partition / concurrency / sharding honesty**. This guide answers four operational questions end to end: (1) how traversal / shortest-path actually works and whether it is built in, (2) how to scale to a very large graph under very high volume, (3) how raw structured / semi-structured / unstructured data becomes graph data, and (4) where Docker, GitHub Actions, and Kubernetes each fit.
+
+**Honesty rule (unchanged across the series):** every snippet is tagged **[AS-BUILT]** (real repo code you can run), **[REFERENCE]** (correct Neo4j/GDS/K8s pattern documented as roadmap — not live in this demo), or **[NON-CLAIM]** (do not tell a buyer this is done).
+
+**Authoritative product docs:** `docs/25-Delta-Partitioning-Concurrency-Sharding-Implementation.md`, `docs/19-Indexes-Constraints-and-Lookup-Performance.md`, `docs/17-Enterprise-Landscape-Pipeline-and-Topology.md`, `docs/21-KG-Ingestion-Step-by-Step-Runbook.md`, `docs/sdd/AS_BUILT.md`.
+
+## PART 0 — THE STORY (your memory anchor)
+
+> **"First I decide whether I even need a shortest path — most of the time I want the *cheapest diagnostic route*, not the fewest hops, so I reach for a weighted algorithm and remember it runs on an in-memory projection, not the live store. Then I scale the boring way first: bigger page cache before any cluster, then read replicas, then three separate caching layers, and only *then* — if one database truly cannot hold the load — property sharding, never Fabric-on-day-one. Then I feed the graph: structured rows MERGE straight in as strong nodes, semi-structured JSON/CSV parse through APOC, and unstructured text goes through an LLM that is bound to my five classes so it can only ever propose things the ontology allows — those come in as weak nodes that get resolved into strong ones and validated against shapes before anyone trusts them. Finally I wrap it: Docker packages Neo4j and my pipeline code, GitHub Actions gates every ontology / query / prompt change before merge, and Kubernetes runs the core graph as a StatefulSet with read replicas and a nightly ingestion CronJob."**
+
+The one-sentence chant: **Weighted-path → Scale-boring-first → Strong+Weak+Validate → Docker-gate-run.**
+
+| Part | Theme | What you memorize |
+|------|-------|-------------------|
+| 1 | Traversal | `shortestPath()` vs GDS; projection first; weighted = cheapest route |
+| 2 | Scale | page cache → replicas → 3 caches → property sharding last |
+| 3 | Pipeline | structured MERGE, semi APOC, unstructured schema-bound LLM, strong/weak, SHACL |
+| 4 | Infra | Docker packages, Actions gates, K8s runs (StatefulSet + CronJob) |
+
+## PART 1 — TRAVERSAL & SHORTEST PATH
+
+### Two tiers (memorize the split)
+
+| Tier | Ships with Neo4j? | Weighted? | Use |
+|------|-------------------|-----------|-----|
+| Native Cypher `shortestPath()` / `allShortestPaths()` | **Yes** (built in) | No — fewest hops (BFS) | reachability: *is there any path at all?* |
+| GDS library (Dijkstra, Delta-Stepping, A*, Yen's) | **No** — install separately | Yes — lowest total cost | *cheapest* diagnostic route by technician time / part cost |
+
+### Native, unweighted — reachability [REFERENCE]
+
+```cypher
+// Is this Symptom connected to any Resolution at all? (fewest hops)
+MATCH (s:Symptom {symptom_id: $symptom_id}), (r:Resolution)
+MATCH path = shortestPath((s)-[*..6]-(r))
+RETURN path
+LIMIT 1
+```
+
+### Weighted — cheapest route needs a projection FIRST [REFERENCE]
+
+The #1 trip-up: **GDS algorithms run on an in-memory graph projection, not your live store.** Project, then run, then optionally drop.
+
+```cypher
+// 1) Project the sub-shape you want to analyse (nodes + weighted rels)
+CALL gds.graph.project(
+  'diag',
+  ['Symptom','FailureMode','DiagnosticStep','Resolution'],
+  {
+    INDICATES:  { properties: 'cost' },
+    CONFIRMS:   { properties: 'cost' },
+    LEADS_TO:   { properties: 'cost' }
+  }
+);
+
+// 2) Cheapest route from one symptom to a resolution (weighted Dijkstra)
+MATCH (src:Symptom {symptom_id: $symptom_id}), (dst:Resolution {resolution_id: $resolution_id})
+CALL gds.shortestPath.dijkstra.stream('diag', {
+  sourceNode: src, targetNode: dst, relationshipWeightProperty: 'cost'
+})
+YIELD totalCost, nodeIds, costs
+RETURN totalCost, [gds.util.asNode(id) IN nodeIds | gds.util.asNode(id).name] AS route;
+
+// 3) Free the projection when done
+CALL gds.graph.drop('diag');
+```
+
+### The algorithm menu (pick on purpose, not "Dijkstra by default")
+
+| Algorithm | Job | Weighted | Parallel |
+|-----------|-----|----------|----------|
+| `gds.shortestPath.dijkstra` | one source → one target | Yes | No (single-threaded) |
+| `gds.allShortestPaths.dijkstra` | one source → all nodes | Yes | No |
+| **Delta-Stepping** SSSP | one source → all, **fast** | Yes | **Yes (parallel)** |
+| `A*` | source→target with a heuristic | Yes | No |
+| Yen's | **k** shortest paths (alternatives) | Yes | Partial |
+| BFS / DFS | plain reachability | No | No |
+
+**Precise fact to keep:** GDS's Dijkstra is single-threaded **no matter how much concurrency you configure** — for genuinely parallel single-source shortest paths at scale you switch **algorithm** to Delta-Stepping; it is not a config flag on Dijkstra.
+
+### In THIS repo [AS-BUILT]
+
+The diagnosis hot path does **not** call `shortestPath()` or GDS. It is a **bounded, parameterized, product-scoped multi-hop `MATCH`** — start at a known product/symptom (unique index seek), expand product-local edges, score in Python. Fewest-hops reachability is not the question; ranked failure modes are.
+
+```cypher
+// graph/graph_rag.py style — bounded expansion, not a path search
+MATCH (p:Product {product_id: $product_id})-[:CAN_HAVE]->(fm:FailureMode)
+OPTIONAL MATCH (s:Symptom)-[ind:INDICATES]->(fm)
+WHERE s.symptom_id IN $symptom_ids
+RETURN fm.failure_mode_id AS id, sum(coalesce(ind.confidence, 0)) AS score
+ORDER BY score DESC
+```
+
+**[NON-CLAIM]** "We run Delta-stepping / Dijkstra shortest-path in production." We do not — GDS is not installed (only APOC). The weighted-path blocks above are the correct pattern to add if a *cheapest-route* use case is prioritised.
+
+## PART 2 — SCALING FOR HIGH VOLUME
+
+Apply in order — each step is what you reach for once the previous stops being enough.
+
+### Step 1 — Vertical first: the page cache [REFERENCE]
+
+More RAM matters more for Neo4j than anything else, because the **page cache** decides whether a query reads from RAM or disk. Size it to hold your active working set before touching clustering.
+
+```bash
+# neo4j.conf (reference tuning — not tuned in the demo container)
+server.memory.pagecache.size=8g
+server.memory.heap.initial_size=4g
+server.memory.heap.max_size=4g
+```
+
+### Step 2 — Read scaling: Core-Replica cluster [REFERENCE / NON-CLAIM here]
+
+```text
+                 ┌──────────── writes (HAProxy) ────────────┐
+                 ▼                                            ▼
+   Core-1 ◄─Raft─► Core-2 ◄─Raft─► Core-3     (odd number; quorum survives 1 loss)
+     │                                  │
+     └────── async replication ─────────┘
+                 │            │            │
+              Replica-1   Replica-2   Replica-N   ◄── load balancer sends READS here
+```
+
+- **Core servers**: authoritative, Raft consensus for writes — always an **odd** number (3 min).
+- **Read replicas**: async copies, serve reads, no write consensus → "near-infinite" horizontal read scale.
+- **Causal consistency**: a client that just wrote gets a **bookmark**; subsequent reads with that bookmark are guaranteed to reflect that write — so scaling reads never shows a user stale data after their own change.
+
+```python
+# Reference: read-your-writes with a bookmark (neo4j Python driver)
+with driver.session() as w:
+    w.run("MERGE (p:Product {product_id:$id}) SET p.name=$n", id="wm-001", n="Washer")
+    bookmarks = w.last_bookmarks()
+with driver.session(bookmarks=bookmarks) as r:   # guaranteed to see the write
+    r.run("MATCH (p:Product {product_id:$id}) RETURN p", id="wm-001")
+```
+
+**[AS-BUILT]** This repo runs a **single** production Neo4j (`:7687`) plus a **separate staging** Neo4j (`:7688`). That is an **environment partition** (promote-first), **not** a causal cluster. Cluster HA is a documented **non-claim**.
+
+### Step 3 — Caching is three layers, not one
+
+| Layer | What it is | This repo |
+|-------|-----------|-----------|
+| 1 Page cache | Neo4j's own store-file cache (Step 1) | REFERENCE (untuned demo) |
+| 2 Read replicas as a cache tier | replicas act like warm "graph caches" that also run read Cypher | REFERENCE / non-claim |
+| 3 Cache sharding | route a request to whichever member already has that slice warm | REFERENCE |
+| App request cache | TTL cache of stable reads (schema, subgraphs) | **[AS-BUILT]** `runtime/cache.py` |
+| Query-plan reuse | parameterized Cypher so plans are cached | **[AS-BUILT]** always `$params` |
+
+```python
+# runtime/cache.py — application TTL cache (memory, or Redis when REDIS_URL set) [AS-BUILT]
+from runtime.cache import get_named_cache, invalidate_all_named_caches
+
+cache = get_named_cache("product_subgraph", ttl_seconds=60, maxsize=128)
+data = cache.get_or_set("wm-001", lambda: expensive_load("wm-001"))
+# after an ETL load, drop stale hot reads:
+invalidate_all_named_caches()
+```
+
+```python
+# Query-plan reuse: parameterize, never string-build ids into Cypher [AS-BUILT]
+GOOD = "MATCH (p:Product {product_id: $id}) RETURN p"          # plan cached + injection-safe
+BAD  = f"MATCH (p:Product {{product_id: '{pid}'}}) RETURN p"    # recompile + injection risk
+```
+
+### Step 4 — Partitioning & sharding (hardest) [REFERENCE / NON-CLAIM]
+
+Graphs don't shard cleanly like relational rows — the whole value is that related things are connected, so a naive split forces cross-network hops on every traversal.
+
+- **Property sharding** ("Infinigraph", 2025.12 line): keep nodes+relationships together on a shard (traversal never hops the network for the *connection*), shard only heavy **property** data.
+- **Composite databases** (formerly Fabric): one query spanning separate databases — good for **federating distinct domains** (Product/ErrorCode vs Customer/Claims), not splitting one logical graph in half.
+- **Analytics clustering**: a separate read tier for heavy GDS runs so a long algorithm doesn't fight live traffic.
+
+**Practical rule:** reach for sharding only after vertical + replicas are genuinely exhausted. Most teams shard too early and pay complexity for nothing.
+
+**[AS-BUILT]** logical partition **keys** only:
+
+```python
+# runtime/partitioning.py — logical keys shared by rate-limit + cache namespaces
+def partition_for_request(*, tenant_id="default", product_id=None, **_):
+    bits = [f"tenant={tenant_id or 'default'}"]
+    if product_id:
+        bits.append(f"product={product_id}")
+    return "|".join(bits)          # e.g. "tenant=acme|product=wm-001"
+```
+
+### Step 5 — Concurrency happens at two layers
+
+1. **Inside one algorithm** — an *algorithm choice*, not a setting: Dijkstra single-threaded; **Delta-Stepping** is the parallel alternative for the same job.
+2. **Across requests** — what replicas / bounded pools solve: many simultaneous reads spread across processes.
+
+```python
+# runtime/concurrency.py — bounded parallel connector I/O [AS-BUILT]
+from concurrent.futures import ThreadPoolExecutor
+
+def parallel_map(items, fn, max_workers=4, preserve_order=True):
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        return list(ex.map(fn, items)) if preserve_order else [f.result() for f in ex.map(fn, items)]
+```
+
+```python
+# runtime/concurrency_limit.py — admission control (bulkhead) [AS-BUILT]
+# cap in-flight /diagnose (default 32); acquire → work → ALWAYS release in finally.
+```
+
+**Say instead of over-claiming:** parallel **extract**, serial **transform**, sequential **MERGE** load; ranking inside one diagnosis stays **serial** for reproducibility.
+
+### Step 6 — A sized reference topology [REFERENCE]
+
+- Minimum viable cluster: **3 core** (write path, Raft quorum) + **2 read replicas per region**.
+- Transaction-log disk ≈ **3× peak daily write volume** (disk-full on the tx log is a top avoidable outage).
+- **Separate network interface** for causal-clustering heartbeat traffic.
+- Route reads and writes through **separate paths** (LB→replicas for reads, HAProxy→core for writes).
+
+## PART 3 — STRUCTURED, SEMI-STRUCTURED & UNSTRUCTURED → GRAPH
+
+Five steps, per source. This is the pipeline that makes raw inputs obey the ontology.
+
+### Step 1 — Structured (DBs, CSVs, parts catalogs)
+
+Tools: **Neo4j-ETL** (infers a graph model from FK structure), **`LOAD CSV`** (+ APOC for batching/typing). Mapping is mechanical: a model row → `:Product`; a fault-code row → `:ErrorCode`; an FK link → a relationship.
+
+```cypher
+// Reference LOAD CSV shape (native Cypher) [REFERENCE]
+LOAD CSV WITH HEADERS FROM 'file:///error_codes.csv' AS row
+MERGE (e:ErrorCode {error_code_id: row.code})
+SET e.description = row.description
+```
+
+```python
+# [AS-BUILT] this repo's structured path: connectors → MERGE via populate_graph.py
+def create_constraints(tx) -> None:
+    for q in [
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (p:Product) REQUIRE p.product_id IS UNIQUE",
+        "CREATE CONSTRAINT IF NOT EXISTS FOR (ec:ErrorCode) REQUIRE ec.error_code_id IS UNIQUE",
+        # … Symptom, FailureMode, DiagnosticStep, Part, Component, Asset, Claim, …
+    ]:
+        tx.run(q)
+# populate_graph(): session.execute_write(create_constraints) FIRST, then MERGE entities.
+```
+
+### Step 2 — Semi-structured (JSON/XML, telemetry, tickets)
+
+Tools: **APOC JSON/XML** procedures (nested shapes `LOAD CSV` can't), **Kafka + Neo4j sink** for continuous streams.
+
+```cypher
+// Reference APOC JSON load [REFERENCE]
+CALL apoc.load.json('file:///work_orders.json') YIELD value
+MERGE (w:WorkOrder {work_order_id: value.id})
+SET w.status = value.status
+```
+
+```python
+# [AS-BUILT] repo semi-structured extractor: CSV/JSONL → normalized staging rows
+# graph/enterprise_pipeline/extractors/semi_structured.py  (work_orders.jsonl, parts_delta.csv)
+```
+
+### Step 3 — Unstructured (manuals, PDFs, transcripts, notes)
+
+The hard case — and the point is to **constrain the LLM to your ontology**, not let it invent categories.
+
+Tools, increasing DIY: **llm-graph-builder** (neo4j-labs UI) → **GraphRAG `SimpleKGBuilder`** (Python) → **LangChain `LLMGraphTransformer`** (lowest-level) → **unstructured.io** (clean the text first).
+
+```python
+# [REFERENCE] schema-BOUND extraction — the critical practice
+from langchain_experimental.graph_transformers import LLMGraphTransformer
+transformer = LLMGraphTransformer(
+    llm=llm,
+    allowed_nodes=["Product", "ErrorCode", "Symptom", "DiagnosticStep", "Resolution"],
+    allowed_relationships=["CAN_EXHIBIT", "MAY_INDICATE", "CONFIRMED_BY", "LEADS_TO"],
+)
+docs = transformer.convert_to_graph_documents(clean_text_chunks)
+# The model can only ever propose (:Symptom)-[:MAY_INDICATE]->(:ErrorCode) — never an invented type.
+```
+
+```python
+# [AS-BUILT] repo unstructured path is deterministic (regex/heuristics), NOT an LLM:
+# graph/enterprise_pipeline/extractors/unstructured_text.py → provisional symptoms / error codes.
+```
+
+**[NON-CLAIM]** "We extract graph triples from PDFs with an LLM." Today it is pattern/heuristic extraction; the schema-bound LLM block is the correct upgrade path (full NER is a documented roadmap gap).
+
+### Step 4 — Strong node / weak node resolution
+
+1. **Structured → strong nodes**: verified, from a system of record (`:Product` from the official catalog).
+2. **LLM/unstructured → weak nodes**: plausible, schema-constrained, unverified until confirmed.
+3. **Resolution pass** merges weak into strong for the same real-world thing ("engine idles rough" → existing "rough idle") via exact/fuzzy string + **embedding similarity** — not left as duplicates.
+
+```python
+# [AS-BUILT] identity resolution today = MERGE on the business key (idempotent upsert)
+# + entity_delta comparing catalog ↔ Neo4j by those same keys:
+delta = compute_product_entity_delta("esp-001", compare_env="production")  # NEW vs IN_SYNC
+```
+
+**[NON-CLAIM]** embedding/fuzzy weak-node merge is **not** implemented — dedupe is exact-key MERGE. The embedding-similarity resolver is the correct enhancement.
+
+### Step 5 — Validate against the ontology before "real"
+
+Neo4j does **not** enforce OWL restrictions natively — close the gap deliberately: does every new `:ErrorCode` have ≥1 `:CONFIRMED_BY`? Is a node accidentally two disjoint classes? Failures go to a **review queue** — flag, don't silently fix or drop.
+
+```python
+# [AS-BUILT] graph/enterprise_pipeline/ontology_validate.py — SHACL-*inspired* shape checks
+MIN_SYMPTOMS = 1
+MIN_FAILURE_MODES = 1
+MIN_INDICATES_LINKS = 1   # every product needs ≥1 symptom→failure_mode with confidence
+# + ALLOWED_LIST_KEYS map catalog keys → OWL classes; LINK_SPECS enforce referential integrity;
+# run BEFORE materialize/promote — fail-closed.
+```
+
+```turtle
+# [REFERENCE] the equivalent formal W3C SHACL shape (external engine — non-claim here)
+:ErrorCodeShape a sh:NodeShape ;
+    sh:targetClass :ErrorCode ;
+    sh:property [ sh:path :confirmedBy ; sh:minCount 1 ] .
+```
+
+**[NON-CLAIM]** external SHACL/OWL reasoner in CI is roadmap; the repo uses a lightweight in-code validator.
+
+## PART 4 — DOCKER, GITHUB ACTIONS, KUBERNETES
+
+Three different jobs — not interchangeable.
+
+### Step 1 — Docker packages (two uses) [AS-BUILT]
+
+1. **Neo4j itself** in a container (official image) for local dev/test.
+2. **Your pipeline code** — ETL, extraction, validation each as their own image.
+
+```text
+docker/Dockerfile.api · Dockerfile.etl · Dockerfile.frontend · Dockerfile.mock · Dockerfile.ui
+docker/docker-compose.infra.yaml   # prod Neo4j :7687 + staging :7688 (+ Redis)
+```
+
+### Step 2 — GitHub Actions gates every change [AS-BUILT]
+
+```yaml
+# .github/workflows/ci.yml (excerpt) — merge-blocking gate
+- name: Gitleaks secret scan
+  uses: gitleaks/gitleaks-action@v2
+- name: Ruff lint
+  run: ruff check .
+- name: Multi-source packs + TBox/ABox discipline (no Neo4j required)
+  run: |
+    pytest tests/test_multi_source_tbox_abox.py tests/test_pipeline_integration.py \
+      tests/test_warranty_ontology.py tests/test_rdf_ontology_export.py -q
+- name: Docs present for multi-source / TBox mechanism
+  run: grep -q "TBox" docs/22-TBox-ABox-Multi-Source-Onboard-Mechanism.md
+```
+
+Also present: `cd.yml` (**eval-gate** before deploy + opt-in Argo canary), `eval-nightly.yml`, CodeQL, Trivy, SBOM/provenance, cosign signing.
+
+**Maps to the doc's four gates:** (1) ontology validation as a merge-block → the TBox/ABox + `rdf_ontology_export` pytest job; (2) golden-set eval on extraction → `evals/` smoke in CI; (3) scheduled ingestion → K8s CronJob (below); (4) Cypher/APOC changes ride the same build→test→deploy.
+
+**[NON-CLAIM]** a dedicated Turtle-syntax + SHACL CI job is roadmap — validation runs as pytest, not a standalone SHACL step.
+
+### Step 3 — Kubernetes runs it at scale [AS-BUILT skeleton]
+
+- **Core Neo4j = StatefulSet** (stable network identity + own PVC each) — never a Deployment, because Raft needs stable identity across restarts.
+- **Read replicas = separate, elastic pool** (HPA-style) — REFERENCE (not deployed).
+- **Ingestion = CronJob** — the production home for batch ingestion.
+- **Cluster heartbeat isolation = NetworkPolicy** — REFERENCE (not present today).
+
+```yaml
+# k8s/base/neo4j-statefulset.yaml (excerpt) [AS-BUILT — replicas: 1 in demo]
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: { name: neo4j }
+spec:
+  serviceName: neo4j
+  replicas: 1
+  volumeClaimTemplates:
+    - metadata: { name: neo4j-data }
+      spec: { accessModes: ["ReadWriteOnce"] }
+```
+
+```yaml
+# k8s/base/etl-cronjob.yaml (excerpt) [AS-BUILT]
+apiVersion: batch/v1
+kind: CronJob
+metadata: { name: etl-pipeline }
+spec:
+  schedule: "0 2 * * *"          # nightly ingestion
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: etl
+              image: ghcr.io/OWNER/REPO-diagnostics-etl:latest
+```
+
+**[NON-CLAIM]** Neo4j **Helm chart / Operator**, elastic **read-replica** pool, and a **NetworkPolicy** for heartbeat isolation are not in the repo — raw manifests + kustomize overlays (`k8s/overlays/staging|prod`) only, single Neo4j replica.
+
+### Step 4 — How they chain end to end
+
+```text
+Change ontology rule / Cypher / extraction prompt
+        │
+        ▼
+GitHub Actions: lint + TBox/ABox tests + eval + build image   ← merge-blocking gate
+        │
+        ▼
+Image pushed to registry (Docker)
+        │
+        ▼
+Kubernetes: rolling update of pipeline Deployment / CronJob picks up new image;
+Neo4j StatefulSet keeps running unless the change targets cluster config
+        │
+        ▼
+New data flows Part 3 Steps 1–5 → lands in Neo4j → validated before it is trusted
+```
+
+## PART 5 — THE CHECKLIST (recite it)
+
+1. Decided **unweighted (`shortestPath()`)** vs **weighted (GDS + a named algorithm)** — not "Dijkstra by default".
+2. GDS **projection** created before any GDS call.
+3. **Page cache** sized to the working set before clustering or sharding.
+4. Core-Replica cluster with an **odd** core count + tested **read/write path separation**.
+5. Confirmed **property sharding / composite DBs** are actually justified, or replicas still have headroom.
+6. Structured / semi / unstructured each mapped to Part 3's five steps, with **strong/weak** resolution for anything LLM-extracted.
+7. **Ontology validation (SHACL or equivalent)** runs as a real check, not assumed.
+8. **Docker** packages Neo4j + pipeline code; **Actions** gates every ontology/query/prompt change; **Kubernetes** runs core as a **StatefulSet** with replicas + ingestion **CronJobs**.
+
+## PART 6 — SELF-QUIZ (no peeking)
+
+1. Native `shortestPath()` vs GDS — which is weighted, which ships built in?
+2. What must exist before any GDS algorithm call, and why does it trip people up?
+3. Which algorithm gives parallel single-source shortest paths (not Dijkstra)?
+4. Name the three caching layers.
+5. Why is graph sharding harder than relational sharding?
+6. What binds an LLM extractor to your five ontology classes?
+7. Strong node vs weak node — which comes from a system of record?
+8. Why is Neo4j core a StatefulSet and not a Deployment?
+
+## PART 7 — FINAL BOSS TEST
+
+1. Explain **Weighted-path → Scale-boring-first → Strong+Weak+Validate → Docker-gate-run** in under 90 seconds.
+2. Write the GDS project → Dijkstra → drop sequence from a blank page.
+3. Write `create_constraints` + one MERGE, and the `LLMGraphTransformer` schema-bound call.
+4. Draw the Core-Replica topology with read/write path separation.
+5. State three **non-claims** from this repo without notes.
+
+## PART 8 — CODE & DOC MAP
+
+| Concern | Location |
+|---------|----------|
+| Bounded diagnosis MATCH | `graph/graph_rag.py` |
+| Unique indexes + MERGE | `graph/populate_graph.py` `create_constraints` |
+| App cache (3rd layer) | `runtime/cache.py` |
+| Partition keys | `runtime/partitioning.py` |
+| Bounded parallel extract | `runtime/concurrency.py` |
+| Admission control | `runtime/concurrency_limit.py` |
+| Semi-structured extractor | `graph/enterprise_pipeline/extractors/semi_structured.py` |
+| Unstructured extractor | `graph/enterprise_pipeline/extractors/unstructured_text.py` |
+| Shape validation (SHACL-style) | `graph/enterprise_pipeline/ontology_validate.py` |
+| Entity delta (strong/weak keys) | `graph/enterprise_pipeline/entity_delta.py` |
+| Docker | `docker/Dockerfile.*`, `docker/docker-compose.infra.yaml` |
+| CI gates | `.github/workflows/ci.yml`, `cd.yml`, `eval-nightly.yml` |
+| K8s | `k8s/base/neo4j-statefulset.yaml`, `k8s/base/etl-cronjob.yaml`, `k8s/overlays/*` |
+| Scale honesty | `docs/25-…`, `docs/17-…`, `docs/sdd/AS_BUILT.md` |
+
+If you can recite the checklist and write the project→Dijkstra→drop sequence and the schema-bound extractor from memory, you understand how to **scale and populate** this graph truthfully.
+"""
+
+
 MASTERCLASSES: list[Masterclass] = [
     Masterclass(
         id="mc-01-rdf-owl-ontology-turtle",
@@ -541,6 +1273,37 @@ MASTERCLASSES: list[Masterclass] = [
         tags=["langgraph", "cypher", "agent", "llm", "verbatim", "memorize"],
         estimated_minutes=45,
         body=_SMART_CYPHER_BODY,
+    ),
+    Masterclass(
+        id="mc-03-graph-ops-index-delta-scale",
+        title="Master This Code: Graph Ops — Indexes, Delta, Partition, Concurrency, Sharding",
+        subtitle="Memorize-It, Write-It, Explain-It — scale the KG without inventing Fabric",
+        track="runtime",
+        order=30,
+        tags=["indexes", "delta", "partition", "concurrency", "sharding", "verbatim", "memorize"],
+        estimated_minutes=55,
+        body=_GRAPH_OPS_BODY,
+    ),
+    Masterclass(
+        id="mc-04-scaling-populating-kg",
+        title="Master This Code: Scaling & Populating the Diagnostics Knowledge Graph",
+        subtitle="Memorize-It, Write-It, Explain-It — traversal, high-volume scale, the full data pipeline, Docker/Actions/K8s",
+        track="runtime",
+        order=40,
+        tags=[
+            "shortest-path",
+            "gds",
+            "scaling",
+            "clustering",
+            "pipeline",
+            "shacl",
+            "docker",
+            "kubernetes",
+            "verbatim",
+            "memorize",
+        ],
+        estimated_minutes=70,
+        body=_SCALING_POPULATE_BODY,
     ),
 ]
 

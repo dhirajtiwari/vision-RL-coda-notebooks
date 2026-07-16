@@ -18,7 +18,7 @@
 
 ## 20.2 What the prompt guarantees coverage of
 
-The prompt maps 1:1 to this handbook: PromptOps, RAGOps, EvalOps, Guardrails, FinOps, Model Gateway/ModelOps, Observability (OpenTelemetry), Metric catalog, Security (OWASP LLM Top 10 + threat modeling), Governance (NIST AI RMF + EU AI Act), Platform/DevOps foundations, CI/CD + supply chain, Progressive delivery + rollback, and Operations/runbooks.
+The prompt maps 1:1 to this handbook: PromptOps, RAGOps, EvalOps, Guardrails, FinOps, Model Gateway/ModelOps, Observability (OpenTelemetry), Metric catalog, Security (OWASP LLM Top 10 + threat modeling), Governance (NIST AI RMF + EU AI Act), Platform/DevOps foundations, CI/CD + supply chain, Progressive delivery + rollback, Operations/runbooks, and — when a knowledge graph is used — graph traversal/shortest-path, high-volume scaling (cache/cluster/shard), the structured/semi/unstructured population pipeline (strong/weak resolution + SHACL validation), and the Docker/CI/Kubernetes graph tier.
 
 ---
 
@@ -181,11 +181,37 @@ produce an enterprise-ready system with the LLMOps disciplines wired in from day
   regression, prompt injection, cost spike, provider outage, stale RAG, PII incident),
   each linked from its alert. Blameless post-incident reviews feed the golden set.
 
+## P. Knowledge-graph scaling & population (if a graph/KG is used)
+- **Traversal:** choose weighted (cheapest route) vs unweighted (`shortestPath()` reachability)
+  on purpose — never "Dijkstra by default"; create a **graph projection before any GDS call**;
+  keep the online read path a bounded, key-scoped `MATCH`, not a whole-graph path search.
+  Prefer the installed **APOC** (`apoc.algo.dijkstra`) with a native `shortestPath()` fallback
+  before requiring the GDS plugin.
+- **Scale in order:** page cache (size to working set) → read replicas (odd-count cores +
+  Raft, causal bookmarks) → three caching layers (page cache · replica-as-cache · cache
+  sharding) + app TTL cache + parameterized-Cypher plan reuse → **sharding last** (property
+  sharding keeps structure local; composite DBs federate distinct domains). Do NOT shard
+  before vertical + replicas are exhausted; do NOT claim cluster HA / Fabric on a community
+  single node.
+- **Populate (5 steps per source):** structured MERGE (strong nodes, unique constraints) →
+  semi-structured (APOC JSON/XML, CSV/JSONL, Kafka sink) → unstructured with the **LLM bound
+  to the ontology** (`allowed_nodes`/`allowed_relationships` via structured output AND a
+  code-side allow-list filter, never free-form; **off by default**, key from env only, on the
+  **cheapest model**, with a **FinOps budget check before every spend**) → **strong/weak
+  node resolution** (system-of-record strong; extracted weak; resolve via fuzzy/embedding —
+  flag, never silently merge) → **shape-validate ABox against TBox (SHACL/SHACL-style) before
+  promote**; failures go to a review queue.
+- **Infra:** Docker packages Neo4j **and** pipeline code; a **merge-blocking ontology gate**
+  (Turtle syntax + TBox consistency + ABox shapes) runs in CI; Kubernetes runs core Neo4j as a
+  **StatefulSet** (stable identity + per-pod PVC for Raft) with read replicas as an elastic
+  pool and ingestion as a **CronJob**; isolate cluster/heartbeat traffic with a **NetworkPolicy**
+  (enforcing CNI). Prefer the official Neo4j **Helm chart / Operator** for cluster lifecycle.
+
 # OUTPUT CONTRACT
 1. First, ask any clarifying questions needed to fill gaps in PROJECT CONTEXT.
 2. Then propose a brief architecture (diagram + component list + chosen archetype and
    dominant risks) and wait for confirmation if the scope is non-trivial.
-3. Then scaffold the repo layout and implement iteratively, section by section (A→O),
+3. Then scaffold the repo layout and implement iteratively, section by section (A→P),
    with runnable code/config and tests. Explain trade-offs and cite the governing standard
    for security/governance/delivery decisions.
 4. Finish by producing a production-readiness checklist mapped to what was and was NOT yet

@@ -137,6 +137,34 @@ def _product_core(bundle: dict[str, Any]) -> dict[str, Any]:
     return bundle
 
 
+def _near_duplicate_warnings(bundle: dict[str, Any], warnings: list[str], pid: str) -> dict[str, Any]:
+    """Detect near-duplicate symptoms / failure modes within a bundle.
+
+    Appends human-readable warnings and returns a structured suggestion map for
+    the Admin review queue. Uses the stdlib fuzzy resolver (no extra deps).
+    """
+    from graph.enterprise_pipeline.entity_resolution import find_near_duplicates
+
+    out: dict[str, list[dict[str, Any]]] = {}
+    checks = (
+        ("symptoms", "symptom_id", "description"),
+        ("failure_modes", "failure_mode_id", "name"),
+    )
+    for list_key, id_field, text_field in checks:
+        rows = bundle.get(list_key)
+        if not isinstance(rows, list) or len(rows) < 2:
+            continue
+        dups = find_near_duplicates(rows, id_field=id_field, text_field=text_field)
+        if dups:
+            out[list_key] = dups
+            for d in dups:
+                warnings.append(
+                    f"{pid}: near-duplicate {list_key} {d['a_id']} ~ {d['b_id']} "
+                    f"(score {d['score']}) — review for strong/weak merge"
+                )
+    return out
+
+
 def validate_product_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
     """
     Validate one product ontology bundle (ABox candidate) against TBox rules.
@@ -253,6 +281,11 @@ def validate_product_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
         if fm and str(fm) not in pools.get("failure_modes", set()):
             errors.append(f"{pid}: historical_resolutions[{i}] FM {fm} not in failure_modes")
 
+    # Strong/weak entity resolution: flag near-duplicate ABox nodes (review, not
+    # auto-merge) so an LLM/unstructured-extracted symptom does not silently
+    # create a competing duplicate of a catalog one. See entity_resolution.py.
+    duplicate_suggestions = _near_duplicate_warnings(bundle, warnings, pid)
+
     ok = len(errors) == 0
     return {
         "ok": ok,
@@ -260,6 +293,7 @@ def validate_product_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
         "name": core.get("name"),
         "errors": errors,
         "warnings": warnings,
+        "duplicate_suggestions": duplicate_suggestions,
         "entity_counts": {
             k: len(bundle.get(k) or []) if isinstance(bundle.get(k), list) else 0 for k in ALLOWED_LIST_KEYS
         },

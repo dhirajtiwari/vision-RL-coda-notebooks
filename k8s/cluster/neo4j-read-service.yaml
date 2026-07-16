@@ -1,0 +1,16 @@
+# Load-balanced READ endpoint — routes read traffic to secondaries only.
+# App uses this for read-scaled queries; writes go via neo4j-cluster (cores).
+apiVersion: v1
+kind: Service
+metadata:
+  name: neo4j-read
+  labels:
+    app: neo4j
+    role: replica
+spec:
+  selector:
+    app: neo4j
+    role: replica
+  ports:
+    - { name: bolt, port: 7687 }
+    - { name: http, port: 7474 }

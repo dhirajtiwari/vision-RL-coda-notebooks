@@ -6,6 +6,7 @@ resources:
   - configmap.yaml
   - neo4j-statefulset.yaml
   - neo4j-service.yaml
+  - neo4j-networkpolicy.yaml
   - mock-enterprise-deployment.yaml
   - mock-enterprise-service.yaml
   - diagnostics-api-deployment.yaml

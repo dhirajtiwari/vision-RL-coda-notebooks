@@ -1,0 +1,29 @@
+# Isolate the graph tier: keep causal-clustering heartbeat/consensus traffic
+# (discovery 5000, tx 6000, raft 7000) between Neo4j pods only; allow Bolt from
+# the app + ETL. Same "dedicated network path for cluster traffic" principle as
+# the base policy, extended for a real cluster. Requires an enforcing CNI.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: neo4j-cluster-isolation
+spec:
+  podSelector:
+    matchLabels:
+      app: neo4j
+  policyTypes:
+    - Ingress
+  ingress:
+    # Bolt from application + ETL only.
+    - from:
+        - podSelector: { matchLabels: { app: diagnostics-api } }
+        - podSelector: { matchLabels: { app: etl-pipeline } }
+      ports:
+        - { protocol: TCP, port: 7687 }
+    # Cluster-internal consensus/replication between graph pods only.
+    - from:
+        - podSelector: { matchLabels: { app: neo4j } }
+      ports:
+        - { protocol: TCP, port: 5000 } # discovery
+        - { protocol: TCP, port: 6000 } # transaction
+        - { protocol: TCP, port: 7000 } # raft
+        - { protocol: TCP, port: 7687 } # routing between members
