@@ -1,0 +1,21 @@
+# Optional ML stack: fault-code vision (GAN/OCR/diffusion) + diagnostic RL (bandits/DQN).
+# Optional upgrade (not required for in-repo DDPM): pip install diffusers transformers accelerate
+# Core app (requirements.txt) stays lean; install this for CUDA/MPS train jobs:
+#
+#   pip install -r requirements-ml.txt
+#
+# For NVIDIA CUDA, install the matching PyTorch wheel from https://pytorch.org
+# *before* or instead of the CPU torch pin below, e.g.:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+
+torch>=2.1
+torchvision>=0.16
+Pillow>=10.0
+matplotlib>=3.7
+numpy>=1.24
+tqdm>=4.66
+PyYAML>=6.0
+
+# Optional OCR backends (reader upgrade path)
+# pytesseract>=0.3.10   # also needs system tesseract binary
+# easyocr>=1.7

@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.DS_Store
+notebooks/fault_code_gan_artifacts/
+notebooks/fault_code_rl_artifacts/
+notebooks/fault_code_diffusion_artifacts/
+notebooks/fault_code_gen_artifacts/
+models/artifacts/**/*.pt
+models/artifacts/**/*.pth
+models/artifacts/**/*.npz
+*.egg-info/

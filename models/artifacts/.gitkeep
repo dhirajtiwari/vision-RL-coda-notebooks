@@ -1,0 +1,2 @@
+# Pinned vision checkpoints land here (or object storage with URI in registry.yaml).
+# Do not commit large .pt files; store checksum + remote URI in finetune YAML.
