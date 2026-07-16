@@ -17,7 +17,7 @@ pyvis>=0.3.2
 redis>=5.0
 # --- LLMOps: observability + config (lightweight, always installed) ---
 prometheus-client>=0.20
-PyYAML>=6.0
+PyYAML>=6.0.3
 jsonschema>=4.0
 # --- Optional OpenTelemetry stack: `pip install -r requirements-observability.txt`
 #     (kept out of the core install so the local demo stays lean)
