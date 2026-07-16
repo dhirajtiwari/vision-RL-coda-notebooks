@@ -14,7 +14,7 @@ httpx>=0.27
 pyvis>=0.3.2
 # Optional multi-replica shared state (cache, rate limit, budget). Empty REDIS_URL
 # keeps the demo on in-process memory; install redis client always so prod can enable.
-redis>=5.0
+redis>=8.0.1
 # --- LLMOps: observability + config (lightweight, always installed) ---
 prometheus-client>=0.20
 PyYAML>=6.0
