@@ -11,7 +11,7 @@
 # Bandits / tabular Q-learning do not need GPU (CPU fine).
 # Base image provides CUDA + cuDNN. Adjust tag to match your cluster CUDA version.
 
-FROM pytorch/pytorch:2.4.1-cuda12.1-cudnn9-runtime
+FROM pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
 
 WORKDIR /workspace
 
