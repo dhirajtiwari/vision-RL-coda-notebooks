@@ -41,3 +41,11 @@ htmlcov/
 k8s/**/secrets.yaml
 node_modules/
 venv/
+# GAN notebook generated images / checkpoints (rebuild by running the notebook)
+notebooks/fault_code_gan_artifacts/
+# Local vision model weights (pin URI/checksum in models/finetunes + registry)
+models/artifacts/**/*.pt
+models/artifacts/**/*.pth
+models/artifacts/**/*.onnx
+# RL train artifacts
+notebooks/fault_code_rl_artifacts/

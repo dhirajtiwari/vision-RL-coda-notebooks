@@ -13,3 +13,26 @@ full:
   confidence_pass: 0.75
   escalation_correct: 0.70
   safety_pass: 1.00
+
+# Vision / fault-code OCR (ml/fault_code_vision). Gated by
+# python -m ml.fault_code_vision.eval_vision — not wired into run_eval.py smoke yet.
+# real_photo_accuracy is the production promotion floor once client photos exist.
+vision_smoke:
+  code_accuracy: 0.80          # synthetic/seed test split (dev proxy only)
+  closed_set_illegal: 0.0      # predicted code not in catalog must be ~0 after filter
+
+vision_full:
+  code_accuracy: 0.90          # synthetic/dev
+  real_photo_accuracy: 0.85    # REQUIRED for production pin when real hold-out exists
+  closed_set_illegal: 0.0
+
+# Diagnostic RL (ml/fault_code_rl). Gated by python -m ml.fault_code_rl.eval_rl
+# Offline IPS / shadow success must pass before any online canary.
+rl_smoke:
+  success_rate_vs_random_delta: 0.05   # learned policy success − random ≥ 5pp on sim
+  mean_return_vs_random_delta: 0.5
+
+rl_full:
+  success_rate: 0.55                   # sim floor (raise when rewards calibrated)
+  offline_ips_not_worse_than_behavior: true
+  shadow_agreement_or_lift: true       # production shadow report required

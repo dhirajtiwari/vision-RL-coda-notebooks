@@ -1,0 +1,33 @@
+# Example provenance for a diagnostic RL policy promotion.
+
+base_model: DiagnosticMDP-sim-or-logged-claims
+training_data:
+  dataset_id: diagnostic-session-logs-v0
+  content_hash: "sha256:REPLACE"
+  sources:
+    - simulator_showcase   # lab only
+    # - historical_claims_offline
+  governance_approval: pending
+method: q_learning_or_dqn_or_linucb
+hyperparameters:
+  gamma: 0.95
+  episodes_or_updates: null
+  device: cuda  # DQN; bandits CPU-ok
+eval_baseline:
+  suite: rl_full
+  metrics:
+    success_rate_sim: null
+    offline_ips: null
+    shadow_lift: null
+  gated: true
+constraints:
+  action_mask: graph_eligible_CONFIRMS_steps_only
+  human_escalate_action: always_available
+  no_live_exploration_without_canary: true
+artifact:
+  path: models/artifacts/rl/CHANGE_ME
+  checksum_sha256: "REPLACE"
+registry_alias: diagnosis-session-dqn  # or diagnosis-step-bandit
+approved_by: null
+date: null
+status: draft

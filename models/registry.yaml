@@ -36,3 +36,65 @@ models:
     max_tokens: 256
     input_cost_per_1k: 0.00015
     output_cost_per_1k: 0.0006
+
+  # ---------------------------------------------------------------------------
+  # Vision path (fault-code claim photos) — READY stubs, inactive until trained
+  # and gated. Not LLM providers: local/torch artifacts (or future managed endpoint).
+  # Rollback = flip `artifact` / status; app should resolve by alias only.
+  # Playbook: notebooks/fault_code_vision_mlops_playbook.ipynb
+  # Package:  ml/fault_code_vision/
+  # ---------------------------------------------------------------------------
+
+  # Production *reader* (pixels -> ErrorCode string for GraphRAG).
+  fault-code-ocr:
+    provider: local_torch
+    model: FaultCodeCNN
+    artifact: models/artifacts/fault-code-ocr/CHANGE_ME.pt   # pin checksummed path after train
+    status: inactive
+    task: closed_set_fault_code_classification
+    image_size: 64
+    n_classes: 17
+    min_confidence: 0.55
+    eval_suite: vision_full
+    # cost is compute not tokens — track separately in FinOps as $/1k images
+    notes: >
+      Promote only when evals/vision real_photo_accuracy floor passes.
+      Closed-set filter must intersect product HAS_ERROR_CODE list at runtime.
+
+  # Offline *data factory* (not on hot diagnose path).
+  fault-code-gan:
+    provider: local_torch
+    model: CondGenerator
+    artifact: models/artifacts/fault-code-gan/CHANGE_ME.pt
+    status: inactive
+    task: conditional_synthetic_display_images
+    notes: >
+      Used to synthesize labelled training images when claim photos are sparse.
+      Outputs must be tagged source=synthetic; never mix into historical claim truth.
+
+  # ---------------------------------------------------------------------------
+  # Reinforcement learning policies (optional) — re-rank graph-eligible steps.
+  # Never replace GraphRAG as sole reasoner. status inactive until offline eval.
+  # Playbook: notebooks/fault_code_rl_playbook.ipynb
+  # Package:  ml/fault_code_rl/
+  # ---------------------------------------------------------------------------
+
+  diagnosis-step-bandit:
+    provider: local_numpy
+    model: LinUCB
+    artifact: models/artifacts/rl/diagnosis-step-bandit/CHANGE_ME.npz
+    status: inactive
+    task: contextual_bandit_next_diagnostic_step
+    notes: >
+      Selects next CONFIRMS step under product-eligible action mask.
+      Prefer offline IPS eval + shadow mode before canary.
+
+  diagnosis-session-dqn:
+    provider: local_torch
+    model: DiagnosticDQN
+    artifact: models/artifacts/rl/diagnosis-session-dqn/CHANGE_ME.pt
+    status: inactive
+    task: sequential_diagnostic_mdp_dqn
+    notes: >
+      Sequential multi-step policy; train with CUDA (Dockerfile.ml).
+      Must mask actions to GraphRAG-eligible diagnostic steps at serve time.

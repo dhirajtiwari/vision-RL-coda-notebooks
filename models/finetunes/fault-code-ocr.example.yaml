@@ -1,0 +1,34 @@
+# Example fine-tune / train provenance record for fault-code OCR.
+# Copy to fault-code-ocr-vN.yaml when promoting a real run (handbook ch07 §7.7).
+
+base_model: FaultCodeCNN-from-scratch   # or trocr-base / easyocr-finetune later
+training_data:
+  dataset_id: fault-code-displays-v0
+  content_hash: "sha256:REPLACE_AFTER_SNAPSHOT"
+  sources:
+    - seed_procedural_lcd
+    - classical_phone_augments
+    - cgan_synthetic   # label only; not historical claims
+    # - real_claim_photos  # REQUIRED before production pin
+  governance_approval: pending
+method: supervised_classification  # not LoRA — domain CNN / future TrOCR SFT
+hyperparameters:
+  epochs: 20
+  batch_size: 64
+  lr: 0.001
+  image_size: 64
+  device: cuda  # client target; mps/cpu for local demos
+eval_baseline:
+  suite: vision_full
+  metrics:
+    code_accuracy_synthetic: null
+    real_photo_accuracy: null
+  report_path: evals/vision/reports/REPLACE.json
+  gated: true
+artifact:
+  path: models/artifacts/fault-code-ocr/REPLACE.pt
+  checksum_sha256: "REPLACE"
+registry_alias: fault-code-ocr
+approved_by: null
+date: null
+status: draft

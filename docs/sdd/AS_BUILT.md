@@ -22,6 +22,8 @@
 | Neo4j Core-Replica cluster manifests | **Reference-only** (`k8s/cluster/` — Enterprise license + multi-node blockers) |
 | LLMOps Tier 1 (obs, guardrails, evals, security, runbooks) | Implemented |
 | LLMOps Tier 3 (gateway, PromptOps, FinOps) | **Ready-but-inactive** (`llm_enabled=false`) |
+| Fault-code vision ML (GAN lab + OCR package + MLOps playbook) | **Scaffold** — `notebooks/fault_code_*`, `ml/fault_code_vision/`, registry stubs `fault-code-ocr`/`fault-code-gan` inactive; not on diagnose hot path yet |
+| Diagnostic RL (bandits / Q / DQN playbook) | **Scaffold** — `ml/fault_code_rl/`, `notebooks/fault_code_rl_playbook.ipynb`, registry `diagnosis-step-bandit`/`diagnosis-session-dqn` inactive; re-rank only, does not replace GraphRAG |
 | Observability stack (Prometheus scrape + Grafana + Tempo) | Implemented + **proven** (targets up, rules load) |
 | CI supply chain (Trivy scan + SBOM/provenance + cosign sign + CodeQL) | Implemented |
 | Progressive delivery | Eval-gate in CD + opt-in Argo canary manifests (needs cluster for live) |
